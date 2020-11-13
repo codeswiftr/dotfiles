@@ -1,19 +1,23 @@
-After a couple of months, I now finally have a working Vim setup with proper syntax highlighting, smart code completion, and refactoring capabilities. Read on to see what it looks like.
+After a couple of months, of working more with Unix tooling I now finally ready to attmpt switching to Vim with proper syntax highlighting, smart code completion, and refactoring capabilities. Read on to see what it looks like.
 
-Disclaimer: My setup may seem like a bit too much. You don't have to install every plugin listed in this article or copy every configuration line. Pick up what you like.
+Disclaimer: I made this 
 
-Here's
-Here's How My Vim Looks Like
 #TL;DR:
 
-
 Basics: vim-plug, scrooloose/nerdtree, tpope/vim-commentary and junegunn/fzf.vim
-numirias/semshi is the best for the syntax highlighting
+sheerun/vim-polyglot for the syntax highlighting
 Vimjas/vim-python-pep8-indent for proper indenting
 dense-analysis/ale is an asynchronous linter plugin. Use it with flake8 and pylint; plus google/yapf as a formatter.
 neoclide/coc.nvim with neoclide/coc-python for intellisense code completion
 
-##Essentials
+## Installation
+```bash
+[Vim]
+make vim - Install vim-plug and configure plugins for Python development
+make vim-help - Vim Python setup details
+```
+
+## Essentials
 
 Let's start with a list of some general-purpose plugins which I find irreplaceable for any language.
 
@@ -39,19 +43,11 @@ sheerun/vim-polyglot includes support for many languages including Python
 python-mode/python-mode is also a decent one although it comes with a lots of other stuff beside highlighting which I don't quite like
 Semshi
 Semshi (on the left) vs. the default one
-My favorite color schemes (which I switch quite often) include junegunn/seoul256.vim and joshdick/onedark.vim (the one on the screenshots).
+My favorite color scheme for now (which I switch quite often) is tomasiser/vim-code-dark
 
 ## Indentation
 
-You can set up indentation rules manually like this.
-
-au BufNewFile,BufRead *.py
-    \ set expandtab       |" replace tabs with spaces
-    \ set autoindent      |" copy indent when starting a new line
-    \ set tabstop=4
-    \ set softtabstop=4
-    \ set shiftwidth=4
-A better alternative is Vimjas/vim-python-pep8-indent plugin. It does a much better job complying with the PEP8 style guide.
+For identation I added Vimjas/vim-python-pep8-indent plugin. It does a great job complying with the PEP8 style guide and it is configured to format on save.
 
 ## Folding
 
@@ -89,7 +85,7 @@ Some of the linters are also capable of fixing the problems in your code. ALE ha
 ```vim
 let g:ale_fixers = {
       \    'python': ['yapf'],
-       \}
+        \}
 nmap <F10> :ALEFix<CR>
 let g:ale_fix_on_save = 1
 ```
@@ -117,11 +113,8 @@ set statusline+=\ %f
 set statusline+=%=
 set statusline+=\ %{LinterStatus()}
 ```
-And here are a couple of alternatives to ALE:
 
-vim-syntastic/syntastic very popular one but synchronous which can cause significant lags in UI
-neomake/neomake asynchronous linting and make framework for Neovim/Vim (didn't try that one)
-Jedi
+## Jedi
 
 Jedi is a "language server" (see my LSP article), a separate process running in the background and analyzing your code.
 
@@ -132,9 +125,10 @@ Basically, Jedi is an IDE as a service, without the GUI.
 In order to use it, you need to install it with pip install jedi, and then also add a client. The davidhalter/jedi Vim plugin does a good job.
 
 Here's what it can do:
-
+```
 Press ctrl + space for the completion options
 <leader>d goes to definition
 <leader>g goes to assignment
 K shows the documentation
-and more
+and more..
+```
