@@ -61,8 +61,8 @@ colorscheme codedark
 map <C-n> :NERDTreeToggle<CR>
 
 " folding
-au BufNewFile,BufRead *.py \
-  set foldmethod=indent
+au BufNewFile,BufRead *.py
+    \ set foldmethod=indent
 nnoremap <space> za
 
 " linters
