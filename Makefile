@@ -48,7 +48,10 @@ vim:
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 	@echo "\n[Downloading default .vimrc file for python dev]"
-	@echo "\n[Run the followng vim command :PlugInstall to install plugins.]"
+	curl -fLo ~/.vimrc --create-dirs \
+    https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc
+	@echo "\n[Done] -> Installing plugins.."
+  vim +'PlugInstall --sync' +qa	
 
 vim-help:
 	vim README.md
