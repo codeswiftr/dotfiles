@@ -12,7 +12,14 @@ neoclide/coc.nvim with neoclide/coc-python for intellisense code completion
 
 ## Installation
 ```bash
-echo "\n[Downloading default .vimrc]"; curl -fLo ~/.vimrc --create-dirs https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc; echo "\n[Done] -> Installing plugins.."; vim +'PlugInstall --sync' +qa
+    apt-get update && apt-get curl git cmake vim;\
+    echo "\n[Installing vim-plug -> a minimalist plugin manager]";\
+	  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim;\
+    echo "\n[Downloading default .vimrc]"; curl -fLo ~/.vimrc --create-dirs\
+    https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc;\
+    echo "\n[Done] -> Installing plugins.."; vim +'PlugInstall --sync' +qa
+
 ```
 
 ## Essentials

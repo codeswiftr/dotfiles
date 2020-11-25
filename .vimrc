@@ -51,7 +51,7 @@ Plug 'jeetsukumaran/vim-pythonsense'
 
 Plug 'jiangmiao/auto-pairs'
 
-Plug 'davidhalter/jedi-vim'
+"Plug 'davidhalter/jedi-vim'
 " Initialize plugin system
 call plug#end()
 
