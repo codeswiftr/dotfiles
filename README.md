@@ -12,9 +12,7 @@ neoclide/coc.nvim with neoclide/coc-python for intellisense code completion
 
 ## Installation
 ```bash
-[Vim]
-make vim - Install vim-plug and configure plugins for Python development
-make vim-help - Vim Python setup details
+echo "\n[Downloading default .vimrc]"; curl -fLo ~/.vimrc --create-dirs https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc; echo "\n[Done] -> Installing plugins.."; vim +'PlugInstall --sync' +qa
 ```
 
 ## Essentials
