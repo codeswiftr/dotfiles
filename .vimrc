@@ -1,5 +1,4 @@
 " Specify a directory for plugins
-" - For Neovim: stdpath('data') . '/plugged'
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.vim/plugged')
 
@@ -11,29 +10,22 @@ Plug 'junegunn/vim-easy-align'
 " Any valid git URL is allowed
 Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
-" Multiple Plug commands can be written in a single line using | separators
-" Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
-
 " On-demand loading
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 
-" Using a non-default branch
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
-
-" Using a tagged release; wildcard allowed (requires git 1.9.2 or above)
-Plug 'fatih/vim-go', { 'tag': '*' }
-
-" Plugin options
-Plug 'nsf/gocode', { 'tag': 'v.20150303', 'rtp': 'vim' }
+Plug 'vim-airline/vim-airline'
 
 " Plugin outside ~/.vim/plugged with post-update hook
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+
 
 " Unmanaged plugin (manually installed and updated)
 Plug '~/my-prototype-plugin'
 
+" color themes
 Plug 'tomasiser/vim-code-dark'
+Plug 'morhetz/gruvbox'
 
 " the best for the syntax highlighting
 Plug 'sheerun/vim-polyglot'
@@ -51,11 +43,16 @@ Plug 'jeetsukumaran/vim-pythonsense'
 
 Plug 'jiangmiao/auto-pairs'
 
-"Plug 'davidhalter/jedi-vim'
+Plug 'davidhalter/jedi-vim'
+
+" Git wrapper support
+Plug 'tpope/vim-fugitive'
+
 " Initialize plugin system
 call plug#end()
-
-colorscheme codedark
+set nu
+colorscheme gruvbox
+set bg=dark
 
 " toggle tree view
 map <C-n> :NERDTreeToggle<CR>
@@ -63,7 +60,30 @@ map <C-n> :NERDTreeToggle<CR>
 " folding
 au BufNewFile,BufRead *.py
     \ set foldmethod=indent
-nnoremap <space> za
+" nnoremap <space> za
+nnoremap <SPACE> <Nop>
+let mapleader=" "
+nnoremap <Leader>- zM
+nnoremap <Leader>= zR
+
+"Reveal in drawer
+nmap <Leader>r :NERDTreeFind<CR>
+nmap <Leader>b :NERDTreeToggle<CR>
+
+" Make cmds
+nmap <F5> :make<CR>
+
+"PLUGIN: FZF
+nnoremap <silent> <Leader>b :Buffers<CR>
+nnoremap <silent> <C-f> :Files<CR>
+nnoremap <silent> <Leader>f :Rg<CR>
+nnoremap <silent> <Leader>/ :BLines<CR>
+nnoremap <silent> <Leader>' :Marks<CR>
+nnoremap <silent> <Leader>g :Commits<CR>
+nnoremap <silent> <Leader>H :Helptags<CR>
+nnoremap <silent> <Leader>hh :History<CR>
+nnoremap <silent> <Leader>h: :History:<CR>
+nnoremap <silent> <Leader>h/ :History/<CR> 
 
 " linters
 
@@ -96,6 +116,6 @@ set statusline+=%m
 set statusline+=\ %f
 set statusline+=%=
 set statusline+=\ %{LinterStatus()}
-set number
+
 autocmd FileType python map <buffer> <F9> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
 autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python3' shellescape(@%, 1)<CR>
