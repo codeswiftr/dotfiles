@@ -43,15 +43,24 @@ clean-py:
 	find . -name '.coverage' -delete
 
 vim:
+	
 	@echo "\n[Installing vim-plug -> a minimalist plugin manager]"
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 	@echo "\n[Downloading default .vimrc file for python dev]"
 	curl -fLo ~/.vimrc --create-dirs \
-    https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc
-	@echo "\n[Done] -> Installing plugins.."
-  vim +'PlugInstall --sync' +qa	
+    	https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc
+	@echo "\n[Done] -> Installing plugins..";
+	vim +'PlugInstall --sync' +qa	
+
+ohmyzsh:
+	@echo "\n[Installing oh-my-zsh]"
+	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
+
+	curl -fLo ~/.vimrc --create-dirs \
+    	https://raw.githubusercontent.com/codeswiftr/.make-env/master/.zshrc
 
 vim-help:
 	vim README.md
