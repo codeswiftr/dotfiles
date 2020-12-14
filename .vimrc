@@ -48,9 +48,14 @@ Plug 'davidhalter/jedi-vim'
 " Git wrapper support
 Plug 'tpope/vim-fugitive'
 
+" Vim Session support
+Plug 'tpope/vim-obsession'
+
 " Initialize plugin system
 call plug#end()
 set nu
+
+"select the color scheme
 colorscheme gruvbox
 set bg=dark
 
@@ -67,7 +72,7 @@ nnoremap <Leader>- zM
 nnoremap <Leader>= zR
 
 "Reveal in drawer
-nmap <Leader>r :NERDTreeFind<CR>
+nmap <Leader>t :NERDTreeFind<CR>
 nmap <Leader>b :NERDTreeToggle<CR>
 
 " Make cmds
@@ -116,6 +121,12 @@ set statusline+=%m
 set statusline+=\ %f
 set statusline+=%=
 set statusline+=\ %{LinterStatus()}
+
+" vim fugitive keys
+nmap <Leader>gs :G<CR>
+nmap <Leader>gh :diffget //3<CR>
+nmap <Leader>gu :diffget //2<CR>
+nmap <Leader>gc :GCheckout<CR>
 
 autocmd FileType python map <buffer> <F9> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
 autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python3' shellescape(@%, 1)<CR>
