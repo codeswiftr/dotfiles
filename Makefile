@@ -50,8 +50,8 @@ vim:
 
 	@echo "\n[Downloading default .vimrc file for python dev]"
 	curl -fLo ~/.vimrc --create-dirs \
-    	https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc
-	@echo "\n[Done] -> Installing plugins..";
+    https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc
+	@echo "\n[Done] -> Installing plugins.."
 	vim +'PlugInstall --sync' +qa	
 
 ohmyzsh:
@@ -61,6 +61,11 @@ ohmyzsh:
 
 	curl -fLo ~/.vimrc --create-dirs \
     	https://raw.githubusercontent.com/codeswiftr/.make-env/master/.zshrc
+tmux:
+	cd
+	git clone https://github.com/gpakosz/.tmux.git
+	ln -s -f .tmux/.tmux.conf
+	cp .tmux/.tmux.confg.local
 
 vim-help:
 	vim README.md

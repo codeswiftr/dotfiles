@@ -4,6 +4,9 @@ Disclaimer: I made this
 
 #TL;DR:
 
+oh my zsh + tmux + vim = LOVE
+
+
 Basics: vim-plug, scrooloose/nerdtree, tpope/vim-commentary and junegunn/fzf.vim
 sheerun/vim-polyglot for the syntax highlighting
 Vimjas/vim-python-pep8-indent for proper indenting
