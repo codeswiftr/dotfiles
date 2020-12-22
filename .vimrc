@@ -71,7 +71,7 @@ Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!']  }
 
 " Initialize plugin system
 call plug#end()
-set nu
+set rnu
 set ic
 "select the color scheme
 colorscheme gruvbox
@@ -103,6 +103,7 @@ nmap <F5> :make<CR>
 
 " Update vim
 nmap <Leader>I :PlugInstall<CR>
+nmap <Leader>E :e ~/.vimrc<CR>
 nmap <Leader>R :source ~/.vimrc<CR>
 nma <Leader>W :w<CR>
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8  }  }
@@ -209,7 +210,7 @@ let g:fzf_branch_actions = {
     \}
 
 let g:vimspector_enable_mappings = 'HUMAN'
-packadd! vimspector
+" packadd! vimspector
 
 " Debugger remaps
 nnoremap <leader>m :MaximizerToggle!<CR>
@@ -255,3 +256,6 @@ nnoremap <leader>ga :Git fetch --all<CR>
 
 autocmd FileType python map <buffer> <F9> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
 autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+autocmd FileType python set sw=4
+autocmd FileType python set ts=4
+autocmd FileType python set sts=4

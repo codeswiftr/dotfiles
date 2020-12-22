@@ -43,7 +43,8 @@ clean-py:
 	find . -name '.coverage' -delete
 
 vim:
-	
+	@echo "\n [Upgrading vim] ..."
+	brew upgrade vim
 	@echo "\n[Installing vim-plug -> a minimalist plugin manager]"
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
