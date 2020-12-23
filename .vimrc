@@ -11,8 +11,12 @@ Plug 'junegunn/vim-easy-align'
 " Any valid git URL is allowed
 Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
-" On-demand loading
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'ryanoasis/vim-devicons'
+
+" nerd tree related
+Plug 'preservim/nerdtree' |
+            \ Plug 'Xuyuanp/nerdtree-git-plugin' |
+            \ Plug 'ryanoasis/vim-devicons'
 
 Plug 'vim-airline/vim-airline'
 
@@ -31,7 +35,7 @@ Plug 'morhetz/gruvbox'
 " the best for the syntax highlighting
 Plug 'sheerun/vim-polyglot'
 
-" for proper indentention
+" for prop indentention
 Plug 'Vimjas/vim-python-pep8-indent'
 
 " a tagbar that learns from LSP servers
@@ -63,6 +67,10 @@ Plug 'vuciv/vim-bujo'
 Plug 'tpope/vim-dispatch'
 Plug 'mhinz/vim-signify'
 
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'airblade/vim-gitgutter'
+
 " shortcut helper
 Plug 'liuchengxu/vim-which-key'
 
@@ -72,7 +80,12 @@ Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!']  }
 " Initialize plugin system
 call plug#end()
 set rnu
+set cursorline
+set nu
+set encoding=UTF-8
 set ic
+
+let g:NERDTreeGitStatusUseNerdFonts = 1
 "select the color scheme
 colorscheme gruvbox
 set bg=dark
@@ -97,7 +110,12 @@ nnoremap <Leader>= zR
 "Reveal in drawer
 nmap <Leader>t :NERDTreeFind<CR>
 nmap <Leader>b :NERDTreeToggle<CR>
-
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
+let NERDTreeAutoDeleteBuffer = 1
+autocmd StdinReadPre * let s:std
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | :vertical resize 60 | endif
+autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " Make cmds
 nmap <F5> :make<CR>
 

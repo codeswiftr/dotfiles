@@ -45,6 +45,8 @@ clean-py:
 vim:
 	@echo "\n [Upgrading vim] ..."
 	brew upgrade vim
+	@echo "install fzf and ripgrep"
+	brew install fzf ripgrep
 	@echo "\n[Installing vim-plug -> a minimalist plugin manager]"
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
