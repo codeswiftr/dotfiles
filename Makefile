@@ -1,7 +1,7 @@
 
 
 help:
-	@echo "[DEV ENV SETUP]"
+	@echo "\N[DOCKER]"
 	@echo "install-docker-ubuntu - installs docker and docker-compose on Ubuntu"
 	@echo "install-docker-osx - installs homebrew (you can skip this at runtime), docker and docker-compose on OSX"
 
@@ -10,9 +10,9 @@ help:
 	@echo "clean-docker - stop docker containers and remove orphaned images and volumes"
 	@echo "clean-py - remove test, coverage and Python file artifacts"
 
-	@echo "\n[Vim]"
-	@echo "vim - Install vim-plug and configure plugins for Python development"
-	@echo "vim-help - Vim Python setup details"
+	@echo "\n[Vim-IDE] -> oh my zsh + tmux + vim = LOVE"
+	@echo "install - install vim and tmux and clone the dotfiles repository"
+
 install-docker-ubuntu:
 	sudo apt-get remove docker docker-engine docker.io containerd runc
 	sudo apt-get update
@@ -62,13 +62,24 @@ ohmyzsh:
 	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
 
-	curl -fLo ~/.vimrc --create-dirs \
-    	https://raw.githubusercontent.com/codeswiftr/.make-env/master/.zshrc
 tmux:
-	cd
-	git clone https://github.com/gpakosz/.tmux.git
-	ln -s -f .tmux/.tmux.conf
-	cp .tmux/.tmux.confg.local
+	@echo "\n[Installing tmux ..]"
+	brew install tmux
 
-vim-help:
-	vim README.md
+
+install-fonts:
+	@echo "\n[Installing nerd font ..]"
+	brew tap homebrew/cask-fonts
+	brew cask install font-hack-nerd-font
+
+clone:
+	@echo "\n[Cloning dotfiles repo ..]"
+	cd; git clone https://github.com/codeswiftr/dotfiles.git
+
+links:
+	@echo "\n[Creating sym links ..]"
+	ln -s -f dotfiles/.tmux.conf
+	ln -s -f dotfiles/.vimrc
+	ln -s -f dotfiles/.zshrc
+
+install: clone links install-fonts vim tmux ohmyzsh

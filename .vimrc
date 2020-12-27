@@ -99,6 +99,8 @@ au BufNewFile,BufRead *.py
 " nnoremap <space> za
 nnoremap <SPACE> <Nop>
 
+inoremap jk <esc>
+
 let g:mapleader = "\<Space>"
 let g:maplocalleader = ','
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
@@ -123,12 +125,14 @@ nmap <F5> :make<CR>
 nmap <Leader>I :PlugInstall<CR>
 nmap <Leader>E :e ~/.vimrc<CR>
 nmap <Leader>R :source ~/.vimrc<CR>
-nma <Leader>W :w<CR>
+nma <Leader>w :w<CR>
+nma <Leader>wq :wq<CR>
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8  }  }
 
 "PLUGIN: FZF
 nnoremap <silent> <Leader>b :Buffers<CR>
 nnoremap <silent> <C-f> :Files<CR>
+nnoremap <silent> <C-p> :GFiles<CR>
 nnoremap <silent> <Leader>f :Rg<CR>
 nnoremap <silent> <Leader>/ :BLines<CR>
 nnoremap <silent> <Leader>' :Marks<CR>
