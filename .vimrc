@@ -24,9 +24,8 @@ Plug 'vim-airline/vim-airline'
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
-
-" Unmanaged plugin (manually installed and updated)
-Plug '~/my-prototype-plugin'
+Plug 'scrooloose/syntastic'
+Plug 'dbeniamine/cheat.sh-vim'
 
 " color themes
 Plug 'tomasiser/vim-code-dark'
@@ -275,6 +274,11 @@ nmap <Leader>gc :GCheckout<CR>
 nnoremap <leader>gb :GBranches<CR>
 nnoremap <leader>ga :Git fetch --all<CR>
 
+" syntastyc
+let g:syntastic_javascript_checkers = [ 'jshint'  ]
+let g:syntastic_ocaml_checkers = ['merlin']
+let g:syntastic_python_checkers = ['pylint']
+let g:syntastic_shell_checkers = ['shellcheck']
 
 autocmd FileType python map <buffer> <F9> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
 autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python3' shellescape(@%, 1)<CR>
