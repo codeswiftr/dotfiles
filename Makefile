@@ -13,7 +13,7 @@ help:
 	@echo "\n[Vim-IDE] -> oh my zsh + tmux + vim = LOVE"
 	@echo "install - install vim and tmux and clone the dotfiles repository"
 
-install-docker-ubuntu:
+install-docker-deb:
 	sudo apt-get remove docker docker-engine docker.io containerd runc
 	sudo apt-get update
 	sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -42,7 +42,39 @@ clean-py:
 	find . -name '*.pyo' -delete
 	find . -name '.coverage' -delete
 
-vim:
+vim-linux:
+	sudo apt-get remove --purge vim vim-runtime vim-gnome vim-tiny vim-gui-common
+	sudo rm -rf /usr/local/share/vim /usr/bin/vim
+	sudo apt-get install -y liblua5.1-dev luajit libluajit-5.1 python-dev ruby-dev libperl-dev libncurses5-dev libatk1.0-dev libx11-dev libxpm-dev libxt-dev
+
+	git clone https://github.com/vim/vim ~/vimtemp
+	cd ~/vimtemp
+	git pull && git fetch
+
+	./configure \
+	--enable-multibyte \
+	--enable-perlinterp=dynamic \
+	--enable-rubyinterp=dynamic \
+	--with-ruby-command=/usr/bin/ruby \
+	--enable-pythoninterp=dynamic \
+	--with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu \
+	--enable-python3interp \
+	--with-python3-config-dir=/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu \
+	--enable-cscope \
+	--enable-gui=auto \
+	--with-features=huge \
+	--with-x \
+	--enable-fontset \
+	--enable-largefile \
+	--disable-netbeans \
+	--with-compiledby="yourname" \
+	--enable-fail-if-missingu
+	make && sudo make install
+	
+	@echo "\n[Done] -> Installing plugins.."
+	vim +'PlugInstall --sync' +qa	
+
+vim-mac:
 	@echo "\n [Upgrading vim] ..."
 	brew upgrade vim
 	@echo "install fzf and ripgrep"
@@ -51,9 +83,6 @@ vim:
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-	@echo "\n[Downloading default .vimrc file for python dev]"
-	curl -fLo ~/.vimrc --create-dirs \
-    https://raw.githubusercontent.com/codeswiftr/.make-env/master/.vimrc
 	@echo "\n[Done] -> Installing plugins.."
 	vim +'PlugInstall --sync' +qa	
 
@@ -63,16 +92,24 @@ ohmyzsh:
 	curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
 
 tmux:
-	@echo "\n[Installing tmux ..]"
-	brew install tmux
+	ifeq($(UNAME), Darwin)
+		@echo "\n[Installing tmux ..]"
+		brew install tmux
+	endif
+	ifeq($(UNAME), Linux)
+		@echo "\n[Installing tmux ..]"
+		sudo apt update && sudo apt install tmux
+	endif
 	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 
 
 install-fonts:
-	@echo "\n[Installing nerd font ..]"
-	brew tap homebrew/cask-fonts
-	brew cask install font-hack-nerd-font
+	ifeq($(UNAME), Darwin)
+		@echo "\n[Installing nerd font ..]"
+		brew tap homebrew/cask-fonts
+		brew cask install font-hack-nerd-font
+	endif
 
 clone:
 	@echo "\n[Cloning dotfiles repo ..]"
@@ -80,8 +117,8 @@ clone:
 
 links:
 	@echo "\n[Creating sym links ..]"
-	ln -s -f dotfiles/.tmux.conf
-	ln -s -f dotfiles/.vimrc
-	ln -s -f dotfiles/.zshrc
+	cd; ln -s -f dotfiles/.tmux.conf
+	cd; ln -s -f dotfiles/.vimrc
+	cd; ln -s -f dotfiles/.zshrc
 
-install: clone links install-fonts vim tmux ohmyzsh
+install: links install-fonts vim tmux ohmyzsh
