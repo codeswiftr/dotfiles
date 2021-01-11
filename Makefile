@@ -48,10 +48,9 @@ vim-linux:
 	sudo apt-get install -y liblua5.1-dev luajit libluajit-5.1 python-dev ruby-dev libperl-dev libncurses5-dev libatk1.0-dev libx11-dev libxpm-dev libxt-dev
 
 	git clone https://github.com/vim/vim ~/vimtemp
-	cd ~/vimtemp
-	git pull && git fetch
+	cd ~/vimtemp; git pull && git fetch
 
-	./configure \
+	cd ~/vimtemp; ./configure \
 	--enable-multibyte \
 	--enable-perlinterp=dynamic \
 	--enable-rubyinterp=dynamic \
@@ -69,8 +68,9 @@ vim-linux:
 	--disable-netbeans \
 	--with-compiledby="yourname" \
 	--enable-fail-if-missingu
-	make && sudo make install
-	
+	cd ~/vimtemp; make && sudo make install
+	rm  -rf ~/vimtemp
+ 
 	@echo "\n[Done] -> Installing plugins.."
 	vim +'PlugInstall --sync' +qa	
 

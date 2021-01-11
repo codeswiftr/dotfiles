@@ -126,7 +126,7 @@ nmap <Leader>E :e ~/.vimrc<CR>
 nmap <Leader>R :source ~/.vimrc<CR>
 nma <Leader>w :w<CR>
 nma <Leader>wq :wq<CR>
-let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8  }  }
+let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.9  }  }
 
 "PLUGIN: FZF
 nnoremap <silent> <Leader>b :Buffers<CR>
@@ -141,6 +141,39 @@ nnoremap <silent> <Leader>hh :History<CR>
 nnoremap <silent> <Leader>h: :History:<CR>
 nnoremap <silent> <Leader>h/ :History/<CR> 
 
+function! s:update_fzf_colors()
+    let rules =
+                \ { 'fg':      [['Normal',       'fg']],
+                \ 'bg':      [['Normal',       'bg']],
+                \ 'hl':      [['Comment',      'fg']],
+                \ 'fg+':     [['CursorColumn', 'fg'], ['Normal', 'fg']],
+                \ 'bg+':     [['CursorColumn', 'bg']],
+                \ 'hl+':     [['Statement',    'fg']],
+                \ 'info':    [['PreProc',      'fg']],
+                \ 'prompt':  [['Conditional',  'fg']],
+                \ 'pointer': [['Exception',    'fg']],
+                \ 'marker':  [['Keyword',      'fg']],
+                \ 'spinner': [['Label',        'fg']],
+                \ 'header':  [['Comment',      'fg']] }
+    let cols = []
+    for [name, pairs] in items(rules)
+        for pair in pairs
+            let code = synIDattr(synIDtrans(hlID(pair[0])), pair[1])
+            if !empty(name) && code > 0
+                call add(cols, name.':'.code)
+                break
+            endif
+        endfor
+    endfor
+    let s:orig_fzf_default_opts = get(s:, 'orig_fzf_default_opts', $FZF_DEFAULT_OPTS)
+    let $FZF_DEFAULT_OPTS = s:orig_fzf_default_opts .
+                \ empty(cols) ? '' : (' --color='.join(cols, ','))
+endfunction
+
+augroup _fzf
+    autocmd!
+    autocmd ColorScheme * call <sid>update_fzf_colors()
+augroup END
 
 
 " linters
@@ -285,3 +318,30 @@ autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python3' shellesca
 autocmd FileType python set sw=4
 autocmd FileType python set ts=4
 autocmd FileType python set sts=4
+
+" disable arrow keys to learn faster
+
+fun! DisableArrowKeys()
+    nnoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    nnoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    nnoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    nnoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    nnoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    nnoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+
+    inoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    inoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    inoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    inoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    inoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    inoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+
+    vnoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    vnoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    vnoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    vnoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    vnoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    vnoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+endfun
+
+autocmd VimEnter,BufNewFile,BufReadPost * silent! call DisableArrowKeys()
