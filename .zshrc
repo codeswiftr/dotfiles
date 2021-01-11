@@ -70,7 +70,7 @@ BAT_THEME="gruvbox"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git brew pipenv tmux zsh_reload)
+plugins=(git brew pipenv tmux zsh_reload vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
