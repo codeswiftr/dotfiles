@@ -1,14 +1,12 @@
-" Specify a directory for plugins
+" disable compatibility with vi
+set nocompatible
 
-" - Avoid using standard Vim directory names like 'plugin'
+" Vim plug - installed plugins 
 call plug#begin('~/.vim/plugged')
 
-" Make sure you use single quotes
 
-" Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
 Plug 'junegunn/vim-easy-align'
 
-" Any valid git URL is allowed
 Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
 Plug 'ryanoasis/vim-devicons'
@@ -345,3 +343,29 @@ fun! DisableArrowKeys()
 endfun
 
 autocmd VimEnter,BufNewFile,BufReadPost * silent! call DisableArrowKeys()
+
+nnoremap <Leader>ct :!cointop<CR>P
+
+" disable autoindent when pasting text
+" source: https://coderwall.com/p/if9mda/automatically-set-paste-mode-in-vim-when-pasting-in-insert-mode
+
+let &t_SI .= "\<Esc>[?2004h"
+let &t_EI .= "\<Esc>[?2004l"
+
+function! XTermPasteBegin()
+    set pastetoggle=<Esc>[201~
+    set paste
+    return ""
+endfunction
+
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()]
+
+if &term =~ "xterm\\|rxvt"
+   " use an orange cursor in insert mode
+   silent! let &t_SI = "\e[5 q\e]12;orange\x7"
+   " use a red cursor in replace mode
+   silent! let &t_SR = "\e[3 q\e]12;red\x7"
+   " use a green cursor otherwise
+   silent! let &t_EI = "\e[2 q\e]12;green\x7"
+   silent !echo -ne "\033]12;green\007"
+endif
