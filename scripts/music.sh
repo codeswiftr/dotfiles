@@ -11,8 +11,8 @@ if it is running then
 			# If the track has an artist set and is therefore most likely a song rather than an advert
 			set t to "♫ " & artist_name & " - " & track_name
 
-			if length of t > 35
-				text 1 thru 35 of t & "..."
+			if length of t > 55
+				text 1 thru 55 of t & "..."
 			else
 				"♫ " & artist_name & " - " & track_name
 			end if

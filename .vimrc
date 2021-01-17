@@ -130,6 +130,7 @@ let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.9  }  }
 nnoremap <silent> <Leader>b :Buffers<CR>
 nnoremap <silent> <C-f> :Files<CR>
 nnoremap <silent> <C-p> :GFiles<CR>
+nnoremap <silent> <Leader>p :Files<CR>
 nnoremap <silent> <Leader>f :Rg<CR>
 nnoremap <silent> <Leader>/ :BLines<CR>
 nnoremap <silent> <Leader>' :Marks<CR>
@@ -305,7 +306,13 @@ nmap <Leader>gc :GCheckout<CR>
 nnoremap <leader>gb :GBranches<CR>
 nnoremap <leader>ga :Git fetch --all<CR>
 
-" syntastyc
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
+" easy allign set" syntastyc
 let g:syntastic_javascript_checkers = [ 'jshint'  ]
 let g:syntastic_ocaml_checkers = ['merlin']
 let g:syntastic_python_checkers = ['pylint']
@@ -358,7 +365,7 @@ function! XTermPasteBegin()
     return ""
 endfunction
 
-inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()]
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
 
 if &term =~ "xterm\\|rxvt"
    " use an orange cursor in insert mode
@@ -369,3 +376,14 @@ if &term =~ "xterm\\|rxvt"
    silent! let &t_EI = "\e[2 q\e]12;green\x7"
    silent !echo -ne "\033]12;green\007"
 endif
+
+nnoremap <F6> :UndotreeToggle<CR>
+
+
+" move through splits
+nmap sv <C-w>v
+nmap sj :wincmd k<cr>
+nmap sj :wincmd j<cr>
+nmap sh :wincmd h<cr>
+nmap sl :wincmd l<cr>
+
