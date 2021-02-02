@@ -74,6 +74,10 @@ Plug 'liuchengxu/vim-which-key'
 " On-demand lazy load
 Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!']  }
 
+
+" easier commenting
+Plug 'preservim/nerdcommenter'
+
 " Initialize plugin system
 call plug#end()
 set rnu
@@ -262,7 +266,7 @@ let g:fzf_branch_actions = {
         \ },
     \}
 
-let g:vimspector_enable_mappings = 'HUMAN'
+"let g:vimspector_enable_mappings = 'HUMAN'
 " packadd! vimspector
 
 " Debugger remaps
