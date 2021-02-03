@@ -1,6 +1,16 @@
+UNAME := $(shell uname -s)
 
+ifeq ($(UNAME),Linux)
+	OS_SUFFIX := -linux
+else
+	OS_SUFFIX := -mac
+endif
 
 help:
+	@echo "###################################################################"
+	@echo "### Setting up dotfiles[Vim-IDE] -> oh my zsh + tmux + vim = LOVE"
+	@echo "### For $(OS_SUFFIX)"
+	@echo "###################################################################"
 	@echo "\N[DOCKER]"
 	@echo "install-docker-ubuntu - installs docker and docker-compose on Ubuntu"
 	@echo "install-docker-osx - installs homebrew (you can skip this at runtime), docker and docker-compose on OSX"
@@ -86,30 +96,31 @@ vim-mac:
 	@echo "\n[Done] -> Installing plugins.."
 	vim +'PlugInstall --sync' +qa	
 
+vim: vim${OS_SUFFIX}
+
 ohmyzsh:
 	@echo "\n[Installing oh-my-zsh]"
-	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	sudo apt install zsh
+	sudo chsh -s /bin/zsh
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
 
-tmux:
-	ifeq($(UNAME), Darwin)
-		@echo "\n[Installing tmux ..]"
-		brew install tmux
-	endif
-	ifeq($(UNAME), Linux)
-		@echo "\n[Installing tmux ..]"
-		sudo apt update && sudo apt install tmux
-	endif
+
+tmux-mac: install-fonts
+	brew install tmux
+	
+tmux-linux:
+	sudo apt update && sudo apt install tmux
+	
+tmux: tmux${OS_SUFFIX}
+	@echo "\n[Installing tmux ..]"
 	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 
-
 install-fonts:
-	ifeq($(UNAME), Darwin)
-		@echo "\n[Installing nerd font ..]"
-		brew tap homebrew/cask-fonts
-		brew cask install font-hack-nerd-font
-	endif
+	@echo "\n[Installing nerd font ..]"
+	brew tap homebrew/cask-fonts
+	brew cask install font-hack-nerd-font
 
 clone:
 	@echo "\n[Cloning dotfiles repo ..]"
@@ -121,4 +132,4 @@ links:
 	cd; ln -s -f dotfiles/.vimrc
 	cd; ln -s -f dotfiles/.zshrc
 
-install: links install-fonts vim tmux ohmyzsh
+install: links vim tmux ohmyzsh
