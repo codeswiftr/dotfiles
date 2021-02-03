@@ -108,6 +108,7 @@ ohmyzsh:
 
 tmux-mac: install-fonts
 	brew install tmux
+	sudo gem install iStats
 	
 tmux-linux:
 	sudo apt update && sudo apt install tmux
