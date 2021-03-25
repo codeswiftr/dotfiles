@@ -32,6 +32,9 @@ Plug 'morhetz/gruvbox'
 " the best for the syntax highlighting
 Plug 'sheerun/vim-polyglot'
 
+" Use release branch (recommend)
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
 " for prop indentention
 Plug 'Vimjas/vim-python-pep8-indent'
 
@@ -386,7 +389,7 @@ nnoremap <F6> :UndotreeToggle<CR>
 
 " move through splits
 nmap sv <C-w>v
-nmap sj :wincmd k<cr>
+nmap sk :wincmd k<cr>
 nmap sj :wincmd j<cr>
 nmap sh :wincmd h<cr>
 nmap sl :wincmd l<cr>
