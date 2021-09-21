@@ -88,7 +88,7 @@ vim-linux:
 	@echo "\n [Upgrading vim] ..."
 	sudo apt install vim
 	@echo "install fzf and ripgrep"
-	brew install fzf ripgrep
+	sudo apt install fzf ripgrep
 	@echo "\n[Installing vim-plug -> a minimalist plugin manager]"
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
