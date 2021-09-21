@@ -52,7 +52,7 @@ clean-py:
 	find . -name '*.pyo' -delete
 	find . -name '.coverage' -delete
 
-vim-linux:
+vim-custom-linux:
 	sudo apt-get remove --purge vim vim-runtime vim-gnome vim-tiny vim-gui-common
 	sudo rm -rf /usr/local/share/vim /usr/bin/vim
 	sudo apt-get install -y liblua5.1-dev luajit libluajit-5.1 python-dev ruby-dev libperl-dev libncurses5-dev libatk1.0-dev libx11-dev libxpm-dev libxt-dev
@@ -84,6 +84,18 @@ vim-linux:
 	@echo "\n[Done] -> Installing plugins.."
 	vim +'PlugInstall --sync' +qa	
 
+vim-linux:
+	@echo "\n [Upgrading vim] ..."
+	sudo apt install vim
+	@echo "install fzf and ripgrep"
+	brew install fzf ripgrep
+	@echo "\n[Installing vim-plug -> a minimalist plugin manager]"
+	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+	@echo "\n[Done] -> Installing plugins.."
+	vim +'PlugInstall --sync' +qa	
+
 vim-mac:
 	@echo "\n [Upgrading vim] ..."
 	brew upgrade vim
@@ -102,7 +114,7 @@ ohmyzsh:
 	@echo "\n[Installing oh-my-zsh]"
 	sudo apt install zsh
 	sudo chsh -s /bin/zsh
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
 
 
