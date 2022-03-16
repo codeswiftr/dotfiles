@@ -10,7 +10,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
 Plug 'ryanoasis/vim-devicons'
-
+Plug 'psf/black', { 'tag': '19.10b0' }
 " nerd tree related
 Plug 'preservim/nerdtree' |
             \ Plug 'Xuyuanp/nerdtree-git-plugin' |
@@ -28,12 +28,56 @@ Plug 'dbeniamine/cheat.sh-vim'
 " color themes
 Plug 'tomasiser/vim-code-dark'
 Plug 'morhetz/gruvbox'
+" highlight colors
+Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
+
+" less syntax highlight
+Plug 'groenewege/vim-less'
+
+" css3 syntax highlight
+Plug 'hail2u/vim-css3-syntax'
+
+" Syntax highlight for .tsx
+Plug 'ianks/vim-tsx', { 'for': 'typescript.tsx' }
+
+" Syntax highlight for .ts
+Plug 'HerringtonDarkholme/yats.vim', { 'for': 'typescript' }
+
+" Syntax hightlight for .jsx
+Plug 'mxw/vim-jsx'
+
+" Syntax hightlight for .js
+Plug 'pangloss/vim-javascript'
+
+" Show indentation
+Plug 'Yggdroot/indentLine'
+
+
+" Highlink yank for a second
+Plug 'machakann/vim-highlightedyank'
+
 
 " the best for the syntax highlighting
 Plug 'sheerun/vim-polyglot'
 
 " Use release branch (recommend)
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Typescript autocomplete
+Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-prettier', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-pairs', {'do': 'yarn install --frozen-lockfile'}
+Plug 'iamcco/coc-angular', {'do': 'yarn install --frozen-lockfile && yarn build'}
+Plug 'neoclide/coc-eslint', {'do': 'yarn install --frozen-lockfile'}
+
+" Markdown preview
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }}
+
+" Handlebars highlight
+Plug 'mustache/vim-mustache-handlebars'
+
+
 
 " React JS support
 Plug 'pangloss/vim-javascript'
@@ -127,7 +171,7 @@ let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
 let NERDTreeAutoDeleteBuffer = 1
 autocmd StdinReadPre * let s:std
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | :vertical resize 60 | endif
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | :vertical resize 30 | endif
 autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " Make cmds
 nmap <F5> :make<CR>
@@ -307,6 +351,9 @@ nnoremap <Leader>+ :vertical resize +5<CR>
 nnoremap <Leader>- :vertical resize -5<CR>
 
 " vim TODO
+nmap <C-s> <Plug>BujoAddnormal
+nmap <C-q> <Plug>BujoChecknormal
+
 nmap <Leader>tu <Plug>BujoChecknormal
 nmap <Leader>th <Plug>BujoAddnormal
 let g:bujo#todo_file_path = $HOME . "/.cache/bujo"
@@ -432,7 +479,7 @@ endfunction
 
 
 " kill all buffers
-nmap <C-b>q :%bd\|e#<cr>
+nmap <C-b> :%bd\|e#<cr>
 
 " Make <CR> auto-select the first completion item and notify coc.nvim to
 " format on enter, <cr> could be remapped by other vim plugin
@@ -464,5 +511,18 @@ nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
 nnoremap <silent> <space>s :<C-u>CocList -I symbols<cr>
 
 nmap <leader>do <Plug>(coc-codeaction)
+nmap <leader>ff :CocCommand prettier.formatFile<cr>
+autocmd BufWritePre *.ts execute ':CocCommand prettier.formatFile'
+autocmd BufWritePre *.tsx execute ':CocCommand prettier.formatFile'
+autocmd BufWritePre *.js execute ':CocCommand prettier.formatFile'
+autocmd BufWritePre *.jsx execute ':CocCommand prettier.formatFile'
+
 
 nmap <leader>rn <Plug>(coc-rename)
+
+" black rules
+autocmd BufWritePre *.py execute ':Black'
+nnoremap <leader>bb :Black<CR>
+
+" prettier format
+nnoremap <leader>gp :silent %!prettier --stdin-filepath %<CR>

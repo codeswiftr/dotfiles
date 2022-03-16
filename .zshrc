@@ -70,7 +70,7 @@ BAT_THEME="gruvbox"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git brew pipenv tmux zsh_reload vi-mode)
+plugins=(git brew pipenv tmux vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -118,3 +118,10 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+ssh-add -A 2>/dev/null
+export PATH="/usr/local/opt/node@14/bin:$PATH"
+source ~/.profile
+
+export PATH="$HOME/.poetry/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
