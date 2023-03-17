@@ -105,14 +105,14 @@ export PATH="/usr/local/sbin:$PATH"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/usr/local/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+__conda_setup="$('/Users/bogdan/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
-        . "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+    if [ -f "/Users/bogdan/miniforge3/etc/profile.d/conda.sh" ]; then
+        . "/Users/bogdan/miniforge3/etc/profile.d/conda.sh"
     else
-        export PATH="/usr/local/Caskroom/miniconda/base/bin:$PATH"
+        export PATH="/Users/bogdan/miniforge3/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -122,6 +122,50 @@ ssh-add -A 2>/dev/null
 export PATH="/usr/local/opt/node@14/bin:$PATH"
 source ~/.profile
 
-export PATH="$HOME/.poetry/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+alias dc="docker compose"
+export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
+export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+alias mini="rm ~/.mdocker.sock; ssh -L /Users/bogdan/.mdocker.sock:/Users/bogdan/.docker/run/docker.sock -N code-mini.local & docker context use mini; docker context ls"
+alias mini2="rm ~/.mcolima.sock; ssh -L /Users/bogdan/.mcolima.sock:/Users/bogdan/.colima/default/docker.sock -N code-mini.local & docker context use mini2; docker context ls"
+alias dcc="docker context"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export HDF5_DIR="$(brew --prefix hdf5)"
+alias smvp="ssh -i ~/work/fxc/bogdan root@185.116.6.37"
+alias sdev="ssh -i ~/work/fxc/bogdan root@185.116.6.73"
+alias smini="ssh codeswiftr.tplinkdns.com -p 6554"
+alias srv="ssh codeswiftr.tplinkdns.com -p 6555"
+alias smb="ssh codeswiftr.tplinkdns.com -p 6556"
+
+
+# Go development
+export GOPATH="${HOME}/.go"
+export GOROOT="$(brew --prefix golang)/libexec"
+export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
+
+test -d "${GOPATH}" || mkdir "${GOPATH}"
+test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
+
+
+alias src="source ~/.zshrc"
+echo "$(date) -- .zshrc executed"
+
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+
+export MAC_MB01="8C:85:90:B8:A5:E5"
+
+
+source /Users/bogdan/.docker/init-zsh.sh || true # Added by Docker Desktop
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/bogdan/work/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/bogdan/work/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/bogdan/work/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/bogdan/work/google-cloud-sdk/completion.zsh.inc'; fi
