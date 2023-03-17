@@ -112,8 +112,8 @@ vim: vim${OS_SUFFIX}
 
 ohmyzsh:
 	@echo "\n[Installing oh-my-zsh]"
-	sudo apt install zsh
-	sudo chsh -s /bin/zsh
+	#sudo apt install zsh
+	#sudo chsh -s /bin/zsh
 	sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
 
@@ -133,7 +133,7 @@ tmux: tmux${OS_SUFFIX}
 install-fonts:
 	@echo "\n[Installing nerd font ..]"
 	brew tap homebrew/cask-fonts
-	brew cask install font-hack-nerd-font
+	brew install --cask font-hack-nerd-font
 
 clone:
 	@echo "\n[Cloning dotfiles repo ..]"

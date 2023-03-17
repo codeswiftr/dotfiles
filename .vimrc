@@ -17,6 +17,7 @@ Plug 'preservim/nerdtree' |
             \ Plug 'ryanoasis/vim-devicons'
 
 Plug 'vim-airline/vim-airline'
+Plug 'github/copilot.vim'
 
 " Plugin outside ~/.vim/plugged with post-update hook
 Plug 'junegunn/fzf.vim'
@@ -388,26 +389,26 @@ autocmd FileType python set sts=4
 " disable arrow keys to learn faster
 
 fun! DisableArrowKeys()
-    nnoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    nnoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    nnoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    nnoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    nnoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    nnoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "nnoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "nnoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "nnoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "nnoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "nnoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "nnoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
 
-    inoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    inoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    inoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    inoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    inoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    inoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "inoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "inoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "inoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "inoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "inoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "inoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
 
-    vnoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    vnoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    vnoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    vnoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    vnoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
-    vnoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "vnoremap <buffer> <Left> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "vnoremap <buffer> <Right> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "vnoremap <buffer> <Up> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "vnoremap <buffer> <Down> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "vnoremap <buffer> <PageUp> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
+    "vnoremap <buffer> <PageDown> <Esc>:echo "Hard mode enabled! Use home row keys HJKL"<CR>
 endfun
 
 autocmd VimEnter,BufNewFile,BufReadPost * silent! call DisableArrowKeys()
@@ -519,6 +520,15 @@ autocmd BufWritePre *.jsx execute ':CocCommand prettier.formatFile'
 
 
 nmap <leader>rn <Plug>(coc-rename)
+
+function! UpdateBlack(info)
+  if a:info.status != 'unchanged' || a:info.force
+    silent !rm -rf ~/.vim/black
+    redraw!
+    BlackUpgrade
+  endif
+endfunction
+Plug 'psf/black', { 'do': function('UpdateBlack') }
 
 " black rules
 autocmd BufWritePre *.py execute ':Black'
