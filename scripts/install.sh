@@ -38,8 +38,13 @@ install_tmux() {
 install_vim() {
     echo "Installing Vim..."
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        sudo apt install -y vim
-        sudo apt install -y fzf ripgrep
+        if command -v sudo >/dev/null 2>&1; then
+            sudo apt install -y vim
+            sudo apt install -y fzf ripgrep
+        else
+            apt install -y vim
+            apt install -y fzf ripgrep
+        fi
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         brew upgrade vim
         brew install fzf ripgrep
@@ -55,8 +60,9 @@ setup_dotfiles() {
     echo "Cloning and setting up dotfiles..."
     cd ~
     git clone https://github.com/codeswiftr/dotfiles.git
-    ln -sf ~/dotfiles/.tmux.conf ~/
-    ln -sf ~/dotfiles/.zshrc ~/
+    cd; ln -s -f dotfiles/.tmux.conf
+	cd; ln -s -f dotfiles/.vimrc
+	cd; ln -s -f dotfiles/.zshrc
 }
 
 # Main installation function
@@ -67,11 +73,8 @@ main() {
     # Install Oh My Zsh
     install_ohmyzsh
 
-    cd && git clone https://github.com/codeswiftr/dotfiles
-    
-    cd; ln -s -f dotfiles/.tmux.conf
-	cd; ln -s -f dotfiles/.vimrc
-	cd; ln -s -f dotfiles/.zshrc
+    # Setup dotfiles
+    setup_dotfiles
 
     # Install Tmux
     install_tmux
@@ -79,8 +82,7 @@ main() {
     # Install and configure Vim
     install_vim
 
-    # Setup dotfiles
-    setup_dotfiles
+ 
 
     echo "Setup complete!"
 }
