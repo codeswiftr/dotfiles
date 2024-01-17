@@ -7,7 +7,7 @@ install_ohmyzsh() {
         if command -v sudo >/dev/null 2>&1; then
             sudo apt update && sudo apt install -y git zsh
         else
-            apt update && apt install -y zsh tmux
+            apt update && apt install -y git zsh
         fi
     fi
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
