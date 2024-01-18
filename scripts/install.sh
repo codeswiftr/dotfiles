@@ -11,7 +11,7 @@ install_ohmyzsh() {
             update-locale
         fi
     fi
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended
     curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
     omz theme set gruvbox
     omz theme use gruvbox
@@ -54,7 +54,6 @@ install_vim() {
     fi
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    cp ~/dotfiles/.vimrc ~/
     vim +'PlugInstall --sync' +qa
 }
 
@@ -63,9 +62,9 @@ setup_dotfiles() {
     echo "Cloning and setting up dotfiles..."
     cd ~
     git clone https://github.com/codeswiftr/dotfiles.git
-    cd; ln -s -f dotfiles/.tmux.conf
-	cd; ln -s -f dotfiles/.vimrc
-	cd; ln -s -f dotfiles/.zshrc
+    cd; rm .tmux.conf;  ln -s -f dotfiles/.tmux.conf
+    cd; rm .vimrc;  ln -s -f dotfiles/.vimrc
+	cd; rm .zshrc; ln -s -f dotfiles/.zshrc
 }
 
 # Main installation function
