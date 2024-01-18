@@ -5,13 +5,16 @@ install_ohmyzsh() {
     echo "Installing Oh My Zsh..."
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         if command -v sudo >/dev/null 2>&1; then
-            sudo apt update && sudo apt install -y git zsh
+            sudo apt update && sudo apt install -y git zsh language-pack-en
         else
-            apt update && apt install -y git zsh
+            apt update && apt install -y git zsh language-pack-en
+            update-locale
         fi
     fi
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
+    omz theme set gruvbox
+    omz theme use gruvbox
 }
 
 # Function to install Tmux
