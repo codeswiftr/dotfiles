@@ -70,7 +70,7 @@ BAT_THEME="gruvbox"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git brew pipenv tmux vi-mode)
+plugins=(git  pipenv tmux vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -122,7 +122,7 @@ ssh-add -A 2>/dev/null
 export PATH="/usr/local/opt/node@14/bin:$PATH"
 source ~/.profile
 
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+export PATH="/opt/home/opt/openjdk/bin:$PATH"
 alias dc="docker compose"
 export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
 export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
@@ -135,7 +135,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-export HDF5_DIR="$(brew --prefix hdf5)"
 alias smvp="ssh -i ~/work/fxc/bogdan root@185.116.6.37"
 alias sdev="ssh -i ~/work/fxc/bogdan root@185.116.6.73"
 alias smini="ssh codeswiftr.tplinkdns.com -p 6554"
@@ -154,10 +153,6 @@ test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
 
 alias src="source ~/.zshrc"
 echo "$(date) -- .zshrc executed"
-
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 
 export MAC_MB01="8C:85:90:B8:A5:E5"
 
