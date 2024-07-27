@@ -11,10 +11,11 @@ install_ohmyzsh() {
             update-locale
         fi
     fi
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended && exit
     curl -L https://raw.githubusercontent.com/sbugzu/gruvbox-zsh/master/gruvbox.zsh-theme > ~/.oh-my-zsh/custom/themes/gruvbox.zsh-theme
     omz theme set gruvbox
     omz theme use gruvbox
+    echo "Oh My Zsh installed!"
 }
 
 # Function to install Tmux
