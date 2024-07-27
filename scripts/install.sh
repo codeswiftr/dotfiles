@@ -57,6 +57,19 @@ install_vim() {
     vim +'PlugInstall --sync' +qa
 }
 
+install_node() {
+    echo "Installing Node..."
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command -v sudo >/dev/null 2>&1; then
+            sudo apt update && sudo apt install -y nodejs npm
+        else
+            apt update && apt install -y nodejs npm
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install node
+    fi
+}
+
 # Function to clone and setup dotfiles
 setup_dotfiles() {
     echo "Cloning and setting up dotfiles..."
@@ -84,7 +97,7 @@ main() {
     # Install and configure Vim
     install_vim
 
- 
+    install_node
 
     echo "Setup complete!"
 }
