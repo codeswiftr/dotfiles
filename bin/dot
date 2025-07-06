@@ -146,6 +146,21 @@ BACKUP & RESTORE:
         list [filter]      List available backups
         schedule           Manage automated backups
 
+METRICS & ANALYTICS:
+    metrics            Metrics collection and analytics
+        init               Initialize metrics system
+        collect            Collect system metrics
+        daemon [action]    Manage collection daemon
+        dashboard          Show metrics dashboard
+        report [type]      Generate analytics reports
+
+MIGRATION & UPGRADE:
+    migrate            Migration and upgrade system
+        status             Check migration status
+        migrate [version]  Run migration to target version
+        rollback [backup]  Rollback to previous state
+        backup [version]   Create manual backup
+
 OPTIONS:
     -h, --help         Show this help message
     -v, --version      Show version information
@@ -320,6 +335,18 @@ main() {
         "backup"|"restore")
             load_cli_lib "backup"
             dot_backup "$@"
+            ;;
+
+        # Metrics commands
+        "metrics"|"analytics"|"stats")
+            load_cli_lib "metrics"
+            dot_metrics "$@"
+            ;;
+
+        # Migration commands
+        "migrate"|"migration"|"upgrade")
+            load_cli_lib "migration"
+            dot_migration "$@"
             ;;
 
         # Legacy command mappings for backward compatibility
