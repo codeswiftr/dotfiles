@@ -75,14 +75,35 @@ check_command() {
 # Prerequisites Check
 # ============================================================================
 
+# Detect operating system
+detect_os() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        export OS="macos"
+        export ARCH=$(uname -m)
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command -v lsb_release >/dev/null 2>&1; then
+            local distro=$(lsb_release -si)
+            if [[ "$distro" == "Ubuntu" ]]; then
+                export OS="ubuntu"
+            else
+                export OS="linux"
+            fi
+        else
+            export OS="linux"
+        fi
+        export ARCH=$(uname -m)
+    else
+        print_error "Unsupported operating system: $OSTYPE"
+        exit 1
+    fi
+}
+
 check_prerequisites() {
     print_header "Checking Prerequisites"
     
-    # Check if running on macOS
-    if [[ "$OSTYPE" != "darwin"* ]]; then
-        print_error "This script is designed for macOS. Please check the manual installation steps for your OS."
-        exit 1
-    fi
+    # Detect OS first
+    detect_os
+    print_info "Detected OS: $OS ($ARCH)"
     
     # Check for required commands
     local missing_deps=()
@@ -97,7 +118,17 @@ check_prerequisites() {
     
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
         print_error "Missing required dependencies: ${missing_deps[*]}"
-        print_info "Please install them first using: xcode-select --install"
+        case $OS in
+            "macos")
+                print_info "Please install them first using: xcode-select --install"
+                ;;
+            "ubuntu")
+                print_info "Please install them first using: sudo apt update && sudo apt install -y git curl"
+                ;;
+            *)
+                print_info "Please install git and curl using your system's package manager"
+                ;;
+        esac
         exit 1
     fi
     
@@ -135,6 +166,21 @@ backup_existing_config() {
 # Install Homebrew and Dependencies
 # ============================================================================
 
+install_package_manager() {
+    case $OS in
+        "macos")
+            install_homebrew
+            ;;
+        "ubuntu")
+            install_ubuntu_packages
+            ;;
+        *)
+            print_error "Package installation not supported for $OS"
+            exit 1
+            ;;
+    esac
+}
+
 install_homebrew() {
     print_header "Installing Homebrew and Dependencies"
     
@@ -155,9 +201,36 @@ install_homebrew() {
     print_success "Homebrew ready"
 }
 
+install_ubuntu_packages() {
+    print_header "Installing Ubuntu Dependencies"
+    
+    print_step "Updating package index"
+    log_and_run sudo apt update
+    
+    print_step "Installing essential packages"
+    log_and_run sudo apt install -y build-essential curl git unzip software-properties-common wget gpg lsb-release
+    
+    print_success "Ubuntu dependencies ready"
+}
+
 install_modern_tools() {
     print_header "Installing Modern CLI Tools"
     
+    case $OS in
+        "macos")
+            install_macos_tools
+            ;;
+        "ubuntu")
+            install_ubuntu_tools
+            ;;
+        *)
+            print_error "Tool installation not supported for $OS"
+            exit 1
+            ;;
+    esac
+}
+
+install_macos_tools() {
     local tools=(
         "starship"          # Modern shell prompt
         "zoxide"            # Smart cd replacement
@@ -175,7 +248,7 @@ install_modern_tools() {
         "tree"              # Directory tree viewer
     )
     
-    print_step "Installing CLI tools: ${tools[*]}"
+    print_step "Installing CLI tools via Homebrew: ${tools[*]}"
     for tool in "${tools[@]}"; do
         if ! check_command "$tool"; then
             print_step "Installing $tool"
@@ -185,7 +258,147 @@ install_modern_tools() {
         fi
     done
     
-    print_success "All CLI tools installed"
+    print_success "All macOS CLI tools installed"
+}
+
+install_ubuntu_tools() {
+    print_step "Installing CLI tools for Ubuntu"
+    
+    # Install tools available via apt
+    local apt_tools=(
+        "tmux"
+        "jq"
+        "tree"
+        "fzf"
+        "ripgrep"
+        "fd-find"
+        "bat"
+    )
+    
+    for tool in "${apt_tools[@]}"; do
+        print_step "Installing $tool via apt"
+        log_and_run sudo apt install -y "$tool"
+    done
+    
+    # Create symlinks for Ubuntu-specific naming
+    sudo mkdir -p /usr/local/bin
+    
+    if [[ ! -L /usr/local/bin/fd && -f /usr/bin/fdfind ]]; then
+        sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
+    fi
+    
+    if [[ ! -L /usr/local/bin/bat && -f /usr/bin/batcat ]]; then
+        sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
+    fi
+    
+    # Ensure /usr/local/bin is in PATH
+    export PATH="/usr/local/bin:$PATH"
+    
+    # Install tools from GitHub releases
+    install_github_tool "starship" "starship/starship" "starship-x86_64-unknown-linux-gnu.tar.gz"
+    install_github_tool "zoxide" "ajeetdsouza/zoxide" "zoxide-0.9.4-x86_64-unknown-linux-musl.tar.gz"
+    install_github_tool "eza" "eza-community/eza" "eza_x86_64-unknown-linux-gnu.tar.gz"
+    install_github_tool "delta" "dandavison/delta" "delta-0.17.0-x86_64-unknown-linux-gnu.tar.gz"
+    install_github_tool "atuin" "atuinsh/atuin" "atuin-x86_64-unknown-linux-gnu.tar.gz"
+    install_github_tool "mise" "jdx/mise" "mise-v2024.1.0-linux-x64.tar.gz"
+    
+    # Install Neovim
+    install_neovim_ubuntu
+    
+    print_success "All Ubuntu CLI tools installed"
+}
+
+# Individual tool installation functions for Ubuntu
+install_starship_ubuntu() {
+    if check_command "starship"; then
+        print_step "starship already installed"
+        return
+    fi
+    
+    print_step "Installing starship"
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+}
+
+install_zoxide_ubuntu() {
+    if check_command "zoxide"; then
+        print_step "zoxide already installed"
+        return
+    fi
+    
+    print_step "Installing zoxide"
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+}
+
+install_eza_ubuntu() {
+    if check_command "eza"; then
+        print_step "eza already installed"
+        return
+    fi
+    
+    print_step "Installing eza"
+    # Create keyrings directory if it doesn't exist
+    sudo mkdir -p /etc/apt/keyrings
+    
+    # Add eza's GPG key and repository
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+    sudo apt update
+    sudo apt install -y eza
+}
+
+install_delta_ubuntu() {
+    if check_command "delta"; then
+        print_step "delta already installed"
+        return
+    fi
+    
+    print_step "Installing delta"
+    local version=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | jq -r '.tag_name')
+    local deb_url="https://github.com/dandavison/delta/releases/download/${version}/git-delta_${version}_amd64.deb"
+    
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    wget "$deb_url"
+    sudo dpkg -i git-delta_*.deb
+    cd - > /dev/null
+    rm -rf "$temp_dir"
+}
+
+install_atuin_ubuntu() {
+    if check_command "atuin"; then
+        print_step "atuin already installed"
+        return
+    fi
+    
+    print_step "Installing atuin"
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+}
+
+install_mise_ubuntu() {
+    if check_command "mise"; then
+        print_step "mise already installed"
+        return
+    fi
+    
+    print_step "Installing mise"
+    curl https://mise.run | sh
+}
+
+install_neovim_ubuntu() {
+    if check_command "nvim"; then
+        print_step "Neovim already installed"
+        return
+    fi
+    
+    print_step "Installing Neovim for Ubuntu"
+    
+    # Install Neovim from official PPA for latest version
+    log_and_run sudo add-apt-repository ppa:neovim-ppa/stable -y
+    log_and_run sudo apt update
+    log_and_run sudo apt install -y neovim
+    
+    print_success "Neovim installed"
 }
 
 # ============================================================================
@@ -194,6 +407,9 @@ install_modern_tools() {
 
 setup_python_environment() {
     print_header "${PYTHON} Setting Up Python Environment"
+    
+    # Ensure mise is in PATH
+    export PATH="$HOME/.local/bin:$PATH"
     
     # Install Python via mise
     print_step "Installing Python 3.12 via mise"
@@ -204,6 +420,7 @@ setup_python_environment() {
     if ! check_command "uv"; then
         print_step "Installing uv (Python package manager)"
         log_and_run curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.local/bin:$PATH"
     fi
     
     # Install Python development tools
@@ -216,7 +433,11 @@ setup_python_environment() {
     
     for tool in "${python_tools[@]}"; do
         print_step "Installing $tool"
-        log_and_run ~/.local/bin/uv tool install "$tool" || true
+        if [[ -f "$HOME/.local/bin/uv" ]]; then
+            log_and_run "$HOME/.local/bin/uv" tool install "$tool" || true
+        else
+            log_and_run uv tool install "$tool" || true
+        fi
     done
     
     print_success "Python environment configured"
@@ -229,6 +450,9 @@ setup_python_environment() {
 setup_nodejs_environment() {
     print_header "${NODE} Setting Up Node.js Environment"
     
+    # Ensure mise is in PATH
+    export PATH="$HOME/.local/bin:$PATH"
+    
     # Install Node.js via mise
     print_step "Installing Node.js LTS via mise"
     log_and_run mise install node@lts
@@ -238,6 +462,7 @@ setup_nodejs_environment() {
     if ! check_command "bun"; then
         print_step "Installing Bun"
         log_and_run curl -fsSL https://bun.sh/install | bash
+        export PATH="$HOME/.bun/bin:$PATH"
     fi
     
     print_success "Node.js environment configured"
@@ -585,7 +810,7 @@ EOF
     # Run installation steps
     check_prerequisites
     backup_existing_config
-    install_homebrew
+    install_package_manager
     install_modern_tools
     setup_python_environment
     setup_nodejs_environment

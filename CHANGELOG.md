@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025.1.2] - 2025-01-07
+
+### Added
+- 🐧 **Cross-Platform Support**: Full Ubuntu support alongside macOS
+- 📱 **OS Detection**: Automatic detection of macOS vs Ubuntu systems
+- 📦 **Ubuntu Package Management**: APT-based installation with proper dependency handling
+- 🔧 **Platform-Specific Tool Installation**: Homebrew for macOS, APT + direct installs for Ubuntu
+- 🛠️ **Enhanced Neovim Navigation**: Comprehensive multi-pane window management
+- 🧭 **Navigation Guide**: Complete documentation for enhanced pane navigation
+- 🔄 **Robust Installation**: Improved error handling and PATH management
+- ✅ **Symlink Management**: Proper handling of Ubuntu-specific binary names (fd/bat)
+
+### Enhanced
+- 🚀 **Single-Command Installation**: Now works on both clean Ubuntu and clean macOS
+- 📋 **Buffer Management**: Visual buffer line with enhanced navigation shortcuts
+- 🎯 **Window Layouts**: Multi-pane preset layouts (horizontal, vertical, grid, coding)
+- 🔧 **Session Management**: Advanced session persistence with project awareness
+- 📚 **Documentation**: Updated README with cross-platform installation instructions
+
+### Technical Improvements
+- **OS-Specific Installation Paths**: Proper tool installation for each platform
+- **PATH Management**: Enhanced PATH handling across different systems
+- **Error Recovery**: Better error handling and rollback capabilities
+- **Version Compatibility**: Maintained compatibility with existing configurations
+
+### Installation Methods
+- **Ubuntu**: APT packages + official installers + GitHub releases
+- **macOS**: Homebrew packages (unchanged)
+- **Cross-Platform**: mise, uv, bun work on both systems
+
 ## [2025.1.1] - 2025-01-07
 
 ### Fixed
