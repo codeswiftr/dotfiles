@@ -425,6 +425,13 @@ function project-setup() {
     echo "✅ Project setup complete!"
 }
 
+# Modern tool shortcuts
+alias dev-optimize="optimize-dev-tools"
+alias dev-update="update-dev-tools"
+alias uv-opt="uv-optimize"
+alias bun-opt="bun-optimize" 
+alias mise-opt="mise-optimize"
+
 # Modern development tool optimization functions
 
 # uv optimization - cache management
