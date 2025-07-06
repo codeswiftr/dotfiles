@@ -6,6 +6,9 @@
 # Base PATH
 export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 
+# Dotfiles bin directory for dot CLI
+export PATH="$DOTFILES_DIR/bin:$PATH"
+
 # Bun (JavaScript runtime)
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
