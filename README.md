@@ -4,15 +4,22 @@
 
 ## ⚡ One-Command Installation
 
+**Works on both macOS and Ubuntu!**
+
+### Remote Installation
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/install.sh)"
 ```
 
-Or if you have the repo locally:
-
+### Local Installation
 ```bash
 cd ~/dotfiles && ./install.sh
 ```
+
+### Supported Systems
+- ✅ **macOS** (Intel & Apple Silicon)
+- ✅ **Ubuntu 20.04+** (x86_64)
+- ✅ **Other Linux distributions** (with manual adjustments)
 
 ## ✨ What You Get
 
@@ -141,12 +148,13 @@ df-changelog    # View recent changes and new features
 ## 🔄 **Installation & Backup**
 
 The installation script automatically:
-- ✅ Backs up your existing configuration
-- ✅ Installs all dependencies
-- ✅ Sets up configurations
-- ✅ Verifies installation
-- ✅ Enables version management
-- ✅ Provides rollback information
+- ✅ **Detects your operating system** (macOS/Ubuntu)
+- ✅ **Backs up your existing configuration**
+- ✅ **Installs all dependencies** (Homebrew on macOS, apt on Ubuntu)
+- ✅ **Sets up cross-platform configurations**
+- ✅ **Verifies installation** with system-specific checks
+- ✅ **Enables version management** and auto-updates
+- ✅ **Provides rollback information** for safe recovery
 
 **Backup location**: `~/dotfiles-backup-TIMESTAMP`
 
