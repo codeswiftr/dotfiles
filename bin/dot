@@ -1,0 +1,264 @@
+#!/usr/bin/env bash
+# ============================================================================
+# DOT CLI - Ultimate Development Environment Orchestrator
+# The single command to rule them all
+# ============================================================================
+
+set -euo pipefail
+
+# Configuration
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+DOT_VERSION="1.0.0"
+DOT_CLI_DIR="$DOTFILES_DIR/lib/cli"
+
+# Colors and emojis
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+SUCCESS="✅"
+ERROR="❌"
+INFO="ℹ️"
+ROCKET="🚀"
+GEAR="⚙️"
+LOCK="🔒"
+TEST="🧪"
+AI="🤖"
+PROJECT="📁"
+
+# Utility functions
+print_success() { echo -e "${GREEN}${SUCCESS} $1${NC}"; }
+print_error() { echo -e "${RED}${ERROR} $1${NC}"; }
+print_info() { echo -e "${BLUE}${INFO} $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+
+# Help system
+show_help() {
+    cat << 'EOF'
+🚀 DOT CLI - Ultimate Development Environment
+
+USAGE:
+    dot <command> [options]
+
+CORE COMMANDS:
+    setup              Idempotent environment setup
+    check              Comprehensive health validation
+    update             Update entire system
+    reload             Reload shell configuration
+    version            Show version information
+
+DEVELOPMENT:
+    project            Project management and scaffolding
+        init [type]        Create new project from template
+        list               List available templates
+        switch             Switch between projects
+    
+    run                Process management
+        dev                Start development environment
+        test               Start test environment
+        prod               Production simulation
+
+SECURITY:
+    secret             Secret management
+        setup              Configure secret provider
+        get <key>          Retrieve secret
+        exec -- <cmd>      Execute with injected secrets
+    
+    security           Security operations
+        scan               Full security audit
+        deps               Check dependency vulnerabilities
+        code               Static code analysis
+
+AI INTEGRATION:
+    ai                 AI-powered development assistance
+        review             Code review with context
+        test               Generate tests
+        commit             Smart commit messages
+        explain [file]     Explain code
+
+PERFORMANCE:
+    perf               Performance management
+        profile            Performance analysis
+        optimize           Apply optimizations
+        benchmark          Benchmark startup time
+
+CONFIGURATION:
+    config             Interactive configuration
+        theme              Switch themes
+        tools              Configure tool integrations
+        security           Adjust security settings
+
+DATABASE:
+    db                 Database management
+        setup              Setup local databases
+        seed               Load test data
+        reset              Reset to clean state
+
+GIT OPERATIONS:
+    git                Enhanced git operations
+        setup-signing      Configure commit signing
+        verify             Verify commit signatures
+
+OPTIONS:
+    -h, --help         Show this help message
+    -v, --version      Show version information
+    --verbose          Enable verbose output
+    --dry-run          Show what would be done
+
+EXAMPLES:
+    dot setup                     # Setup development environment
+    dot project init fastapi      # Create new FastAPI project
+    dot secret exec -- npm start  # Run with injected secrets
+    dot ai review src/main.py     # AI code review
+    dot security scan            # Security audit
+    dot perf optimize            # Optimize performance
+
+For detailed help on any command:
+    dot <command> --help
+
+Documentation: https://github.com/user/dotfiles/docs/cli.md
+EOF
+}
+
+# Version information
+show_version() {
+    echo "🚀 DOT CLI v${DOT_VERSION}"
+    echo "📍 Dotfiles: ${DOTFILES_DIR}"
+    echo "📦 Last update: $(stat -f %Sm -t %Y-%m-%d ~/.zshrc 2>/dev/null || echo 'Unknown')"
+    
+    if [[ -f "$DOTFILES_DIR/VERSION" ]]; then
+        echo "🏷️  Environment: v$(cat "$DOTFILES_DIR/VERSION")"
+    fi
+}
+
+# Load CLI libraries
+load_cli_lib() {
+    local lib_file="$DOT_CLI_DIR/$1.sh"
+    if [[ -f "$lib_file" ]]; then
+        source "$lib_file"
+    else
+        print_error "CLI library not found: $1"
+        exit 1
+    fi
+}
+
+# Main command dispatcher
+main() {
+    # Handle global options
+    case "${1:-}" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -v|--version)
+            show_version
+            exit 0
+            ;;
+        "")
+            show_help
+            exit 0
+            ;;
+    esac
+
+    local command="$1"
+    shift
+
+    # Command routing
+    case "$command" in
+        # Core commands
+        "setup")
+            load_cli_lib "core"
+            dot_setup "$@"
+            ;;
+        "check")
+            load_cli_lib "core"
+            dot_check "$@"
+            ;;
+        "update")
+            load_cli_lib "core"
+            dot_update "$@"
+            ;;
+        "reload")
+            print_info "Reloading shell configuration..."
+            exec "$SHELL"
+            ;;
+        "version")
+            show_version
+            ;;
+
+        # Development commands
+        "project")
+            load_cli_lib "project"
+            dot_project "$@"
+            ;;
+        "run")
+            load_cli_lib "process"
+            dot_run "$@"
+            ;;
+
+        # Security commands
+        "secret")
+            load_cli_lib "secret"
+            dot_secret "$@"
+            ;;
+        "security")
+            load_cli_lib "security"
+            dot_security "$@"
+            ;;
+
+        # AI commands
+        "ai")
+            load_cli_lib "ai"
+            dot_ai "$@"
+            ;;
+
+        # Performance commands
+        "perf")
+            load_cli_lib "performance"
+            dot_perf "$@"
+            ;;
+
+        # Configuration commands
+        "config")
+            load_cli_lib "config"
+            dot_config "$@"
+            ;;
+
+        # Database commands
+        "db")
+            load_cli_lib "database"
+            dot_db "$@"
+            ;;
+
+        # Git commands
+        "git")
+            load_cli_lib "git"
+            dot_git "$@"
+            ;;
+
+        # Legacy command mappings for backward compatibility
+        "health")
+            print_warning "Legacy command 'health' is deprecated. Use 'dot check' instead."
+            load_cli_lib "core"
+            dot_check "$@"
+            ;;
+
+        # Unknown command
+        *)
+            print_error "Unknown command: $command"
+            echo ""
+            echo "Run 'dot --help' for available commands."
+            exit 1
+            ;;
+    esac
+}
+
+# Error handling
+trap 'print_error "An error occurred. Use --verbose for more details."; exit 1' ERR
+
+# Run main function
+main "$@"
