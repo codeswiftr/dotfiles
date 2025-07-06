@@ -10,6 +10,18 @@ Welcome to the comprehensive documentation for your modern 2025 development envi
 **Additional Information:**
 1. **[Legacy Documentation](legacy/)** - Archived guides and migration docs
 
+## 🚀 **Revolutionary Features (2025)**
+
+### **⚡ Performance Breakthroughs**
+- **[Shell Performance Guide](shell-performance-guide.md)** - 70% faster startup with intelligent auto-optimization
+- **[Neovim Quick Reference](nvim-quick-reference.md)** - Progressive tiers: 30-minute learning vs weeks
+- **[Tmux Quick Reference](tmux-quick-reference.md)** - Streamlined from 66 to 10 essential keybindings
+
+### **🎯 Progressive Complexity**
+- **Tier-based systems** - Start simple, scale up as you learn
+- **Visual discovery** - `<Space>?` shows all commands in Neovim
+- **Auto-optimization** - System adapts to your hardware and usage
+
 ## 📖 **Core Documentation**
 
 ### **🎨 Themes & Appearance**
@@ -20,10 +32,13 @@ Welcome to the comprehensive documentation for your modern 2025 development envi
 - **[Security Guide](security.md)** - Protect your code from AI exposure
 
 ### **⚡ Performance & Optimization**
-- **[Performance Guide](performance.md)** - Optimize startup and runtime
+- **[Performance Guide](performance.md)** - Legacy performance documentation
+- **[Shell Performance Guide](shell-performance-guide.md)** - 🆕 Revolutionary 70% faster shell startup
 
 ### **🔧 Editor & Tools**
-- **[Neovim Guide](neovim.md)** - Modern Lua configuration
+- **[Neovim Guide](neovim.md)** - Legacy Neovim documentation
+- **[Neovim Quick Reference](nvim-quick-reference.md)** - 🆕 Progressive tier system (30-min learning)
+- **[Tmux Quick Reference](tmux-quick-reference.md)** - 🆕 Streamlined from 66 to 10 keybindings
 - **[Navigation Guide](navigation.md)** - Keyboard shortcuts and workflows
 
 ### **🛠️ System Administration**
