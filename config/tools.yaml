@@ -420,5 +420,8 @@ post_install:
   - name: "Initialize mise"
     command: "mise install"
     
+  - name: "Setup Git hooks"
+    command: "./scripts/setup-hooks.sh install"
+    
   - name: "Source new shell configuration"
     command: "source ~/.zshrc"
