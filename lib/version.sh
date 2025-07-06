@@ -388,9 +388,11 @@ dotfiles_changelog() {
 
 # Make functions available when sourced
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
-    # Being sourced, export functions
-    export -f dotfiles_version
-    export -f dotfiles_update
-    export -f dotfiles_changelog
-    export -f auto_update_check
+    # Being sourced, export functions silently
+    {
+        export -f dotfiles_version
+        export -f dotfiles_update
+        export -f dotfiles_changelog
+        export -f auto_update_check
+    } >/dev/null 2>&1
 fi
