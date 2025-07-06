@@ -499,6 +499,7 @@ alias dotfiles-changelog="dotfiles_changelog"
 alias df-version="dotfiles_version"
 alias df-update="dotfiles_update"
 alias df-changelog="dotfiles_changelog"
+alias df-health="$DOTFILES_DIR/scripts/health-check.sh"
 
 # ----- Section: Startup Message -----
 echo "🚀 Modern ZSH Configuration Loaded - $(date '+%H:%M')"

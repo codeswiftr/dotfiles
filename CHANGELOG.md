@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025.1.5] - 2025-01-07
+
+### 🔧 Neovim Health Check Fixes
+- **Fixed Missing Formatters**: Installed prettier, stylua for code formatting
+- **Resolved Provider Warnings**: Installed pynvim and neovim npm packages
+- **Disabled Luarocks**: Eliminated luarocks warnings in lazy.nvim
+- **Enhanced Provider Configuration**: Smart Python provider detection
+- **Optimized Plugin Loading**: Disabled unnecessary providers (Perl, Ruby)
+
+### 📦 Installation Improvements
+- **Added Formatter Installation**: prettier, stylua, swift-format in install script
+- **Enhanced Provider Setup**: Automatic neovim package installation
+- **Cross-Platform Formatters**: Proper installation for Ubuntu and macOS
+- **Architecture Detection**: ARM64 support for stylua on Linux
+
+### 🩺 Health Monitoring
+- **Created Health Check Script**: Comprehensive system verification tool
+- **Added df-health Alias**: Quick health check from anywhere
+- **Provider Verification**: Check neovim packages installation status
+- **Configuration Validation**: Verify all config files exist
+
+### 🎨 Configuration Enhancements
+- **Created Starship Config**: Professional terminal prompt configuration
+- **Fixed Keybinding Conflicts**: Resolved overlapping key mappings
+- **Enhanced Conform Setup**: Better formatter configuration
+- **Improved Error Handling**: Graceful fallbacks for missing tools
+
+### 🛠️ Technical Improvements
+- **Disabled Optional Providers**: Reduced startup warnings
+- **Smart Provider Detection**: Only enable available providers
+- **Enhanced Formatter Support**: JSON, HTML, CSS, Markdown support
+- **Optimized Plugin Configuration**: Faster startup with disabled luarocks
+
+### Health Check Results
+✅ All core tools working
+✅ Python environment complete
+✅ Node.js environment ready
+✅ Code formatters installed
+✅ Neovim providers configured
+✅ Configuration files present
+⚠️ Only swift-format missing (optional)
+
 ## [2025.1.4] - 2025-01-07
 
 ### 🛡️ Security Fixes (CRITICAL)

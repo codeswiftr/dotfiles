@@ -246,6 +246,8 @@ install_macos_tools() {
         "tmux"              # Terminal multiplexer
         "jq"                # JSON processor
         "tree"              # Directory tree viewer
+        "stylua"            # Lua formatter
+        "swift-format"      # Swift formatter
     )
     
     # Check which tools need installation
@@ -307,6 +309,16 @@ install_ubuntu_tools() {
     
     # Install Neovim
     install_neovim_ubuntu
+    
+    # Install formatters via npm if available
+    if check_command "npm"; then
+        print_step "Installing code formatters via npm"
+        log_and_run npm install -g prettier || true
+        log_and_run npm install -g neovim || true
+    fi
+    
+    # Install stylua via GitHub release
+    install_stylua_ubuntu
     
     print_success "All Ubuntu CLI tools installed"
 }
@@ -436,6 +448,36 @@ install_mise_ubuntu() {
     rm -rf "$temp_dir"
 }
 
+install_stylua_ubuntu() {
+    if check_command "stylua"; then
+        print_step "stylua already installed"
+        return
+    fi
+    
+    print_step "Installing stylua"
+    
+    # Detect architecture
+    local arch_string
+    case "$ARCH" in
+        "arm64"|"aarch64") arch_string="linux-aarch64" ;;
+        *) arch_string="linux-x86_64" ;;
+    esac
+    
+    local version=$(curl -s https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest | jq -r '.tag_name')
+    local download_url="https://github.com/JohnnyMorganz/StyLua/releases/download/${version}/stylua-${arch_string}.zip"
+    
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    curl -L "$download_url" -o stylua.zip
+    unzip stylua.zip
+    sudo mv stylua /usr/local/bin/
+    sudo chmod +x /usr/local/bin/stylua
+    
+    cd - > /dev/null
+    rm -rf "$temp_dir"
+}
+
 install_neovim_ubuntu() {
     if check_command "nvim"; then
         print_step "Neovim already installed"
@@ -501,6 +543,14 @@ setup_python_environment() {
         fi
     done
     
+    # Install neovim Python package
+    print_step "Installing neovim Python package"
+    if [[ -f "$HOME/.local/bin/uv" ]]; then
+        log_and_run "$HOME/.local/bin/uv" tool install pynvim || true
+    else
+        log_and_run pip install pynvim || true
+    fi
+    
     print_success "Python environment configured"
 }
 
@@ -534,6 +584,19 @@ setup_nodejs_environment() {
         cd - > /dev/null
         rm -rf "$temp_dir"
         export PATH="$HOME/.bun/bin:$PATH"
+    fi
+    
+    # Install neovim Node.js package
+    print_step "Installing neovim Node.js package"
+    if check_command "npm"; then
+        log_and_run npm install -g neovim || true
+    fi
+    
+    # Install formatters for Neovim
+    print_step "Installing code formatters"
+    if check_command "npm"; then
+        log_and_run npm install -g prettier || true
+        log_and_run npm install -g @swift-format/cli || true
     fi
     
     print_success "Node.js environment configured"
