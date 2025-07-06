@@ -1,0 +1,42 @@
+# Hello World Plugin Metadata
+name: hello-world
+version: "1.0.0"
+description: "A simple example plugin that demonstrates the plugin system"
+author: "Dotfiles Framework"
+license: "MIT"
+homepage: "https://github.com/user/dotfiles"
+repository: "https://github.com/user/dotfiles"
+
+# Plugin type and category
+type: example
+category: demo
+tags:
+  - "example"
+  - "demo"
+  - "hello-world"
+
+# Dependencies
+dependencies: []
+plugin_dependencies: []
+platforms:
+  - "macos"
+  - "linux"
+  - "windows"
+
+# Plugin configuration
+config:
+  auto_enable: false
+  priority: 100
+
+# Entry points
+commands:
+  - name: "hello"
+    description: "Say hello from the plugin"
+    function: "hello_world_main"
+
+# Hooks
+hooks:
+  pre-install: []
+  post-install: []
+  pre-uninstall: []
+  post-uninstall: []

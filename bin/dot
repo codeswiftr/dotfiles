@@ -132,6 +132,13 @@ DOCUMENTATION:
         serve [port]       Serve documentation locally
         interactive        Interactive help system
 
+PLUGINS:
+    plugin             Plugin management system
+        install [name]     Install plugin from registry
+        list [filter]      List installed/available plugins
+        enable [name]      Enable installed plugin
+        create [name]      Create new plugin template
+
 OPTIONS:
     -h, --help         Show this help message
     -v, --version      Show version information
@@ -294,6 +301,12 @@ main() {
         "docs"|"documentation")
             source "$DOTFILES_DIR/lib/documentation.sh"
             documentation_cli "$@"
+            ;;
+
+        # Plugin commands
+        "plugin"|"plugins")
+            load_cli_lib "plugin"
+            dot_plugin "$@"
             ;;
 
         # Legacy command mappings for backward compatibility
