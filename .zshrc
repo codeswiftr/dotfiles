@@ -13,7 +13,22 @@ autoload -U colors && colors
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
+# ----- Section: Performance Optimization -----
+# Load performance functions
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [[ -f "$DOTFILES_DIR/lib/performance.sh" ]]; then
+    source "$DOTFILES_DIR/lib/performance.sh"
+fi
+
 # ----- Section: Modern Shell Tools (Performance Optimized) -----
+# Initialize completions with caching
+if type init_completions_cached >/dev/null 2>&1; then
+    init_completions_cached
+else
+    # Fallback to standard completion initialization
+    autoload -U compinit && compinit
+fi
+
 # Tool initialization with performance optimization
 if [[ -n "$DOTFILES_FAST_MODE" ]]; then
     # Fast mode - minimal initialization
@@ -34,6 +49,11 @@ export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# uv (Python package manager)
+export UV_CACHE_DIR="$HOME/.cache/uv"
+export UV_TOOL_DIR="$HOME/.local/share/uv/tools"
+export PATH="$UV_TOOL_DIR/bin:$PATH"
+
 # Windsurf (AI Code Editor) - Cross-platform path
 if [[ -d "$HOME/.codeium/windsurf/bin" ]]; then
     export PATH="$HOME/.codeium/windsurf/bin:$PATH"
@@ -46,8 +66,10 @@ if command -v mise >/dev/null 2>&1; then
         # Fast mode - minimal mise initialization
         eval "$(mise activate zsh --quiet)"
     else
-        # Full mise initialization
+        # Full mise initialization with shell completions
         eval "$(mise activate zsh)"
+        # Load mise completions asynchronously for better performance
+        { eval "$(mise completion zsh)" } &
     fi
 fi
 
@@ -97,24 +119,37 @@ alias gb="git branch"
 alias gco="git checkout"
 alias gcb="git checkout -b"
 
-# Python development
+# Python development with uv
 alias py="python"
 alias pir="uv add"
 alias pir-dev="uv add --dev"
 alias piu="uv sync"
 alias pir-rm="uv remove"
-alias py-fmt="ruff format ."
-alias py-lint="ruff check ."
-alias py-fix="ruff check --fix ."
-alias py-test="python -m pytest"
-alias py-cov="python -m pytest --cov"
+alias pir-lock="uv lock"
+alias pir-export="uv export"
+alias py-init="uv init"
+alias py-run="uv run"
+alias py-tool="uv tool"
+alias py-python="uv python"
+alias py-venv="uv venv"
+alias py-fmt="uv run ruff format ."
+alias py-lint="uv run ruff check ."
+alias py-fix="uv run ruff check --fix ."
+alias py-test="uv run pytest"
+alias py-cov="uv run pytest --cov"
 
-# JavaScript development
+# JavaScript development with Bun
 alias ni="bun install"
 alias nr="bun run"
 alias nb="bun run build"
 alias nd="bun run dev"
 alias nt="bun test"
+alias nx="bunx"
+alias nc="bun create"
+alias nu="bun update"
+alias na="bun add"
+alias nad="bun add --dev"
+alias nrm="bun remove"
 
 # FastAPI specific
 alias fapi="fastapi dev"
@@ -159,12 +194,17 @@ alias cop-explain="gh copilot explain"
 alias cop-suggest="gh copilot suggest"
 
 # ----- Section: Environment Variables -----
-# Python environment
-export UV_CACHE_DIR="$HOME/.cache/uv"
+# Python environment (already set in PATH section)
 export RUFF_CACHE_DIR="$HOME/.cache/ruff"
 
+# Modern tool optimizations
+export UV_LINK_MODE="copy"  # Faster installs
+export UV_COMPILE_BYTECODE="1"  # Pre-compile for speed
+export BUN_INSTALL_CACHE_DIR="$HOME/.bun/cache"
+export MISE_USE_TOML="1"  # Faster than .tool-versions
+
 # Themes
-export BAT_THEME="gruvbox-dark"
+export BAT_THEME="Catppuccin Mocha"
 export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
@@ -237,16 +277,285 @@ function ai-find() {
     rg --json "$query" | jq -r '.data.path.text' | sort -u | fzf --preview 'bat --color=always {}'
 }
 
-# Quick Python environment setup
+# Quick Python environment setup with uv
 function py-env() {
     local env_name=${1:-$(basename $(pwd))}
     if [[ ! -d ".venv" ]]; then
-        echo "Creating virtual environment: $env_name"
+        echo "🐍 Creating virtual environment: $env_name"
         uv venv --python 3.12
-        echo "Virtual environment created. Use 'source .venv/bin/activate' to activate."
+        echo "✅ Virtual environment created. Activating..."
+        source .venv/bin/activate
+        if [[ -f "pyproject.toml" ]]; then
+            echo "📦 Installing dependencies from pyproject.toml..."
+            uv sync
+        fi
     else
-        echo "Virtual environment already exists."
+        echo "🔄 Virtual environment already exists. Activating..."
+        source .venv/bin/activate
     fi
+}
+
+# Modern Python project initialization
+function py-new() {
+    local project_name="$1"
+    if [[ -z "$project_name" ]]; then
+        echo "Usage: py-new <project-name>"
+        return 1
+    fi
+    
+    echo "🚀 Creating new Python project: $project_name"
+    mkdir -p "$project_name"
+    cd "$project_name"
+    
+    # Initialize with uv
+    uv init --name "$project_name" --python 3.12
+    
+    # Create basic project structure
+    mkdir -p src/"$project_name" tests docs
+    
+    # Add common development dependencies
+    uv add --dev pytest pytest-cov ruff mypy
+    
+    # Create basic files
+    echo "# $project_name\n\nA modern Python project.\n" > README.md
+    echo "*.pyc\n__pycache__/\n.venv/\n.pytest_cache/\n.coverage\n.mypy_cache/\n" > .gitignore
+    
+    # Initialize git
+    git init
+    git add .
+    git commit -m "Initial commit: Setup $project_name with uv"
+    
+    echo "✅ Project '$project_name' created successfully!"
+    echo "💡 Next steps:"
+    echo "   - cd $project_name"
+    echo "   - py-env (to activate virtual environment)"
+    echo "   - Start coding in src/$project_name/"
+}
+
+# Bun project initialization
+function js-new() {
+    local project_name="$1"
+    local template="${2:-vanilla}"
+    
+    if [[ -z "$project_name" ]]; then
+        echo "Usage: js-new <project-name> [template]"
+        echo "Templates: vanilla, react, next, svelte, vue"
+        return 1
+    fi
+    
+    echo "🚀 Creating new JavaScript project: $project_name"
+    
+    case "$template" in
+        "react")
+            bun create react-app "$project_name"
+            ;;
+        "next")
+            bun create next-app "$project_name"
+            ;;
+        "svelte")
+            bun create svelte-app "$project_name"
+            ;;
+        "vue")
+            bun create vue-app "$project_name"
+            ;;
+        *)
+            bun create "$project_name"
+            ;;
+    esac
+    
+    cd "$project_name"
+    echo "✅ Project '$project_name' created successfully!"
+    echo "💡 Next steps:"
+    echo "   - bun install (if needed)"
+    echo "   - bun run dev (to start development server)"
+}
+
+# Smart project setup based on language detection
+function project-setup() {
+    local current_dir=$(pwd)
+    local project_name=$(basename "$current_dir")
+    
+    echo "🔍 Analyzing project structure..."
+    
+    if [[ -f "pyproject.toml" || -f "requirements.txt" ]]; then
+        echo "🐍 Python project detected"
+        py-env
+        if command -v mise >/dev/null 2>&1; then
+            mise use python@latest
+        fi
+    elif [[ -f "package.json" ]]; then
+        echo "📦 JavaScript project detected"
+        if [[ ! -d "node_modules" ]]; then
+            echo "📦 Installing dependencies..."
+            bun install
+        fi
+        if command -v mise >/dev/null 2>&1; then
+            mise use node@latest
+        fi
+    elif [[ -f "Cargo.toml" ]]; then
+        echo "🦀 Rust project detected"
+        if command -v mise >/dev/null 2>&1; then
+            mise use rust@latest
+        fi
+    elif [[ -f "go.mod" ]]; then
+        echo "🐹 Go project detected"
+        if command -v mise >/dev/null 2>&1; then
+            mise use go@latest
+        fi
+    else
+        echo "❓ Unknown project type. Creating basic setup..."
+        if [[ ! -f ".gitignore" ]]; then
+            echo "Creating basic .gitignore..."
+            echo ".DS_Store\n*.log\n*.tmp\n" > .gitignore
+        fi
+        if [[ ! -f "README.md" ]]; then
+            echo "Creating basic README.md..."
+            echo "# $project_name\n\nProject description goes here.\n" > README.md
+        fi
+    fi
+    
+    # Initialize git if not already done
+    if [[ ! -d ".git" ]]; then
+        echo "📁 Initializing git repository..."
+        git init
+        git add .
+        git commit -m "Initial commit"
+    fi
+    
+    echo "✅ Project setup complete!"
+}
+
+# Modern development tool optimization functions
+
+# uv optimization - cache management
+function uv-optimize() {
+    echo "🔧 Optimizing uv cache and settings..."
+    
+    # Clean old cache entries
+    uv cache clean
+    
+    # Set optimized environment variables
+    export UV_CACHE_DIR="$HOME/.cache/uv"
+    export UV_TOOL_DIR="$HOME/.local/share/uv/tools"
+    export UV_LINK_MODE="copy"  # Faster than symlinks on some systems
+    export UV_COMPILE_BYTECODE="1"  # Pre-compile for faster imports
+    
+    echo "✅ uv optimization complete!"
+    echo "💡 Benefits: Faster package installation and imports"
+}
+
+# Bun optimization - performance tuning
+function bun-optimize() {
+    echo "🔧 Optimizing Bun configuration..."
+    
+    # Create optimized bunfig.toml if it doesn't exist
+    if [[ ! -f "$HOME/.bunfig.toml" ]]; then
+        cat > "$HOME/.bunfig.toml" << 'EOF'
+[install]
+# Use faster cache strategy
+cache = true
+auto = "fallback"
+
+[install.scopes]
+# Add any organization scopes here
+# "@your-org" = { "url" = "https://npm.your-org.com", "token" = "$YOUR_TOKEN" }
+EOF
+        echo "📝 Created optimized ~/.bunfig.toml"
+    fi
+    
+    # Set performance environment variables
+    export BUN_INSTALL_CACHE_DIR="$HOME/.bun/cache"
+    export BUN_TMPDIR="/tmp/bun"
+    mkdir -p "$BUN_TMPDIR"
+    
+    echo "✅ Bun optimization complete!"
+    echo "💡 Benefits: Faster package installation and bundling"
+}
+
+# Mise optimization - faster version switching
+function mise-optimize() {
+    echo "🔧 Optimizing mise configuration..."
+    
+    # Create optimized mise config if it doesn't exist
+    mkdir -p "$HOME/.config/mise"
+    if [[ ! -f "$HOME/.config/mise/config.toml" ]]; then
+        cat > "$HOME/.config/mise/config.toml" << 'EOF'
+[tools]
+# Global tool versions
+python = "3.12"
+node = "22"
+
+[settings]
+# Performance optimizations
+legacy_version_file = false
+plugin_autoupdate_last_check_duration = "7d"
+paranoid = false
+always_keep_download = true
+always_keep_install = true
+
+[aliases]
+# Convenient aliases
+py = "python"
+js = "node"
+EOF
+        echo "📝 Created optimized ~/.config/mise/config.toml"
+    fi
+    
+    # Set performance environment variables
+    export MISE_USE_TOML="1"  # Faster than parsing .tool-versions
+    export MISE_PARANOID="0"  # Disable extra security checks for speed
+    
+    echo "✅ Mise optimization complete!"
+    echo "💡 Benefits: Faster tool switching and startup"
+}
+
+# All-in-one optimization
+function optimize-dev-tools() {
+    echo "🚀 Running comprehensive development tools optimization..."
+    echo ""
+    
+    uv-optimize
+    echo ""
+    bun-optimize
+    echo ""
+    mise-optimize
+    echo ""
+    
+    # Source performance optimizations
+    if [[ -f "$DOTFILES_DIR/lib/performance.sh" ]]; then
+        source "$DOTFILES_DIR/lib/performance.sh"
+        init_performance_optimizations
+    fi
+    
+    echo "🎉 All development tools optimized!"
+    echo "💡 Run 'perf-benchmark-startup' to see improvements"
+}
+
+# Quick tool updates
+function update-dev-tools() {
+    echo "🔄 Updating development tools..."
+    
+    # Update uv
+    if command -v uv >/dev/null 2>&1; then
+        echo "📦 Updating uv..."
+        uv self update
+    fi
+    
+    # Update bun
+    if command -v bun >/dev/null 2>&1; then
+        echo "📦 Updating bun..."
+        bun upgrade
+    fi
+    
+    # Update mise and tools
+    if command -v mise >/dev/null 2>&1; then
+        echo "📦 Updating mise..."
+        mise self-update
+        echo "📦 Updating mise tools..."
+        mise upgrade
+    fi
+    
+    echo "✅ Development tools updated!"
 }
 
 # LinkedIn content creation helper
