@@ -80,6 +80,14 @@ AI INTEGRATION:
         commit             Smart commit messages
         explain [file]     Explain code
 
+TESTING:
+    test               Testing framework integration
+        run [category]     Run comprehensive test suite
+        quick              Quick smoke tests
+        watch              Watch mode for continuous testing
+        init [framework]   Initialize testing for project
+        coverage           Generate test coverage report
+    
 PERFORMANCE:
     perf               Performance management
         profile            Performance analysis
@@ -91,6 +99,13 @@ CONFIGURATION:
         theme              Switch themes
         tools              Configure tool integrations
         security           Adjust security settings
+    
+    template           Advanced configuration templating
+        generate           Generate config from template
+        process            Process all templates
+        create             Create template from file
+        validate           Validate template syntax
+        list               List available templates
 
 DATABASE:
     db                 Database management
@@ -226,6 +241,12 @@ main() {
             dot_ai "$@"
             ;;
 
+        # Testing commands
+        "test"|"testing")
+            load_cli_lib "testing"
+            dot_testing "$@"
+            ;;
+
         # Performance commands
         "perf")
             load_cli_lib "performance"
@@ -236,6 +257,12 @@ main() {
         "config")
             load_cli_lib "config"
             dot_config "$@"
+            ;;
+
+        # Template commands
+        "template")
+            source "$DOTFILES_DIR/lib/templating.sh"
+            template_cli "$@"
             ;;
 
         # Database commands

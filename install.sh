@@ -8,6 +8,9 @@ set -euo pipefail
 
 # Script configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load platform compatibility framework
+source "$SCRIPT_DIR/lib/platform.sh"
 DOTFILES_DIR="${SCRIPT_DIR}"
 CONFIG_FILE="${SCRIPT_DIR}/config/tools.yaml"
 BACKUP_DIR="$HOME/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
