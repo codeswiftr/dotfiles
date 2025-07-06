@@ -13,15 +13,19 @@ autoload -U colors && colors
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
-# ----- Section: Modern Shell Tools -----
-# Starship prompt (replaces oh-my-zsh themes)
-eval "$(starship init zsh)"
-
-# Zoxide (smart cd replacement)
-eval "$(zoxide init zsh)"
-
-# Atuin (better history)
-eval "$(atuin init zsh)"
+# ----- Section: Modern Shell Tools (Performance Optimized) -----
+# Tool initialization with performance optimization
+if [[ -n "$DOTFILES_FAST_MODE" ]]; then
+    # Fast mode - minimal initialization
+    command -v starship >/dev/null && eval "$(starship init zsh)"
+    command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+else
+    # Full initialization
+    command -v starship >/dev/null && eval "$(starship init zsh)"
+    command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+    # Load atuin asynchronously for better performance
+    command -v atuin >/dev/null && { eval "$(atuin init zsh)" & }
+fi
 
 # ----- Section: PATH Configuration -----
 export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
@@ -35,9 +39,17 @@ if [[ -d "$HOME/.codeium/windsurf/bin" ]]; then
     export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 fi
 
-# ----- Section: Language Version Management -----
-# Mise (multi-language version manager)
-eval "$(mise activate zsh)"
+# ----- Section: Language Version Management (Performance Optimized) -----
+# Mise (multi-language version manager) - optimized initialization
+if command -v mise >/dev/null 2>&1; then
+    if [[ -n "$DOTFILES_FAST_MODE" ]]; then
+        # Fast mode - minimal mise initialization
+        eval "$(mise activate zsh --quiet)"
+    else
+        # Full mise initialization
+        eval "$(mise activate zsh)"
+    fi
+fi
 
 # ----- Section: Modern Aliases -----
 # File operations (modern replacements with dependency checks)
@@ -249,12 +261,23 @@ function linkedin-post() {
     sgpt "Create a professional LinkedIn post about $topic, include relevant hashtags, make it engaging for tech professionals with 8+ years of Python experience" | tee ~/content/linkedin-$(date +%Y%m%d-%H%M).md
 }
 
-# ----- Section: Advanced AI Functions -----
+# ----- Section: Advanced AI Functions (Security Enhanced) -----
 
-# Context-aware Claude Code helper
+# Load AI security functions
+if [[ -f "$DOTFILES_DIR/lib/ai-security.sh" ]]; then
+    source "$DOTFILES_DIR/lib/ai-security.sh"
+fi
+
+# Context-aware Claude Code helper (SECURITY ENHANCED)
 function claude-context() {
     local prompt="$1"
     local context_files=""
+    
+    if [[ -z "$prompt" ]]; then
+        echo "Usage: claude-context <prompt>"
+        echo "🔒 This function shares local files with Claude Code CLI"
+        return 1
+    fi
     
     # Auto-detect relevant files based on project type
     if [[ -f "pyproject.toml" || -f "requirements.txt" ]]; then
@@ -267,19 +290,29 @@ function claude-context() {
         context_files=$(find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.swift" \) | head -3)
     fi
     
+    # Use safe AI call with security checks
     if [[ -n "$context_files" ]]; then
-        echo "📁 Including context files: $(echo $context_files | tr '\n' ' ')"
-        claude "$prompt" $context_files
+        safe_ai_call claude "$prompt" $context_files
     else
         claude "$prompt"
     fi
 }
 
-# Multi-AI comparison for important decisions
+# Multi-AI comparison for important decisions (SECURITY ENHANCED)
 function ai-compare() {
     local prompt="$1"
     if [[ -z "$prompt" ]]; then
         echo "Usage: ai-compare <question>"
+        echo "🔒 This function sends prompts to multiple AI services"
+        return 1
+    fi
+    
+    print_security_warning "send prompt to multiple AI services (Claude & Gemini)"
+    echo "Continue? Type 'YES' to confirm:"
+    read -r confirmation
+    
+    if [[ "$confirmation" != "YES" ]]; then
+        echo "❌ Operation cancelled."
         return 1
     fi
     
@@ -291,29 +324,33 @@ function ai-compare() {
     echo "\n=== Comparison complete ==="
 }
 
-# Project analysis with AI
+# Project analysis with AI (SECURITY ENHANCED)
 function ai-analyze() {
     local analysis_type=${1:-"overview"}
     
+    echo "🔒 WARNING: This will send your project files to Claude AI"
+    echo "Analysis type: $analysis_type"
+    
     case $analysis_type in
         "overview")
-            echo "🔍 Analyzing project overview..."
-            claude "Analyze this project structure and provide an overview of what it does, its architecture, and key components" $(find . -name "README*" -o -name "*.md" | head -3) $(find . -name "package.json" -o -name "pyproject.toml" -o -name "requirements.txt" | head -2)
+            local files=$(find . -name "README*" -o -name "*.md" | head -3) $(find . -name "package.json" -o -name "pyproject.toml" -o -name "requirements.txt" | head -2)
+            safe_ai_call claude "Analyze this project structure and provide an overview of what it does, its architecture, and key components" $files
             ;;
         "security")
-            echo "🔒 Analyzing project security..."
-            claude "Review this codebase for potential security vulnerabilities and suggest improvements" $(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            local files=$(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            safe_ai_call claude "Review this codebase for potential security vulnerabilities and suggest improvements" $files
             ;;
         "performance")
-            echo "⚡ Analyzing project performance..."
-            claude "Review this codebase for performance bottlenecks and optimization opportunities" $(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            local files=$(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            safe_ai_call claude "Review this codebase for performance bottlenecks and optimization opportunities" $files
             ;;
         "documentation")
-            echo "📚 Analyzing project documentation..."
-            claude "Review this project's documentation and suggest improvements for clarity and completeness" $(find . -name "README*" -o -name "*.md" -o -name "docs/*" | head -5)
+            local files=$(find . -name "README*" -o -name "*.md" -o -name "docs/*" | head -5)
+            safe_ai_call claude "Review this project's documentation and suggest improvements for clarity and completeness" $files
             ;;
         *)
             echo "Usage: ai-analyze [overview|security|performance|documentation]"
+            echo "🔒 This function shares project files with AI services"
             ;;
     esac
 }
@@ -336,11 +373,31 @@ function ai-debug() {
     fi
 }
 
-# AI-powered git commit message generator
+# AI-powered git commit message generator (SECURITY ENHANCED)
 function ai-commit() {
     if ! git diff --cached --quiet; then
+        echo "🔒 ⚠️  GIT SECURITY WARNING ⚠️ 🔒"
+        echo "This will send your git diff (staged changes) to Claude AI"
+        echo "Your code changes will be transmitted to external servers"
+        echo ""
+        echo "Continue? Type 'YES' to confirm:"
+        read -r confirmation
+        
+        if [[ "$confirmation" != "YES" ]]; then
+            echo "❌ Operation cancelled."
+            return 1
+        fi
+        
         echo "📝 Generating commit message based on staged changes..."
         local diff_output=$(git diff --cached)
+        
+        # Check for sensitive content in diff
+        if check_sensitive_content "$diff_output"; then
+            echo "🚨 SENSITIVE CONTENT DETECTED in git diff!"
+            echo "❌ Commit message generation blocked for security."
+            return 1
+        fi
+        
         local commit_msg=$(echo "$diff_output" | claude "Generate a concise, descriptive git commit message for these changes. Follow conventional commit format:")
         echo "Suggested commit message:"
         echo "$commit_msg"
@@ -354,38 +411,68 @@ function ai-commit() {
     fi
 }
 
-# AI-powered code review before push
+# AI-powered code review before push (SECURITY ENHANCED)
 function ai-review-branch() {
     local branch=${1:-$(git branch --show-current)}
     local base_branch=${2:-"main"}
     
-    echo "🔍 AI reviewing changes in branch '$branch' compared to '$base_branch'..."
+    echo "🔒 ⚠️  GIT DIFF SECURITY WARNING ⚠️ 🔒"
+    echo "This will send your git diff between '$base_branch' and '$branch' to Claude AI"
+    echo "ALL code changes in your branch will be transmitted to external servers"
+    echo ""
     
     local changed_files=$(git diff --name-only $base_branch...$branch)
     if [[ -n "$changed_files" ]]; then
-        echo "📁 Files changed: $(echo $changed_files | tr '\n' ' ')"
-        git diff $base_branch...$branch | claude "Review this code diff for a pull request. Check for bugs, code quality, security issues, and suggest improvements:"
+        echo "📁 Files that will be sent to AI:"
+        echo "$changed_files" | sed 's/^/  • /'
+        echo ""
+        echo "Continue? Type 'YES' to confirm:"
+        read -r confirmation
+        
+        if [[ "$confirmation" != "YES" ]]; then
+            echo "❌ Operation cancelled."
+            return 1
+        fi
+        
+        echo "🔍 AI reviewing changes in branch '$branch' compared to '$base_branch'..."
+        local diff_content=$(git diff $base_branch...$branch)
+        
+        # Check for sensitive content in diff
+        if check_sensitive_content "$diff_content"; then
+            echo "🚨 SENSITIVE CONTENT DETECTED in branch diff!"
+            echo "❌ Code review blocked for security."
+            return 1
+        fi
+        
+        echo "$diff_content" | claude "Review this code diff for a pull request. Check for bugs, code quality, security issues, and suggest improvements:"
     else
         echo "No changes found between $base_branch and $branch"
     fi
 }
 
-# Quick AI code explanation
+# Quick AI code explanation (SECURITY ENHANCED)
 function explain() {
     local file="$1"
     if [[ -z "$file" ]]; then
         echo "Usage: explain <file>"
+        echo "🔒 This function sends file contents to Claude AI"
         return 1
     fi
     
     if [[ -f "$file" ]]; then
-        claude "Explain what this code does, its purpose, and how it works:" "$file"
+        # Check if it's a sensitive file
+        if check_sensitive_file "$file"; then
+            echo "❌ Cannot explain sensitive file: $file"
+            return 1
+        fi
+        
+        safe_ai_call claude "Explain what this code does, its purpose, and how it works:" "$file"
     else
         echo "File not found: $file"
     fi
 }
 
-# AI-powered refactoring suggestions
+# AI-powered refactoring suggestions (SECURITY ENHANCED)
 function ai-refactor() {
     local file="$1"
     local focus="${2:-general}"
@@ -393,22 +480,29 @@ function ai-refactor() {
     if [[ -z "$file" ]]; then
         echo "Usage: ai-refactor <file> [focus]"
         echo "Focus options: general, performance, readability, testing"
+        echo "🔒 This function sends file contents to Claude AI"
         return 1
     fi
     
     if [[ -f "$file" ]]; then
+        # Check if it's a sensitive file
+        if check_sensitive_file "$file"; then
+            echo "❌ Cannot refactor sensitive file: $file"
+            return 1
+        fi
+        
         case $focus in
             "performance")
-                claude "Suggest performance optimizations for this code:" "$file"
+                safe_ai_call claude "Suggest performance optimizations for this code:" "$file"
                 ;;
             "readability")
-                claude "Suggest improvements for code readability and maintainability:" "$file"
+                safe_ai_call claude "Suggest improvements for code readability and maintainability:" "$file"
                 ;;
             "testing")
-                claude "Suggest testing strategies and write unit tests for this code:" "$file"
+                safe_ai_call claude "Suggest testing strategies and write unit tests for this code:" "$file"
                 ;;
             *)
-                claude "Suggest refactoring improvements for this code (structure, clarity, best practices):" "$file"
+                safe_ai_call claude "Suggest refactoring improvements for this code (structure, clarity, best practices):" "$file"
                 ;;
         esac
     else
@@ -447,10 +541,21 @@ export FZF_DEFAULT_OPTS="
     --color=marker:#fb4934,fg+:#ebdbb2,prompt:#fb4934,hl+:#fb4934
 "
 
-# ----- Section: Completions -----
-# Load completions
-autoload -U compinit
-compinit
+# ----- Section: Performance & Completions -----
+# Load performance optimizations
+if [[ -f "$DOTFILES_DIR/lib/performance.sh" ]]; then
+    source "$DOTFILES_DIR/lib/performance.sh"
+fi
+
+# Fast mode check
+if [[ -n "$DOTFILES_FAST_MODE" ]]; then
+    # Minimal completions in fast mode
+    autoload -U compinit
+    compinit -C
+else
+    # Optimized completions with caching
+    init_completions_cached
+fi
 
 # Bun completions
 if [[ -s "$HOME/.bun/_bun" ]]; then
@@ -501,10 +606,19 @@ alias df-update="dotfiles_update"
 alias df-changelog="dotfiles_changelog"
 alias df-health="$DOTFILES_DIR/scripts/health-check.sh"
 
+# Performance management aliases
+alias perf-benchmark-startup="perf_benchmark_startup"
+alias perf-profile-startup="perf_profile_startup"
+alias perf-status="perf_status"
+alias enable-fast-mode="enable_fast_mode"
+alias disable-fast-mode="disable_fast_mode"
+
 # ----- Section: Startup Message -----
 echo "🚀 Modern ZSH Configuration Loaded - $(date '+%H:%M')"
 echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
 echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
+echo "🔒 AI Security: ai-security-status, ai-security-strict, ai-security-permissive"
+echo "⚡ Performance: perf-benchmark-startup, enable-fast-mode, perf-status"
 echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions"
 if [[ -f "$DOTFILES_DIR/VERSION" ]]; then
     echo "📦 Dotfiles version: $(cat $DOTFILES_DIR/VERSION) (use 'df-update' to check for updates)"
