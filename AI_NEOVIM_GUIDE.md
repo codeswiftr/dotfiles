@@ -17,10 +17,10 @@ Your Neovim setup now includes **cutting-edge AI coding agent integration** with
 - **Flexible prompting**: Custom generation workflows
 - **Split view**: AI responses alongside your code
 
-### 3. **AI-Terminals.nvim** - Terminal Integration
-- **Seamless CLI access**: Direct integration with AI terminals
-- **Visual selections**: Send code directly to AI
-- **Multiple terminals**: Switch between different AI providers
+### 3. **ToggleTerm Integration** - Enhanced AI Terminal Access
+- **Seamless CLI access**: Direct integration with AI terminals via ToggleTerm
+- **Visual selections**: Send code directly to Claude Code CLI
+- **Smart escaping**: Properly handles code with special characters
 
 ### 4. **NeoAI.nvim** - Smart AI Assistant
 - **Git integration**: AI-generated commit messages
@@ -56,10 +56,10 @@ Your Neovim setup now includes **cutting-edge AI coding agent integration** with
 ### **Terminal Integration**
 | Shortcut | Mode | Action |
 |----------|------|--------|
-| `<leader>av` | v | Send visual selection to AI |
-| `<leader>al` | n | Send current line to AI |
-| `<leader>ab` | n | Send entire buffer to AI |
-| `<leader>at` | n | Toggle AI terminal |
+| `<leader>av` | v | Send visual selection to Claude |
+| `<leader>al` | n | Send current line to Claude |
+| `<leader>ab` | n | Send entire buffer to Claude |
+| `<leader>at` | n | Toggle terminal |
 
 ### **Smart Workflows**
 | Shortcut | Mode | Action |
@@ -245,7 +245,7 @@ function findUser(users, id) {
 ### **When to Use Each Tool**
 - **CodeCompanion**: Complex analysis, detailed explanations
 - **Gen.nvim**: Quick code generation and transformation
-- **AI-Terminals**: Direct CLI interaction and experimentation
+- **ToggleTerm Integration**: Direct CLI interaction with Claude Code CLI
 - **NeoAI**: Text processing and git workflows
 
 ### **Keyboard Workflow Tips**
