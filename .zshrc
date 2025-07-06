@@ -51,7 +51,7 @@ alias grep="rg"
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
-alias cd="z"  # Use zoxide instead of cd
+alias j="z"   # Jump with zoxide (keeps original cd intact)
 
 # Docker aliases
 alias dc="docker compose"
@@ -110,10 +110,9 @@ alias vi="nvim"
 # AI-powered development aliases
 alias ai="aider"
 alias ask="sgpt"
-alias code-review="aider --review"
-alias ai-commit="aider --commit"
-alias ai-test="aider --test"
-alias ai-doc="aider --doc"
+alias aider-review="aider --review"
+alias aider-test="aider --test"
+alias aider-doc="aider --doc"
 
 # Claude Code CLI aliases
 alias claude="claude"
@@ -196,6 +195,13 @@ function tm() {
         tmux-sessionizer "$1"
     fi
 }
+
+# Tmux session management aliases (ts/tl)
+alias ts="tmux list-sessions"       # List tmux sessions
+alias tl="tmux list-sessions"       # Alternative alias for listing sessions
+alias ta="tmux attach-session -t"   # Attach to session by name
+alias tk="tmux kill-session -t"     # Kill session by name
+alias tn="tmux new-session -s"      # Create new named session
 
 # AI-powered project navigation
 function ai-find() {
