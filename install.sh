@@ -599,6 +599,12 @@ setup_nodejs_environment() {
         log_and_run npm install -g @swift-format/cli || true
     fi
     
+    # Install additional AI coding dependencies
+    print_step "Installing AI coding dependencies"
+    if check_command "npm"; then
+        log_and_run npm install -g tree-sitter-cli || true
+    fi
+    
     print_success "Node.js environment configured"
 }
 
