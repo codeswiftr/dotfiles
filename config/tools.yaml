@@ -1,0 +1,379 @@
+# =============================================================================
+# Dotfiles Tools Configuration
+# Declarative configuration for all development tools and dependencies
+# =============================================================================
+
+# Metadata
+version: "2025.1.6"
+description: "Modern development environment tools configuration"
+updated: "2025-07-06"
+
+# Installation groups - allows selective installation
+groups:
+  essential:
+    description: "Core tools required for basic functionality"
+    tools:
+      - zsh
+      - git
+      - curl
+      - nvim
+      - tmux
+  
+  modern_cli:
+    description: "Modern CLI replacements and enhancements"
+    tools:
+      - starship
+      - zoxide
+      - eza
+      - bat
+      - ripgrep
+      - fd
+      - fzf
+      - atuin
+  
+  development:
+    description: "Development tools and version managers"
+    tools:
+      - mise
+      - uv
+      - bun
+      - docker
+  
+  ai_tools:
+    description: "AI development assistance tools"
+    tools:
+      - aider
+      - gh_copilot
+    optional: true
+  
+  optional:
+    description: "Nice-to-have tools for enhanced experience"
+    tools:
+      - tree
+      - htop
+      - jq
+      - yq
+      - delta
+    optional: true
+
+# Tool definitions
+tools:
+  # Essential tools
+  zsh:
+    description: "Z Shell - Modern shell with advanced features"
+    category: "shell"
+    install:
+      macos: "brew install zsh"
+      ubuntu: "sudo apt install zsh"
+      arch: "sudo pacman -S zsh"
+    post_install:
+      - "chsh -s $(which zsh)"
+    verify: "zsh --version"
+    
+  git:
+    description: "Git version control system"
+    category: "vcs"
+    install:
+      macos: "brew install git"
+      ubuntu: "sudo apt install git"
+      arch: "sudo pacman -S git"
+    verify: "git --version"
+    
+  curl:
+    description: "Command line tool for transferring data"
+    category: "network"
+    install:
+      macos: "brew install curl"
+      ubuntu: "sudo apt install curl"
+      arch: "sudo pacman -S curl"
+    verify: "curl --version"
+    
+  nvim:
+    description: "Neovim - Modern text editor"
+    category: "editor"
+    install:
+      macos: "brew install neovim"
+      ubuntu: "sudo snap install nvim --classic"
+      arch: "sudo pacman -S neovim"
+    verify: "nvim --version"
+    
+  tmux:
+    description: "Terminal multiplexer"
+    category: "terminal"
+    install:
+      macos: "brew install tmux"
+      ubuntu: "sudo apt install tmux"
+      arch: "sudo pacman -S tmux"
+    verify: "tmux -V"
+
+  # Modern CLI tools
+  starship:
+    description: "Cross-shell prompt for astronauts"
+    category: "shell"
+    install:
+      macos: "brew install starship"
+      ubuntu: "curl -sS https://starship.rs/install.sh | sh"
+      arch: "sudo pacman -S starship"
+    verify: "starship --version"
+    
+  zoxide:
+    description: "Smarter cd command, inspired by z and autojump"
+    category: "navigation"
+    install:
+      macos: "brew install zoxide"
+      ubuntu: "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+      arch: "sudo pacman -S zoxide"
+    verify: "zoxide --version"
+    
+  eza:
+    description: "Modern replacement for ls"
+    category: "file"
+    install:
+      macos: "brew install eza"
+      ubuntu: "cargo install eza"
+      arch: "sudo pacman -S eza"
+    verify: "eza --version"
+    
+  bat:
+    description: "Cat clone with syntax highlighting and Git integration"
+    category: "file"
+    install:
+      macos: "brew install bat"
+      ubuntu: "sudo apt install bat"
+      arch: "sudo pacman -S bat"
+    verify: "bat --version"
+    
+  ripgrep:
+    description: "Line-oriented search tool that recursively searches"
+    category: "search"
+    install:
+      macos: "brew install ripgrep"
+      ubuntu: "sudo apt install ripgrep"
+      arch: "sudo pacman -S ripgrep"
+    verify: "rg --version"
+    
+  fd:
+    description: "Simple, fast and user-friendly alternative to find"
+    category: "search"
+    install:
+      macos: "brew install fd"
+      ubuntu: "sudo apt install fd-find"
+      arch: "sudo pacman -S fd"
+    verify: "fd --version"
+    
+  fzf:
+    description: "Command-line fuzzy finder"
+    category: "search"
+    install:
+      macos: "brew install fzf"
+      ubuntu: "sudo apt install fzf"
+      arch: "sudo pacman -S fzf"
+    post_install:
+      - "$(brew --prefix)/opt/fzf/install --all"  # macOS
+      - "/usr/share/doc/fzf/examples/install --all"  # Ubuntu
+    verify: "fzf --version"
+    
+  atuin:
+    description: "Magical shell history"
+    category: "shell"
+    install:
+      macos: "brew install atuin"
+      ubuntu: "curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh"
+      arch: "sudo pacman -S atuin"
+    verify: "atuin --version"
+
+  # Development tools
+  mise:
+    description: "Multi-language version manager"
+    category: "development"
+    install:
+      macos: "brew install mise"
+      ubuntu: "curl https://mise.run | sh"
+      arch: "yay -S mise"
+    verify: "mise --version"
+    
+  uv:
+    description: "Fast Python package manager"
+    category: "python"
+    install:
+      macos: "brew install uv"
+      ubuntu: "curl -LsSf https://astral.sh/uv/install.sh | sh"
+      arch: "yay -S uv"
+    verify: "uv --version"
+    
+  bun:
+    description: "Fast JavaScript runtime and package manager"
+    category: "javascript"
+    install:
+      macos: "brew install oven-sh/bun/bun"
+      ubuntu: "curl -fsSL https://bun.sh/install | bash"
+      arch: "yay -S bun-bin"
+    verify: "bun --version"
+    
+  docker:
+    description: "Platform for developing, shipping, and running applications"
+    category: "development"
+    install:
+      macos: "brew install --cask docker"
+      ubuntu: "sudo apt install docker.io docker-compose"
+      arch: "sudo pacman -S docker docker-compose"
+    post_install:
+      - "sudo usermod -aG docker $USER"  # Linux only
+    verify: "docker --version"
+
+  # AI tools (optional)
+  aider:
+    description: "AI pair programming in your terminal"
+    category: "ai"
+    install:
+      all: "pip install aider-chat"
+    verify: "aider --version"
+    
+  gh_copilot:
+    description: "GitHub Copilot CLI"
+    category: "ai"
+    install:
+      all: "gh extension install github/gh-copilot"
+    pre_install:
+      - "gh auth login"
+    verify: "gh copilot --version"
+
+  # Optional tools
+  tree:
+    description: "Display directories as trees"
+    category: "file"
+    install:
+      macos: "brew install tree"
+      ubuntu: "sudo apt install tree"
+      arch: "sudo pacman -S tree"
+    verify: "tree --version"
+    
+  htop:
+    description: "Interactive process viewer"
+    category: "system"
+    install:
+      macos: "brew install htop"
+      ubuntu: "sudo apt install htop"
+      arch: "sudo pacman -S htop"
+    verify: "htop --version"
+    
+  jq:
+    description: "Command-line JSON processor"
+    category: "data"
+    install:
+      macos: "brew install jq"
+      ubuntu: "sudo apt install jq"
+      arch: "sudo pacman -S jq"
+    verify: "jq --version"
+    
+  yq:
+    description: "Command-line YAML processor"
+    category: "data"
+    install:
+      macos: "brew install yq"
+      ubuntu: "sudo snap install yq"
+      arch: "sudo pacman -S yq"
+    verify: "yq --version"
+    
+  delta:
+    description: "Syntax-highlighting pager for git"
+    category: "git"
+    install:
+      macos: "brew install git-delta"
+      ubuntu: "cargo install git-delta"
+      arch: "sudo pacman -S git-delta"
+    verify: "delta --version"
+
+# Platform-specific package managers
+package_managers:
+  macos:
+    primary: "brew"
+    install_command: '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    verify: "brew --version"
+    
+  ubuntu:
+    primary: "apt"
+    secondary: "snap"
+    update_command: "sudo apt update && sudo apt upgrade -y"
+    
+  arch:
+    primary: "pacman"
+    secondary: "yay"
+    install_yay: "git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si"
+
+# Configuration files and their sources
+configs:
+  zsh:
+    source: ".zshrc"
+    target: "~/.zshrc"
+    backup: true
+    
+  tmux:
+    source: ".tmux.conf"
+    target: "~/.tmux.conf"
+    backup: true
+    
+  neovim:
+    source: ".config/nvim/"
+    target: "~/.config/nvim/"
+    backup: true
+    
+  starship:
+    source: ".config/starship.toml"
+    target: "~/.config/starship.toml"
+    backup: true
+    
+  git:
+    source: ".gitconfig"
+    target: "~/.gitconfig"
+    backup: true
+    merge: true  # Merge with existing config
+
+# Installation profiles
+profiles:
+  minimal:
+    description: "Minimal installation for basic functionality"
+    groups: ["essential"]
+    
+  standard:
+    description: "Standard development environment"
+    groups: ["essential", "modern_cli", "development"]
+    
+  full:
+    description: "Complete installation with all tools"
+    groups: ["essential", "modern_cli", "development", "ai_tools", "optional"]
+    
+  ai_focused:
+    description: "AI-enhanced development environment"
+    groups: ["essential", "modern_cli", "development", "ai_tools"]
+
+# Installation options
+options:
+  backup_existing: true
+  create_symlinks: true
+  install_fonts: true
+  setup_shell: true
+  install_tpm: true  # Tmux Plugin Manager
+  
+# Fonts to install
+fonts:
+  - "FiraCode Nerd Font"
+  - "JetBrains Mono Nerd Font"
+  - "Hack Nerd Font"
+
+# Post-installation tasks
+post_install:
+  - name: "Setup shell as default"
+    command: "chsh -s $(which zsh)"
+    
+  - name: "Install Tmux Plugin Manager"
+    command: "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm"
+    
+  - name: "Install vim-plug for Neovim"
+    command: "sh -c 'curl -fLo \"${XDG_DATA_HOME:-$HOME/.local/share}\"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'"
+    
+  - name: "Initialize mise"
+    command: "mise install"
+    
+  - name: "Source new shell configuration"
+    command: "source ~/.zshrc"

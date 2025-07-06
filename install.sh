@@ -4,6 +4,23 @@
 # Modern Dotfiles Setup Script - 2025 Edition
 # One-command installation for the complete development environment
 # ============================================================================
+#
+# 🆕 NEW: Declarative Installation System Available!
+# For a more flexible, configurable installation experience, try:
+#   ./install-declarative.sh --help
+#   ./install-declarative.sh verify
+#   ./install-declarative.sh install standard
+#
+# The new system offers:
+# - Multiple installation profiles (minimal, standard, full, ai_focused)
+# - Dry-run mode for previewing changes
+# - YAML-based configuration
+# - Better cross-platform support
+# - Detailed verification and status checking
+#
+# This legacy installer is maintained for compatibility but will eventually
+# be deprecated in favor of the declarative system.
+# ============================================================================
 
 set -e  # Exit on any error
 
