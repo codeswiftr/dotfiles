@@ -214,7 +214,7 @@ dot_update() {
     fi
     
     # Pull latest changes
-    if git pull origin main; then
+    if git pull origin master; then
         print_success "Repository updated"
     else
         print_error "Failed to update repository"
@@ -225,6 +225,33 @@ dot_update() {
     print_info "Applying configuration changes..."
     dot_setup --force
     
+    # Reload configurations
+    print_info "Reloading configurations..."
+    
+    # Reload tmux configuration if tmux is running
+    if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
+        print_info "Reloading tmux configuration..."
+        tmux source-file ~/.tmux.conf
+        tmux display-message "Tmux configuration reloaded!"
+        print_success "Tmux configuration reloaded"
+    fi
+    
+    # Reload Neovim configuration for all running instances
+    if command -v nvim >/dev/null 2>&1; then
+        print_info "Reloading Neovim configurations..."
+        # Send reload command to all nvim instances via nvr if available
+        if command -v nvr >/dev/null 2>&1; then
+            for server in /tmp/nvim*/0; do
+                if [[ -S "$server" ]]; then
+                    nvr --servername "$server" --remote-send ':source $MYVIMRC<CR>' 2>/dev/null || true
+                fi
+            done
+            print_success "Neovim configurations reloaded"
+        else
+            print_info "Install 'neovim-remote' (nvr) for automatic Neovim config reload"
+        fi
+    fi
+    
     # Update tools via existing update mechanism
     if command -v df-update &> /dev/null; then
         print_info "Updating system packages and tools..."
@@ -232,7 +259,8 @@ dot_update() {
     fi
     
     print_success "Environment update completed!"
-    print_info "Restart your shell to ensure all changes take effect"
+    print_success "All configurations reloaded automatically"
+    print_info "Shell restart recommended for complete environment refresh"
 }
 
 # Help functions
