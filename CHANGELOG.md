@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025.1.6] - 2025-07-06
+
+### 🤖 Advanced AI Coding Agent Integration
+- **Added CodeCompanion.nvim**: Advanced AI assistant with Claude integration and multi-provider support
+- **Integrated Gen.nvim**: AI code generation with direct CLI tool integration (Claude Code CLI, Gemini CLI)
+- **Added AI-Terminals.nvim**: Seamless terminal AI interactions and visual selections
+- **Configured NeoAI.nvim**: Smart text processing and AI-generated git commit messages
+- **Enhanced AI Workflows**: Context-aware assistance with project understanding
+
+### 🎓 Tutorial System Enhancements
+- **Enhanced Lesson 5**: Added real AI commands (cc, gg, claude-context, ai-commit)
+- **Enhanced Lesson 8**: Now "AI-Enhanced Development Workflow" with comprehensive Neovim AI features
+- **Added AI Keybinding Examples**: Complete guide to CodeCompanion.nvim workflows
+- **Integrated AI Practice**: Hands-on AI code review, explanation, test generation, and optimization
+- **AI Workflow Integration**: Connected AI assistance with git operations and development workflows
+
+### 📚 Documentation & Guides
+- **Created AI_NEOVIM_GUIDE.md**: Comprehensive 300+ line guide for AI coding workflows
+- **Added Complete Keybinding Reference**: 40+ AI shortcuts for different coding scenarios
+- **Enhanced Installation**: Added tree-sitter-cli and other AI dependencies
+- **Usage Examples**: Real-world AI coding scenarios and best practices
+
+### 🔧 Technical Enhancements
+- **Multi-Provider AI Support**: Claude (Anthropic), Gemini, and extensible framework
+- **Context-Aware AI**: Understands file types, project structure, and git status
+- **Seamless CLI Integration**: Direct Claude Code CLI and Gemini CLI integration in Neovim
+- **Smart Error Handling**: Graceful fallbacks when AI tools aren't available
+- **Performance Optimized**: Fast AI responses with split-view and chat interfaces
+
+### AI Workflow Features
+✅ **40+ AI Keybindings**: Complete workflow integration  
+✅ **Multi-Provider Support**: Claude, Gemini, and more  
+✅ **Context-Aware**: File-type and project-aware AI assistance  
+✅ **Code Review**: AI-powered code analysis and suggestions  
+✅ **Test Generation**: Automated unit test creation  
+✅ **Code Optimization**: Performance improvement suggestions  
+✅ **Git Integration**: AI-generated commit messages and change analysis  
+✅ **Terminal Integration**: Send code selections directly to AI  
+✅ **Educational**: Interactive tutorial with AI coding examples
+
 ## [2025.1.5] - 2025-01-07
 
 ### 🔧 Neovim Health Check Fixes
