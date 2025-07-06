@@ -169,6 +169,20 @@ function tmux-project() {
     fi
 }
 
+# Smart tmux sessionizer (enhanced project switching)
+function tmux-sessionizer() {
+    ~/.config/tmux/scripts/tmux-sessionizer
+}
+
+# Quick tmux session launcher
+function tm() {
+    if [[ $# -eq 0 ]]; then
+        tmux-sessionizer
+    else
+        tmux-sessionizer "$1"
+    fi
+}
+
 # AI-powered project navigation
 function ai-find() {
     local query="$1"
@@ -273,4 +287,4 @@ echo "🚀 Modern ZSH Configuration Loaded - $(date)"
 echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
 echo "🐍 Python: $(python --version 2>/dev/null || echo 'Not configured')"
 echo "📦 Node: $(node --version 2>/dev/null || echo 'Not configured')"
-echo "🎯 Type 'proj' to switch projects, 'tmux-project' for tmux sessions"
+echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions"
