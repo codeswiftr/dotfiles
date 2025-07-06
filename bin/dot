@@ -206,6 +206,10 @@ main() {
             load_cli_lib "process"
             dot_run "$@"
             ;;
+        "process"|"proc")
+            load_cli_lib "process"
+            dot_run "$@"
+            ;;
 
         # Security commands
         "secret")
