@@ -98,6 +98,13 @@ DATABASE:
         seed               Load test data
         reset              Reset to clean state
 
+DEVCONTAINER:
+    devcontainer       Development container management
+        init [template]    Initialize devcontainer config
+        build              Build container image
+        up                 Start development container
+        exec [cmd]         Execute command in container
+
 GIT OPERATIONS:
     git                Enhanced git operations
         setup-signing      Configure commit signing
@@ -238,6 +245,12 @@ main() {
         "git")
             load_cli_lib "git"
             dot_git "$@"
+            ;;
+
+        # DevContainer commands
+        "devcontainer"|"container")
+            load_cli_lib "devcontainer"
+            dot_devcontainer "$@"
             ;;
 
         # Legacy command mappings for backward compatibility
