@@ -1,0 +1,176 @@
+name: Dotfiles Testing
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main ]
+  schedule:
+    # Run tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+
+jobs:
+  test-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up test environment
+      run: |
+        # Install required tools for testing
+        brew install python3 || true
+        
+    - name: Run infrastructure tests
+      run: |
+        chmod +x tests/test_runner.sh
+        ./tests/test_runner.sh --category infrastructure
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-macos
+        path: tests/results/
+        
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up test environment
+      run: |
+        # Install required tools for testing
+        sudo apt-get update
+        sudo apt-get install -y python3 python3-pip zsh tmux git
+        
+    - name: Run infrastructure tests
+      run: |
+        chmod +x tests/test_runner.sh
+        ./tests/test_runner.sh --category infrastructure
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-ubuntu
+        path: tests/results/
+        
+  test-installation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test minimal installation
+      run: |
+        chmod +x install.sh
+        ./install.sh --dry-run install minimal
+        
+    - name: Test standard installation
+      run: |
+        ./install.sh --dry-run install standard
+        
+    - name: Test full installation
+      run: |
+        ./install.sh --dry-run install full
+        
+    - name: Test health check
+      run: |
+        if [[ -f "scripts/health-check.sh" ]]; then
+          chmod +x scripts/health-check.sh
+          ./scripts/health-check.sh
+        fi
+        
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run security checks
+      run: |
+        # Check for sensitive data
+        if grep -r "password\|secret\|key" --include="*.sh" --include="*.zsh" --include="*.yaml" . | grep -v "# Test" | grep -v "example"; then
+          echo "⚠️ Potential sensitive data found"
+          exit 1
+        fi
+        
+        # Check for proper permissions
+        find . -name "*.sh" -exec test -x {} \; || {
+          echo "⚠️ Some shell scripts are not executable"
+          exit 1
+        }
+        
+        # Check for dangerous commands
+        if grep -r "rm -rf \/" --include="*.sh" --include="*.zsh" .; then
+          echo "⚠️ Dangerous rm commands found"
+          exit 1
+        fi
+        
+  lint-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install shellcheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+        
+    - name: Run shellcheck
+      run: |
+        # Check all shell scripts
+        find . -name "*.sh" -exec shellcheck {} \; || true
+        
+    - name: Check YAML syntax
+      run: |
+        # Install yamllint
+        pip3 install yamllint
+        
+        # Check YAML files
+        find . -name "*.yaml" -o -name "*.yml" | xargs yamllint || true
+        
+  performance-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test installation performance
+      run: |
+        chmod +x install.sh
+        
+        # Time the dry-run installation
+        time ./install.sh --dry-run install minimal
+        
+        # Check startup time
+        if [[ -f "scripts/health-check.sh" ]]; then
+          chmod +x scripts/health-check.sh
+          time ./scripts/health-check.sh
+        fi
+        
+  cross-platform-check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test cross-platform compatibility
+      run: |
+        chmod +x install.sh
+        
+        # Test that installer detects platform correctly
+        ./install.sh --dry-run profiles
+        
+        # Test that configuration works on platform
+        if [[ -f "scripts/health-check.sh" ]]; then
+          chmod +x scripts/health-check.sh
+          ./scripts/health-check.sh
+        fi
