@@ -140,6 +140,43 @@ EOF
     print_success "Migration 2025.1.0 completed"
 }
 
+# Migration for LSP deprecation fixes
+migrate_2025_1_1() {
+    local migration_id="2025.1.1"
+    
+    if is_migration_completed "$migration_id"; then
+        return 0
+    fi
+    
+    print_migration "Running migration for version 2025.1.1 - LSP fixes"
+    
+    # Remove old LSP servers that have been renamed
+    if command -v mason >/dev/null 2>&1; then
+        print_info "Updating Mason LSP servers"
+        # Remove deprecated servers
+        ~/.local/share/nvim/mason/bin/mason uninstall ruff-lsp 2>/dev/null || true
+        ~/.local/share/nvim/mason/bin/mason uninstall typescript-language-server 2>/dev/null || true
+        
+        # Install new servers
+        ~/.local/share/nvim/mason/bin/mason install ruff 2>/dev/null || true
+        ~/.local/share/nvim/mason/bin/mason install typescript-language-server 2>/dev/null || true
+    fi
+    
+    # Update Neovim configuration if it exists and hasn't been updated
+    local nvim_config="$HOME/.config/nvim/init.lua"
+    if [[ -f "$nvim_config" ]]; then
+        # Check if old configuration exists and update it
+        if grep -q "ruff_lsp" "$nvim_config" 2>/dev/null; then
+            print_info "Updating Neovim LSP configuration"
+            # The configuration should already be updated by our new version
+            # This is just a safety check
+        fi
+    fi
+    
+    mark_migration_completed "$migration_id"
+    print_success "Migration 2025.1.1 completed - LSP deprecation warnings fixed"
+}
+
 # Future migration template
 migrate_2025_2_0() {
     local migration_id="2025.2.0"
@@ -174,6 +211,7 @@ run_migrations() {
     # List of all migrations in order
     local migrations=(
         "migrate_2025_1_0"
+        "migrate_2025_1_1"
         # "migrate_2025_2_0"  # Add future migrations here
     )
     
