@@ -361,6 +361,7 @@ configs:
     source: ".config/nvim/"
     target: "~/.config/nvim/"
     backup: true
+    create_dirs: true
     
   starship:
     source: ".config/starship.toml"

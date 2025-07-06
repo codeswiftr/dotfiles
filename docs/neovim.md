@@ -21,27 +21,42 @@ Your Neovim setup has been completely modernized with native LSP, AI integration
 
 ```
 ~/.config/nvim/
-├── init.lua                 # Main configuration
+├── init.lua                 # Main configuration (1111 lines of modern Lua)
 ├── lazy-lock.json          # Plugin versions (auto-generated)
-└── (future modular structure)
-    ├── lua/
-    │   ├── config/
-    │   │   ├── options.lua
-    │   │   ├── keymaps.lua
-    │   │   └── autocmds.lua
-    │   └── plugins/
-    │       ├── lsp.lua
-    │       ├── ai.lua
-    │       └── ui.lua
+└── (installed via dotfiles)
 ```
 
+**Installation Location**: `dotfiles/.config/nvim/init.lua`  
+**Symlinked to**: `~/.config/nvim/init.lua`  
+**Auto-installed**: Via dotfiles installer (`./install.sh`)  
+
 ## 🔧 **Core Features**
+
+### **Complete Plugin Ecosystem**
+**Included plugins (30+ modern plugins)**:
+- **lazy.nvim** - Fast plugin manager with lazy loading
+- **catppuccin/nvim** - Modern color scheme with AI integrations
+- **nvim-tree** + **telescope.nvim** - File exploration and fuzzy finding
+- **nvim-treesitter** - Advanced syntax highlighting and text objects
+- **nvim-lspconfig** + **mason.nvim** - Native LSP with auto-installation
+- **nvim-cmp** + **LuaSnip** - Smart auto-completion system
+- **github/copilot.vim** - GitHub Copilot integration
+- **codecompanion.nvim** - Advanced AI coding assistant
+- **gen.nvim** + **neoai.nvim** - Multiple AI providers
+- **gitsigns.nvim** + **vim-fugitive** - Comprehensive Git integration
+- **lualine.nvim** - Beautiful status line
+- **toggleterm.nvim** - Terminal integration
+- **conform.nvim** - Code formatting
+- **which-key.nvim** - Keybinding help
+- **nvim-autopairs** + **nvim-surround** - Smart editing
+- **Comment.nvim** - Intelligent commenting
+- **indent-blankline.nvim** - Visual indentation guides
 
 ### **Native LSP (Language Server Protocol)**
 ```lua
 -- Automatic language server setup
--- Supports: Python, JavaScript, TypeScript, Go, Rust, and more
--- Features: Autocompletion, diagnostics, hover, goto definition
+-- Supports: Python (pyright+ruff), TypeScript (ts_ls), Swift (sourcekit), Lua (lua_ls)
+-- Features: Auto-completion, diagnostics, hover, goto definition, formatting
 ```
 
 **LSP Keybindings**:
