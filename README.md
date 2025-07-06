@@ -160,24 +160,30 @@ The installation script automatically:
 
 ## 🚀 **Quick Start After Installation**
 
-1. **Restart your terminal** or run:
+### 1. **Interactive Tutorial (Recommended)**
+   ```bash
+   dotfiles-tutor
+   ```
+   **Learn everything hands-on with our interactive tutorial!** 🎓
+
+### 2. **Restart your terminal** or run:
    ```bash
    source ~/.zshrc
    ```
 
-2. **Test AI integration**:
+### 3. **Test AI integration**:
    ```bash
    cc "Hello Claude, help me with Python"
    gg "What's the best FastAPI structure?"
    ```
 
-3. **Launch AI development session**:
+### 4. **Launch AI development session**:
    ```bash
    tm my-project    # Smart project session
    # In tmux: Prefix + A (creates AI development layout)
    ```
 
-4. **Try modern navigation**:
+### 5. **Try modern navigation**:
    ```bash
    z ~/projects     # Smart directory jumping
    proj            # Project switcher with fzf
@@ -207,7 +213,10 @@ The installation script automatically:
 
 ## 📚 **Documentation**
 
+- **🎓 Interactive Tutorial**: `dotfiles-tutor` (Learn everything hands-on!)
 - **AI Workflow Guide**: `~/dotfiles/AI_WORKFLOW_GUIDE.md`
+- **Navigation Guide**: `~/dotfiles/NAVIGATION_GUIDE.md`
+- **Installation Testing**: `~/dotfiles/INSTALLATION_TEST.md`
 - **Keyboard shortcuts**: Use `<leader>` in Neovim to see all commands
 - **Tmux shortcuts**: `Prefix + ?` to see all bindings
 

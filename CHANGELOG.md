@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025.1.3] - 2025-01-07
+
+### Added
+- 🎓 **Interactive Tutorial**: Complete hands-on learning experience like `vimtutor`
+- 📚 **Tutorial Guide**: Comprehensive documentation for the tutorial system
+- 🚀 **10 Progressive Lessons**: From basics to advanced workflows
+- 🎯 **Practice Environment**: Safe sandbox with sample projects
+- 📱 **Menu-Driven Interface**: Choose lessons or follow sequential path
+- ✨ **Command Verification**: Interactive learning with feedback
+- 📎 **Global Access**: `dotfiles-tutor` command available anywhere
+- 🗋 **Step-by-Step Learning**: Modern CLI tools, AI integration, navigation
+
+### Enhanced
+- 📦 **Installation Process**: Automatic tutorial setup during dotfiles installation
+- 📚 **Documentation**: Updated README with tutorial prominence
+- 🔄 **User Onboarding**: Interactive learning replaces static documentation
+- 🎯 **Practical Training**: Real command practice vs theoretical learning
+
+### Tutorial Curriculum
+1. **Welcome & Setup** - Environment introduction
+2. **Modern CLI Tools** - eza, bat, ripgrep, fd basics
+3. **Smart Navigation** - zoxide, fzf mastery
+4. **Project Management** - Switching and organization
+5. **AI Integration** - AI-powered development workflows
+6. **Tmux Sessions** - Terminal multiplexing mastery
+7. **Neovim Navigation** - Multi-pane window management
+8. **Development Workflow** - Complete practical session
+9. **Advanced Features** - Power-user techniques
+10. **Graduation** - Mastery certification and next steps
+
+### Learning Experience
+- **Interactive Practice**: Type real commands, get immediate feedback
+- **Progressive Difficulty**: Build skills from basic to advanced
+- **Visual Design**: Color-coded, emoji-enhanced interface
+- **Self-Contained**: Complete practice environment included
+- **Resumable**: Pick up where you left off
+
 ## [2025.1.2] - 2025-01-07
 
 ### Added

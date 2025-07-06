@@ -575,6 +575,41 @@ EOF
 }
 
 # ============================================================================
+# Setup Interactive Tutorial
+# ============================================================================
+
+setup_tutorial() {
+    print_header "Setting Up Interactive Tutorial"
+    
+    # Ensure bin directory exists
+    mkdir -p "$HOME/bin"
+    
+    # Make tutorial script executable
+    if [[ -f "$DOTFILES_DIR/dotfiles-tutor" ]]; then
+        chmod +x "$DOTFILES_DIR/dotfiles-tutor"
+        print_step "Tutorial script made executable"
+    fi
+    
+    # Install tutorial launcher to bin directory
+    if [[ -f "$DOTFILES_DIR/bin/dotfiles-tutor" ]]; then
+        chmod +x "$DOTFILES_DIR/bin/dotfiles-tutor"
+        ln -sf "$DOTFILES_DIR/bin/dotfiles-tutor" "$HOME/bin/dotfiles-tutor"
+        print_step "Tutorial launcher installed to ~/bin"
+    fi
+    
+    # Ensure ~/bin is in PATH
+    if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+        print_step "Adding ~/bin to PATH in .zshrc"
+        echo "" >> "$HOME/.zshrc"
+        echo "# Add user bin to PATH" >> "$HOME/.zshrc"
+        echo "export PATH=\"\$HOME/bin:\$PATH\"" >> "$HOME/.zshrc"
+    fi
+    
+    print_success "Interactive tutorial installed"
+    print_info "Run 'dotfiles-tutor' from anywhere to start the tutorial"
+}
+
+# ============================================================================
 # Setup Git Configuration
 # ============================================================================
 
@@ -747,7 +782,9 @@ show_final_instructions() {
 - explain file.py  # Explain code with AI
 
 📚 Documentation:
+- Interactive Tutorial: dotfiles-tutor
 - AI Workflow Guide: ~/dotfiles/AI_WORKFLOW_GUIDE.md
+- Navigation Guide: ~/dotfiles/NAVIGATION_GUIDE.md
 - Backup location: BACKUP_DIR
 - Installation log: LOG_FILE
 
@@ -817,6 +854,7 @@ EOF
     setup_neovim
     setup_tmux
     setup_shell_config
+    setup_tutorial
     setup_git_config
     install_plugins
     verify_installation

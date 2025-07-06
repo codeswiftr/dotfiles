@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# ============================================================================
+# Dotfiles Tutorial Launcher
+# Launches the interactive dotfiles tutorial from anywhere
+# ============================================================================
+
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+TUTORIAL_SCRIPT="$DOTFILES_DIR/dotfiles-tutor"
+
+if [[ ! -f "$TUTORIAL_SCRIPT" ]]; then
+    echo "Error: Dotfiles tutorial not found at $TUTORIAL_SCRIPT"
+    echo "Please ensure your dotfiles are properly installed."
+    exit 1
+fi
+
+# Launch the tutorial
+exec "$TUTORIAL_SCRIPT" "$@"
