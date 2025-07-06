@@ -115,6 +115,20 @@ alias ai-commit="aider --commit"
 alias ai-test="aider --test"
 alias ai-doc="aider --doc"
 
+# Claude Code CLI aliases
+alias claude="claude"
+alias cc="claude"
+alias ccr="claude --review"
+alias ccd="claude --doc"
+alias cce="claude --explain"
+
+# Gemini CLI aliases  
+alias gem="gemini"
+alias gg="gemini"
+alias ggr="gemini --review"
+alias ggd="gemini --doc"
+alias gge="gemini --explain"
+
 # GitHub Copilot CLI
 alias cop="gh copilot"
 alias cop-explain="gh copilot explain"
@@ -217,6 +231,173 @@ function linkedin-post() {
     sgpt "Create a professional LinkedIn post about $topic, include relevant hashtags, make it engaging for tech professionals with 8+ years of Python experience" | tee ~/content/linkedin-$(date +%Y%m%d-%H%M).md
 }
 
+# ----- Section: Advanced AI Functions -----
+
+# Context-aware Claude Code helper
+function claude-context() {
+    local prompt="$1"
+    local context_files=""
+    
+    # Auto-detect relevant files based on project type
+    if [[ -f "pyproject.toml" || -f "requirements.txt" ]]; then
+        context_files=$(find . -name "*.py" -not -path "./.venv/*" -not -path "./venv/*" | head -5)
+    elif [[ -f "package.json" ]]; then
+        context_files=$(find . -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" | head -5)
+    elif [[ -f "Package.swift" ]]; then
+        context_files=$(find . -name "*.swift" | head -5)
+    else
+        context_files=$(find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.swift" \) | head -3)
+    fi
+    
+    if [[ -n "$context_files" ]]; then
+        echo "📁 Including context files: $(echo $context_files | tr '\n' ' ')"
+        claude "$prompt" $context_files
+    else
+        claude "$prompt"
+    fi
+}
+
+# Multi-AI comparison for important decisions
+function ai-compare() {
+    local prompt="$1"
+    if [[ -z "$prompt" ]]; then
+        echo "Usage: ai-compare <question>"
+        return 1
+    fi
+    
+    echo "🤖 Getting opinions from multiple AI models..."
+    echo "\n=== Claude Code Response ==="
+    claude "$prompt"
+    echo "\n=== Gemini Response ==="
+    gemini "$prompt"
+    echo "\n=== Comparison complete ==="
+}
+
+# Project analysis with AI
+function ai-analyze() {
+    local analysis_type=${1:-"overview"}
+    
+    case $analysis_type in
+        "overview")
+            echo "🔍 Analyzing project overview..."
+            claude "Analyze this project structure and provide an overview of what it does, its architecture, and key components" $(find . -name "README*" -o -name "*.md" | head -3) $(find . -name "package.json" -o -name "pyproject.toml" -o -name "requirements.txt" | head -2)
+            ;;
+        "security")
+            echo "🔒 Analyzing project security..."
+            claude "Review this codebase for potential security vulnerabilities and suggest improvements" $(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            ;;
+        "performance")
+            echo "⚡ Analyzing project performance..."
+            claude "Review this codebase for performance bottlenecks and optimization opportunities" $(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            ;;
+        "documentation")
+            echo "📚 Analyzing project documentation..."
+            claude "Review this project's documentation and suggest improvements for clarity and completeness" $(find . -name "README*" -o -name "*.md" -o -name "docs/*" | head -5)
+            ;;
+        *)
+            echo "Usage: ai-analyze [overview|security|performance|documentation]"
+            ;;
+    esac
+}
+
+# Error debugging with AI
+function ai-debug() {
+    local error_log="$1"
+    if [[ -z "$error_log" ]]; then
+        echo "Usage: ai-debug <error_message_or_log_file>"
+        echo "   or: <command> 2>&1 | ai-debug"
+        return 1
+    fi
+    
+    if [[ -f "$error_log" ]]; then
+        echo "🐛 Analyzing error log file: $error_log"
+        claude "Help me debug this error. Analyze the error log and suggest solutions:" < "$error_log"
+    else
+        echo "🐛 Analyzing error message..."
+        echo "$error_log" | claude "Help me debug this error. Analyze the error message and suggest solutions:"
+    fi
+}
+
+# AI-powered git commit message generator
+function ai-commit() {
+    if ! git diff --cached --quiet; then
+        echo "📝 Generating commit message based on staged changes..."
+        local diff_output=$(git diff --cached)
+        local commit_msg=$(echo "$diff_output" | claude "Generate a concise, descriptive git commit message for these changes. Follow conventional commit format:")
+        echo "Suggested commit message:"
+        echo "$commit_msg"
+        echo "\nUse this commit message? (y/n)"
+        read -r response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            git commit -m "$commit_msg"
+        fi
+    else
+        echo "No staged changes to commit"
+    fi
+}
+
+# AI-powered code review before push
+function ai-review-branch() {
+    local branch=${1:-$(git branch --show-current)}
+    local base_branch=${2:-"main"}
+    
+    echo "🔍 AI reviewing changes in branch '$branch' compared to '$base_branch'..."
+    
+    local changed_files=$(git diff --name-only $base_branch...$branch)
+    if [[ -n "$changed_files" ]]; then
+        echo "📁 Files changed: $(echo $changed_files | tr '\n' ' ')"
+        git diff $base_branch...$branch | claude "Review this code diff for a pull request. Check for bugs, code quality, security issues, and suggest improvements:"
+    else
+        echo "No changes found between $base_branch and $branch"
+    fi
+}
+
+# Quick AI code explanation
+function explain() {
+    local file="$1"
+    if [[ -z "$file" ]]; then
+        echo "Usage: explain <file>"
+        return 1
+    fi
+    
+    if [[ -f "$file" ]]; then
+        claude "Explain what this code does, its purpose, and how it works:" "$file"
+    else
+        echo "File not found: $file"
+    fi
+}
+
+# AI-powered refactoring suggestions
+function ai-refactor() {
+    local file="$1"
+    local focus="${2:-general}"
+    
+    if [[ -z "$file" ]]; then
+        echo "Usage: ai-refactor <file> [focus]"
+        echo "Focus options: general, performance, readability, testing"
+        return 1
+    fi
+    
+    if [[ -f "$file" ]]; then
+        case $focus in
+            "performance")
+                claude "Suggest performance optimizations for this code:" "$file"
+                ;;
+            "readability")
+                claude "Suggest improvements for code readability and maintainability:" "$file"
+                ;;
+            "testing")
+                claude "Suggest testing strategies and write unit tests for this code:" "$file"
+                ;;
+            *)
+                claude "Suggest refactoring improvements for this code (structure, clarity, best practices):" "$file"
+                ;;
+        esac
+    else
+        echo "File not found: $file"
+    fi
+}
+
 # Quick demo setup
 function demo-setup() {
     local demo_name="$1"
@@ -287,4 +468,6 @@ echo "🚀 Modern ZSH Configuration Loaded - $(date)"
 echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
 echo "🐍 Python: $(python --version 2>/dev/null || echo 'Not configured')"
 echo "📦 Node: $(node --version 2>/dev/null || echo 'Not configured')"
+echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
 echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions"
+echo "💡 AI helpers: claude-context, ai-compare, ai-analyze, explain, ai-commit"
