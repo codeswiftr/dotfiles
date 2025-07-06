@@ -1,0 +1,216 @@
+{
+  "name": "FastAPI Basic Tests",
+  "description": "Basic API testing collection for FastAPI applications",
+  "version": "1.0.0",
+  "folders": [
+    {
+      "name": "Health Checks",
+      "requests": [
+        {
+          "name": "Health Check",
+          "method": "GET",
+          "url": "{{base_url}}/health",
+          "tests": [
+            {
+              "name": "Status is 200",
+              "code": "expect(res.getStatus()).to.equal(200);"
+            },
+            {
+              "name": "Response time is less than 1000ms",
+              "code": "expect(res.getResponseTime()).to.be.below(1000);"
+            }
+          ]
+        },
+        {
+          "name": "Root Endpoint",
+          "method": "GET",
+          "url": "{{base_url}}/",
+          "tests": [
+            {
+              "name": "Status is 200",
+              "code": "expect(res.getStatus()).to.equal(200);"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "requests": [
+        {
+          "name": "Login",
+          "method": "POST",
+          "url": "{{base_url}}/auth/login",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "type": "json",
+            "content": {
+              "username": "{{username}}",
+              "password": "{{password}}"
+            }
+          },
+          "tests": [
+            {
+              "name": "Login successful",
+              "code": "expect(res.getStatus()).to.equal(200);"
+            },
+            {
+              "name": "Token received",
+              "code": "expect(res.getBody().access_token).to.be.a('string');"
+            }
+          ],
+          "vars": [
+            {
+              "name": "access_token",
+              "value": "res.getBody().access_token",
+              "type": "runtime"
+            }
+          ]
+        },
+        {
+          "name": "Protected Route",
+          "method": "GET",
+          "url": "{{base_url}}/users/me",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "tests": [
+            {
+              "name": "Access granted",
+              "code": "expect(res.getStatus()).to.equal(200);"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CRUD Operations",
+      "requests": [
+        {
+          "name": "Create Item",
+          "method": "POST",
+          "url": "{{base_url}}/items/",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {
+            "type": "json",
+            "content": {
+              "title": "Test Item",
+              "description": "Test Description"
+            }
+          },
+          "tests": [
+            {
+              "name": "Item created",
+              "code": "expect(res.getStatus()).to.equal(201);"
+            },
+            {
+              "name": "Item has ID",
+              "code": "expect(res.getBody().id).to.be.a('number');"
+            }
+          ],
+          "vars": [
+            {
+              "name": "item_id",
+              "value": "res.getBody().id",
+              "type": "runtime"
+            }
+          ]
+        },
+        {
+          "name": "Get Item",
+          "method": "GET",
+          "url": "{{base_url}}/items/{{item_id}}",
+          "tests": [
+            {
+              "name": "Item retrieved",
+              "code": "expect(res.getStatus()).to.equal(200);"
+            }
+          ]
+        },
+        {
+          "name": "Update Item",
+          "method": "PUT",
+          "url": "{{base_url}}/items/{{item_id}}",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {
+            "type": "json",
+            "content": {
+              "title": "Updated Test Item",
+              "description": "Updated Description"
+            }
+          },
+          "tests": [
+            {
+              "name": "Item updated",
+              "code": "expect(res.getStatus()).to.equal(200);"
+            }
+          ]
+        },
+        {
+          "name": "Delete Item",
+          "method": "DELETE",
+          "url": "{{base_url}}/items/{{item_id}}",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "tests": [
+            {
+              "name": "Item deleted",
+              "code": "expect(res.getStatus()).to.equal(204);"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "name": "Development",
+      "variables": [
+        {
+          "name": "base_url",
+          "value": "http://localhost:8000",
+          "enabled": true
+        },
+        {
+          "name": "username",
+          "value": "testuser@example.com",
+          "enabled": true
+        },
+        {
+          "name": "password",
+          "value": "testpassword",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "Staging",
+      "variables": [
+        {
+          "name": "base_url",
+          "value": "https://staging-api.example.com",
+          "enabled": true
+        },
+        {
+          "name": "username",
+          "value": "staging@example.com",
+          "enabled": true
+        },
+        {
+          "name": "password",
+          "value": "stagingpassword",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

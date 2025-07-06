@@ -50,6 +50,11 @@ if [[ -z "$DOTFILES_FAST_MODE" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/ai.zsh" ]] && source "$ZSH_CONFIG_DIR/ai.zsh"
 fi
 
+# Testing frameworks (loaded conditionally for performance)
+if [[ -z "$DOTFILES_FAST_MODE" ]]; then
+    [[ -f "$ZSH_CONFIG_DIR/testing.zsh" ]] && source "$ZSH_CONFIG_DIR/testing.zsh"
+fi
+
 # ----- Load Legacy Functions and Custom User Config -----
 perf_time "Loading legacy and user config"
 
@@ -71,9 +76,10 @@ if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
     echo "🚀 Modern ZSH Configuration Loaded - $(date +%H:%M)"
     echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
     echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
+    echo "🧪 Testing tools: bruno (bt), playwright (pw), pytest (pt), k6"
     echo "🔒 AI Security: ai-security-status, ai-security-strict, ai-security-permissive"
     echo "⚡ Performance: perf-benchmark-startup, enable-fast-mode, perf-status"
-    echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions"
+    echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions, 'testing-status' for test setup"
     echo "📦 Dotfiles version: $(cat $DOTFILES_DIR/VERSION 2>/dev/null || echo '2025.1.6') (use 'df-update' to check for updates)"
 fi
 
