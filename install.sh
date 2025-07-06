@@ -618,16 +618,26 @@ setup_neovim() {
     # Create Neovim config directory
     mkdir -p "$HOME/.config/nvim"
     
-    # Link our modern Neovim configuration
-    print_step "Installing Neovim configuration"
+    # Modern Neovim configuration setup
+    print_step "Installing modern Neovim Lua configuration"
     if [[ -f "$DOTFILES_DIR/.config/nvim/init.lua" ]]; then
         ln -sf "$DOTFILES_DIR/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
     else
-        # Copy our configuration to the config directory
-        cp "$DOTFILES_DIR/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua" 2>/dev/null || true
+        print_error "Modern Neovim config not found at $DOTFILES_DIR/.config/nvim/init.lua"
+        return 1
     fi
     
-    print_success "Neovim configuration installed"
+    # Handle legacy vim configuration
+    print_step "Migrating from legacy .vimrc to modern Neovim"
+    if [[ -f "$HOME/.vimrc" && ! -L "$HOME/.vimrc" ]]; then
+        print_step "Backing up existing .vimrc"
+        mv "$HOME/.vimrc" "$HOME/.vimrc.backup.$(date +%Y%m%d)"
+    fi
+    
+    # Link deprecation notice
+    ln -sf "$DOTFILES_DIR/.vimrc.deprecated" "$HOME/.vimrc"
+    
+    print_success "Neovim configuration installed with legacy migration complete"
 }
 
 # ============================================================================
