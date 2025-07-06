@@ -10,7 +10,7 @@ typeset -U path PATH
 autoload -U colors && colors
 
 # Set default editor
-export EDITOR="vim"
+export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
 # ----- Section: Modern Shell Tools -----
@@ -103,6 +103,8 @@ alias jbook="jupyter notebook"
 alias src="source ~/.zshrc"
 alias reload="source ~/.zshrc"
 alias man="~/dotfiles/viman"
+alias vim="nvim"
+alias vi="nvim"
 
 # ----- Section: AI Integration -----
 # AI-powered development aliases
