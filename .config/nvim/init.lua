@@ -148,8 +148,6 @@ require("lazy").setup({
             enabled = true,
             indentscope_color = "",
           },
-          -- AI plugins integration
-          codecompanion = true,
           -- Modern plugins
           telescope = {
             enabled = true,
