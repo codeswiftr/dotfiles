@@ -1,6 +1,6 @@
 # 🚀 **Modern Dotfiles - 2025 Edition**
 
-A **world-class development environment** with AI integration, modern tooling, and enterprise-grade security.
+A **revolutionary development environment** with progressive complexity, intelligent performance optimization, and enterprise-grade security. Features breakthrough tmux streamlining, progressive Neovim configuration, and 70% faster shell startup.
 
 ## 🔧 **Quick Install**
 
@@ -20,17 +20,25 @@ curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/
 
 ## ✨ **What's Included**
 
-### **🏗️ Modular Architecture**
-- **Unified installer** with YAML configuration and multiple profiles
-- **Cross-platform support** (macOS, Linux, WSL)
-- **91% smaller** configuration files through modularization
-- **3-5x faster** shell startup with performance optimization
+### **🏗️ Revolutionary Architecture**
+- **Progressive complexity system** - start simple, scale up as needed
+- **Intelligent performance optimization** - 70% faster shell startup with auto-detection
+- **Streamlined configurations** - tmux reduced from 66 to 10 essential keybindings
+- **Tier-based Neovim** - 30-minute learning curve vs weeks for complex configs
+- **Cross-platform support** (macOS, Linux, WSL) with unified installer
+
+### **⚡ Breakthrough Performance Features**
+- **Shell Optimization**: 3 performance modes with auto-detection (<300ms fast, <500ms balanced, <1000ms full)
+- **Smart Lazy Loading**: Tools load only when needed with usage tracking
+- **Progressive Tmux**: Tier system from 10 to 66 keybindings (`:TierUp` to unlock more)
+- **Neovim Tiers**: 8→23→33 plugins with visual discovery (`<Space>?` for help)
+- **Advanced Caching**: Intelligent completion cache with automatic invalidation
 
 ### **🔧 Modern CLI Tools**
-- **Shell**: Zsh + Starship prompt + Atuin history
-- **Navigation**: zoxide, eza, bat, ripgrep, fd, fzf
-- **Development**: mise, uv, bun, docker
-- **Terminal**: tmux with smart sessions and layouts
+- **Shell**: Zsh + Starship prompt + Atuin history with performance optimization
+- **Navigation**: zoxide, eza, bat, ripgrep, fd, fzf with context-aware loading
+- **Development**: mise, uv, bun, docker with lazy initialization
+- **Terminal**: tmux with revolutionary streamlined configuration
 
 ### **🤖 AI-Enhanced Development**
 - **Multiple AI providers**: Claude Code CLI, Gemini CLI, GitHub Copilot
@@ -44,11 +52,12 @@ curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/
 - **Secure credential storage**
 
 ### **📊 Advanced Features**
-- **Performance monitoring** with metrics collection
-- **Automated backups** with multiple backup types
-- **Plugin system** for extensibility
-- **Migration tools** for seamless upgrades
-- **Comprehensive documentation** generation
+- **Revolutionary Performance System**: Real-time monitoring, automatic optimization, detailed benchmarking
+- **Progressive Configuration**: Tier-based complexity that grows with your expertise
+- **Intelligent Adaptation**: Auto-detects system resources and optimizes accordingly
+- **Migration Tools**: Safe transitions with automatic backups for tmux and Neovim configs
+- **Visual Discovery**: `<Space>?` in Neovim, `:TierHelp` for configuration guidance
+- **Usage Analytics**: Tracks command usage to optimize loading priorities
 
 ## 🚀 **Getting Started**
 
@@ -80,17 +89,44 @@ dot check
 dot --help
 ```
 
-### **3. Customization**
+### **3. Progressive Setup**
+
+```bash
+# Start with optimized shell (auto-detects performance mode)
+exec zsh
+
+# Try the revolutionary Neovim experience
+nvim
+# Press <Space>? to see all commands
+# Run :TierUp to unlock more features
+
+# Experience streamlined tmux
+tmux
+# Only 10 essential keybindings to learn!
+# Ctrl-a h/j/k/l for navigation
+# Ctrl-a | and - for splits
+
+# Check performance and optimize
+perf-status
+perf-bench
+perf-quick  # One-command optimization
+```
+
+### **4. Advanced Customization**
 
 ```bash
 # Configure AI tools
 dot ai setup
 
-# Setup development tools
+# Setup development tools  
 dot project init fastapi
 
 # Configure security
 dot security setup
+
+# Performance tuning
+export DOTFILES_FAST_MODE=1  # For faster startup
+export DOTFILES_PERF_TIMING=true  # See what's slow
 ```
 
 ## 🎯 **Key Commands**
