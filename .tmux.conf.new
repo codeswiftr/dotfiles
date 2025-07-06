@@ -1,0 +1,49 @@
+# ============================================================================
+# Modern Tmux Configuration - Streamlined Developer Experience
+# Progressive complexity with visual discovery and smart defaults
+# ============================================================================
+
+# ----- Environment Setup -----
+TMUX_CONFIG_DIR="$HOME/dotfiles/config/tmux"
+
+# ----- Core Configuration -----
+source-file "$TMUX_CONFIG_DIR/core-simple.conf"
+
+# ----- Visual Enhancements -----
+source-file "$TMUX_CONFIG_DIR/visual-enhanced.conf"
+
+# ----- Progressive Key Bindings -----
+# Start with essential bindings (10 commands)
+source-file "$TMUX_CONFIG_DIR/bindings-tier1.conf"
+
+# Load intermediate bindings if user has enabled them
+# Uncomment next line when ready for 15 additional shortcuts:
+# source-file "$TMUX_CONFIG_DIR/bindings-tier2.conf"
+
+# Load advanced bindings for power users
+# Uncomment next line when ready for full development workflow:
+# source-file "$TMUX_CONFIG_DIR/bindings-tier3.conf"
+
+# ----- Plugin Configuration -----
+# Only essential plugins for better performance
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-yank'
+
+# Optional plugins (uncomment when needed):
+# set -g @plugin 'tmux-plugins/tmux-resurrect'
+# set -g @plugin 'tmux-plugins/tmux-continuum'
+# set -g @plugin 'catppuccin/tmux'
+
+# ----- User Customizations -----
+# Load user-specific overrides if they exist
+if-shell "test -f ~/.tmux.local.conf" "source-file ~/.tmux.local.conf"
+
+# ----- Plugin Initialization -----
+# Keep this line at the very bottom
+run '~/.tmux/plugins/tpm/tpm'
+
+# ----- Welcome Message -----
+# Show help on first attach
+if-shell "test ! -f ~/.tmux-initialized" \
+    "display-message 'Welcome to tmux! Press Ctrl-a ? for help. Creating ~/.tmux-initialized'; run-shell 'touch ~/.tmux-initialized'"
