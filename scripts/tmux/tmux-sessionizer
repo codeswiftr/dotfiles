@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Tmux Sessionizer
+# Smart tmux session management and project switching
+# ============================================================================
+
+set -e
+
+# Configuration
+SEARCH_DIRS=(
+    "$HOME/work"
+    "$HOME/projects" 
+    "$HOME/dev"
+    "$HOME/dotfiles"
+    "$HOME"
+)
+
+# Get project directory
+get_project_dir() {
+    # If argument provided, use it as search term
+    if [[ $# -eq 1 ]]; then
+        local query="$1"
+        # Search for directories matching the query
+        for search_dir in "${SEARCH_DIRS[@]}"; do
+            if [[ -d "$search_dir" ]]; then
+                local result=$(find "$search_dir" -maxdepth 2 -type d -name "*$query*" 2>/dev/null | head -1)
+                if [[ -n "$result" ]]; then
+                    echo "$result"
+                    return
+                fi
+            fi
+        done
+        echo "$HOME/$query"  # Fallback to home directory
+    else
+        # Use fzf to select directory if available
+        if command -v fzf >/dev/null 2>&1; then
+            local dirs=""
+            for search_dir in "${SEARCH_DIRS[@]}"; do
+                if [[ -d "$search_dir" ]]; then
+                    dirs+=$(find "$search_dir" -maxdepth 2 -type d 2>/dev/null)$'\n'
+                fi
+            done
+            echo "$dirs" | grep -v "^$" | fzf --prompt="Select project: " --height=40% --reverse
+        else
+            # Fallback to current directory
+            echo "$(pwd)"
+        fi
+    fi
+}
+
+# Get session name from directory
+get_session_name() {
+    local dir="$1"
+    basename "$dir" | tr . _
+}
+
+# Main function
+main() {
+    local selected_dir=$(get_project_dir "$@")
+    
+    if [[ -z "$selected_dir" ]]; then
+        echo "❌ No directory selected" >&2
+        exit 1
+    fi
+    
+    local session_name=$(get_session_name "$selected_dir")
+    
+    # Create directory if it doesn't exist
+    if [[ ! -d "$selected_dir" ]]; then
+        mkdir -p "$selected_dir"
+    fi
+    
+    # Check if tmux is running
+    if ! tmux list-sessions >/dev/null 2>&1; then
+        # Start new tmux server with session
+        tmux new-session -d -s "$session_name" -c "$selected_dir"
+        tmux switch-client -t "$session_name" 2>/dev/null || tmux attach-session -t "$session_name"
+        exit 0
+    fi
+    
+    # Check if session already exists
+    if tmux has-session -t "$session_name" 2>/dev/null; then
+        tmux switch-client -t "$session_name" 2>/dev/null || tmux attach-session -t "$session_name"
+    else
+        tmux new-session -d -s "$session_name" -c "$selected_dir"
+        tmux switch-client -t "$session_name" 2>/dev/null || tmux attach-session -t "$session_name"
+    fi
+}
+
+# Run main function
+main "$@"

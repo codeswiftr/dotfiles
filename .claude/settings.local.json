@@ -15,7 +15,8 @@
       "Bash(gemini:*)",
       "Bash(cp:*)",
       "Bash(./install.sh:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
