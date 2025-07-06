@@ -439,6 +439,17 @@ install_plugins() {
     print_step "Setting up mise"
     log_and_run mise trust || true
     
+    # Setup version management
+    print_step "Setting up dotfiles version management"
+    if [[ -f "$DOTFILES_DIR/lib/version.sh" ]]; then
+        chmod +x "$DOTFILES_DIR/lib/version.sh"
+    fi
+    if [[ -f "$DOTFILES_DIR/lib/migrate.sh" ]]; then
+        chmod +x "$DOTFILES_DIR/lib/migrate.sh"
+        # Run initial migrations
+        bash "$DOTFILES_DIR/lib/migrate.sh" || true
+    fi
+    
     print_success "Plugins installation completed"
 }
 
@@ -526,6 +537,12 @@ show_final_instructions() {
 🤖 AI Integration Ready:
 Your terminal now seamlessly integrates Claude Code CLI 
 and Gemini CLI for AI-assisted development!
+
+🔄 Version Management:
+- Check version: df-version
+- Update dotfiles: df-update  
+- View changelog: df-changelog
+- Auto-update checks every 7 days
 
 Happy coding! 🚀
 EOF

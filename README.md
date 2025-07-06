@@ -111,13 +111,41 @@ explain file.py                             # Code explanation
 - Enhanced git configuration
 - Starship prompt configuration
 
-## 🔄 **Migration & Backup**
+## 🔄 **Version Management & Updates**
+
+Your dotfiles include **automatic version management** similar to Oh My Zsh:
+
+### **Update Commands**
+```bash
+df-version      # Check current version and update status
+df-update       # Update to latest version with backup
+df-changelog    # View recent changes and new features
+```
+
+### **Auto-Update Features**
+- ✅ **Weekly update checks** (every 7 days)
+- ✅ **Beautiful update notifications** when new versions available
+- ✅ **Automatic backups** before any updates
+- ✅ **Migration system** handles breaking changes
+- ✅ **Safe rollback** if anything goes wrong
+- ✅ **Semantic versioning** (YYYY.MAJOR.MINOR)
+
+### **Update Process**
+1. **Automatic notification** when updates are available
+2. **One-command update** with `df-update`
+3. **Automatic backup** of current configuration
+4. **Git-based updates** for reliability
+5. **Migration scripts** handle version changes
+6. **Verification** ensures everything works
+
+## 🔄 **Installation & Backup**
 
 The installation script automatically:
 - ✅ Backs up your existing configuration
 - ✅ Installs all dependencies
 - ✅ Sets up configurations
 - ✅ Verifies installation
+- ✅ Enables version management
 - ✅ Provides rollback information
 
 **Backup location**: `~/dotfiles-backup-TIMESTAMP`
