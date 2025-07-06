@@ -463,6 +463,25 @@ setopt AUTO_LIST
 setopt AUTO_PARAM_SLASH
 setopt EXTENDED_GLOB
 
+# ----- Section: Dotfiles Version Management -----
+DOTFILES_DIR="$HOME/dotfiles"
+
+# Load version management functions
+if [[ -f "$DOTFILES_DIR/lib/version.sh" ]]; then
+    source "$DOTFILES_DIR/lib/version.sh"
+    
+    # Auto-check for updates (respects update interval)
+    auto_update_check
+fi
+
+# Dotfiles management aliases
+alias dotfiles-version="dotfiles_version"
+alias dotfiles-update="dotfiles_update"
+alias dotfiles-changelog="dotfiles_changelog"
+alias df-version="dotfiles_version"
+alias df-update="dotfiles_update"
+alias df-changelog="dotfiles_changelog"
+
 # ----- Section: Startup Message -----
 echo "🚀 Modern ZSH Configuration Loaded - $(date)"
 echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
@@ -471,3 +490,6 @@ echo "📦 Node: $(node --version 2>/dev/null || echo 'Not configured')"
 echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
 echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions"
 echo "💡 AI helpers: claude-context, ai-compare, ai-analyze, explain, ai-commit"
+if [[ -f "$DOTFILES_DIR/VERSION" ]]; then
+    echo "📦 Dotfiles version: $(cat $DOTFILES_DIR/VERSION) (use 'df-update' to check for updates)"
+fi
