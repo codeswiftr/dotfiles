@@ -30,22 +30,35 @@ export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# Windsurf (AI Code Editor)
-export PATH="/Users/bogdan/.codeium/windsurf/bin:$PATH"
+# Windsurf (AI Code Editor) - Cross-platform path
+if [[ -d "$HOME/.codeium/windsurf/bin" ]]; then
+    export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+fi
 
 # ----- Section: Language Version Management -----
 # Mise (multi-language version manager)
 eval "$(mise activate zsh)"
 
 # ----- Section: Modern Aliases -----
-# File operations (modern replacements)
-alias ls="eza --icons --git"
-alias ll="eza --icons --git -l"
-alias la="eza --icons --git -la"
-alias lt="eza --icons --git --tree"
-alias cat="bat"
-alias find="fd"
-alias grep="rg"
+# File operations (modern replacements with dependency checks)
+if command -v eza &> /dev/null; then
+    alias ls="eza --icons --git"
+    alias ll="eza --icons --git -l"
+    alias la="eza --icons --git -la"
+    alias lt="eza --icons --git --tree"
+fi
+
+if command -v bat &> /dev/null; then
+    alias cat="bat"
+fi
+
+if command -v fd &> /dev/null; then
+    alias find="fd"
+fi
+
+if command -v rg &> /dev/null; then
+    alias grep="rg"
+fi
 
 # Directory navigation
 alias ..="cd .."
@@ -196,9 +209,8 @@ function tm() {
     fi
 }
 
-# Tmux session management aliases (ts/tl)
+# Tmux session management aliases
 alias ts="tmux list-sessions"       # List tmux sessions
-alias tl="tmux list-sessions"       # Alternative alias for listing sessions
 alias ta="tmux attach-session -t"   # Attach to session by name
 alias tk="tmux kill-session -t"     # Kill session by name
 alias tn="tmux new-session -s"      # Create new named session
@@ -489,13 +501,10 @@ alias df-update="dotfiles_update"
 alias df-changelog="dotfiles_changelog"
 
 # ----- Section: Startup Message -----
-echo "🚀 Modern ZSH Configuration Loaded - $(date)"
+echo "🚀 Modern ZSH Configuration Loaded - $(date '+%H:%M')"
 echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
-echo "🐍 Python: $(python --version 2>/dev/null || echo 'Not configured')"
-echo "📦 Node: $(node --version 2>/dev/null || echo 'Not configured')"
 echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
 echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions"
-echo "💡 AI helpers: claude-context, ai-compare, ai-analyze, explain, ai-commit"
 if [[ -f "$DOTFILES_DIR/VERSION" ]]; then
     echo "📦 Dotfiles version: $(cat $DOTFILES_DIR/VERSION) (use 'df-update' to check for updates)"
 fi

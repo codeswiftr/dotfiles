@@ -95,12 +95,25 @@ wait_for_command() {
         echo -e "${BOLD}Your turn! Type the command:${NC}"
         read -r user_input
         
-        if [[ "$user_input" == "$expected_command" ]]; then
+        # Normalize whitespace for comparison
+        local normalized_input=$(echo "$user_input" | xargs)
+        local normalized_expected=$(echo "$expected_command" | xargs)
+        
+        if [[ "$normalized_input" == "$normalized_expected" ]]; then
             print_success "Correct! Well done."
             break
         else
             echo -e "${RED}Not quite right. $hint${NC}"
             echo -e "${YELLOW}Expected: $expected_command${NC}"
+            
+            # Provide specific feedback
+            if [[ "$user_input" =~ ^[[:space:]]*$ ]]; then
+                echo -e "${BLUE}${TIP} You didn't enter anything. Try typing the command above.${NC}"
+            elif [[ ${#user_input} -lt ${#expected_command} ]]; then
+                echo -e "${BLUE}${TIP} Your command seems incomplete. Double-check the spelling.${NC}"
+            else
+                echo -e "${BLUE}${TIP} Check for typos or extra characters.${NC}"
+            fi
         fi
     done
 }
