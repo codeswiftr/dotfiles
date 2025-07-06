@@ -46,6 +46,15 @@ groups:
       - gh_copilot
     optional: true
   
+  testing_tools:
+    description: "Modern testing framework suite"
+    tools:
+      - bruno
+      - playwright
+      - k6
+      - pytest_enhanced
+    optional: true
+  
   optional:
     description: "Nice-to-have tools for enhanced experience"
     tools:
@@ -284,6 +293,41 @@ tools:
       arch: "sudo pacman -S git-delta"
     verify: "delta --version"
 
+  # Testing tools
+  bruno:
+    description: "Modern API testing tool with Git-friendly collections"
+    category: "testing"
+    install:
+      macos: "brew install bruno"
+      ubuntu: "sudo snap install bruno"
+      arch: "yay -S bruno-bin"
+    verify: "bruno --version"
+    
+  playwright:
+    description: "Modern web testing framework for E2E testing"
+    category: "testing"
+    install:
+      all: "bun add -g @playwright/test"
+    post_install:
+      - "bunx playwright install"
+    verify: "bunx playwright --version"
+    
+  k6:
+    description: "Modern load testing tool for developers"
+    category: "testing"
+    install:
+      macos: "brew install k6"
+      ubuntu: "sudo gpg -k && sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69 && echo \"deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main\" | sudo tee /etc/apt/sources.list.d/k6.list && sudo apt-get update && sudo apt-get install k6"
+      arch: "yay -S k6-bin"
+    verify: "k6 version"
+    
+  pytest_enhanced:
+    description: "Enhanced pytest setup with FastAPI testing utilities"
+    category: "testing"
+    install:
+      all: "uv add --dev pytest pytest-asyncio pytest-cov pytest-mock pytest-xdist pytest-benchmark pytest-watch httpx factory-boy freezegun"
+    verify: "python -m pytest --version"
+
 # Platform-specific package managers
 package_managers:
   macos:
@@ -341,7 +385,7 @@ profiles:
     
   full:
     description: "Complete installation with all tools"
-    groups: ["essential", "modern_cli", "development", "ai_tools", "optional"]
+    groups: ["essential", "modern_cli", "development", "ai_tools", "testing_tools", "optional"]
     
   ai_focused:
     description: "AI-enhanced development environment"
