@@ -135,3 +135,9 @@ alias ts="tmux list-sessions"       # List tmux sessions
 alias ta="tmux attach-session -t"   # Attach to session by name
 alias tk="tmux kill-session -t"     # Kill session by name
 alias tn="tmux new-session -s"      # Create new named session
+
+# Tmux clipboard aliases
+alias tcopy="~/dotfiles/scripts/tmux-clipboard.sh copy"
+alias tpaste="~/dotfiles/scripts/tmux-clipboard.sh paste"
+alias tclip-status="~/dotfiles/scripts/tmux-clipboard.sh status"
+alias tclip-test="~/dotfiles/scripts/tmux-clipboard.sh test"
