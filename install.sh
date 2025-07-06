@@ -248,15 +248,20 @@ install_macos_tools() {
         "tree"              # Directory tree viewer
     )
     
-    print_step "Installing CLI tools via Homebrew: ${tools[*]}"
+    # Check which tools need installation
+    local tools_to_install=()
     for tool in "${tools[@]}"; do
         if ! check_command "$tool"; then
-            print_step "Installing $tool"
-            log_and_run brew install "$tool"
-        else
-            print_step "$tool already installed"
+            tools_to_install+=("$tool")
         fi
     done
+    
+    if [[ ${#tools_to_install[@]} -gt 0 ]]; then
+        print_step "Installing CLI tools via Homebrew: ${tools_to_install[*]}"
+        log_and_run brew install "${tools_to_install[@]}"
+    else
+        print_step "All CLI tools already installed"
+    fi
     
     print_success "All macOS CLI tools installed"
 }
@@ -275,10 +280,8 @@ install_ubuntu_tools() {
         "bat"
     )
     
-    for tool in "${apt_tools[@]}"; do
-        print_step "Installing $tool via apt"
-        log_and_run sudo apt install -y "$tool"
-    done
+    print_step "Installing CLI tools via apt: ${apt_tools[*]}"
+    log_and_run sudo apt install -y "${apt_tools[@]}"
     
     # Create symlinks for Ubuntu-specific naming
     sudo mkdir -p /usr/local/bin
@@ -316,7 +319,17 @@ install_starship_ubuntu() {
     fi
     
     print_step "Installing starship"
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    print_step "Downloading starship installer"
+    curl -sS https://starship.rs/install.sh -o install_starship.sh
+    
+    print_step "Running starship installer"
+    sh install_starship.sh -y
+    
+    cd - > /dev/null
+    rm -rf "$temp_dir"
 }
 
 install_zoxide_ubuntu() {
@@ -326,7 +339,17 @@ install_zoxide_ubuntu() {
     fi
     
     print_step "Installing zoxide"
-    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    print_step "Downloading zoxide installer"
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh -o install_zoxide.sh
+    
+    print_step "Running zoxide installer"
+    bash install_zoxide.sh
+    
+    cd - > /dev/null
+    rm -rf "$temp_dir"
 }
 
 install_eza_ubuntu() {
@@ -354,8 +377,16 @@ install_delta_ubuntu() {
     fi
     
     print_step "Installing delta"
+    
+    # Detect architecture
+    local arch_string
+    case "$ARCH" in
+        "arm64"|"aarch64") arch_string="arm64" ;;
+        *) arch_string="amd64" ;;
+    esac
+    
     local version=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | jq -r '.tag_name')
-    local deb_url="https://github.com/dandavison/delta/releases/download/${version}/git-delta_${version}_amd64.deb"
+    local deb_url="https://github.com/dandavison/delta/releases/download/${version}/git-delta_${version}_${arch_string}.deb"
     
     local temp_dir=$(mktemp -d)
     cd "$temp_dir"
@@ -372,7 +403,17 @@ install_atuin_ubuntu() {
     fi
     
     print_step "Installing atuin"
-    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    print_step "Downloading atuin installer"
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh -o install_atuin.sh
+    
+    print_step "Running atuin installer"
+    sh install_atuin.sh
+    
+    cd - > /dev/null
+    rm -rf "$temp_dir"
 }
 
 install_mise_ubuntu() {
@@ -382,7 +423,17 @@ install_mise_ubuntu() {
     fi
     
     print_step "Installing mise"
-    curl https://mise.run | sh
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    
+    print_step "Downloading mise installer"
+    curl https://mise.run -o install_mise.sh
+    
+    print_step "Running mise installer"
+    sh install_mise.sh
+    
+    cd - > /dev/null
+    rm -rf "$temp_dir"
 }
 
 install_neovim_ubuntu() {
@@ -419,7 +470,17 @@ setup_python_environment() {
     # Install uv (modern Python package manager)
     if ! check_command "uv"; then
         print_step "Installing uv (Python package manager)"
-        log_and_run curl -LsSf https://astral.sh/uv/install.sh | sh
+        local temp_dir=$(mktemp -d)
+        cd "$temp_dir"
+        
+        print_step "Downloading uv installer"
+        curl -LsSf https://astral.sh/uv/install.sh -o install_uv.sh
+        
+        print_step "Running uv installer"
+        sh install_uv.sh
+        
+        cd - > /dev/null
+        rm -rf "$temp_dir"
         export PATH="$HOME/.local/bin:$PATH"
     fi
     
@@ -461,7 +522,17 @@ setup_nodejs_environment() {
     # Install Bun (modern JavaScript runtime)
     if ! check_command "bun"; then
         print_step "Installing Bun"
-        log_and_run curl -fsSL https://bun.sh/install | bash
+        local temp_dir=$(mktemp -d)
+        cd "$temp_dir"
+        
+        print_step "Downloading Bun installer"
+        curl -fsSL https://bun.sh/install -o install_bun.sh
+        
+        print_step "Running Bun installer"
+        bash install_bun.sh
+        
+        cd - > /dev/null
+        rm -rf "$temp_dir"
         export PATH="$HOME/.bun/bin:$PATH"
     fi
     
