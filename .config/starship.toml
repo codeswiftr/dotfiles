@@ -18,7 +18,7 @@ $line_break\
 $python\
 $nodejs\
 $rust\
-$go\
+$golang\
 $lua\
 $docker_context\
 $aws\
@@ -118,7 +118,7 @@ symbol = "󱘗 "
 format = '[$symbol$version]($style) '
 style = "bold peach"
 
-[go]
+[golang]
 symbol = "󰟓 "
 format = '[$symbol$version]($style) '
 style = "bold sky"
