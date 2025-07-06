@@ -1,0 +1,203 @@
+# ============================================================================
+# Starship Configuration - Catppuccin Mocha Theme
+# Modern prompt for 2025 development environments
+# ============================================================================
+
+# Use Catppuccin color palette
+palette = "catppuccin_mocha"
+
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$python\
+$nodejs\
+$rust\
+$go\
+$lua\
+$docker_context\
+$aws\
+$character"""
+
+# ============================================================================
+# Catppuccin Mocha Color Palette
+# ============================================================================
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
+# ============================================================================
+# Component Styling
+# ============================================================================
+
+[directory]
+style = "bold sapphire"
+truncation_length = 3
+truncate_to_repo = true
+home_symbol = "󰋜 ~"
+read_only = " 󰌾"
+
+[character]
+success_symbol = "[❯](bold mauve)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[❮](bold green)"
+
+[git_branch]
+format = "[ $branch]($style)"
+style = "bold lavender"
+symbol = "󰊢 "
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold yellow"
+ahead = "󰶣${count}"
+behind = "󰶡${count}"
+conflicted = "󰩌${count}"
+deleted = "󰍷${count}"
+diverged = "󰃻${count}"
+modified = "󰷬${count}"
+renamed = "󰑕${count}"
+staged = "󰐗${count}"
+stashed = "󰜦${count}"
+untracked = "󰋗${count}"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bold peach"
+
+[cmd_duration]
+format = "[󰔛 $duration]($style)"
+style = "bold yellow"
+min_time = 500
+
+# ============================================================================
+# Language & Environment Indicators
+# ============================================================================
+
+[python]
+symbol = "󰌠 "
+format = '[$symbol$pyenv_prefix$version]($style) '
+style = "bold green"
+
+[nodejs]
+symbol = "󰎙 "
+format = '[$symbol$version]($style) '
+style = "bold green"
+
+[rust]
+symbol = "󱘗 "
+format = '[$symbol$version]($style) '
+style = "bold peach"
+
+[go]
+symbol = "󰟓 "
+format = '[$symbol$version]($style) '
+style = "bold sky"
+
+[lua]
+symbol = "󰢱 "
+format = '[$symbol$version]($style) '
+style = "bold blue"
+
+[docker_context]
+symbol = "󰡨 "
+format = '[$symbol$context]($style) '
+style = "bold blue"
+
+[aws]
+symbol = "󰸏 "
+format = '[$symbol$profile]($style) '
+style = "bold peach"
+
+[kubernetes]
+symbol = "󱃾 "
+format = '[$symbol$context]($style) '
+style = "bold lavender"
+
+[terraform]
+symbol = "󱁢 "
+format = '[$symbol$workspace]($style) '
+style = "bold mauve"
+
+# ============================================================================
+# Additional Modern Indicators
+# ============================================================================
+
+[battery]
+full_symbol = "󰁹 "
+charging_symbol = "󰂄 "
+discharging_symbol = "󰂃 "
+unknown_symbol = "󰁽 "
+empty_symbol = "󰂎 "
+
+[[battery.display]]
+threshold = 10
+style = "bold red"
+
+[[battery.display]]
+threshold = 30
+style = "bold yellow"
+
+[memory_usage]
+disabled = false
+threshold = 70
+symbol = "󰍛 "
+format = '[$symbol$ram]($style) '
+style = "bold yellow"
+
+[time]
+disabled = true
+format = '[ $time]($style) '
+style = "bold subtext1"
+time_format = "%H:%M"
+
+# ============================================================================
+# Status Indicators
+# ============================================================================
+
+[status]
+disabled = false
+symbol = "󰅙 "
+format = '[$symbol$status]($style) '
+style = "bold red"
+
+[sudo]
+disabled = false
+symbol = "󰯄 "
+format = '[$symbol]($style) '
+style = "bold red"
+
+[jobs]
+disabled = false
+symbol = "󰜎 "
+format = '[$symbol$number]($style) '
+style = "bold blue"
