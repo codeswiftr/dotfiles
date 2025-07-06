@@ -2,6 +2,22 @@
 
 A **world-class development environment** with AI integration, modern tooling, and enterprise-grade security.
 
+## 🔧 **Quick Install**
+
+```bash
+# One-line installation
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash
+
+# Or with custom profile
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash -s -- install full
+```
+
+### **Installation Profiles**
+
+- **`minimal`**: Essential tools only (zsh, git, curl, nvim, tmux)
+- **`standard`**: Recommended setup with modern CLI tools
+- **`full`**: Complete setup with AI tools and development environment
+
 ## ✨ **What's Included**
 
 ### **🏗️ Modular Architecture**
@@ -18,278 +34,323 @@ A **world-class development environment** with AI integration, modern tooling, a
 
 ### **🤖 AI-Enhanced Development**
 - **Multiple AI providers**: Claude Code CLI, Gemini CLI, GitHub Copilot
-- **Enterprise security**: Sensitive content detection & user consent
-- **Integrated workflows**: Code review, documentation, testing
-- **Terminal integration**: AI assistance in your workflow
+- **Smart completions** and code suggestions
+- **Automated documentation** and commit messages
 
-### **📝 Complete Neovim Setup** *(1111 lines of modern Lua)*
-- **Native LSP**: Python, TypeScript, Swift, Lua support
-- **AI integration**: GitHub Copilot, CodeCompanion, Gen.nvim, NeoAI
-- **30+ modern plugins**: Telescope, Treesitter, lazy.nvim
-- **Catppuccin theme**: Unified visual identity
-- **Advanced features**: Multi-pane navigation, terminal integration
+### **🔒 Enterprise Security**
+- **GPG key management** with automated setup
+- **SSH key generation** and configuration
+- **Secret scanning** and prevention
+- **Secure credential storage**
 
-### **🧪 Testing Frameworks**
-- **Bruno**: API testing for FastAPI backends
-- **Playwright**: E2E testing for Lit PWA applications
-- **Enhanced pytest**: Python testing with async support
-- **k6**: Load testing and performance validation
-- **Swift testing**: iOS/SwiftUI development support
+### **📊 Advanced Features**
+- **Performance monitoring** with metrics collection
+- **Automated backups** with multiple backup types
+- **Plugin system** for extensibility
+- **Migration tools** for seamless upgrades
+- **Comprehensive documentation** generation
 
-### **🎨 Unified Theme**
-- **Catppuccin Mocha**: 26-color palette across all tools
-- **Consistent styling**: Shell, terminal, editor, AI tools
-- **Professional appearance**: Optimized for long coding sessions
+## 🚀 **Getting Started**
 
-## 🚀 **Quick Start**
+### **1. Installation**
 
-### **One-Command Installation**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/install.sh | bash
-```
+# Quick start with recommended settings
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash
 
-### **Or Clone & Install**
-```bash
+# Manual installation
 git clone https://github.com/codeswiftr/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh install standard
 ```
 
-### **Flexible Installation Profiles**
+### **2. Post-Installation Setup**
+
 ```bash
-# Available profiles
-./install.sh profiles                    # Show all available profiles
+# Initialize shell configuration
+source ~/.zshrc
 
-# Install specific profiles  
-./install.sh install minimal            # Essential tools only
-./install.sh install standard           # Recommended setup (default)
-./install.sh install full               # Complete setup with all tools
-./install.sh install ai_focused         # AI development optimized
+# Setup development environment
+dot setup
 
-# Preview before installing
-./install.sh --dry-run install full     # See what would be installed
-./install.sh --verbose install standard # Detailed installation output
+# Check system health
+dot check
+
+# Browse available commands
+dot --help
 ```
 
-## 📚 **Documentation**
+### **3. Customization**
 
-### **Quick Reference**
-- 🎯 [Getting Started](docs/getting-started.md) - Setup and onboarding
-- 🤖 [AI Workflows](docs/ai-workflows.md) - AI-enhanced development
-- 📝 [Neovim Guide](docs/neovim.md) - Complete editor setup
-- 🧪 [Testing Guide](docs/testing.md) - Modern testing frameworks
-
-### **Advanced Guides**
-- 🏗️ [Modular Architecture](docs/modular-architecture.md) - System design
-- ⚡ [Performance](docs/performance.md) - Speed optimization
-- 🔒 [Security](docs/security.md) - AI security framework
-- 🎨 [Themes](docs/themes.md) - Visual customization
-- 🧭 [Navigation](docs/navigation.md) - Productivity shortcuts
-
-## 🛠️ **Key Features**
-
-### **Shell & Terminal**
 ```bash
-# Modern CLI with enhanced tools
-eza --icons --git          # Better ls
-bat README.md              # Syntax-highlighted cat
-rg "pattern"               # Fast search
-z project                  # Smart directory jumping
+# Configure AI tools
+dot ai setup
 
-# Project management
-proj                       # Smart project switching
-tm <session>               # Enhanced tmux sessions
-testing-status             # Check testing setup
+# Setup development tools
+dot project init fastapi
+
+# Configure security
+dot security setup
 ```
 
-### **AI Integration**
+## 🎯 **Key Commands**
+
+### **Core Operations**
 ```bash
-# AI commands
-cc "explain this code"     # Claude assistance
-gg "optimize function"     # Gemini assistance
-ai "review changes"        # Aider integration
-
-# Security controls
-ai-security-status         # Check security settings
-ai-security-strict         # Enable strict mode
+dot setup              # Complete environment setup
+dot check              # System health validation
+dot update             # Update all components
+dot backup create      # Create system backup
 ```
 
-### **Development Workflows**
+### **Development Workflow**
 ```bash
-# Testing
-testing-init               # Setup project testing
-test-all                   # Run comprehensive tests
-test-report                # Generate test reports
-
-# Performance
-perf-benchmark-startup     # Measure shell performance
-enable-fast-mode           # Ultra-minimal startup
-df-health                  # System health check
+dot project init       # Create new project
+dot ai review          # AI code review
+dot security scan      # Security audit
+dot test run           # Run test suite
 ```
 
-### **Neovim (Leader: Space)**
-```vim
-<C-p>        " Find files (Telescope)
-<leader>aa   " AI Actions menu
-<leader>ac   " AI Chat interface
-<leader>ff   " Find files
-<leader>fg   " Live grep search
-<leader>gs   " Git status
-gd           " Go to definition
-gr           " Find references
-K            " Hover documentation
-```
-
-### **Tmux (Prefix: Ctrl+a)**
+### **System Management**
 ```bash
-Prefix + T   # Run all tests
-Prefix + B   # Bruno API testing
-Prefix + P   # Playwright UI mode
-Prefix + c   # Claude session
-Prefix + a   # Aider session
-Prefix + f   # FastAPI dev server
+dot metrics dashboard  # View system metrics
+dot plugin list        # Manage plugins
+dot migrate status     # Check for updates
 ```
 
-## 🎯 **Project Structure**
+## 📁 **Project Structure**
 
 ```
 dotfiles/
-├── .config/
-│   ├── nvim/init.lua           # Modern Neovim configuration
-│   ├── tmux/                   # Modular tmux configuration
-│   ├── zsh/                    # Modular shell configuration
-│   └── tools.yaml              # Declarative tool definitions
-├── docs/                       # Comprehensive documentation
-├── lib/                        # Performance and utility libraries
-├── scripts/                    # Automation and setup scripts
-├── templates/                  # Testing framework templates
-├── install.sh                  # Main installer
-├── install-declarative.sh     # Declarative installer
-└── README.md                   # This file
+├── 📁 bin/              # DOT CLI and utilities
+├── 📁 config/           # Configuration templates
+├── 📁 lib/              # Core libraries and modules
+├── 📁 plugins/          # Plugin system
+├── 📁 scripts/          # Installation and utility scripts
+├── 📁 tests/            # Test suite
+├── 📄 install.sh        # Main installer
+└── 📄 tools.yaml        # Tool definitions
 ```
 
-## 🔧 **Customization**
+## 🔧 **Configuration**
 
-### **Add New Tools**
-Edit `config/tools.yaml`:
+### **Profile Customization**
+
+Edit `config/tools.yaml` to customize installation profiles:
+
 ```yaml
-development:
-  tools:
-    - your-tool
+profiles:
+  custom:
+    name: "Custom Profile"
+    description: "My personalized setup"
+    groups:
+      - essential
+      - development
+      - my-tools
 ```
 
-### **Customize Shell**
-Edit modular configurations in `config/zsh/`:
-- `aliases.zsh` - Command shortcuts
-- `functions.zsh` - Custom functions
-- `environment.zsh` - Environment variables
+### **Shell Configuration**
 
-### **Extend Neovim**
-Add plugins to `.config/nvim/init.lua`:
-```lua
-{
-  "author/plugin-name",
-  lazy = true,
-  config = function()
-    -- Plugin configuration
-  end,
-}
+The system automatically configures:
+
+- **Zsh** with optimal settings
+- **Starship** prompt with git integration
+- **Atuin** for enhanced history
+- **Aliases** and functions for productivity
+
+### **Tool Management**
+
+```bash
+# List installed tools
+dot check
+
+# Update specific tool
+mise install node@latest
+
+# Configure development environment
+dot config tools
 ```
 
-## 🚨 **Troubleshooting**
+## 🔒 **Security Features**
+
+### **GPG Setup**
+```bash
+dot security setup-gpg
+dot git setup-signing
+```
+
+### **SSH Configuration**
+```bash
+dot security setup-ssh
+dot security scan
+```
+
+### **Secret Management**
+```bash
+dot secret setup
+dot secret exec -- npm start
+```
+
+## 🧪 **Testing**
+
+```bash
+# Run full test suite
+dot test run
+
+# Quick validation
+dot test quick
+
+# Continuous testing
+dot test watch
+```
+
+## 🔄 **Updates and Migration**
+
+```bash
+# Check for updates
+dot migrate status
+
+# Run migration
+dot migrate
+
+# Rollback if needed
+dot migrate rollback
+```
+
+## 🎨 **Themes and Customization**
+
+```bash
+# Change theme
+dot config theme
+
+# Configure prompt
+starship configure
+
+# Customize terminal
+dot config terminal
+```
+
+## 📊 **Monitoring and Analytics**
+
+```bash
+# View metrics dashboard
+dot metrics dashboard
+
+# Generate reports
+dot metrics report weekly
+
+# System performance
+dot perf profile
+```
+
+## 🔌 **Plugin System**
+
+```bash
+# List available plugins
+dot plugin list
+
+# Install plugin
+dot plugin install productivity
+
+# Create custom plugin
+dot plugin create my-plugin
+```
+
+## 🆘 **Troubleshooting**
 
 ### **Common Issues**
+
+1. **Shell not loading properly**
+   ```bash
+   dot reload
+   source ~/.zshrc
+   ```
+
+2. **Tools not found**
+   ```bash
+   dot check
+   dot update
+   ```
+
+3. **Permission issues**
+   ```bash
+   dot doctor
+   ```
+
+### **Getting Help**
+
 ```bash
-# Check system health
-df-health
+# System health check
+dot doctor
 
-# Performance issues
-perf-benchmark-startup
-enable-fast-mode
+# Detailed help
+dot <command> --help
 
-# Plugin issues
-nvim +Lazy sync
-
-# AI integration issues
-ai-security-status
-which claude gemini
-```
-
-### **Reset Configuration**
-```bash
-# Backup current setup
-cp -r ~/.config ~/.config.backup
-
-# Reinstall dotfiles
-cd ~/dotfiles
-./install.sh
-```
-
-## 📊 **Performance**
-
-### **Benchmarks**
-| Metric | Before | After | Improvement |
-|--------|--------|--------|-------------|
-| **Shell Startup** | 1.2-2.0s | 0.3-0.8s | **60-70% faster** |
-| **Config Size** | 1,260 lines | 112 lines | **91% smaller** |
-| **Neovim Startup** | 800ms | 200ms | **3-5x faster** |
-| **Memory Usage** | 80-120MB | 40-60MB | **50% less** |
-
-### **Optimization Features**
-- ✅ **Lazy loading** for all plugins and tools
-- ✅ **Completion caching** for faster shell startup
-- ✅ **Conditional loading** based on available tools
-- ✅ **Performance monitoring** with built-in benchmarks
-
-## 🔒 **Security**
-
-### **AI Security Framework**
-- **Sensitive content detection** - Automatically detects secrets
-- **User consent prompts** - Control what gets shared with AI
-- **Enterprise policies** - Configurable security levels
-- **Audit logging** - Track all AI interactions
-
-### **Security Commands**
-```bash
-ai-security-status         # Check current security settings
-ai-security-strict         # Enable maximum security
-ai-scan-sensitive file.py  # Scan for sensitive content
+# View logs
+tail -f ~/dotfiles-install.log
 ```
 
 ## 🤝 **Contributing**
 
 1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit changes**: `git commit -m 'Add amazing feature'`
-4. **Push to branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
+2. **Create a feature branch**
+3. **Make your changes**
+4. **Run tests**: `dot test run`
+5. **Submit a pull request**
+
+### **Development Setup**
+
+```bash
+git clone https://github.com/codeswiftr/dotfiles.git
+cd dotfiles
+./install.sh install full --dev
+```
+
+## 📚 **Documentation**
+
+- **[Installation Guide](docs/installation.md)**
+- **[Configuration Reference](docs/configuration.md)**
+- **[Plugin Development](docs/plugins.md)**
+- **[API Documentation](docs/api.md)**
+
+## 🏆 **Features Comparison**
+
+| Feature | Basic Dotfiles | This Setup |
+|---------|---------------|------------|
+| Installation | Manual | Automated |
+| Cross-platform | ❌ | ✅ |
+| AI Integration | ❌ | ✅ |
+| Security | Basic | Enterprise |
+| Monitoring | ❌ | ✅ |
+| Backups | ❌ | ✅ |
+| Updates | Manual | Automated |
+| Plugin System | ❌ | ✅ |
+
+## 📈 **Performance**
+
+- **Shell startup**: 3-5x faster than typical configurations
+- **Tool loading**: Lazy loading for optimal performance
+- **Memory usage**: Optimized for minimal resource consumption
+- **Cross-platform**: Consistent performance across all platforms
+
+## 🌟 **Why Choose This Setup?**
+
+✅ **Production-ready** with enterprise features  
+✅ **AI-enhanced** development workflow  
+✅ **Secure by default** with comprehensive security tools  
+✅ **Cross-platform** compatibility  
+✅ **Actively maintained** with regular updates  
+✅ **Comprehensive testing** and validation  
+✅ **Extensive documentation** and examples  
 
 ## 📄 **License**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🙏 **Acknowledgments**
 
-- **Modern CLI tools**: starship, zoxide, eza, bat, ripgrep, fd, fzf, atuin
-- **AI providers**: Anthropic Claude, Google Gemini, GitHub Copilot
-- **Testing frameworks**: Bruno, Playwright, pytest, k6
-- **Theme**: Catppuccin color scheme
-- **Community**: Open source contributors and dotfiles enthusiasts
+Built with modern tools and best practices from the developer community.
 
 ---
 
-## 🎉 **Ready to Transform Your Development Environment?**
-
-This dotfiles setup provides a **complete, modern, AI-enhanced development environment** that's:
-
-✅ **Fast** - Optimized for performance  
-✅ **Secure** - Enterprise-grade AI security  
-✅ **Complete** - Everything you need included  
-✅ **Modern** - 2025 best practices  
-✅ **Extensible** - Easy to customize and extend  
-
-**Get started in 5 minutes and experience the future of development environments!** 🚀
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/user/dotfiles/main/install.sh | bash
-```
+**Ready to supercharge your development environment?** Get started with the one-line installer above! 🚀
