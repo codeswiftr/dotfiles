@@ -27,6 +27,7 @@ Welcome to the comprehensive documentation for your modern 2025 development envi
 - **[Navigation Guide](navigation.md)** - Keyboard shortcuts and workflows
 
 ### **🛠️ System Administration**
+- **[Modular Architecture](modular-architecture.md)** - Understanding the new config structure
 - **[Advanced Configuration](advanced.md)** - Expert customization
 
 ## 🎯 **Feature Guides**
