@@ -125,6 +125,13 @@ GIT OPERATIONS:
         setup-signing      Configure commit signing
         verify             Verify commit signatures
 
+DOCUMENTATION:
+    docs               Documentation system
+        generate           Generate documentation
+        build [format]     Build documentation site
+        serve [port]       Serve documentation locally
+        interactive        Interactive help system
+
 OPTIONS:
     -h, --help         Show this help message
     -v, --version      Show version information
@@ -281,6 +288,12 @@ main() {
         "devcontainer"|"container")
             load_cli_lib "devcontainer"
             dot_devcontainer "$@"
+            ;;
+
+        # Documentation commands
+        "docs"|"documentation")
+            source "$DOTFILES_DIR/lib/documentation.sh"
+            documentation_cli "$@"
             ;;
 
         # Legacy command mappings for backward compatibility

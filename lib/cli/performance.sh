@@ -4,26 +4,35 @@
 # Development environment performance optimization
 # ============================================================================
 
+# Load advanced performance monitoring
+source "$DOTFILES_DIR/lib/performance-monitor.sh"
+
 # Performance command dispatcher
 dot_perf() {
     local subcommand="${1:-}"
     shift || true
     
     case "$subcommand" in
-        "profile")
-            perf_profile_system "$@"
+        "profile"|"measure")
+            performance_cli "measure" "$@"
             ;;
         "optimize")
-            perf_optimize_system "$@"
+            performance_cli "optimize" "$@"
             ;;
         "benchmark")
-            perf_benchmark_startup "$@"
+            performance_cli "measure" "shell" "$@"
             ;;
         "status")
-            perf_status "$@"
+            performance_cli "monitor" "status" "$@"
             ;;
         "monitor")
-            perf_monitor_resources "$@"
+            performance_cli "monitor" "$@"
+            ;;
+        "report")
+            performance_cli "report" "$@"
+            ;;
+        "analyze"|"analysis")
+            performance_cli "analyze" "$@"
             ;;
         "cache")
             perf_manage_cache "$@"
