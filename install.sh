@@ -666,12 +666,18 @@ setup_shell_config() {
     print_step "Installing ZSH configuration"
     ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
     
-    # Setup starship configuration
-    print_step "Setting up Starship prompt"
+    # Setup starship configuration with modern Catppuccin theme
+    print_step "Setting up Starship prompt with Catppuccin theme"
     mkdir -p "$HOME/.config"
-    if [[ ! -f "$HOME/.config/starship.toml" ]]; then
+    
+    # Use our custom Catppuccin starship configuration
+    if [[ -f "$DOTFILES_DIR/.config/starship.toml" ]]; then
+        ln -sf "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+    else
+        # Fallback to basic configuration if file doesn't exist
         cat > "$HOME/.config/starship.toml" << 'EOF'
-# Starship configuration
+# Modern Starship configuration with Catppuccin colors
+palette = "catppuccin_mocha"
 format = """
 $username\
 $hostname\
@@ -685,29 +691,40 @@ $python\
 $nodejs\
 $character"""
 
+[palettes.catppuccin_mocha]
+text = "#cdd6f4"
+sapphire = "#74c7ec"
+mauve = "#cba6f7"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+lavender = "#b4befe"
+
 [directory]
-style = "blue"
+style = "bold sapphire"
 
 [character]
-success_symbol = "[❯](purple)"
-error_symbol = "[❯](red)"
-vicmd_symbol = "[❮](green)"
+success_symbol = "[❯](bold mauve)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[❮](bold green)"
 
 [git_branch]
-format = "[$branch]($style)"
-style = "bright-black"
+format = "[ $branch]($style)"
+style = "bold lavender"
 
 [git_status]
-format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
-style = "cyan"
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold yellow"
 
 [python]
-symbol = "🐍 "
+symbol = "󰌠 "
 format = '[$symbol$pyenv_prefix$version]($style) '
+style = "bold green"
 
 [nodejs]
-symbol = "📦 "
+symbol = "󰎙 "
 format = '[$symbol$version]($style) '
+style = "bold green"
 EOF
     fi
     
