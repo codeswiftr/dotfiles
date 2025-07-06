@@ -5,7 +5,7 @@ A **world-class development environment** with AI integration, modern tooling, a
 ## ✨ **What's Included**
 
 ### **🏗️ Modular Architecture**
-- **Declarative installation** with YAML configuration
+- **Unified installer** with YAML configuration and multiple profiles
 - **Cross-platform support** (macOS, Linux, WSL)
 - **91% smaller** configuration files through modularization
 - **3-5x faster** shell startup with performance optimization
@@ -45,24 +45,30 @@ A **world-class development environment** with AI integration, modern tooling, a
 
 ### **One-Command Installation**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/user/dotfiles/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/install.sh | bash
 ```
 
 ### **Or Clone & Install**
 ```bash
-git clone https://github.com/user/dotfiles.git ~/dotfiles
+git clone https://github.com/codeswiftr/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-./install.sh
+./install.sh install standard
 ```
 
-### **Declarative Installation**
+### **Flexible Installation Profiles**
 ```bash
-# Install specific profiles
-./install-declarative.sh install full      # Complete setup
-./install-declarative.sh install minimal  # Essential tools only
+# Available profiles
+./install.sh profiles                    # Show all available profiles
+
+# Install specific profiles  
+./install.sh install minimal            # Essential tools only
+./install.sh install standard           # Recommended setup (default)
+./install.sh install full               # Complete setup with all tools
+./install.sh install ai_focused         # AI development optimized
 
 # Preview before installing
-./install-declarative.sh --dry-run install full
+./install.sh --dry-run install full     # See what would be installed
+./install.sh --verbose install standard # Detailed installation output
 ```
 
 ## 📚 **Documentation**
