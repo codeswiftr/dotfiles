@@ -4,13 +4,44 @@
 # Uses tools.yaml configuration for declarative, reproducible installations
 # =============================================================================
 
-set -euo pipefail
+set -e
 
-# Script configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Script configuration - handle both direct execution and piped execution
+if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+    # Fallback for piped execution
+    SCRIPT_DIR="$(pwd)"
+fi
 
 # Load platform compatibility framework
-source "$SCRIPT_DIR/lib/platform.sh"
+if [[ -f "$SCRIPT_DIR/lib/platform.sh" ]]; then
+    source "$SCRIPT_DIR/lib/platform.sh"
+else
+    # Basic platform detection fallback
+    detect_os() {
+        case "$(uname -s)" in
+            Darwin*) echo "macos" ;;
+            Linux*) echo "linux" ;;
+            CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
+            *) echo "unknown" ;;
+        esac
+    }
+    
+    detect_distro() {
+        if [[ -f /etc/os-release ]]; then
+            . /etc/os-release
+            echo "${ID:-unknown}"
+        elif [[ "$(uname -s)" == "Darwin" ]]; then
+            echo "macos"
+        else
+            echo "unknown"
+        fi
+    }
+    
+    OS=$(detect_os)
+    DISTRO=$(detect_distro)
+fi
 DOTFILES_DIR="${SCRIPT_DIR}"
 CONFIG_FILE="${SCRIPT_DIR}/config/tools.yaml"
 BACKUP_DIR="$HOME/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
