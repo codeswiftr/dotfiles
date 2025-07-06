@@ -139,6 +139,13 @@ PLUGINS:
         enable [name]      Enable installed plugin
         create [name]      Create new plugin template
 
+BACKUP & RESTORE:
+    backup             Backup and restore system
+        create [type]      Create backup (full/incremental/config)
+        restore [name]     Restore from backup
+        list [filter]      List available backups
+        schedule           Manage automated backups
+
 OPTIONS:
     -h, --help         Show this help message
     -v, --version      Show version information
@@ -307,6 +314,12 @@ main() {
         "plugin"|"plugins")
             load_cli_lib "plugin"
             dot_plugin "$@"
+            ;;
+
+        # Backup commands
+        "backup"|"restore")
+            load_cli_lib "backup"
+            dot_backup "$@"
             ;;
 
         # Legacy command mappings for backward compatibility
