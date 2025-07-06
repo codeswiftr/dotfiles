@@ -1,66 +1,210 @@
-After a couple of months of working more with Unix tooling, I am now finally ready to attempt switching to Vim with proper syntax highlighting, smart code completion, and refactoring capabilities. Read on to see what it looks like.
+# 🚀 Modern Dotfiles - 2025 Edition
 
-# TL;DR:
+**Complete AI-powered development environment optimized for Python, FastAPI, React, and SwiftUI development.**
 
-oh my zsh + tmux + vim = ❤️ LOVE
-
-## Installation
-
-To set up the environment with all necessary tools and plugins, simply run the following command:
+## ⚡ One-Command Installation
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/install.sh)"
 ```
 
-## Essentials
+Or if you have the repo locally:
 
-The `install.sh` script will automatically install and configure the following essential plugins and tools:
+```bash
+cd ~/dotfiles && ./install.sh
+```
 
-- **vim-plug**: A minimalistic plugin manager
-- **scrooloose/nerdtree**: To navigate the file tree
-- **junegunn/fzf.vim**: Fuzzy search through the files (and much more)
-- **tpope/vim-commentary**: Press `gcc` to comment out a line or `gc` to comment a selection in visual mode
-- **liuchengxu/vista.vim**: A "tagbar" that learns from LSP servers
-- **sheerun/vim-polyglot**: For syntax highlighting
-- **Vimjas/vim-python-pep8-indent**: For proper indenting
-- **dense-analysis/ale**: An asynchronous linter plugin. Use it with `flake8` and `pylint`, plus `google/yapf` as a formatter
-- **neoclide/coc.nvim**: With `neoclide/coc-python` for IntelliSense code completion
+## ✨ What You Get
 
+### 🔧 **Modern CLI Tools**
+- **Starship** - Beautiful, fast shell prompt
+- **Zoxide** - Smart directory navigation (`z` command)
+- **Eza** - Modern `ls` replacement with icons and git integration
+- **Bat** - Syntax-highlighted `cat` replacement
+- **Ripgrep** - Ultra-fast search tool
+- **FZF** - Fuzzy finder for everything
+- **Delta** - Beautiful git diffs
 
-## Key Mappings
-- Pane Navigation:
-  - sv: Split vertically.
-  - sh, sj, sk, sl: Move between splits.
-- NERDTree:
-  - `<leader>n`: Toggle NERDTree.
-  - `<leader>t`: Find current file in NERDTree.
-- fzf:
-  - `<leader>f`: Open file search.
-  - `coc.nvim`:
-  - `<TAB>`: Trigger completion.
-  - `<S-TAB>`: Navigate completion list.
-- General:
-  - jk: Exit insert mode.
-  - `<leader>I`: Install plugins.
-  - `<leader>E`: Edit `.vimrc`.
-  - `<leader>R`: Source `.vimrc`.
-  - `<leader>w`: Save file.
-  - `<leader>wq`: Save and quit.
+### 🤖 **AI-Powered Development**
+- **Claude Code CLI** integration with smart context awareness
+- **Gemini CLI** integration for multi-AI comparisons
+- **GitHub Copilot** ready-to-use in Neovim
+- **Aider** for AI pair programming
+- **Intelligent project analysis** (security, performance, documentation)
+- **AI-generated commit messages** and code reviews
 
-## tmux Integration
-- Pane Switching:
-  - C-h, C-j, C-k, C-l: Switch panes.
-- Window Navigation:
-  - C-h: Previous window.
-  - C-l: Next window.
-  - Tab: Last active window.
+### 🐍 **Python Development**
+- **mise** for Python version management
+- **uv** for ultra-fast package management
+- **Ruff** for lightning-fast linting and formatting
+- **Pyright** LSP for type checking
+- **FastAPI** development shortcuts
 
+### 📦 **JavaScript/Node.js**
+- **Bun** runtime and package manager
+- **TypeScript** LSP support
+- **React** development optimizations
+- **Modern package management**
 
-For more details, refer to the [dotfiles repository](https://github.com/codeswiftr/dotfiles).
+### 🍎 **Swift/iOS Development**
+- **SourceKit** LSP integration
+- **Swift** development shortcuts
+- **Xcode** project navigation
 
+### 🖥️ **Terminal Multiplexing**
+- **Tmux** with modern configuration
+- **AI development session templates**
+- **Project-aware session management**
+- **Seamless Neovim integration**
 
+### ✏️ **Editor Excellence**
+- **Neovim** with Lua configuration
+- **Native LSP** for multiple languages
+- **Treesitter** syntax highlighting
+- **Telescope** fuzzy finding
+- **Auto-completion** with nvim-cmp
 
-This update ensures that users are directed to use the `install.sh` script for setting up their environment, which simplifies the process and avoids potential issues with manual installation.
+## 🎯 **AI Workflow Features**
 
-I hope this helps! Let me know if you have any questions.
+### **Smart Functions**
+```bash
+claude-context "How to optimize this code?"  # Context-aware AI prompting
+ai-compare "FastAPI vs Django?"              # Multi-AI decision making
+ai-analyze security                          # Project security audit
+ai-debug "error message"                     # AI-powered debugging
+ai-commit                                    # AI-generated commit messages
+explain file.py                             # Code explanation
+```
 
+### **Neovim AI Integration**
+- `<leader>ac` - Send file to Claude Code
+- `<leader>ag` - Send file to Gemini
+- `<leader>ar` - AI code review
+- `<leader>ae` - Explain selected code
+- `<leader>aq` - Quick AI question
+
+### **Tmux AI Sessions**
+- `Prefix + A` - Launch AI development environment
+- `Prefix + c` - Claude Code interactive session
+- `Prefix + G` - Gemini interactive session
+
+## 📋 **What Gets Installed**
+
+### **System Tools**
+- Homebrew (if not installed)
+- Modern CLI tools (starship, zoxide, eza, bat, ripgrep, fd, fzf, etc.)
+- Git with enhanced configuration
+- Neovim with comprehensive plugin setup
+- Tmux with modern configuration
+
+### **Development Environment**
+- Python 3.12 via mise
+- Node.js LTS via mise
+- uv for Python package management
+- Bun for JavaScript runtime
+- Development tools (ruff, aider, shell-gpt)
+
+### **Configuration Files**
+- Modern `.zshrc` with AI integration
+- Neovim configuration with LSP
+- Tmux configuration with AI shortcuts
+- Enhanced git configuration
+- Starship prompt configuration
+
+## 🔄 **Migration & Backup**
+
+The installation script automatically:
+- ✅ Backs up your existing configuration
+- ✅ Installs all dependencies
+- ✅ Sets up configurations
+- ✅ Verifies installation
+- ✅ Provides rollback information
+
+**Backup location**: `~/dotfiles-backup-TIMESTAMP`
+
+## 🚀 **Quick Start After Installation**
+
+1. **Restart your terminal** or run:
+   ```bash
+   source ~/.zshrc
+   ```
+
+2. **Test AI integration**:
+   ```bash
+   cc "Hello Claude, help me with Python"
+   gg "What's the best FastAPI structure?"
+   ```
+
+3. **Launch AI development session**:
+   ```bash
+   tm my-project    # Smart project session
+   # In tmux: Prefix + A (creates AI development layout)
+   ```
+
+4. **Try modern navigation**:
+   ```bash
+   z ~/projects     # Smart directory jumping
+   proj            # Project switcher with fzf
+   ```
+
+## 🎯 **Key Productivity Features**
+
+### **Smart Project Management**
+- `tm` - Intelligent tmux sessionizer with project detection
+- `proj` - FZF-powered project switching
+- Auto-detection of Python, JavaScript, Swift projects
+- Language-specific development layouts
+
+### **AI-Assisted Development**
+- Context-aware AI prompting based on project type
+- Multi-AI comparison for better decision making
+- Automated code review and documentation generation
+- Smart commit message generation
+- Error analysis and debugging assistance
+
+### **Modern File Operations**
+- `ls` → `eza` (with icons and git status)
+- `cat` → `bat` (with syntax highlighting)
+- `cd` → `z` (smart directory jumping)
+- `grep` → `rg` (faster searching)
+- `find` → `fd` (modern file finding)
+
+## 📚 **Documentation**
+
+- **AI Workflow Guide**: `~/dotfiles/AI_WORKFLOW_GUIDE.md`
+- **Keyboard shortcuts**: Use `<leader>` in Neovim to see all commands
+- **Tmux shortcuts**: `Prefix + ?` to see all bindings
+
+## 🔧 **Customization**
+
+All configurations are modular and easy to customize:
+- **Shell**: Edit `~/.zshrc`
+- **Neovim**: Edit `~/.config/nvim/init.lua`
+- **Tmux**: Edit `~/.tmux.conf`
+- **Git**: Use `git config --global` commands
+
+## 🆘 **Troubleshooting**
+
+If something goes wrong:
+
+1. **Check the installation log**: `~/dotfiles-install.log`
+2. **Restore from backup**: Your original config is at `~/dotfiles-backup-TIMESTAMP`
+3. **Re-run installation**: The script is idempotent and safe to run multiple times
+4. **Manual verification**: Run individual verification commands
+
+## 🤝 **Contributing**
+
+This dotfiles setup is continuously evolving. Feel free to:
+- Submit issues for bugs or feature requests
+- Create pull requests for improvements
+- Share your customizations
+
+## 📄 **License**
+
+MIT License - feel free to use and modify as needed.
+
+---
+
+**Built for developers who want a modern, AI-powered terminal experience.** 🚀🤖
+
+*Optimized for Python, FastAPI, React, and SwiftUI development with seamless AI integration.*
