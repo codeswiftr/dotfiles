@@ -1,0 +1,123 @@
+# =============================================================================
+# Template Configuration
+# Defines template processing rules and custom variables
+# =============================================================================
+
+# Template processing settings
+settings:
+  auto_backup: true
+  backup_suffix: ".bak"
+  strict_mode: false
+  
+# Custom template variables
+variables:
+  COMPANY_NAME: "My Company"
+  PROJECT_PREFIX: "myproj"
+  DEFAULT_SHELL: "zsh"
+  PREFERRED_EDITOR: "nvim"
+  
+# Template mappings for different profiles
+profiles:
+  minimal:
+    templates:
+      - name: "zshrc"
+        source: "templates/zshrc.template"
+        target: "~/.zshrc"
+        backup: true
+      - name: "gitconfig"
+        source: "templates/gitconfig.template"
+        target: "~/.gitconfig"
+        backup: true
+        
+  standard:
+    templates:
+      - name: "zshrc"
+        source: "templates/zshrc.template"
+        target: "~/.zshrc"
+        backup: true
+      - name: "gitconfig"
+        source: "templates/gitconfig.template"
+        target: "~/.gitconfig"
+        backup: true
+      - name: "tmux"
+        source: "templates/tmux.conf.template"
+        target: "~/.tmux.conf"
+        backup: true
+        
+  development:
+    extends: "standard"
+    variables:
+      ENABLE_DEBUG: "true"
+      LOG_LEVEL: "debug"
+    templates:
+      - name: "vscode_settings"
+        source: "templates/vscode/settings.json.template"
+        target: "~/.config/Code/User/settings.json"
+        backup: true
+        
+  ai_focused:
+    extends: "development"
+    variables:
+      AI_PROVIDER: "claude"
+      ENABLE_AI_COMMIT: "true"
+    templates:
+      - name: "ai_config"
+        source: "templates/ai/config.yaml.template"
+        target: "~/.config/ai/config.yaml"
+        backup: true
+
+# Platform-specific template overrides
+platform_overrides:
+  macos:
+    variables:
+      HOMEBREW_PREFIX: "/opt/homebrew"
+      PACKAGE_MANAGER: "brew"
+    templates:
+      - name: "macos_defaults"
+        source: "templates/platform/macos/defaults.template"
+        target: "~/Library/Preferences/com.apple.defaults.plist"
+        
+  linux:
+    variables:
+      PACKAGE_MANAGER: "apt"
+    templates:
+      - name: "systemd_user"
+        source: "templates/platform/linux/user.service.template"
+        target: "~/.config/systemd/user/dotfiles.service"
+        
+  windows:
+    variables:
+      PACKAGE_MANAGER: "chocolatey"
+    templates:
+      - name: "powershell_profile"
+        source: "templates/platform/windows/profile.ps1.template"
+        target: "~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1"
+
+# Template validation rules
+validation:
+  required_variables:
+    - USER
+    - HOME
+    - OS
+    - ARCH
+  optional_variables:
+    - GIT_NAME
+    - GIT_EMAIL
+    - EDITOR
+  
+  syntax_checks:
+    - check_balanced_blocks
+    - check_undefined_variables
+    - check_include_paths
+    
+# Post-processing actions
+post_processing:
+  make_executable:
+    - "*.sh"
+    - "bin/*"
+  set_permissions:
+    "~/.ssh/config": "600"
+    "~/.gnupg/*": "600"
+  reload_services:
+    - "systemctl --user daemon-reload"  # Linux only
+    - "launchctl load ~/Library/LaunchAgents/*"  # macOS only

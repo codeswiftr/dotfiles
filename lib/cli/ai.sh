@@ -4,6 +4,9 @@
 # AI-powered development assistance and automation
 # ============================================================================
 
+# Load AI integration framework
+source "$DOTFILES_DIR/lib/ai-integration.sh"
+
 # AI command dispatcher
 dot_ai() {
     local subcommand="${1:-}"

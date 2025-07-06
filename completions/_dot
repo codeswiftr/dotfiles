@@ -1,0 +1,335 @@
+#compdef dot
+
+# DOT CLI - ZSH Completion
+# Provides intelligent tab completion for the dot command
+
+_dot() {
+    local context state line
+    typeset -A opt_args
+
+    # Main command completion
+    _arguments -C \
+        '(--help -h)'{--help,-h}'[Show help message]' \
+        '(--version -v)'{--version,-v}'[Show version information]' \
+        '--verbose[Enable verbose output]' \
+        '--dry-run[Show what would be done]' \
+        '1: :_dot_commands' \
+        '*:: :->subcommands'
+
+    case $state in
+        subcommands)
+            case $words[1] in
+                setup)
+                    _arguments \
+                        '--force[Force setup even if already configured]' \
+                        '--minimal[Minimal setup only]' \
+                        '--skip-tools[Skip tool installation]'
+                    ;;
+                check)
+                    _arguments \
+                        '--fix[Attempt to fix issues automatically]' \
+                        '--verbose[Verbose output]' \
+                        '--json[JSON output format]'
+                    ;;
+                update)
+                    _arguments \
+                        '--all[Update everything]' \
+                        '--tools[Update tools only]' \
+                        '--configs[Update configs only]'
+                    ;;
+                project)
+                    _dot_project_commands
+                    ;;
+                run)
+                    _dot_run_commands
+                    ;;
+                secret)
+                    _dot_secret_commands
+                    ;;
+                security)
+                    _dot_security_commands
+                    ;;
+                ai)
+                    _dot_ai_commands
+                    ;;
+                test|testing)
+                    _dot_testing_commands
+                    ;;
+                perf)
+                    _dot_perf_commands
+                    ;;
+                config)
+                    _dot_config_commands
+                    ;;
+                db)
+                    _dot_db_commands
+                    ;;
+                git)
+                    _dot_git_commands
+                    ;;
+                devcontainer|container)
+                    _dot_devcontainer_commands
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+# Main commands
+_dot_commands() {
+    local commands
+    commands=(
+        'setup:Idempotent environment setup'
+        'check:Comprehensive health validation'
+        'update:Update entire system'
+        'reload:Reload shell configuration'
+        'version:Show version information'
+        'project:Project management and scaffolding'
+        'run:Process management'
+        'secret:Secret management'
+        'security:Security operations'
+        'ai:AI-powered development assistance'
+        'test:Testing framework integration'
+        'perf:Performance management'
+        'config:Interactive configuration'
+        'db:Database management'
+        'git:Enhanced git operations'
+        'devcontainer:Development container management'
+        'container:Development container management'
+    )
+    _describe 'commands' commands
+}
+
+# Project subcommands
+_dot_project_commands() {
+    local subcommands
+    subcommands=(
+        'init:Create new project from template'
+        'list:List available templates'
+        'switch:Switch between projects'
+        'clean:Clean project artifacts'
+        'template:Manage project templates'
+    )
+    
+    case $words[2] in
+        init)
+            _dot_project_templates
+            ;;
+        *)
+            _describe 'project commands' subcommands
+            ;;
+    esac
+}
+
+# Project templates
+_dot_project_templates() {
+    local templates
+    templates=(
+        'fastapi:FastAPI Python web application'
+        'react:React TypeScript application'
+        'nextjs:Next.js full-stack application'
+        'python:Python package with modern tooling'
+        'node:Node.js TypeScript application'
+        'rust:Rust application with Cargo'
+        'go:Go application with modules'
+        'static:Static website with modern build'
+        'cli:Command-line tool template'
+        'library:Library/package template'
+    )
+    _describe 'project templates' templates
+}
+
+# Run subcommands
+_dot_run_commands() {
+    local subcommands
+    subcommands=(
+        'dev:Start development environment'
+        'test:Start test environment'
+        'prod:Production simulation'
+        'build:Build project'
+        'clean:Clean build artifacts'
+        'logs:Show process logs'
+        'status:Show process status'
+        'stop:Stop all processes'
+    )
+    _describe 'run commands' subcommands
+}
+
+# Secret subcommands
+_dot_secret_commands() {
+    local subcommands
+    subcommands=(
+        'setup:Configure secret provider'
+        'get:Retrieve secret'
+        'set:Store secret'
+        'list:List available secrets'
+        'exec:Execute with injected secrets'
+        'rotate:Rotate secrets'
+    )
+    _describe 'secret commands' subcommands
+}
+
+# Security subcommands
+_dot_security_commands() {
+    local subcommands
+    subcommands=(
+        'scan:Full security audit'
+        'deps:Check dependency vulnerabilities'
+        'code:Static code analysis'
+        'secrets:Scan for exposed secrets'
+        'permissions:Check file permissions'
+        'report:Generate security report'
+    )
+    _describe 'security commands' subcommands
+}
+
+# AI subcommands
+_dot_ai_commands() {
+    local subcommands
+    subcommands=(
+        'review:Code review with context'
+        'test:Generate tests'
+        'commit:Smart commit messages'
+        'explain:Explain code'
+        'optimize:Suggest optimizations'
+        'refactor:Suggest refactoring'
+        'docs:Generate documentation'
+    )
+    _describe 'ai commands' subcommands
+}
+
+# Testing subcommands
+_dot_testing_commands() {
+    local subcommands
+    subcommands=(
+        'run:Run comprehensive test suite'
+        'quick:Quick smoke tests'
+        'infrastructure:Run infrastructure tests'
+        'security:Run security validation tests'
+        'performance:Run performance tests'
+        'watch:Watch mode for continuous testing'
+        'coverage:Generate test coverage report'
+        'report:Generate comprehensive test report'
+        'init:Initialize testing for project'
+        'setup:Setup testing environment'
+        'benchmark:Run performance benchmarks'
+    )
+    
+    case $words[2] in
+        run)
+            _dot_test_categories
+            ;;
+        init)
+            _dot_test_frameworks
+            ;;
+        *)
+            _describe 'testing commands' subcommands
+            ;;
+    esac
+}
+
+# Test categories
+_dot_test_categories() {
+    local categories
+    categories=(
+        'all:Run all test categories'
+        'unit:Unit tests only'
+        'integration:Integration tests only'
+        'e2e:End-to-end tests only'
+        'api:API tests only'
+    )
+    _describe 'test categories' categories
+}
+
+# Test frameworks
+_dot_test_frameworks() {
+    local frameworks
+    frameworks=(
+        'pytest:Python testing with pytest'
+        'playwright:Browser testing with Playwright'
+        'bruno:API testing with Bruno'
+        'k6:Load testing with k6'
+        'jest:JavaScript testing with Jest'
+        'auto:Auto-detect and setup appropriate frameworks'
+    )
+    _describe 'test frameworks' frameworks
+}
+
+# Performance subcommands
+_dot_perf_commands() {
+    local subcommands
+    subcommands=(
+        'profile:Performance analysis'
+        'optimize:Apply optimizations'
+        'benchmark:Benchmark startup time'
+        'monitor:Monitor performance metrics'
+        'report:Generate performance report'
+    )
+    _describe 'perf commands' subcommands
+}
+
+# Config subcommands
+_dot_config_commands() {
+    local subcommands
+    subcommands=(
+        'theme:Switch themes'
+        'tools:Configure tool integrations'
+        'security:Adjust security settings'
+        'editor:Configure editor settings'
+        'shell:Configure shell settings'
+        'git:Configure git settings'
+    )
+    _describe 'config commands' subcommands
+}
+
+# Database subcommands
+_dot_db_commands() {
+    local subcommands
+    subcommands=(
+        'setup:Setup local databases'
+        'start:Start database services'
+        'stop:Stop database services'
+        'seed:Load test data'
+        'reset:Reset to clean state'
+        'backup:Backup databases'
+        'restore:Restore from backup'
+        'logs:Show database logs'
+    )
+    _describe 'db commands' subcommands
+}
+
+# Git subcommands
+_dot_git_commands() {
+    local subcommands
+    subcommands=(
+        'setup-signing:Configure commit signing'
+        'verify:Verify commit signatures'
+        'hooks:Manage git hooks'
+        'config:Configure git settings'
+        'aliases:Setup git aliases'
+    )
+    _describe 'git commands' subcommands
+}
+
+# DevContainer subcommands
+_dot_devcontainer_commands() {
+    local subcommands
+    subcommands=(
+        'init:Initialize devcontainer config'
+        'build:Build container image'
+        'up:Start development container'
+        'down:Stop development container'
+        'exec:Execute command in container'
+        'logs:Show container logs'
+        'rebuild:Rebuild container'
+    )
+    _describe 'devcontainer commands' subcommands
+}
+
+# File completion for relevant commands
+_dot_file_completion() {
+    _files
+}
+
+# Initialize completion
+_dot "$@"

@@ -1,0 +1,187 @@
+# =============================================================================
+# ZSH Configuration - Generated from Template
+# Generated on: {{DATETIME}}
+# Platform: {{OS}} ({{ARCH}})
+# User: {{USER}}@{{HOSTNAME}}
+# =============================================================================
+
+# Environment variables
+export USER="{{USER}}"
+export HOME="{{HOME}}"
+export DOTFILES_DIR="{{DOTFILES_DIR}}"
+export EDITOR="{{EDITOR}}"
+export BROWSER="{{BROWSER}}"
+
+# Platform-specific configuration
+{{#if OS == 'macos'}}
+# macOS-specific settings
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ANALYTICS=1
+
+# Add Homebrew to PATH
+{{#if ARCH == 'arm64'}}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{/if}}
+{{#unless ARCH == 'arm64'}}
+export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+{{/unless}}
+
+# macOS aliases
+alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
+alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES && killall Finder'
+alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO && killall Finder'
+{{/if}}
+
+{{#if OS == 'linux'}}
+# Linux-specific settings
+export XDG_CONFIG_HOME="{{CONFIG_DIR}}"
+export XDG_DATA_HOME="{{DATA_DIR}}"
+export XDG_CACHE_HOME="{{CACHE_DIR}}"
+
+# Linux aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias update='{{PACKAGE_MANAGER}} update && {{PACKAGE_MANAGER}} upgrade'
+{{/if}}
+
+# Shell configuration
+autoload -Uz compinit
+compinit
+
+# History configuration
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+
+# Common aliases
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias ll='ls -la'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Git aliases
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+
+# Development aliases
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Modern CLI tools
+{{#if OS == 'macos'}}
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza'
+    alias ll='eza -la'
+    alias tree='eza --tree'
+fi
+{{/if}}
+
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat'
+fi
+
+if command -v ripgrep >/dev/null 2>&1; then
+    alias grep='rg'
+fi
+
+# Load additional configurations
+{{#if SHELL == 'zsh'}}
+# ZSH-specific configurations
+if [[ -f "$DOTFILES_DIR/config/zsh/aliases.zsh" ]]; then
+    source "$DOTFILES_DIR/config/zsh/aliases.zsh"
+fi
+
+if [[ -f "$DOTFILES_DIR/config/zsh/functions.zsh" ]]; then
+    source "$DOTFILES_DIR/config/zsh/functions.zsh"
+fi
+
+# Load platform-specific configuration
+if [[ -f "$DOTFILES_DIR/config/platform/{{OS}}.zsh" ]]; then
+    source "$DOTFILES_DIR/config/platform/{{OS}}.zsh"
+fi
+{{/if}}
+
+# Starship prompt
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
+
+# Zoxide (smart cd)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+# FZF
+if command -v fzf >/dev/null 2>&1; then
+    {{#if OS == 'macos'}}
+    source "$HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh"
+    source "$HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
+    {{/if}}
+    {{#if OS == 'linux'}}
+    source /usr/share/fzf/completion.zsh 2>/dev/null || true
+    source /usr/share/fzf/key-bindings.zsh 2>/dev/null || true
+    {{/if}}
+fi
+
+# mise (version manager)
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
+
+# Custom functions
+dotfiles-update() {
+    echo "🔄 Updating dotfiles..."
+    cd "$DOTFILES_DIR"
+    git pull origin main
+    ./install.sh install standard
+    echo "✅ Dotfiles updated"
+}
+
+# Path configuration
+export PATH="{{BIN_DIR}}:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+{{#if OS == 'macos'}}
+# macOS-specific PATH additions
+export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+{{#if ARCH == 'arm64'}}
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+{{/if}}
+{{/if}}
+
+{{#if OS == 'linux'}}
+# Linux-specific PATH additions
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="/snap/bin:$PATH"
+{{/if}}
+
+# Load AI integration
+if [[ -f "$DOTFILES_DIR/config/zsh/ai-enhanced.zsh" ]]; then
+    source "$DOTFILES_DIR/config/zsh/ai-enhanced.zsh"
+fi
+
+# Load completions
+if [[ -f "$DOTFILES_DIR/config/zsh/completions.zsh" ]]; then
+    source "$DOTFILES_DIR/config/zsh/completions.zsh"
+fi
+
+# Welcome message
+echo "🚀 {{USER}}'s Development Environment Ready!"
+echo "📍 Platform: {{OS}} ({{ARCH}})"
+echo "🐚 Shell: {{SHELL}}"
+echo "📦 Package Manager: {{PACKAGE_MANAGER}}"
+echo "🏠 Dotfiles: {{DOTFILES_DIR}}"
+
+# Load any local customizations
+if [[ -f "$HOME/.zshrc.local" ]]; then
+    source "$HOME/.zshrc.local"
+fi
