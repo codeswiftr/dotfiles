@@ -385,32 +385,35 @@ lesson_05_ai_integration() {
     echo "Leverage AI assistants for enhanced productivity!"
     echo ""
     
-    print_step "1" "AI analysis function"
-    echo "Your dotfiles include powerful AI integration functions."
-    echo "Let's explore some of them:"
+    print_step "1" "Shell AI commands"
+    echo "Your dotfiles include powerful AI integration functions:"
     echo ""
-    print_command "ai-find \"greet\""
+    echo -e "${BOLD}Quick AI Commands:${NC}"
+    echo "• cc \"question\" - Quick Claude query"
+    echo "• gg \"question\" - Quick Gemini query"
+    echo "• ai-analyze overview - Analyze current project"
+    echo "• explain file.py - Explain code with AI"
     echo ""
-    echo "This searches for text and lets you select files with fzf."
     
     cd "$TUTORIAL_DIR/practice"
     
-    print_step "2" "Try the AI search function"
-    echo "This will search for 'greet' in files and show results:"
+    print_step "2" "Try AI search and analysis"
+    print_command "ai-find \"greet\""
+    echo ""
+    echo "This searches for text and lets you select files with fzf."
     
     wait_for_command "ai-find \"greet\"" "Try: ai-find \"greet\""
     
     print_step "3" "Code explanation helper"
     print_command "explain hello.py"
     echo ""
-    echo "This would send the file to Claude Code for explanation."
-    echo "(Requires Claude Code CLI to be installed separately)"
+    echo "This sends the file to Claude Code for explanation."
+    echo "(Shows file content if Claude CLI not available)"
     
-    echo "For now, let's simulate by viewing the file:"
-    wait_for_command "bat hello.py" "Try: bat hello.py (simulating explanation)"
+    wait_for_command "explain hello.py" "Try: explain hello.py"
     
     print_step "4" "AI commit message generation"
-    echo "Your dotfiles can generate commit messages!"
+    echo "Your dotfiles can generate smart commit messages!"
     echo ""
     echo "First, let's stage a file:"
     print_command "git init && git add hello.py"
@@ -420,11 +423,21 @@ lesson_05_ai_integration() {
     print_command "ai-commit"
     echo ""
     echo "This analyzes staged changes and suggests commit messages."
-    echo "(Requires Claude Code CLI - we'll skip the actual execution)"
     
-    print_success "AI integration concepts learned!"
+    wait_for_command "ai-commit" "Try: ai-commit"
+    
+    print_step "5" "Context-aware AI prompting"
+    echo "Use context for better AI responses:"
     echo ""
-    print_tip "Install Claude Code CLI and Gemini CLI separately to unlock full AI features!"
+    print_command "claude-context \"How can I improve this Python code?\""
+    echo ""
+    echo "This includes file context in your AI queries."
+    
+    wait_for_command "claude-context \"How can I improve this Python code?\"" "Try the context command"
+    
+    print_success "AI integration workflows learned!"
+    echo ""
+    print_tip "Check out Lesson 8 for advanced Neovim AI coding features!"
     
     wait_for_enter
 }
@@ -532,9 +545,9 @@ lesson_07_neovim_navigation() {
 
 lesson_08_development_workflow() {
     print_header
-    print_lesson_header "Lesson 8: Complete Development Workflow"
+    print_lesson_header "Lesson 8: AI-Enhanced Development Workflow"
     
-    echo "Put it all together in a real development workflow!"
+    echo "Master the complete AI-powered development workflow!"
     echo ""
     
     cd "$TUTORIAL_DIR"
@@ -563,16 +576,52 @@ lesson_08_development_workflow() {
     echo "Press ENTER to continue after trying..."
     read -r
     
-    print_step "4" "Use AI helpers"
+    print_step "4" "AI-powered coding in Neovim"
+    echo "Your Neovim setup includes advanced AI coding agents!"
+    echo ""
+    echo -e "${BOLD}AI Keybindings in Neovim:${NC}"
+    echo "• <leader>aa - AI Actions menu"
+    echo "• <leader>ac - AI Chat"
+    echo "• <leader>acr - AI Code Review (visual mode)"
+    echo "• <leader>ace - AI Explain Code (visual mode)"
+    echo "• <leader>act - AI Generate Tests (visual mode)"
+    echo "• <leader>aco - AI Optimize Code (visual mode)"
+    echo ""
+    echo "Try these in Neovim:"
+    echo "1. Select some code with 'v' (visual mode)"
+    echo "2. Press <leader>acr for AI code review"
+    echo "3. Press <leader>ace for code explanation"
+    echo ""
+    echo "Press ENTER when you've tried AI coding features..."
+    read -r
+    
+    print_step "5" "Shell AI helpers"
     echo "In the shell pane, try AI helper functions:"
     echo "• ai-find 'function' - Search for functions"
     echo "• explain filename - Explain code"
     echo "• ai-analyze overview - Analyze project"
+    echo "• cc \"question\" - Quick Claude query"
+    echo "• claude-context \"question\" - Context-aware AI"
     echo ""
     echo "Press ENTER when you've tried some commands..."
     read -r
     
-    print_step "5" "Detach and reattach"
+    print_step "6" "AI workflow integration"
+    echo "Combine AI with git workflow:"
+    echo ""
+    print_command "git add ."
+    echo ""
+    echo "Stage some changes, then:"
+    
+    wait_for_command "git add ." "Try: git add ."
+    
+    print_command "ai-commit"
+    echo ""
+    echo "This generates intelligent commit messages!"
+    
+    wait_for_command "ai-commit" "Try: ai-commit"
+    
+    print_step "7" "Detach and reattach"
     echo "Detach from tmux (Prefix + d), then reattach:"
     print_command "ta python-dev"
     echo ""
@@ -580,7 +629,9 @@ lesson_08_development_workflow() {
     
     wait_for_command "ta python-dev" "Try: ta python-dev"
     
-    print_success "Complete development workflow mastered!"
+    print_success "AI-enhanced development workflow mastered!"
+    echo ""
+    print_tip "You now have enterprise-grade AI coding assistance in your terminal and editor!"
     
     wait_for_enter
 }
@@ -709,7 +760,7 @@ show_menu() {
     echo "5.  AI Integration"
     echo "6.  Tmux Sessions"
     echo "7.  Neovim Navigation"
-    echo "8.  Development Workflow"
+    echo "8.  AI-Enhanced Development Workflow"
     echo "9.  Advanced Features"
     echo "10. Graduation"
     echo ""
