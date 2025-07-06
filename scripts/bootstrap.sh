@@ -120,9 +120,29 @@ run_installer() {
     # Make installer executable
     chmod +x "$installer"
     
-    # Run installer with passed arguments
+    # Check if config file exists
+    local config_file="$DOTFILES_DIR/config/tools.yaml"
+    if [[ ! -f "$config_file" ]]; then
+        log_error "Configuration file not found: $config_file"
+        log_info "Available files in config directory:"
+        ls -la "$DOTFILES_DIR/config/" || true
+        error_exit "Missing configuration file"
+    fi
+    
+    # Run installer with passed arguments, default to 'install standard' if no args
     cd "$DOTFILES_DIR"
-    exec "$installer" "$@"
+    log_info "Current directory: $(pwd)"
+    log_info "Installer path: $installer"
+    log_info "Config file: $config_file"
+    
+    if [[ $# -eq 0 ]]; then
+        log_info "No arguments provided, using default profile 'standard'"
+        log_info "Running: $installer install standard"
+        "$installer" install standard
+    else
+        log_info "Running with arguments: $installer $*"
+        "$installer" "$@"
+    fi
 }
 
 # Main function
