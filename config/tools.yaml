@@ -46,6 +46,23 @@ groups:
       - gh_copilot
     optional: true
   
+  ios_development:
+    description: "iOS and Swift development tools"
+    tools:
+      - xcode_command_line_tools
+      - ios_deploy
+      - xcpretty
+      - swiftlint
+    optional: true
+  
+  web_development:
+    description: "Modern web development tools"
+    tools:
+      - lighthouse
+      - workbox_cli
+      - live_server
+    optional: true
+  
   testing_tools:
     description: "Modern testing framework suite"
     tools:
@@ -327,6 +344,57 @@ tools:
     install:
       all: "uv add --dev pytest pytest-asyncio pytest-cov pytest-mock pytest-xdist pytest-benchmark pytest-watch httpx factory-boy freezegun"
     verify: "python -m pytest --version"
+
+  # iOS Development Tools
+  xcode_command_line_tools:
+    description: "Xcode Command Line Tools for iOS development"
+    category: "ios"
+    install:
+      macos: "xcode-select --install"
+    verify: "xcode-select -p"
+    
+  ios_deploy:
+    description: "Install and debug iOS apps from the command line"
+    category: "ios"
+    install:
+      macos: "brew install ios-deploy"
+    verify: "ios-deploy --version"
+    
+  xcpretty:
+    description: "Formatter for xcodebuild output"
+    category: "ios"
+    install:
+      macos: "gem install xcpretty"
+    verify: "xcpretty --version"
+    
+  swiftlint:
+    description: "Swift code style linter and formatter"
+    category: "ios"
+    install:
+      macos: "brew install swiftlint"
+    verify: "swiftlint version"
+
+  # Web Development Tools
+  lighthouse:
+    description: "Automated auditing for web apps (PWA, performance, accessibility)"
+    category: "web"
+    install:
+      all: "npm install -g lighthouse"
+    verify: "lighthouse --version"
+    
+  workbox_cli:
+    description: "Command line tool for Workbox (PWA service workers)"
+    category: "web"
+    install:
+      all: "npm install -g workbox-cli"
+    verify: "workbox --version"
+    
+  live_server:
+    description: "Development HTTP server with live reload capability"
+    category: "web"
+    install:
+      all: "bun install -g live-server"
+    verify: "live-server --version"
 
 # Platform-specific package managers
 package_managers:

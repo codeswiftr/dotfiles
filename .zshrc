@@ -55,6 +55,10 @@ if [[ -z "$DOTFILES_FAST_MODE" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/testing.zsh" ]] && source "$ZSH_CONFIG_DIR/testing.zsh"
 fi
 
+# Development-specific configurations
+[[ -f "$ZSH_CONFIG_DIR/ios-swift.zsh" ]] && source "$ZSH_CONFIG_DIR/ios-swift.zsh"
+[[ -f "$ZSH_CONFIG_DIR/web-pwa.zsh" ]] && source "$ZSH_CONFIG_DIR/web-pwa.zsh"
+
 # ----- Load Legacy Functions and Custom User Config -----
 perf_time "Loading legacy and user config"
 
@@ -77,6 +81,8 @@ if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
     echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
     echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
     echo "🧪 Testing tools: bruno (bt), playwright (pw), pytest (pt), k6"
+    echo "🍎 iOS development: xcode, simulator, ios-* commands, swift-* commands"
+    echo "🌐 Web development: fastapi-*, lit-*, pwa-*, fullstack-dev"
     echo "🔒 AI Security: ai-security-status, ai-security-strict, ai-security-permissive"
     echo "⚡ Performance: perf-benchmark-startup, enable-fast-mode, perf-status"
     echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions, 'testing-status' for test setup"

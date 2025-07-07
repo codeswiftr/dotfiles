@@ -145,16 +145,38 @@ dot_check() {
         fi
         
         # Check for keybinding conflicts (only if config is valid)
-        if [[ $tmux_issues -eq 0 ]] && tmux list-keys 2>/dev/null | rg -q "prefix.*c.*claude|prefix.*d.*docker"; then
-            [[ "$quiet" != "true" ]] && print_warning "Tmux keybinding conflicts detected (run 'dot update' to fix)"
-            exit_code=1
+        # Look for direct bindings to c or d that launch claude/docker (not menu items)
+        if [[ $tmux_issues -eq 0 ]]; then
+            # Check if c key directly launches claude (not new-window)
+            local c_binding=$(tmux list-keys 2>/dev/null | rg "bind-key.*-T prefix[[:space:]]+c[[:space:]]" | head -1 || true)
+            local d_binding=$(tmux list-keys 2>/dev/null | rg "bind-key.*-T prefix[[:space:]]+d[[:space:]]" | head -1 || true)
+            
+            local has_c_conflict=false
+            local has_d_conflict=false
+            
+            # Check if c binding launches claude instead of new-window
+            if [[ -n "$c_binding" ]] && echo "$c_binding" | rg -q "claude" && ! echo "$c_binding" | rg -q "new-window"; then
+                has_c_conflict=true
+            fi
+            
+            # Check if d binding launches docker instead of detach
+            if [[ -n "$d_binding" ]] && echo "$d_binding" | rg -q "docker" && ! echo "$d_binding" | rg -q "detach"; then
+                has_d_conflict=true
+            fi
+            
+            if [[ "$has_c_conflict" == "true" ]] || [[ "$has_d_conflict" == "true" ]]; then
+                [[ "$quiet" != "true" ]] && print_warning "Tmux keybinding conflicts detected (run 'dot update' to fix)"
+                exit_code=1
+            fi
         fi
         
         if [[ "$quiet" != "true" ]] && [[ $tmux_issues -eq 0 ]]; then
-            # Check total binding count
+            # Check total binding count and configuration type
             local binding_count=$(tmux list-keys 2>/dev/null | rg -c "bind-key.*-T prefix" || echo 0)
-            if [[ $binding_count -gt 40 ]]; then
-                print_warning "Tmux has $binding_count bindings (complex config - consider streamlining)"
+            if grep -q "ULTIMATE Tmux Configuration" ~/.tmux.conf 2>/dev/null; then
+                print_success "Using ultimate tmux config ($binding_count essential bindings)"
+            elif [[ $binding_count -gt 40 ]]; then
+                print_warning "Tmux has $binding_count bindings (complex config - consider 'dot update' for streamlined version)"
             fi
         fi
     fi
@@ -273,10 +295,13 @@ dot_update() {
             conflicts_found=true
         fi
         
-        # Auto-fix conflicts if detected
-        if [[ "$conflicts_found" == "true" ]]; then
-            print_info "Auto-fixing tmux keybinding conflicts..."
-            if [[ -f "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" ]]; then
+        # Auto-fix conflicts if detected OR ensure ultimate config is active
+        if [[ "$conflicts_found" == "true" ]] || [[ ! -f ~/.tmux.conf ]] || ! grep -q "ULTIMATE Tmux Configuration" ~/.tmux.conf; then
+            print_info "Applying ultimate tmux configuration..."
+            if [[ -f "$DOTFILES_DIR/.tmux-ultimate.conf" ]]; then
+                cp "$DOTFILES_DIR/.tmux-ultimate.conf" ~/.tmux.conf
+                print_success "Applied ultimate tmux configuration with perfect copy/paste"
+            elif [[ -f "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" ]]; then
                 bash "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" --yes 2>/dev/null || {
                     print_warning "Automatic fix failed, using fixed config directly"
                     if [[ -f "$DOTFILES_DIR/.tmux-fixed.conf" ]]; then
