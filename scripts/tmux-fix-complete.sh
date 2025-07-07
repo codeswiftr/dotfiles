@@ -8,42 +8,89 @@ set -e
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 
-echo "🔧 COMPLETE TMUX CONFIGURATION FIX"
-echo "=================================="
-echo ""
+# Parse command line arguments
+auto_confirm=false
+quiet=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --yes|-y)
+            auto_confirm=true
+            shift
+            ;;
+        --quiet|-q)
+            quiet=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [--yes] [--quiet]"
+            echo "  --yes    Skip confirmation prompts"
+            echo "  --quiet  Suppress non-essential output"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+if [[ "$quiet" != "true" ]]; then
+    echo "🔧 COMPLETE TMUX CONFIGURATION FIX"
+    echo "=================================="
+    echo ""
+fi
 
 # Check if tmux is running
 if pgrep -f tmux >/dev/null; then
-    echo "⚠️  Active tmux sessions detected"
-    echo "💡 Recommendation: Save your work and run 'tmux kill-server' first"
-    echo "   This ensures a clean configuration reload"
-    echo ""
-    read -p "Continue anyway? (y/N): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "❌ Fix cancelled. Run 'tmux kill-server' first, then re-run this script."
-        exit 1
+    if [[ "$quiet" != "true" ]]; then
+        echo "⚠️  Active tmux sessions detected"
+    fi
+    
+    if [[ "$auto_confirm" != "true" ]]; then
+        if [[ "$quiet" != "true" ]]; then
+            echo "💡 Recommendation: Save your work and run 'tmux kill-server' first"
+            echo "   This ensures a clean configuration reload"
+            echo ""
+        fi
+        read -p "Continue anyway? (y/N): " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "❌ Fix cancelled. Run 'tmux kill-server' first, then re-run this script."
+            exit 1
+        fi
     fi
 fi
 
 # Backup current configuration
-echo "📦 Creating configuration backup..."
+if [[ "$quiet" != "true" ]]; then
+    echo "📦 Creating configuration backup..."
+fi
+
 if [[ -f ~/.tmux.conf ]]; then
     backup_file=~/.tmux.conf.backup.$(date +%Y%m%d_%H%M%S)
     cp ~/.tmux.conf "$backup_file"
-    echo "✅ Backup created: $backup_file"
+    if [[ "$quiet" != "true" ]]; then
+        echo "✅ Backup created: $backup_file"
+    fi
 else
-    echo "ℹ️  No existing tmux configuration found"
+    if [[ "$quiet" != "true" ]]; then
+        echo "ℹ️  No existing tmux configuration found"
+    fi
 fi
 
 # Install the fixed configuration
-echo ""
-echo "🚀 Installing FIXED tmux configuration..."
+if [[ "$quiet" != "true" ]]; then
+    echo ""
+    echo "🚀 Installing FIXED tmux configuration..."
+fi
 cp "$DOTFILES_DIR/.tmux-fixed.conf" ~/.tmux.conf
 
 # Test the new configuration
-echo ""
-echo "🧪 Testing new configuration..."
+if [[ "$quiet" != "true" ]]; then
+    echo ""
+    echo "🧪 Testing new configuration..."
+fi
 if tmux -f ~/.tmux.conf list-keys >/dev/null 2>&1; then
     echo "✅ Configuration syntax is valid"
 else

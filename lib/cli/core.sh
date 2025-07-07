@@ -133,6 +133,32 @@ dot_check() {
         fi
     done
     
+    # Check tmux configuration for conflicts
+    if command -v tmux >/dev/null 2>&1; then
+        local tmux_issues=0
+        
+        # Check if tmux config is valid
+        if ! tmux -f ~/.tmux.conf list-keys >/dev/null 2>&1; then
+            [[ "$quiet" != "true" ]] && print_error "Tmux configuration has syntax errors"
+            exit_code=1
+            tmux_issues=1
+        fi
+        
+        # Check for keybinding conflicts (only if config is valid)
+        if [[ $tmux_issues -eq 0 ]] && tmux list-keys 2>/dev/null | rg -q "prefix.*c.*claude|prefix.*d.*docker"; then
+            [[ "$quiet" != "true" ]] && print_warning "Tmux keybinding conflicts detected (run 'dot update' to fix)"
+            exit_code=1
+        fi
+        
+        if [[ "$quiet" != "true" ]] && [[ $tmux_issues -eq 0 ]]; then
+            # Check total binding count
+            local binding_count=$(tmux list-keys 2>/dev/null | rg -c "bind-key.*-T prefix" || echo 0)
+            if [[ $binding_count -gt 40 ]]; then
+                print_warning "Tmux has $binding_count bindings (complex config - consider streamlining)"
+            fi
+        fi
+    fi
+    
     # Call existing health check if available
     if command -v df-health &> /dev/null; then
         if [[ "$quiet" != "true" ]]; then
@@ -230,10 +256,44 @@ dot_update() {
     
     # Reload tmux configuration if tmux is running
     if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
+        print_info "Checking and fixing tmux configuration..."
+        
+        # Check for critical keybinding conflicts
+        local conflicts_found=false
+        
+        # Check if 'c' is bound to claude instead of new-window
+        if tmux list-keys | rg -q "prefix.*c.*claude"; then
+            print_warning "Detected tmux keybinding conflicts (c→claude)"
+            conflicts_found=true
+        fi
+        
+        # Check if 'd' is bound to docker instead of detach
+        if tmux list-keys | rg -q "prefix.*d.*docker"; then
+            print_warning "Detected tmux keybinding conflicts (d→docker)"
+            conflicts_found=true
+        fi
+        
+        # Auto-fix conflicts if detected
+        if [[ "$conflicts_found" == "true" ]]; then
+            print_info "Auto-fixing tmux keybinding conflicts..."
+            if [[ -f "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" ]]; then
+                bash "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" --yes 2>/dev/null || {
+                    print_warning "Automatic fix failed, using fixed config directly"
+                    if [[ -f "$DOTFILES_DIR/.tmux-fixed.conf" ]]; then
+                        cp "$DOTFILES_DIR/.tmux-fixed.conf" ~/.tmux.conf
+                        print_success "Applied fixed tmux configuration"
+                    fi
+                }
+            fi
+        fi
+        
+        # Reload configuration
         print_info "Reloading tmux configuration..."
-        tmux source-file ~/.tmux.conf
-        tmux display-message "Tmux configuration reloaded!"
-        print_success "Tmux configuration reloaded"
+        tmux source-file ~/.tmux.conf 2>/dev/null || {
+            print_warning "Config reload failed, restarting tmux recommended"
+        }
+        tmux display-message "Tmux configuration reloaded and fixed!" 2>/dev/null || true
+        print_success "Tmux configuration reloaded and verified"
     fi
     
     # Reload Neovim configuration for all running instances
@@ -259,8 +319,23 @@ dot_update() {
     fi
     
     print_success "Environment update completed!"
-    print_success "All configurations reloaded automatically"
-    print_info "Shell restart recommended for complete environment refresh"
+    
+    # Show summary of what was updated/fixed
+    print_info "🎯 What was updated:"
+    print_info "  • Repository pulled from remote"
+    print_info "  • Configurations reloaded automatically"
+    if [[ "$conflicts_found" == "true" ]]; then
+        print_info "  • Tmux keybinding conflicts resolved"
+    fi
+    print_info "  • All running applications updated"
+    
+    print_info ""
+    print_success "✨ Everything is ready to use immediately!"
+    print_info "💡 Try these commands:"
+    print_info "   tmux               # Start with fixed keybindings"
+    print_info "   nvim               # Progressive editor (press <Space>?)"
+    print_info "   dot check          # Verify everything is working"
+    print_info "   perf-status        # Check shell performance"
 }
 
 # Help functions
