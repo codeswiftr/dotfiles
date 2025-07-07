@@ -28,6 +28,9 @@ require("core.options")
 -- Load essential keymaps
 require("core.keymaps")
 
+-- Load enhanced split navigation (s + hjkl)
+require("core.split-navigation")
+
 -- ============================================================================
 -- Progressive Tier Loading
 -- ============================================================================
@@ -67,6 +70,7 @@ local language_configs = {
   css = { tabstop = 2, shiftwidth = 2, expandtab = true },
   json = { tabstop = 2, shiftwidth = 2, expandtab = true },
   yaml = { tabstop = 2, shiftwidth = 2, expandtab = true },
+  swift = { tabstop = 4, shiftwidth = 4, expandtab = true },
 }
 
 for filetype, config in pairs(language_configs) do
@@ -78,6 +82,15 @@ for filetype, config in pairs(language_configs) do
       end
     end,
   })
+end
+
+-- Enhanced language-specific configurations (Tier 2+)
+if vim.g.nvim_tier >= 2 then
+  -- Load advanced web development configuration
+  pcall(require, "languages.web")
+  
+  -- Load Swift/iOS development configuration
+  pcall(require, "languages.swift")
 end
 
 -- ============================================================================
