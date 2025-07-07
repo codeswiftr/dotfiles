@@ -33,6 +33,9 @@ perf_time "Loading core modules"
 # Modern tools and completions
 [[ -f "$ZSH_CONFIG_DIR/tools.zsh" ]] && source "$ZSH_CONFIG_DIR/tools.zsh"
 
+# Enhanced history and autosuggestions (fish-like experience)
+[[ -f "$ZSH_CONFIG_DIR/history-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/history-enhanced.zsh"
+
 # Aliases
 [[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/aliases.zsh"
 
@@ -83,6 +86,7 @@ if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
     echo "🧪 Testing tools: bruno (bt), playwright (pw), pytest (pt), k6"
     echo "🍎 iOS development: xcode, simulator, ios-* commands, swift-* commands"
     echo "🌐 Web development: fastapi-*, lit-*, pwa-*, fullstack-dev"
+    echo "⚡ Enhanced workflow: fish-like autosuggestions, s+hjkl split navigation"
     echo "🔒 AI Security: ai-security-status, ai-security-strict, ai-security-permissive"
     echo "⚡ Performance: perf-benchmark-startup, enable-fast-mode, perf-status"
     echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions, 'testing-status' for test setup"
