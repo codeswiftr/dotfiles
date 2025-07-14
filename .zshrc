@@ -62,6 +62,9 @@ fi
 [[ -f "$ZSH_CONFIG_DIR/ios-swift.zsh" ]] && source "$ZSH_CONFIG_DIR/ios-swift.zsh"
 [[ -f "$ZSH_CONFIG_DIR/web-pwa.zsh" ]] && source "$ZSH_CONFIG_DIR/web-pwa.zsh"
 
+# Dynamic terminal title integration with tmux
+[[ -f "$ZSH_CONFIG_DIR/tmux-title.zsh" ]] && source "$ZSH_CONFIG_DIR/tmux-title.zsh"
+
 # ----- Load Legacy Functions and Custom User Config -----
 perf_time "Loading legacy and user config"
 

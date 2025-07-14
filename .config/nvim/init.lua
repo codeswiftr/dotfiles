@@ -722,6 +722,51 @@ keymap("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
 keymap("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
+-- Enhanced split navigation with 's' prefix (s + hjkl)
+keymap("n", "sh", "<C-w>h", { desc = "Go to left split", silent = true })
+keymap("n", "sj", "<C-w>j", { desc = "Go to bottom split", silent = true })
+keymap("n", "sk", "<C-w>k", { desc = "Go to top split", silent = true })
+keymap("n", "sl", "<C-w>l", { desc = "Go to right split", silent = true })
+
+-- Enhanced split management
+keymap("n", "sv", "<C-w>v", { desc = "Split vertically", silent = true })
+keymap("n", "ss", "<C-w>s", { desc = "Split horizontally", silent = true })
+keymap("n", "sq", "<C-w>q", { desc = "Close current split", silent = true })
+keymap("n", "so", "<C-w>o", { desc = "Close other splits", silent = true })
+
+-- Quick split resizing
+keymap("n", "s=", "<C-w>=", { desc = "Equalize splits", silent = true })
+keymap("n", "s+", "<C-w>+", { desc = "Increase height", silent = true })
+keymap("n", "s-", "<C-w>-", { desc = "Decrease height", silent = true })
+keymap("n", "s>", "<C-w>>", { desc = "Increase width", silent = true })
+keymap("n", "s<", "<C-w><", { desc = "Decrease width", silent = true })
+
+-- Quick split layouts
+keymap("n", "s2v", function()
+  vim.cmd("only | vsplit | wincmd =")
+end, { desc = "Two vertical splits", silent = true })
+
+keymap("n", "s2h", function()
+  vim.cmd("only | split | wincmd =")
+end, { desc = "Two horizontal splits", silent = true })
+
+keymap("n", "sdev", function()
+  vim.cmd("only | vsplit | wincmd l | split | terminal | resize 10 | wincmd k | wincmd h | vertical resize 30 | wincmd l")
+end, { desc = "Development layout (main + terminal + sidebar)", silent = true })
+
+-- Split help
+keymap("n", "s?", function()
+  print("🚀 Enhanced Split Navigation (s + key):")
+  print("  sh/sj/sk/sl     Navigate splits (← ↓ ↑ →)")
+  print("  sv/ss           Create vertical/horizontal split")
+  print("  sq/so           Close current/Close others")
+  print("  s=/s+/s-        Equalize/Grow/Shrink height")
+  print("  s>/s<           Grow/Shrink width")
+  print("  s2v/s2h         Quick 2 split layouts")
+  print("  sdev            Development layout")
+  print("💡 Also available: <C-h/j/k/l> for navigation")
+end, { desc = "Show split navigation help", silent = true })
+
 -- Alternative navigation using arrow keys
 keymap("n", "<C-Left>", "<C-w>h", { desc = "Move to left window" })
 keymap("n", "<C-Down>", "<C-w>j", { desc = "Move to bottom window" })
