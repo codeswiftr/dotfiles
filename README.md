@@ -45,6 +45,26 @@ curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/
 - **Smart completions** and code suggestions
 - **Automated documentation** and commit messages
 
+### **🍎 iOS & SwiftUI Development**
+- **Complete iOS development environment** with Xcode integration
+- **Swift project initialization** and build automation
+- **iOS Simulator management** and device testing
+- **Package dependency management** with SPM
+- **Specialized tmux layouts** for iOS development
+
+### **🌐 FastAPI + LitPWA Development**
+- **Modern web development stack** with FastAPI backend
+- **LitElement/Lit framework** for progressive web apps
+- **Automated project initialization** with uv and modern tools
+- **Development server management** and hot reloading
+- **PWA tooling** and deployment workflows
+
+### **⚡ Enhanced Shell Experience**
+- **Fish-like autosuggestions** with intelligent history completion
+- **Enhanced split navigation** (s+hjkl) in Neovim for faster workflow
+- **Dynamic terminal titles** that show tmux session and window info
+- **Smart session management** with project-based tmux sessions
+
 ### **🔒 Enterprise Security**
 - **GPG key management** with automated setup
 - **SSH key generation** and configuration
@@ -139,6 +159,62 @@ dot update             # Update all components
 dot backup create      # Create system backup
 ```
 
+### **🍎 iOS & SwiftUI Development**
+```bash
+# Project Management
+ios-init myapp         # Create new iOS project with SwiftUI
+ios-quick-build        # Build current project
+ios-simulator-start    # Launch iOS Simulator
+ios-test-run          # Run test suite
+
+# Development Workflow
+swift-format .         # Format Swift code
+ios-devices           # List available devices
+ios-logs              # View device logs
+swift-package-init    # Initialize Swift package
+
+# Specialized Layouts
+Ctrl-a D → FastAPI Dev # Open 4-pane iOS development layout
+```
+
+### **🌐 FastAPI + LitPWA Development**
+```bash
+# Project Initialization
+fastapi-init myapi     # Create FastAPI project with uv
+lit-init myapp         # Create Lit PWA project
+fullstack-dev         # Setup full-stack project
+
+# Development Workflow
+fastapi-dev           # Start FastAPI with hot reload
+lit-dev               # Start Lit development server
+pwa-build             # Build PWA for production
+pwa-test              # Test PWA functionality
+
+# Specialized Layouts
+Ctrl-a D → FastAPI Dev # Open 4-pane FastAPI development layout
+```
+
+### **⚡ Enhanced Shell & Navigation**
+```bash
+# Fish-like Autosuggestions
+# Type any command → see suggestions automatically
+# Right arrow or Ctrl+F → accept suggestion
+# Up/Down arrows → search history based on current input
+
+# Enhanced Split Navigation (in Neovim)
+sh                    # Navigate to left split
+sj                    # Navigate to down split  
+sk                    # Navigate to up split
+sl                    # Navigate to right split
+
+# Smart Terminal Titles
+tm                    # Smart tmux session picker
+tms <session>         # Create/attach session with title update
+tmp [dir]             # Project-based session with auto-title
+title "Custom Title"  # Set terminal title manually
+tinfo                 # Show current session info
+```
+
 ### **Development Workflow**
 ```bash
 dot project init       # Create new project
@@ -225,6 +301,47 @@ dot security scan
 ```bash
 dot secret setup
 dot secret exec -- npm start
+```
+
+## 🔧 **Feature Configuration**
+
+### **Enhanced Shell Autosuggestions**
+
+The dotfiles include fish-like autosuggestions that learn from your command history:
+
+```bash
+# Configuration is automatic, but you can customize:
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#ff00ff,bg=cyan,bold,underline"
+export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Usage:
+# - Type any command to see suggestions appear
+# - Right arrow or Ctrl+F to accept suggestion  
+# - Ctrl+→ to accept next word
+# - Up/Down arrows for history search
+```
+
+### **Split Navigation in Neovim**
+
+Enhanced split navigation using s+hjkl for faster window management:
+
+```lua
+-- Automatically configured in ~/.config/nvim/init.lua
+-- s+h/j/k/l for split navigation
+-- Ctrl+w+h/j/k/l still works as fallback
+```
+
+### **Dynamic Terminal Titles**
+
+Terminal titles automatically update to show tmux session and window information:
+
+```bash
+# Automatically shows format: "session:window"
+# Examples: "dot:vim", "dev:fastapi", "main:1"
+
+# Manual control:
+title "My Custom Title"    # Set custom title
+tinfo                      # Show current session info
 ```
 
 ## 🧪 **Testing**
