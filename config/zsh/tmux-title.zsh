@@ -6,11 +6,25 @@
 # Direct function to set macOS Terminal.app window title
 set_terminal_title() {
     local title="$1"
+    
+    # Validate input
+    if [[ -z "$title" ]]; then
+        echo "❌ Error: Title cannot be empty"
+        echo "Usage: set_terminal_title <title>"
+        return 1
+    fi
+    
+    # Sanitize title (remove control characters and limit length)
+    title=$(echo "$title" | tr -d '\000-\037\177' | head -c 100)
+    
     if [[ -n "$title" ]]; then
         # Use BEL terminator (\007) for better macOS Terminal.app compatibility
         printf '\033]2;%s\007' "$title"
         # Also set tab title for iTerm2
         printf '\033]1;%s\007' "$title"
+    else
+        echo "⚠️  Warning: Title was empty after sanitization"
+        return 1
     fi
 }
 
@@ -178,9 +192,31 @@ tmux_project_session() {
         project_dir="$PWD"
     fi
     
-    # Convert to absolute path
-    project_dir="$(cd "$project_dir" && pwd)"
+    # Validate directory exists and is accessible
+    if [[ ! -d "$project_dir" ]]; then
+        echo "❌ Error: Directory '$project_dir' does not exist"
+        return 1
+    fi
+    
+    if [[ ! -r "$project_dir" ]]; then
+        echo "❌ Error: Directory '$project_dir' is not readable"
+        return 1
+    fi
+    
+    # Convert to absolute path with error handling
+    if ! project_dir="$(cd "$project_dir" && pwd 2>/dev/null)"; then
+        echo "❌ Error: Cannot access directory '$project_dir'"
+        return 1
+    fi
+    
     local project_name="$(basename "$project_dir")"
+    
+    # Validate project name for tmux compatibility
+    if [[ "$project_name" =~ [[:space:]:] ]]; then
+        echo "⚠️  Warning: Project name contains spaces or colons, sanitizing..."
+        project_name=$(echo "$project_name" | sed 's/[[:space:]:_]/-/g')
+        echo "Using session name: $project_name"
+    fi
     
     # Check if session already exists
     if tmux has-session -t "$project_name" 2>/dev/null; then
@@ -188,8 +224,10 @@ tmux_project_session() {
         tmux attach-session -t "$project_name"
     else
         echo "🚀 Creating project session: $project_name"
-        cd "$project_dir"
-        tmux new-session -s "$project_name" -c "$project_dir"
+        if ! tmux new-session -s "$project_name" -c "$project_dir"; then
+            echo "❌ Error: Failed to create tmux session"
+            return 1
+        fi
     fi
     
     update_terminal_title
