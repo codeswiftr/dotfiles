@@ -87,13 +87,14 @@ if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
     echo "🔧 Available tools: starship, zoxide, eza, bat, rg, fd, fzf, atuin"
     echo "🤖 AI tools: claude (cc), gemini (gg), aider (ai), copilot (cop)"
     echo "🧪 Testing tools: bruno (bt), playwright (pw), pytest (pt), k6"
-    echo "🍎 iOS development: xcode, simulator, ios-* commands, swift-* commands"
-    echo "🌐 Web development: fastapi-*, lit-*, pwa-*, fullstack-dev"
-    echo "⚡ Enhanced workflow: fish-like autosuggestions, s+hjkl split navigation"
+    echo "🍎 iOS development: ios-init, ios-quick-build, swift-format, ios-simulator-start"
+    echo "🌐 Web development: fastapi-init, lit-init, fullstack-dev, pwa-build"
+    echo "⚡ Enhanced workflow: fish-like autosuggestions, s+hjkl split navigation, dynamic titles"
+    echo "🪟 Terminal titles: tm (session picker), tms <name>, title <text>, tinfo"
     echo "🔒 AI Security: ai-security-status, ai-security-strict, ai-security-permissive"
     echo "⚡ Performance: perf-benchmark-startup, enable-fast-mode, perf-status"
-    echo "🎯 Type 'proj' to switch projects, 'tm' for smart tmux sessions, 'testing-status' for test setup"
-    echo "📦 Dotfiles version: $(cat $DOTFILES_DIR/VERSION 2>/dev/null || echo '2025.1.6') (use 'df-update' to check for updates)"
+    echo "🎯 All features documented in README.md - visit: https://github.com/codeswiftr/dotfiles"
+    echo "📦 Dotfiles version: $(cat $DOTFILES_DIR/VERSION 2>/dev/null || echo '2025.1.7') (use 'df-update' to check for updates)"
 fi
 
 # Auto-update check (async, non-blocking)

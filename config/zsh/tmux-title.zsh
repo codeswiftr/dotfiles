@@ -3,6 +3,17 @@
 # Automatically sets terminal window/tab title to show tmux session and window
 # ============================================================================
 
+# Direct function to set macOS Terminal.app window title
+set_terminal_title() {
+    local title="$1"
+    if [[ -n "$title" ]]; then
+        # Use BEL terminator (\007) for better macOS Terminal.app compatibility
+        printf '\033]2;%s\007' "$title"
+        # Also set tab title for iTerm2
+        printf '\033]1;%s\007' "$title"
+    fi
+}
+
 # Function to update terminal title based on tmux state
 update_terminal_title() {
     # Check if we're inside tmux
@@ -17,17 +28,18 @@ update_terminal_title() {
         if [[ -n "$session_name" && -n "$window_name" ]]; then
             # Format: "session:window" or "session:index-name" for clarity
             if [[ "$window_name" != "zsh" && "$window_name" != "bash" ]]; then
-                # Use descriptive window name
-                local title="$session_name:$window_name"
+                # Use descriptive window name, but clean it up
+                local clean_window_name=$(echo "$window_name" | sed 's/\[.*\]//g' | xargs)
+                local title="$session_name:$clean_window_name"
             else
                 # Use index when window name is generic
                 local title="$session_name:$window_index"
             fi
             
-            # Add pane title if it's meaningful (not just hostname)
-            if [[ -n "$pane_title" && "$pane_title" != "$(hostname)" && "$pane_title" != "zsh" && "$pane_title" != "bash" ]]; then
-                title="$title [$pane_title]"
-            fi
+            # Don't add pane title for now to keep it clean
+            # if [[ -n "$pane_title" && "$pane_title" != "$(hostname)" && "$pane_title" != "zsh" && "$pane_title" != "bash" ]]; then
+            #     title="$title [$pane_title]"
+            # fi
         else
             # Fallback to session name only
             local title="${session_name:-tmux}"
@@ -42,26 +54,8 @@ update_terminal_title() {
         fi
     fi
     
-    # Set the terminal title using escape sequences
-    # Works with most terminal emulators (iTerm2, Terminal.app, etc.)
-    case "$TERM" in
-        screen*|tmux*)
-            # Inside tmux/screen, set the terminal title
-            printf '\033]2;%s\033\\' "$title"
-            # Also set the tmux window title for consistency
-            if [[ -n "$TMUX" ]]; then
-                tmux rename-window "$title" 2>/dev/null || true
-            fi
-            ;;
-        xterm*|rxvt*|alacritty*|kitty*)
-            # Direct terminal emulator
-            printf '\033]2;%s\033\\' "$title"
-            ;;
-        *)
-            # Unknown terminal, try generic escape sequence
-            printf '\033]2;%s\033\\' "$title"
-            ;;
-    esac
+    # Set the macOS Terminal.app window title using our direct function
+    set_terminal_title "$title"
 }
 
 # Function to set up automatic title updates
@@ -206,6 +200,9 @@ alias tm='tmux_session_picker'
 alias tms='tmux_session_with_title'
 alias tmw='tmux_window_title'
 alias tmp='tmux_project_session'
+
+# Direct terminal title control
+alias title='set_terminal_title'
 
 # Quick session shortcuts
 alias tmain='tmux_session_with_title main'
