@@ -105,7 +105,7 @@ run_test_category() {
     local test_output_file
     test_output_file=$(mktemp)
     
-    if "$test_path" > "$test_output_file" 2>&1; then
+    if (cd "$DOTFILES_DIR" && timeout 30 "$test_path") > "$test_output_file" 2>&1; then
         end_time=$(date +%s)
         duration=$((end_time - start_time))
         

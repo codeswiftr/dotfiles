@@ -186,19 +186,19 @@ run_tests() {
     
     case "$category" in
         "all")
-            run_all_tests "${options[@]}"
+            run_all_tests "${options[@]+"${options[@]}"}"
             ;;
         "unit")
-            run_unit_tests "${options[@]}"
+            run_unit_tests "${options[@]+"${options[@]}"}"
             ;;
         "integration")
-            run_integration_tests "${options[@]}"
+            run_integration_tests "${options[@]+"${options[@]}"}"
             ;;
         "e2e")
-            run_e2e_tests "${options[@]}"
+            run_e2e_tests "${options[@]+"${options[@]}"}"
             ;;
         "api")
-            run_api_tests "${options[@]}"
+            run_api_tests "${options[@]+"${options[@]}"}"
             ;;
         *)
             print_error "Unknown test category: $category"
