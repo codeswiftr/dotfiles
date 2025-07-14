@@ -101,3 +101,5 @@ fi
 if [[ -z "$DOTFILES_FAST_MODE" ]] && [[ $- == *i* ]]; then
     { auto_update_check } &
 fi
+# opencode
+export PATH=/Users/bogdan/.opencode/bin:$PATH
