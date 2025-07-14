@@ -114,6 +114,34 @@ perf_benchmark_startup() {
     echo "🚀 Benchmarking shell startup time..."
     echo "Running 5 shell startup tests..."
     
+    # Check if bc is available for arithmetic calculations
+    if ! command -v bc &> /dev/null; then
+        echo "⚠️  Warning: 'bc' command not found. Install with: brew install bc"
+        echo "📊 Performing simplified startup benchmark..."
+        
+        # Fallback to shell arithmetic (less precise)
+        local total_time=0
+        for i in {1..5}; do
+            local start_time=$(date +%s)
+            zsh -i -c exit 2>/dev/null
+            local end_time=$(date +%s)
+            local elapsed=$((end_time - start_time))
+            echo "Test $i: ${elapsed}s"
+            total_time=$((total_time + elapsed))
+        done
+        
+        local avg_time=$((total_time / 5))
+        echo "📊 Average startup time: ${avg_time}s (approximate)"
+        
+        if (( avg_time > 1 )); then
+            echo "⚠️  Startup time is slow (>1s). Consider optimizations."
+        else
+            echo "✅ Startup time looks good (<1s)."
+        fi
+        return
+    fi
+    
+    # Use bc for precise calculations
     local total_time=0
     for i in {1..5}; do
         local start_time=$(date +%s.%3N)
