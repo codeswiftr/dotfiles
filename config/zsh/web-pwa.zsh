@@ -13,6 +13,7 @@ alias fapi-redoc="open http://localhost:8000/redoc"
 # Advanced FastAPI development functions
 fastapi-init() {
     local project_name=${1:-"fastapi-app"}
+    local with_db=${2:-"true"}
     echo "🚀 Creating FastAPI project: $project_name"
     
     mkdir -p "$project_name"
@@ -22,6 +23,12 @@ fastapi-init() {
     uv init
     uv add fastapi uvicorn[standard] python-multipart python-jose[cryptography] passlib[bcrypt]
     uv add --dev pytest pytest-asyncio httpx pytest-cov ruff black
+    
+    # Add database dependencies if requested
+    if [[ "$with_db" == "true" ]]; then
+        echo "📊 Adding database support with SQLAlchemy and Alembic..."
+        uv add sqlalchemy alembic psycopg2-binary python-decouple
+    fi
     
     # Create basic FastAPI structure
     mkdir -p app tests
@@ -66,8 +73,240 @@ def test_health():
     assert response.json() == {"status": "healthy"}
 EOF
     
+    # Set up database configuration if requested
+    if [[ "$with_db" == "true" ]]; then
+        echo "🗄️  Setting up database configuration..."
+        
+        # Create database configuration
+        cat > app/database.py << 'EOF'
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from decouple import config
+
+# Database URL from environment variable
+DATABASE_URL = config("DATABASE_URL", default="sqlite:///./app.db")
+
+# Create SQLAlchemy engine
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+)
+
+# Create SessionLocal class
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create Base class
+Base = declarative_base()
+
+# Dependency to get database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+EOF
+
+        # Create models directory and example model
+        mkdir -p app/models
+        cat > app/models/__init__.py << 'EOF'
+from .user import User
+
+__all__ = ["User"]
+EOF
+
+        cat > app/models/user.py << 'EOF'
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.sql import func
+from app.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+EOF
+
+        # Create environment file
+        cat > .env << 'EOF'
+# Database
+DATABASE_URL=sqlite:///./app.db
+
+# Security
+SECRET_KEY=your-secret-key-here-change-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+EOF
+
+        # Initialize Alembic
+        echo "🔄 Initializing Alembic for database migrations..."
+        uv run alembic init alembic
+        
+        # Configure alembic.ini
+        sed -i '' 's|sqlalchemy.url = driver://user:pass@localhost/dbname|sqlalchemy.url = sqlite:///./app.db|' alembic.ini
+        
+        # Update Alembic env.py to use our models
+        cat > alembic/env.py << 'EOF'
+from logging.config import fileConfig
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+from alembic import context
+from decouple import config as env_config
+
+# Import your models here
+from app.database import Base
+from app.models import *  # This imports all models
+
+# this is the Alembic Config object
+config = context.config
+
+# Override sqlalchemy.url with environment variable
+config.set_main_option("sqlalchemy.url", env_config("DATABASE_URL", default="sqlite:///./app.db"))
+
+# Interpret the config file for Python logging
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+# add your model's MetaData object here for autogenerate support
+target_metadata = Base.metadata
+
+def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode."""
+    url = config.get_main_option("sqlalchemy.url")
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
+
+        with context.begin_transaction():
+            context.run_migrations()
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
+EOF
+
+        # Create initial migration
+        echo "📝 Creating initial migration..."
+        uv run alembic revision --autogenerate -m "Initial migration"
+        
+        echo "✅ Database setup complete!"
+        echo "🔄 Run 'fastapi-db-upgrade' to apply migrations"
+    fi
+    
     echo "✅ FastAPI project '$project_name' created successfully!"
     echo "💡 Run: cd $project_name && fastapi dev app/main.py"
+}
+
+# FastAPI database management functions
+fastapi-db-upgrade() {
+    echo "🔄 Applying database migrations..."
+    if [[ -f "alembic.ini" ]]; then
+        uv run alembic upgrade head
+    else
+        echo "❌ No Alembic configuration found. Run 'fastapi-init' with database support."
+    fi
+}
+
+fastapi-db-migrate() {
+    local message=${1:-"Auto migration"}
+    echo "📝 Creating new migration: $message"
+    if [[ -f "alembic.ini" ]]; then
+        uv run alembic revision --autogenerate -m "$message"
+    else
+        echo "❌ No Alembic configuration found. Run 'fastapi-init' with database support."
+    fi
+}
+
+fastapi-db-downgrade() {
+    local revision=${1:-"-1"}
+    echo "⬇️  Downgrading database to revision: $revision"
+    if [[ -f "alembic.ini" ]]; then
+        uv run alembic downgrade "$revision"
+    else
+        echo "❌ No Alembic configuration found. Run 'fastapi-init' with database support."
+    fi
+}
+
+fastapi-db-history() {
+    echo "📋 Database migration history:"
+    if [[ -f "alembic.ini" ]]; then
+        uv run alembic history --verbose
+    else
+        echo "❌ No Alembic configuration found. Run 'fastapi-init' with database support."
+    fi
+}
+
+fastapi-db-current() {
+    echo "📍 Current database revision:"
+    if [[ -f "alembic.ini" ]]; then
+        uv run alembic current
+    else
+        echo "❌ No Alembic configuration found. Run 'fastapi-init' with database support."
+    fi
+}
+
+fastapi-db-reset() {
+    echo "⚠️  WARNING: This will reset your database and apply all migrations!"
+    echo "Are you sure? (y/N)"
+    read -r confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        if [[ -f "alembic.ini" ]]; then
+            uv run alembic downgrade base
+            uv run alembic upgrade head
+            echo "✅ Database reset complete!"
+        else
+            echo "❌ No Alembic configuration found. Run 'fastapi-init' with database support."
+        fi
+    else
+        echo "🚫 Database reset cancelled."
+    fi
+}
+
+# Enhanced FastAPI development workflow
+fastapi-dev-full() {
+    echo "🚀 Starting full FastAPI development environment..."
+    
+    # Check if we're in a FastAPI project
+    if [[ ! -f "app/main.py" ]]; then
+        echo "❌ No FastAPI project detected. Run 'fastapi-init' first."
+        return 1
+    fi
+    
+    # Apply any pending migrations
+    if [[ -f "alembic.ini" ]]; then
+        echo "🔄 Checking for pending migrations..."
+        fastapi-db-upgrade
+    fi
+    
+    # Start the development server
+    echo "🌐 Starting FastAPI development server..."
+    fastapi dev app/main.py --reload --port 8000
 }
 
 # Lit/LitElement development aliases

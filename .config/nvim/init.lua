@@ -564,7 +564,7 @@ require("lazy").setup({
     },
     keys = {
       { "<leader>as", desc = "Summarize text" },
-      { "<leader>ag", desc = "Generate git message" },
+      { "<leader>agit", desc = "Generate git message" },
     },
     config = function()
       require("neoai").setup({
@@ -885,9 +885,9 @@ keymap("v", "<leader>acc", function()
   vim.cmd("CodeCompanion Add Comments")
 end, { desc = "AI Add Comments" })
 
--- Gen.nvim AI generation
-keymap({ "n", "v" }, "<leader>ag", ":Gen<CR>", { desc = "AI Generate" })
-keymap({ "n", "v" }, "<leader>agc", ":Gen Chat<CR>", { desc = "AI Chat" })
+-- Gen.nvim AI generation (reorganized to avoid conflicts)
+keymap({ "n", "v" }, "<leader>agen", ":Gen<CR>", { desc = "AI Generate (Gen.nvim)" })
+keymap({ "n", "v" }, "<leader>agch", ":Gen Chat<CR>", { desc = "AI Chat (Gen)" })
 keymap({ "n", "v" }, "<leader>age", ":Gen Enhance_Code<CR>", { desc = "AI Enhance Code" })
 keymap({ "n", "v" }, "<leader>agr", ":Gen Review_Code<CR>", { desc = "AI Review Code" })
 
@@ -914,9 +914,9 @@ end, { desc = "AI Send Buffer to Claude" })
 
 keymap("n", "<leader>at", ":ToggleTerm<CR>", { desc = "Toggle AI Terminal" })
 
--- NeoAI shortcuts (already configured in plugin)
+-- NeoAI shortcuts (reorganized to avoid conflicts)
 keymap("v", "<leader>as", ":NeoAIContext<CR>", { desc = "AI Summarize/Fix Text" })
-keymap("n", "<leader>agm", ":NeoAI<CR>", { desc = "AI Generate Git Message" })
+keymap("n", "<leader>agit", ":NeoAI<CR>", { desc = "AI Generate Git Message" })
 
 -- Direct CLI integration (fallback)
 keymap("n", "<leader>afc", ":!claude %<CR>", { desc = "Claude CLI: Send file" })
