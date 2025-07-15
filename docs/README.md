@@ -2,50 +2,96 @@
 
 Welcome to the comprehensive documentation for your modern 2025 development environment!
 
+## 🎨 Code Style & Configuration Conventions
+
+- **Shell (Zsh):** Use `shellcheck` and `shfmt` for linting/formatting. Prefer explicit, readable options. Document all custom aliases and functions.
+- **Tmux:** Use Ctrl-a as prefix, enable true color and mouse support, start windows/panes at 1, keep config modular and well-commented.
+- **Neovim (Lua):** Progressive tier system, modular config, language-specific tab/indent settings, document all custom commands/keymaps, provide user feedback.
+- **General:** Group/sort imports and config sections, avoid unused imports/options, prefer explicit/documented configuration, keep functions small, document public APIs and user-facing commands.
+
+See [AGENTS.md](../AGENTS.md) for full style guidelines and commit conventions.
+
+## 🤖 Agentic Workflow Automation
+
+- **Gemini CLI Review:**  
+  Run `gemini review --diff` before every commit to get instant feedback and suggestions.
+- **Commit Process:**  
+  Use conventional commit messages and always reference Gemini review in your PRs.
+- **Test/Lint Hooks:**  
+  All commits are validated by automated hooks (security, syntax, structure, commit message, and testing).  
+  Run `./tests/test_runner.sh`, `shellcheck`, and `yamllint` before committing.
+  - **Install shellcheck and yamllint first:**
+    ```bash
+    brew install shellcheck yamllint   # macOS
+    sudo apt install shellcheck yamllint  # Ubuntu/Debian
+    ```
+- **Documentation:**  
+  See [AGENTS.md](../AGENTS.md) for full workflow details and commit conventions.
+
+## 🌍 Accessibility & Internationalization
+
+- All workflows are keyboard-first; mouse/trackpad is optional.
+- Shortcuts are designed for US, UK, and most EU layouts. For non-standard layouts, remap keys using Karabiner-Elements (macOS) or xmodmap (Linux).
+- High-contrast themes available (see [Theme Guide](themes.md)).
+- If you spot accessibility or i18n issues, please open an issue or PR!
+
+## 🏁 How to Contribute
+
+- All contributions are welcome—bug fixes, docs, tests, refactors, and new features!
+- If you're unsure where to start, open an issue or join a discussion.
+- We value clear communication, kindness, and learning together.
+- **See [CONTRIBUTING.md](../CONTRIBUTING.md) for onboarding and workflow details.**
+
+### How to Help & Technical Debt
+- Want to help improve this project? See [Technical Debt & Migration](technical-debt.md) for a list of legacy code, migration plans, and documentation debt.
+- If you find outdated guides, legacy configs, or unclear instructions, please open an issue or PR and add them to technical-debt.md!
+
 ## 🚀 **Quick Start**
 
 **New to these dotfiles?**
 1. **[Getting Started](getting-started.md)** - First steps and basics
+2. **[Troubleshooting Guide](troubleshooting.md)** - Common issues and diagnostics
 
-**Additional Information:**
-1. **[Legacy Documentation](legacy/)** - Archived guides and migration docs
+**Legacy Docs & Migration:**
+- See **[Legacy Documentation](legacy-backup-20250714/)** for archived, outdated guides and migration docs. These are for reference only and are no longer maintained.
+- Migration from legacy configs (e.g., old Neovim/tmux paths) is ongoing—see [Technical Debt & Migration](technical-debt.md) for details and how you can help.
 
 ## 🚀 **Revolutionary Features (2025)**
 
-### **⚡ Performance Breakthroughs**
+### ⚡ Performance Breakthroughs
 - **[Shell Performance Guide](shell-performance-guide.md)** - 70% faster startup with intelligent auto-optimization
 - **[Neovim Quick Reference](nvim-quick-reference.md)** - Progressive tiers: 30-minute learning vs weeks
 - **[Tmux Quick Reference](tmux-quick-reference.md)** - Streamlined from 66 to 10 essential keybindings
 
-### **🎯 Progressive Complexity**
+### 🏁 Progressive Complexity
 - **Tier-based systems** - Start simple, scale up as you learn
 - **Visual discovery** - `<Space>?` shows all commands in Neovim
 - **Auto-optimization** - System adapts to your hardware and usage
 
 ## 📖 **Core Documentation**
 
-### **🎨 Themes & Appearance**
+### 🎨 Themes & Appearance
 - **[Theme Guide](themes.md)** - Catppuccin setup and customization
 
-### **🤖 AI Integration**
+### 🤖 AI Integration
 - **[AI Workflow Guide](ai-workflows.md)** - Complete AI development setup
 - **[Security Guide](security.md)** - Protect your code from AI exposure
 
-### **⚡ Performance & Optimization**
+### ⚡ Performance & Optimization
 - **[Performance Guide](performance.md)** - Legacy performance documentation
 - **[Shell Performance Guide](shell-performance-guide.md)** - 🆕 Revolutionary 70% faster shell startup
 
-### **🔧 Editor & Tools**
+### 🛠️ Editor & Tools
 - **[Neovim Guide](neovim.md)** - Legacy Neovim documentation
 - **[Neovim Quick Reference](nvim-quick-reference.md)** - 🆕 Progressive tier system (30-min learning)
 - **[Tmux Quick Reference](tmux-quick-reference.md)** - 🆕 Streamlined from 66 to 10 keybindings
 - **[Navigation Guide](navigation.md)** - Keyboard shortcuts and workflows
 
-### **🛠️ System Administration**
+### 🛡️ System Administration
 - **[Modular Architecture](modular-architecture.md)** - Understanding the new config structure
 - **[Advanced Configuration](advanced.md)** - Expert customization
 
-## 🎯 **Feature Guides**
+## 🏁 **Feature Guides**
 
 | Feature | Quick Reference | Detailed Guide |
 |---------|----------------|----------------|
@@ -112,6 +158,8 @@ Prefix + W           # Web development layout
 - **Health Check**: Run `df-health` for system diagnostics
 - **Interactive Tutorial**: Use `dotfiles-tutor` for guided learning
 - **Documentation**: All guides are in the `docs/` directory
+- **Troubleshooting**: See [Troubleshooting Guide](troubleshooting.md) for common issues and diagnostics
+- **Migration & Technical Debt**: See [Technical Debt & Migration](technical-debt.md) for help with legacy configs and ongoing improvements
 - **Verification**: Use the verification commands in each guide
 
 ## 🎨 **Customization**
@@ -127,7 +175,7 @@ Prefix + W           # Web development layout
 - **[Team Deployment](advanced.md#team-setup)** - Organization standards
 - **[Security Policies](security.md#enterprise-setup)** - Corporate compliance
 
-## 📊 **Feature Matrix**
+## 🏁 **Feature Matrix**
 
 | Component | Status | Performance | Security | AI Integration |
 |-----------|--------|-------------|----------|----------------|

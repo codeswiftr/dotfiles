@@ -121,10 +121,11 @@ nvim
 # Run :TierUp to unlock more features
 
 # Experience streamlined tmux
-tmux
-# Only 10 essential keybindings to learn!
-# Ctrl-a h/j/k/l for navigation
-# Ctrl-a | and - for splits
+ tmux
+ # Only 10 essential keybindings to learn!
+ # Ctrl-a h/j/k/l for navigation
+ # Ctrl-a | and - for splits
+ # Mouse mode is opt-in—see Troubleshooting for details on enabling/disabling mouse support.
 
 # Check performance and optimize
 perf-status
@@ -344,18 +345,26 @@ title "My Custom Title"    # Set custom title
 tinfo                      # Show current session info
 ```
 
-## 🧪 **Testing**
+## 🧪 **Testing & Linting**
 
 ```bash
 # Run full test suite
-dot test run
+ dot test run
 
 # Quick validation
-dot test quick
+ dot test quick
 
 # Continuous testing
-dot test watch
+ dot test watch
+
+# Shell lint
+find . -name "*.sh" -exec shellcheck {} \;
+
+# YAML lint
+find . -name "*.yaml" -o -name "*.yml" | xargs yamllint
 ```
+
+- See [docs/technical-debt.md](docs/technical-debt.md) for current coverage gaps and how to help improve testing/linting.
 
 ## 🔄 **Updates and Migration**
 
@@ -430,6 +439,9 @@ dot plugin create my-plugin
    dot doctor
    ```
 
+4. **Legacy config migration or opt-in features (e.g., tmux mouse mode)**
+   - See [Technical Debt & Migration](docs/technical-debt.md) and [Troubleshooting Guide](docs/troubleshooting.md) for help migrating legacy configs and enabling/disabling opt-in features like tmux mouse mode.
+
 ### **Getting Help**
 
 ```bash
@@ -451,6 +463,12 @@ tail -f ~/dotfiles-install.log
 4. **Run tests**: `dot test run`
 5. **Submit a pull request**
 
+### **How to Help & Technical Debt**
+
+- Want to help improve this project? See [docs/technical-debt.md](docs/technical-debt.md) for a list of legacy code, migration plans, and documentation debt.
+- If you find outdated guides, legacy configs, or unclear instructions, please open an issue or PR and add them to technical-debt.md!
+- Migration from legacy configs (e.g., old Neovim/tmux paths) is ongoing—see technical-debt.md for details and how you can help.
+
 ### **Development Setup**
 
 ```bash
@@ -461,7 +479,9 @@ cd dotfiles
 
 ## 📚 **Documentation**
 
-- **[Installation Guide](docs/installation.md)**
+- **[Getting Started Guide](docs/getting-started.md)**
+- **[Troubleshooting Guide](docs/troubleshooting.md)**
+- **[Technical Debt & Migration](docs/technical-debt.md)**
 - **[Configuration Reference](docs/configuration.md)**
 - **[Plugin Development](docs/plugins.md)**
 - **[API Documentation](docs/api.md)**

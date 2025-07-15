@@ -19,6 +19,8 @@ ai-security-status
 
 **Expected output**: All tools should be found, health check should be mostly green.
 
+If you encounter issues, see the [Troubleshooting Guide](troubleshooting.md) and [Technical Debt & Migration](technical-debt.md) for help with legacy configs and ongoing improvements.
+
 ## 🎯 **Essential First Steps**
 
 ### **1. Learn the Basics (5 minutes)**
@@ -176,37 +178,89 @@ ai-commit  # Will ask for confirmation
 ai-review-branch  # Compares with main branch
 ```
 
-## 🎯 **Key Neovim Features**
+## 🚀 Advanced Workflows & Power User Tips
 
-Launch Neovim: `nvim file.py`
+### 🤖 Agentic Coding & AI Automation
 
-### **Essential Keybindings**
-```bash
-# File Navigation
-<C-p>        # Find files (Telescope)
-<leader>ff   # Find files (alternative)
-<leader>fg   # Live grep search
-<leader>fb   # Browse buffers
+- **Gemini CLI Review:**  
+  Before every commit, run `gemini review` to get instant feedback and suggestions.  
+  Example:
+  ```bash
+  gemini review --diff
+  ```
+- **AI Commit & Review:**  
+  Use `ai-commit` to generate secure, context-aware commit messages.  
+  Use `ai-review-branch` to review your branch before pushing.
+  ```bash
+  git add .
+  ai-commit
+  ai-review-branch
+  ```
+- **Security Modes:**  
+  - `ai-security-strict` for work/corporate environments
+  - `ai-security-permissive` for personal/open-source
+  - Always check with `ai-security-status`
+- **Best Practices:**  
+  - Always review AI suggestions before applying.
+  - Use local LLMs for sensitive code (see [AI Workflows](ai-workflows.md#security-best-practices)).
+  - Reference Gemini review in your PRs.
 
-# AI Integration
-<leader>aa   # AI Actions menu
-<leader>ac   # AI Chat
-<leader>acr  # AI Code Review (visual mode)
-<leader>ace  # AI Explain Code (visual mode)
-<leader>act  # AI Generate Tests (visual mode)
+### ⌨️ Keyboard Navigation Mastery
 
-# LSP Features (Native)
-gd           # Go to definition
-gr           # Show references
-K            # Hover documentation
-<leader>ca   # Code actions
-```
+- **Shell Shortcuts:**
+  | Shortcut      | Action                        |
+  |--------------|-------------------------------|
+  | Ctrl-T       | fzf file finder               |
+  | Ctrl-R       | fzf history search            |
+  | Alt-C        | fzf directory changer         |
+  | Ctrl-A       | Beginning of line             |
+  | Ctrl-E       | End of line                   |
+  | Ctrl-W       | Delete word backward          |
+  | Ctrl-U       | Delete line backward          |
 
-### **Terminal in Neovim**
-```bash
-<C-\>        # Toggle terminal
-# AI integration works in terminal too!
-```
+- **Tmux (Prefix: Ctrl-A):**
+  | Shortcut      | Action                        |
+  |--------------|-------------------------------|
+  | Prefix + c   | New window                    |
+  | Prefix + 1-9 | Switch window                 |
+  | Prefix + h/j/k/l | Navigate panes            |
+  | Prefix + z   | Zoom pane                     |
+  | Prefix + s   | Session selector              |
+
+- **Neovim:**
+  | Shortcut      | Action                        |
+  |--------------|-------------------------------|
+  | <C-p>        | File finder (Telescope)        |
+  | <leader>fg   | Grep search                    |
+  | <leader>fb   | Buffer browser                 |
+  | gd           | Go to definition               |
+  | K            | Documentation                  |
+  | <C-h/j/k/l>  | Window navigation              |
+  | <leader>aa   | AI Actions menu                |
+  | <leader>acr  | AI Code Review (visual mode)   |
+
+- **International Keyboard Tips:**
+  - All shortcuts are designed to work with US, UK, and most EU layouts.
+  - For non-standard layouts, remap keys in your terminal emulator or use platform tools (e.g., Karabiner-Elements on macOS).
+  - See [Navigation Guide](navigation.md#internationalization) for more.
+
+### 🌍 Internationalization & Accessibility
+
+- **Remapping Keys:**
+  - On macOS, use Karabiner-Elements for custom keybindings.
+  - On Linux, use `xmodmap` or your desktop environment's keyboard settings.
+- **Accessibility:**
+  - All workflows are keyboard-first; mouse/trackpad is optional.
+  - High-contrast themes available (see [Theme Guide](themes.md)).
+  - If you encounter accessibility issues, please open an issue or PR!
+
+### 🎓 Interactive Tutorials & Help
+
+- Run `dotfiles-tutor` for guided onboarding and advanced tips.
+- Explore [AI Workflows](ai-workflows.md) and [Navigation Guide](navigation.md) for more.
+- For troubleshooting, see [Troubleshooting](troubleshooting.md) and FAQ below.
+
+---
 
 ## 🔧 **Troubleshooting Common Issues**
 
@@ -260,6 +314,8 @@ nvim +checkhealth +qall
 3. ✅ Set up your first project with `tm`
 4. ✅ Test AI integration safely
 
+If you encounter issues or are migrating from legacy configs, see the [Troubleshooting Guide](troubleshooting.md) and [Technical Debt & Migration](technical-debt.md). Contributors are encouraged to help document and improve migration steps!
+
 ### **This Week**
 1. 📚 Read [Navigation Guide](navigation.md) for advanced shortcuts
 2. 🤖 Explore [AI Workflows](ai-workflows.md) for development
@@ -267,7 +323,7 @@ nvim +checkhealth +qall
 4. 🎨 Customize theme in [Theme Guide](themes.md)
 
 ### **Advanced (When Ready)**
-1. 🔧 Learn [Advanced Configuration](advanced.md)
+1. 🛠️ Learn [Advanced Configuration](advanced.md)
 2. 🛠️ Set up language-specific workflows
 3. 👥 Configure for team use
 4. 🔒 Implement enterprise security policies
@@ -290,3 +346,5 @@ You now have access to a **world-class development environment** with:
 - 🆘 Run `df-health` for diagnostics
 - 📚 Check other guides in `docs/`
 - 🎓 Use `dotfiles-tutor` for interactive learning
+- 🛠️ See [Troubleshooting Guide](troubleshooting.md) and [Technical Debt & Migration](technical-debt.md) for migration help and ways to contribute
+
