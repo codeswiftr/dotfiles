@@ -14,6 +14,35 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
+# Dependency checks (mise/asdf-friendly)
+missing=0
+check_dep() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo -e "${RED}[ERROR]${NC} Missing required dependency: $1"
+    missing=1
+  fi
+}
+check_python_module() {
+  if ! python3 -c "import $1" >/dev/null 2>&1; then
+    echo -e "${RED}[ERROR]${NC} Missing required Python module: $1"
+    missing=1
+  fi
+}
+
+check_dep shellcheck
+check_dep yamllint
+check_dep python3
+check_python_module yaml
+
+if [[ $missing -eq 1 ]]; then
+  echo -e "${YELLOW}[INFO]${NC} To install dependencies with mise:"
+  echo "  mise install python@3.11"
+  echo "  mise global python@3.11"
+  echo "  mise exec python@3.11 -- pip install --user pyyaml"
+  echo "  brew install shellcheck yamllint"
+  exit 1
+fi
+
 # Test configuration
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(cd "$TEST_DIR/.." && pwd)"
@@ -26,6 +55,7 @@ INFRASTRUCTURE_TESTS=(
     "test_installation.sh"
     "test_health_checks.sh"
     "test_configuration.sh"
+    "test_linting.sh"
 )
 
 # Results tracking
