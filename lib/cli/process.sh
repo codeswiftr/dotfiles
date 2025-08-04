@@ -538,6 +538,12 @@ COMMANDS:
     ps                       List active development processes
     init [template]          Initialize Procfile configuration
     templates                List available Procfile templates
+    
+CROSS-STACK COMMANDS:
+    fullstack                Start full-stack development (frontend + backend + db)
+    deploy <env>             Deploy cross-stack application
+    e2e                      Start end-to-end testing environment
+    stack                    Analyze current stack and suggest workflows
 
 PROCESS RUNNERS:
     overmind                 Preferred process manager (tmux-based)
@@ -571,6 +577,10 @@ EXAMPLES:
     dot run restart web            # Restart specific process
     dot run logs api --follow      # Follow API logs
     dot run init fullstack         # Create full-stack Procfile
+    dot run fullstack              # Start full-stack development
+    dot run e2e                    # Run end-to-end tests
+    dot run deploy staging         # Deploy to staging environment
+    dot run stack                  # Analyze project stack
 
 INSTALLATION:
     # Install overmind (recommended)
@@ -579,4 +589,360 @@ INSTALLATION:
     # Or install foreman
     gem install foreman
 EOF
+}
+
+# ============================================================================
+# Cross-Stack Development Workflows
+# ============================================================================
+
+# Start full-stack development environment
+process_start_fullstack() {
+    print_info "🏗️ Starting full-stack development environment..."
+    
+    # Check for full-stack project structure
+    if [[ ! -d "frontend" && ! -d "backend" ]]; then
+        # Try to detect monorepo structure
+        if [[ -d "packages" ]]; then
+            print_info "📦 Detected monorepo structure"
+            process_start_monorepo
+            return $?
+        elif [[ -d "apps" ]]; then
+            print_info "📱 Detected apps structure"
+            process_start_apps_structure
+            return $?
+        else
+            print_warning "No full-stack structure detected"
+            echo "Expected: frontend/ and backend/ directories"
+            echo "Or: packages/ (monorepo) or apps/ structure"
+            echo ""
+            echo "Create structure with: dot project init fullstack"
+            return 1
+        fi
+    fi
+    
+    local services=()
+    local ports=()
+    
+    # Database services first
+    if [[ -f "docker-compose.yml" ]]; then
+        print_info "🗄️ Starting database services..."
+        if docker-compose up -d postgres redis mongodb 2>/dev/null; then
+            services+=("Database services")
+            print_success "✅ Database services started"
+        fi
+    fi
+    
+    # Backend service
+    if [[ -d "backend" ]]; then
+        print_info "🔧 Starting backend service..."
+        if [[ -f "backend/main.py" ]]; then
+            (cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
+            services+=("Backend API (port 8000)")
+            ports+=(8000)
+        elif [[ -f "backend/package.json" ]]; then
+            (cd backend && npm run dev) &
+            services+=("Backend (Node.js)")
+        fi
+    fi
+    
+    # Wait a moment for backend to start
+    sleep 2
+    
+    # Frontend service
+    if [[ -d "frontend" ]]; then
+        print_info "🌐 Starting frontend service..."
+        if [[ -f "frontend/package.json" ]]; then
+            (cd frontend && npm run dev) &
+            services+=("Frontend (port 3000)")
+            ports+=(3000)
+        fi
+    fi
+    
+    # Wait for services to be ready
+    sleep 3
+    
+    print_success "🚀 Full-stack environment started!"
+    echo ""
+    echo "📍 Services running:"
+    for service in "${services[@]}"; do
+        echo "  ✅ $service"
+    done
+    
+    echo ""
+    echo "🌐 Access your application:"
+    for port in "${ports[@]}"; do
+        case $port in
+            3000) echo "  🖥️  Frontend: http://localhost:3000" ;;
+            8000) echo "  🔧 Backend API: http://localhost:8000" ;;
+            *) echo "  🔗 Service: http://localhost:$port" ;;
+        esac
+    done
+    
+    if [[ " ${ports[@]} " =~ " 8000 " ]]; then
+        echo "  📚 API Docs: http://localhost:8000/docs"
+    fi
+    
+    # Setup cleanup
+    echo ""
+    echo "Press Ctrl+C to stop all services"
+    
+    cleanup_fullstack() {
+        echo ""
+        print_info "🛑 Stopping full-stack services..."
+        jobs -p | xargs kill 2>/dev/null
+        if [[ -f "docker-compose.yml" ]]; then
+            docker-compose stop 2>/dev/null
+        fi
+        print_success "✅ All services stopped"
+    }
+    
+    trap cleanup_fullstack EXIT INT TERM
+    wait
+}
+
+# Start monorepo development
+process_start_monorepo() {
+    print_info "📦 Starting monorepo development..."
+    
+    # Look for nx, lerna, or rush
+    if [[ -f "nx.json" ]]; then
+        print_info "Using Nx monorepo"
+        npx nx run-many --target=serve --all --parallel=3
+    elif [[ -f "lerna.json" ]]; then
+        print_info "Using Lerna monorepo"
+        npx lerna run dev --parallel
+    elif [[ -f "rush.json" ]]; then
+        print_info "Using Rush monorepo"
+        rush build --parallelism 3
+    else
+        # Manual package detection
+        local packages=($(find packages -name "package.json" -exec dirname {} \;))
+        print_info "Found ${#packages[@]} packages"
+        
+        for package in "${packages[@]}"; do
+            local name=$(basename "$package")
+            print_info "Starting $name..."
+            (cd "$package" && npm run dev 2>/dev/null || npm start 2>/dev/null) &
+        done
+        
+        wait
+    fi
+}
+
+# Start apps structure development
+process_start_apps_structure() {
+    print_info "📱 Starting apps development..."
+    
+    local apps=($(find apps -name "package.json" -exec dirname {} \; 2>/dev/null))
+    
+    if [[ ${#apps[@]} -eq 0 ]]; then
+        print_warning "No apps found with package.json"
+        return 1
+    fi
+    
+    for app in "${apps[@]}"; do
+        local name=$(basename "$app")
+        print_info "Starting $name..."
+        (cd "$app" && npm run dev 2>/dev/null || npm start 2>/dev/null) &
+    done
+    
+    echo "Started ${#apps[@]} applications"
+    wait
+}
+
+# Cross-stack deployment
+process_deploy() {
+    local environment="${1:-staging}"
+    
+    print_info "🚀 Deploying cross-stack application to $environment..."
+    
+    # Check for deployment configuration
+    if [[ -f "deploy.yml" ]] || [[ -f ".github/workflows/deploy.yml" ]]; then
+        print_info "Using GitHub Actions deployment"
+        gh workflow run deploy.yml --ref main -f environment="$environment"
+    elif [[ -f "docker-compose.prod.yml" ]]; then
+        print_info "Using Docker Compose deployment"
+        docker-compose -f docker-compose.prod.yml up -d
+    elif [[ -f "Dockerfile" ]]; then
+        print_info "Building and deploying Docker container"
+        docker build -t "app:$environment" .
+        # Add deployment logic here based on your infrastructure
+    else
+        print_warning "No deployment configuration found"
+        echo "Create one of:"
+        echo "  • .github/workflows/deploy.yml (GitHub Actions)"
+        echo "  • docker-compose.prod.yml (Docker Compose)"
+        echo "  • Dockerfile (Container deployment)"
+        return 1
+    fi
+    
+    print_success "🎉 Deployment to $environment initiated!"
+}
+
+# End-to-end testing environment
+process_start_e2e() {
+    print_info "🧪 Starting end-to-end testing environment..."
+    
+    # Start application in test mode
+    if [[ -f "docker-compose.test.yml" ]]; then
+        print_info "Using Docker Compose test environment"
+        docker-compose -f docker-compose.test.yml up -d
+        sleep 5  # Wait for services to be ready
+    else
+        # Start full-stack in background for testing
+        process_start_fullstack &
+        local fullstack_pid=$!
+        sleep 10  # Wait for services to be ready
+    fi
+    
+    # Run end-to-end tests
+    if [[ -f "playwright.config.js" ]]; then
+        print_info "Running Playwright E2E tests"
+        npx playwright test
+    elif [[ -f "cypress.config.js" ]]; then
+        print_info "Running Cypress E2E tests"
+        npx cypress run
+    elif [[ -f "package.json" ]] && grep -q "e2e" package.json; then
+        print_info "Running npm E2E tests"
+        npm run e2e
+    elif [[ -f "tests/e2e" ]]; then
+        print_info "Running custom E2E tests"
+        cd tests/e2e && npm test
+    else
+        print_warning "No E2E test configuration found"
+        echo "Install one of:"
+        echo "  • Playwright: npm install @playwright/test"
+        echo "  • Cypress: npm install cypress"
+        echo "  • Or create tests/e2e directory"
+        return 1
+    fi
+    
+    # Cleanup
+    if [[ -n "${fullstack_pid:-}" ]]; then
+        kill $fullstack_pid 2>/dev/null
+    fi
+    
+    if [[ -f "docker-compose.test.yml" ]]; then
+        docker-compose -f docker-compose.test.yml down
+    fi
+}
+
+# Analyze current stack and suggest workflows
+process_analyze_stack() {
+    print_info "🔍 Analyzing project stack..."
+    
+    local stack_info=""
+    local technologies=()
+    local suggestions=()
+    
+    # Frontend technologies
+    if [[ -f "package.json" ]]; then
+        local frontend_deps=$(grep -E "(react|vue|angular|svelte|lit)" package.json || true)
+        if [[ -n "$frontend_deps" ]]; then
+            technologies+=("Frontend")
+            if grep -q "react" package.json; then
+                stack_info+="Frontend: React\n"
+            elif grep -q "vue" package.json; then
+                stack_info+="Frontend: Vue.js\n"
+            elif grep -q "angular" package.json; then
+                stack_info+="Frontend: Angular\n"
+            elif grep -q "lit" package.json; then
+                stack_info+="Frontend: Lit\n"
+            fi
+        fi
+        
+        # Build tools
+        if grep -q "vite" package.json; then
+            stack_info+="Build Tool: Vite\n"
+        elif grep -q "webpack" package.json; then
+            stack_info+="Build Tool: Webpack\n"
+        fi
+    fi
+    
+    # Backend technologies
+    if [[ -f "pyproject.toml" ]] || [[ -f "requirements.txt" ]]; then
+        technologies+=("Python Backend")
+        if grep -q "fastapi" requirements.txt pyproject.toml 2>/dev/null; then
+            stack_info+="Backend: FastAPI (Python)\n"
+        elif grep -q "flask" requirements.txt pyproject.toml 2>/dev/null; then
+            stack_info+="Backend: Flask (Python)\n"
+        elif grep -q "django" requirements.txt pyproject.toml 2>/dev/null; then
+            stack_info+="Backend: Django (Python)\n"
+        fi
+    elif [[ -f "Cargo.toml" ]]; then
+        technologies+=("Rust Backend")
+        stack_info+="Backend: Rust\n"
+    elif [[ -f "go.mod" ]]; then
+        technologies+=("Go Backend")
+        stack_info+="Backend: Go\n"
+    fi
+    
+    # Database
+    if [[ -f "docker-compose.yml" ]]; then
+        if grep -q "postgres" docker-compose.yml; then
+            technologies+=("PostgreSQL")
+            stack_info+="Database: PostgreSQL\n"
+        fi
+        if grep -q "redis" docker-compose.yml; then
+            technologies+=("Redis")
+            stack_info+="Cache: Redis\n"
+        fi
+        if grep -q "mongodb" docker-compose.yml; then
+            technologies+=("MongoDB")
+            stack_info+="Database: MongoDB\n"
+        fi
+    fi
+    
+    # Mobile
+    if [[ -d "ios" ]] && [[ -f "ios/*.xcodeproj" ]]; then
+        technologies+=("iOS")
+        stack_info+="Mobile: iOS (Swift)\n"
+    fi
+    
+    # Display analysis
+    echo "🏗️ Stack Analysis Results:"
+    echo "=========================="
+    echo ""
+    echo "📋 Detected Technologies:"
+    for tech in "${technologies[@]}"; do
+        echo "  ✅ $tech"
+    done
+    
+    echo ""
+    echo "🔧 Technology Details:"
+    echo -e "$stack_info"
+    
+    # Generate suggestions
+    echo "💡 Workflow Suggestions:"
+    
+    if [[ " ${technologies[@]} " =~ " Frontend " ]] && [[ " ${technologies[@]} " =~ " Python Backend " ]]; then
+        suggestions+=("Use 'dot run fullstack' for integrated development")
+        suggestions+=("Use 'dot run e2e' for end-to-end testing")
+    fi
+    
+    if [[ " ${technologies[@]} " =~ " iOS " ]] && [[ " ${technologies[@]} " =~ " Python Backend " ]]; then
+        suggestions+=("Use 'dot run dev' for mobile + API development")
+        suggestions+=("Consider adding backend API versioning for mobile compatibility")
+    fi
+    
+    if [[ -f "docker-compose.yml" ]]; then
+        suggestions+=("Use 'docker-compose up -d' for isolated development")
+        suggestions+=("Consider 'dot run deploy' for container-based deployment")
+    fi
+    
+    if [[ ${#technologies[@]} -gt 2 ]]; then
+        suggestions+=("Complex stack detected - consider microservices architecture")
+        suggestions+=("Use 'dot project ai-analyze' for AI-powered optimization suggestions")
+    fi
+    
+    for suggestion in "${suggestions[@]}"; do
+        echo "  💡 $suggestion"
+    done
+    
+    echo ""
+    echo "🚀 Quick Actions:"
+    echo "  dot run fullstack    # Start all services"
+    echo "  dot run e2e          # Run end-to-end tests"
+    echo "  dot run deploy       # Deploy application"
+    echo "  dot project ai-analyze  # Get AI suggestions"
 }
