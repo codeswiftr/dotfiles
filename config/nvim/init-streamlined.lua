@@ -220,3 +220,6 @@ local user_config = vim.fn.stdpath("config") .. "/lua/user/init.lua"
 if vim.loop.fs_stat(user_config) then
   require("user")
 end
+
+-- Final tier confirmation
+vim.g.nvim_tier_loaded = current_tier

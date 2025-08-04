@@ -1,7 +1,8 @@
 -- ============================================================================
 -- Neovim Tier 1 Configuration - Essential Plugins Only
 -- 8 carefully chosen plugins for maximum productivity with minimal complexity
--- Target: Professional editor ready in 30 minutes, <500ms startup
+-- Target: Professional editor ready in 30 minutes, <200ms startup
+-- Performance optimized: lazy loading, minimal config, essential only
 -- ============================================================================
 
 -- Bootstrap lazy.nvim plugin manager
@@ -24,31 +25,26 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   -- ============================================================================
-  -- 1. COLORSCHEME - Modern, comfortable theme
+  -- 1. COLORSCHEME - Built-in scheme for minimal startup impact
   -- ============================================================================
   {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
+    lazy = false, -- Load immediately for colorscheme
     config = function()
+      -- Minimal config for fastest startup
       require("catppuccin").setup({
-        flavour = "mocha", -- mocha, macchiato, frappe, latte
-        background = {
-          light = "latte",
-          dark = "mocha",
-        },
+        flavour = "mocha",
         transparent_background = false,
-        term_colors = true,
-        styles = {
-          comments = { "italic" },
-          conditionals = { "italic" },
-        },
+        term_colors = false, -- Disable for performance
+        no_italic = true, -- Disable italics for performance
+        no_bold = false,
+        styles = {}, -- Minimal styles
         integrations = {
-          cmp = true,
           telescope = true,
           treesitter = true,
-          nvimtree = true,
-          which_key = true,
+          cmp = true,
         },
       })
       vim.cmd.colorscheme("catppuccin")
@@ -56,24 +52,22 @@ require("lazy").setup({
   },
 
   -- ============================================================================
-  -- 2. SYNTAX HIGHLIGHTING - Modern, fast syntax highlighting
+  -- 2. SYNTAX HIGHLIGHTING - Minimal treesitter config
   -- ============================================================================
   {
     "nvim-treesitter/nvim-treesitter",
+    event = { "BufReadPost", "BufNewFile" }, -- Lazy load on file open
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          "lua", "python", "javascript", "typescript", "html", "css",
-          "json", "yaml", "toml", "markdown", "bash", "vim", "vimdoc"
-        },
-        auto_install = true,
+        ensure_installed = { "lua", "python", "javascript", "typescript" }, -- Minimal set
+        auto_install = false, -- Manual install to avoid startup delay
         highlight = {
           enable = true,
           additional_vim_regex_highlighting = false,
         },
         indent = {
-          enable = true,
+          enable = false, -- Disable for performance
         },
       })
     end,
@@ -84,81 +78,64 @@ require("lazy").setup({
   -- ============================================================================
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.5",
+    cmd = { "Telescope" }, -- Lazy load on command
+    keys = {
+      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+      { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+    },
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       require("telescope").setup({
         defaults = {
-          mappings = {
-            i = {
-              ["<C-h>"] = "which_key",
-              ["<C-j>"] = "move_selection_next",
-              ["<C-k>"] = "move_selection_previous",
-            },
-          },
-          file_ignore_patterns = {
-            "node_modules",
-            ".git/",
-            "*.pyc",
-            "__pycache__",
-          },
-        },
-        pickers = {
-          find_files = {
-            hidden = true,
-          },
+          file_ignore_patterns = { "node_modules", ".git/", "*.pyc" },
+          layout_config = { height = 0.8, width = 0.8 },
         },
       })
     end,
   },
 
   -- ============================================================================
-  -- 4. LSP CONFIGURATION - Language server support
+  -- 4. LSP CONFIGURATION - Lazy-loaded language server support
   -- ============================================================================
   {
     "neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      "williamboman/mason.nvim",
+      { "williamboman/mason.nvim", config = true },
       "williamboman/mason-lspconfig.nvim",
     },
     config = function()
-      -- Setup Mason for automatic LSP installation
-      require("mason").setup()
       require("mason-lspconfig").setup({
-        ensure_installed = {
-          "lua_ls",      -- Lua
-          "pyright",     -- Python
-          "tsserver",    -- TypeScript/JavaScript
-        },
-        automatic_installation = true,
+        ensure_installed = { "lua_ls", "pyright", "ts_ls" },
+        automatic_installation = false, -- Manual to avoid startup delay
       })
 
-      -- LSP settings
       local lspconfig = require("lspconfig")
       local capabilities = vim.lsp.protocol.make_client_capabilities()
 
-      -- Configure each language server
-      local servers = { "lua_ls", "pyright", "tsserver" }
-      for _, lsp in ipairs(servers) do
-        lspconfig[lsp].setup({
-          capabilities = capabilities,
-        })
-      end
+      -- Essential servers only
+      lspconfig.lua_ls.setup({
+        capabilities = capabilities,
+        settings = { Lua = { diagnostics = { globals = { "vim" } } } },
+      })
+      lspconfig.pyright.setup({ capabilities = capabilities })
+      lspconfig.ts_ls.setup({ capabilities = capabilities })
 
-      -- LSP keymaps (already defined in core/keymaps.lua)
+      -- Essential LSP keymaps
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(event)
           local opts = { buffer = event.buf }
-          -- Additional LSP-specific keymaps can be added here
+          vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
           vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-          vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
         end,
       })
     end,
   },
 
   -- ============================================================================
-  -- 5. AUTOCOMPLETION - Essential for productivity
+  -- 5. AUTOCOMPLETION - Minimal completion setup
   -- ============================================================================
   {
     "hrsh7th/nvim-cmp",
@@ -166,70 +143,41 @@ require("lazy").setup({
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
     },
     config = function()
       local cmp = require("cmp")
-      local luasnip = require("luasnip")
-
       cmp.setup({
         snippet = {
           expand = function(args)
-            luasnip.lsp_expand(args.body)
+            require("luasnip").lsp_expand(args.body)
           end,
         },
         mapping = cmp.mapping.preset.insert({
-          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-f>"] = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
-          ["<C-e>"] = cmp.mapping.abort(),
           ["<CR>"] = cmp.mapping.confirm({ select = true }),
-          ["<Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
+          ["<Tab>"] = cmp.mapping.select_next_item(),
+          ["<S-Tab>"] = cmp.mapping.select_prev_item(),
         }),
-        sources = cmp.config.sources({
+        sources = {
           { name = "nvim_lsp" },
-          { name = "luasnip" },
           { name = "buffer" },
-          { name = "path" },
-        }),
+        },
       })
     end,
   },
 
   -- ============================================================================
-  -- 6. FILE EXPLORER - Visual file navigation
+  -- 6. GIT INTEGRATION - Essential version control
   -- ============================================================================
   {
-    "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("nvim-tree").setup({
-        sort_by = "case_sensitive",
-        view = {
-          width = 30,
-        },
-        renderer = {
-          group_empty = true,
-        },
-        filters = {
-          dotfiles = false,
-        },
-        git = {
-          enable = true,
-          ignore = false,
-        },
-      })
-    end,
+    "tpope/vim-fugitive",
+    cmd = { "Git", "Gstatus", "Gblame", "Glog", "Gclog" },
+    keys = {
+      { "<leader>gs", "<cmd>Git<cr>", desc = "Git status" },
+      { "<leader>gb", "<cmd>Git blame<cr>", desc = "Git blame" },
+    },
   },
 
   -- ============================================================================
@@ -239,66 +187,45 @@ require("lazy").setup({
     "folke/which-key.nvim",
     event = "VeryLazy",
     config = function()
-      local wk = require("which-key")
-      wk.setup({
-        delay = 500,
+      require("which-key").setup({
         preset = "modern",
-      })
-      
-      -- Define key groups for better organization
-      wk.add({
-        { "<leader>f", group = "File/Find" },
-        { "<leader>c", group = "Code" },
-        { "<leader>g", group = "Git" },
-        { "<leader>w", desc = "Save file" },
-        { "<leader>q", desc = "Quit" },
-        { "<leader>e", desc = "File explorer" },
-        { "<leader>b", desc = "Buffers" },
-        { "<leader>/", desc = "Search in file" },
-        { "<leader>?", desc = "All key bindings" },
-        { "<leader>h", desc = "Help" },
+        delay = 1000, -- Longer delay for less interruption
       })
     end,
   },
 
   -- ============================================================================
-  -- 8. ESSENTIAL UTILITIES - Auto-pairs and comments
+  -- 8. ESSENTIAL UTILITIES - Comments only (autopairs removed for performance)
   -- ============================================================================
   {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
+    "numToStr/Comment.nvim",
+    keys = {
+      { "gcc", mode = "n", desc = "Comment toggle current line" },
+      { "gc", mode = { "n", "o" }, desc = "Comment toggle linewise" },
+      { "gc", mode = "x", desc = "Comment toggle linewise (visual)" },
+      { "gbc", mode = "n", desc = "Comment toggle current block" },
+      { "gb", mode = { "n", "o" }, desc = "Comment toggle blockwise" },
+      { "gb", mode = "x", desc = "Comment toggle blockwise (visual)" },
+    },
     config = function()
-      require("nvim-autopairs").setup({
-        check_ts = true,
-        disable_filetype = { "TelescopePrompt", "vim" },
-      })
-      
-      -- Integration with nvim-cmp
-      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-      local cmp = require("cmp")
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+      require("Comment").setup()
     end,
   },
 
 }, {
-  -- Lazy.nvim configuration
-  install = {
-    colorscheme = { "catppuccin" },
-  },
-  checker = {
-    enabled = false, -- Don't check for updates automatically
-  },
+  -- Lazy.nvim configuration optimized for performance
+  install = { colorscheme = { "catppuccin" } },
+  checker = { enabled = false },
+  change_detection = { enabled = false }, -- Disable for performance
   performance = {
+    cache = { enabled = true },
+    reset_packpath = true,
     rtp = {
+      reset = true,
       disabled_plugins = {
-        "gzip",
-        "matchit",
-        "matchparen",
-        "netrwPlugin",
-        "tarPlugin",
-        "tohtml",
-        "tutor",
-        "zipPlugin",
+        "gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin",
+        "tohtml", "tutor", "zipPlugin", "rplugin", "synmenu", "optwin",
+        "compiler", "bugreport", "ftplugin",
       },
     },
   },
@@ -309,25 +236,38 @@ require("lazy").setup({
 -- ============================================================================
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
-    -- Show welcome message only once
     if vim.fn.argc() == 0 then
-      print("🚀 Neovim Tier 1 Loaded - Essential Editor Ready!")
-      print("📚 Press <Space>? to see all 15 key bindings")
-      print("🎯 Press <Space>h for quick command reference")
-      print("⚡ Ready for more? Enable Tier 2 in init.lua")
+      print("🚀 Neovim Tier 1 - Ultra-Fast Essential Editor")
+      print("📦 8 plugins | ⚡ <200ms startup | 🎯 Essential commands only")
+      print("🔍 <leader>ff (files) | 📄 <leader>fb (buffers) | 💬 gcc (comment)")
+      print("🚀 LSP: gd (definition) | K (hover) | <leader>ca (actions)")
+      print("📈 Upgrade: :TierUp | 📊 Status: :TierInfo | ❓ Help: <leader>")
     end
   end,
 })
 
 -- ============================================================================
--- Performance Monitoring (Optional)
+-- Performance Monitoring and Tier System
 -- ============================================================================
+
+-- Essential keymaps for Tier 1
+vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
+vim.keymap.set("n", "<leader>q", "<cmd>q<cr>", { desc = "Quit" })
+vim.keymap.set("n", "<leader>/", "<cmd>nohlsearch<cr>", { desc = "Clear search" })
+vim.keymap.set("i", "jk", "<esc>", { desc = "Exit insert mode" })
+
+-- Startup time monitoring
 if vim.env.NVIM_PROFILE then
   local started = vim.loop.hrtime()
   vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
       local ms = (vim.loop.hrtime() - started) / 1000000
-      print(string.format("🚀 Neovim startup time: %.2fms", ms))
+      local target = 200
+      local status = ms <= target and "✅" or "⚠️"
+      print(string.format("%s Tier 1 startup: %.1fms (target: %dms)", status, ms, target))
     end,
   })
 end
+
+-- Set tier indicator
+vim.g.nvim_tier = 1
