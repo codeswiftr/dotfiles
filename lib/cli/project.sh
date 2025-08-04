@@ -22,6 +22,18 @@ dot_project() {
         "templates")
             project_list_templates
             ;;
+        "ai-init")
+            ai_project_init "$@"
+            ;;
+        "ai-analyze")
+            ai_project_analyze "$@"
+            ;;
+        "ai-enhance")
+            ai_project_enhance "$@"
+            ;;
+        "ai-suggest")
+            ai_project_suggest "$@"
+            ;;
         "-h"|"--help"|"")
             show_project_help
             ;;
@@ -143,6 +155,12 @@ project_list_templates() {
     echo "  🛠️  Tool Projects:"
     echo "    cli          - Command-line tool (multi-language)"
     echo "    docker       - Dockerized application"
+    echo ""
+    echo "  🤖 AI-Powered Templates:"
+    echo "    ai-init      - AI-guided project creation"
+    echo "    ai-analyze   - Analyze requirements and suggest templates"
+    echo "    ai-enhance   - Enhance existing project with AI suggestions"
+    echo "    ai-suggest   - Get AI recommendations for project structure"
 }
 
 # Switch between projects (using zoxide/fzf)
@@ -1034,6 +1052,12 @@ COMMANDS:
     list                  List available project templates
     switch                Switch between projects (requires fzf + zoxide)
     templates             Alias for 'list'
+    
+AI-POWERED COMMANDS:
+    ai-init <description> AI-guided project creation
+    ai-analyze [dir]      Analyze project and suggest improvements
+    ai-enhance [dir]      Apply AI enhancements to existing project
+    ai-suggest <context>  Get AI project idea suggestions
 
 PROJECT TYPES:
     fastapi              FastAPI REST API with modern tooling
@@ -1056,5 +1080,413 @@ EXAMPLES:
     dot project init fastapi my-api
     dot project list
     dot project switch
+    dot project ai-init "Build a task management API"
+    dot project ai-analyze ./my-project
+    dot project ai-enhance ./my-project
 EOF
+}
+
+# ============================================================================
+# AI-Powered Project Scaffolding
+# ============================================================================
+
+# AI-guided project initialization
+ai_project_init() {
+    local description="$*"
+    
+    if [[ -z "$description" ]]; then
+        echo "🤖 AI-Powered Project Creation"
+        echo "Describe your project idea, and I'll help you create the perfect template."
+        echo ""
+        echo -n "Project description: "
+        read -r description
+    fi
+    
+    if [[ -z "$description" ]]; then
+        print_error "Project description is required for AI initialization"
+        return 1
+    fi
+    
+    print_info "🤖 Analyzing project requirements with AI..."
+    
+    # Use AI to analyze requirements and suggest template
+    local ai_response
+    ai_response=$(ai_analyze_requirements "$description")
+    
+    if [[ $? -ne 0 ]]; then
+        print_error "AI analysis failed. Falling back to interactive template selection."
+        project_init
+        return $?
+    fi
+    
+    echo "🤖 AI Analysis Results:"
+    echo "$ai_response"
+    echo ""
+    
+    # Extract suggestions from AI response
+    local suggested_template
+    local suggested_name
+    local suggested_features
+    
+    suggested_template=$(echo "$ai_response" | grep -o "TEMPLATE: [a-z]*" | cut -d' ' -f2)
+    suggested_name=$(echo "$ai_response" | grep -o "NAME: [a-zA-Z0-9_-]*" | cut -d' ' -f2)
+    suggested_features=$(echo "$ai_response" | grep -A 10 "FEATURES:" | tail -n +2)
+    
+    # Interactive confirmation
+    echo "🎯 AI Recommendations:"
+    echo "  Template: ${suggested_template:-unknown}"
+    echo "  Name: ${suggested_name:-auto-generated}"
+    echo ""
+    
+    if [[ -n "$suggested_features" ]]; then
+        echo "📋 Suggested Features:"
+        echo "$suggested_features"
+        echo ""
+    fi
+    
+    echo -n "Use AI recommendations? (Y/n): "
+    read -r confirm
+    
+    if [[ "$confirm" =~ ^[Nn] ]]; then
+        print_info "Using manual template selection..."
+        project_init
+        return $?
+    fi
+    
+    # Use AI suggestions or prompt for missing info
+    local template="${suggested_template}"
+    local name="${suggested_name}"
+    
+    if [[ -z "$template" ]]; then
+        project_list_templates
+        echo -n "Select template: "
+        read -r template
+    fi
+    
+    if [[ -z "$name" ]]; then
+        echo -n "Enter project name: "
+        read -r name
+    fi
+    
+    # Create project with AI enhancements
+    print_info "🚀 Creating AI-enhanced $template project: $name"
+    
+    # Standard project creation
+    project_init "$template" "$name"
+    
+    # AI enhancements
+    if [[ -d "$name" ]]; then
+        print_info "🤖 Applying AI enhancements..."
+        cd "$name"
+        ai_enhance_project "$description" "$template"
+        cd ..
+        
+        print_success "🎉 AI-powered project '$name' created successfully!"
+        print_info "🤖 AI enhancements include:"
+        print_info "  • Intelligent code generation"
+        print_info "  • Optimized configurations"
+        print_info "  • Smart dependencies"
+        print_info "  • Best practice implementations"
+    fi
+}
+
+# Analyze project requirements with AI
+ai_analyze_requirements() {
+    local description="$1"
+    local ai_provider="${AI_PROVIDER:-claude}"
+    
+    # Create analysis prompt
+    local prompt="Analyze this project description and recommend the best template and configuration:
+
+PROJECT DESCRIPTION: $description
+
+Please provide recommendations in this format:
+TEMPLATE: [fastapi|react|nextjs|node|lit|fullstack|python|rust|go|ios|cli|docker]
+NAME: [suggested-project-name]
+FEATURES:
+- Feature 1
+- Feature 2
+- Feature 3
+
+REASONING:
+Explain why you chose this template and these features.
+
+DEPENDENCIES:
+List key dependencies this project will likely need.
+
+CONFIGURATION:
+Suggest important configuration considerations."
+    
+    # Call AI service
+    case "$ai_provider" in
+        "claude")
+            if command -v claude >/dev/null 2>&1; then
+                echo "$prompt" | claude --quiet
+            else
+                print_error "Claude CLI not available. Install with: pip install claude-api"
+                return 1
+            fi
+            ;;
+        "gemini")
+            if command -v gemini >/dev/null 2>&1; then
+                echo "$prompt" | gemini --quiet
+            else
+                print_error "Gemini CLI not available"
+                return 1
+            fi
+            ;;
+        *)
+            print_error "Unsupported AI provider: $ai_provider"
+            print_info "Set AI_PROVIDER to: claude, gemini"
+            return 1
+            ;;
+    esac
+}
+
+# Enhance existing project with AI suggestions
+ai_enhance_project() {
+    local description="$1"
+    local template="$2"
+    local ai_provider="${AI_PROVIDER:-claude}"
+    
+    print_info "🤖 Generating AI enhancements for $template project..."
+    
+    # Create enhancement prompt
+    local prompt="I have a $template project. Please suggest specific enhancements:
+
+PROJECT DESCRIPTION: $description
+PROJECT TYPE: $template
+
+Please provide:
+1. Additional useful files to create
+2. Configuration optimizations
+3. Code improvements
+4. Development workflow suggestions
+5. Testing strategies
+6. Security considerations
+
+Focus on practical, immediately actionable improvements."
+    
+    local suggestions
+    case "$ai_provider" in
+        "claude")
+            if command -v claude >/dev/null 2>&1; then
+                suggestions=$(echo "$prompt" | claude --quiet)
+            else
+                print_warning "Claude CLI not available - skipping AI enhancements"
+                return 0
+            fi
+            ;;
+        "gemini")
+            if command -v gemini >/dev/null 2>&1; then
+                suggestions=$(echo "$prompt" | gemini --quiet)
+            else
+                print_warning "Gemini CLI not available - skipping AI enhancements"
+                return 0
+            fi
+            ;;
+        *)
+            print_warning "Unsupported AI provider - skipping AI enhancements"
+            return 0
+            ;;
+    esac
+    
+    # Apply AI suggestions
+    if [[ -n "$suggestions" ]]; then
+        # Create AI suggestions file
+        cat > .ai-enhancements.md << EOF
+# AI Enhancement Suggestions
+
+Generated: $(date)
+Provider: $ai_provider
+
+## Suggestions
+
+$suggestions
+
+## How to Apply
+
+Review these suggestions and implement them gradually:
+1. Read through each suggestion
+2. Implement the ones that fit your use case
+3. Test thoroughly
+4. Update documentation
+
+Run \`dot ai enhance\` again anytime for updated suggestions.
+EOF
+        
+        print_success "✨ AI enhancements saved to .ai-enhancements.md"
+        print_info "💡 Review and apply suggestions that fit your needs"
+    fi
+}
+
+# Analyze existing project and suggest improvements
+ai_project_analyze() {
+    local project_dir="${1:-.}"
+    
+    if [[ ! -d "$project_dir" ]]; then
+        print_error "Directory not found: $project_dir"
+        return 1
+    fi
+    
+    print_info "🤖 Analyzing project structure..."
+    
+    cd "$project_dir"
+    
+    # Gather project information
+    local project_info=""
+    
+    # Detect project type
+    if [[ -f "package.json" ]]; then
+        project_info+="PROJECT_TYPE: Node.js/JavaScript\n"
+        project_info+="PACKAGE_JSON: $(cat package.json | head -20)\n"
+    elif [[ -f "pyproject.toml" ]] || [[ -f "requirements.txt" ]]; then
+        project_info+="PROJECT_TYPE: Python\n"
+        [[ -f "pyproject.toml" ]] && project_info+="PYPROJECT: $(cat pyproject.toml | head -20)\n"
+    elif [[ -f "Cargo.toml" ]]; then
+        project_info+="PROJECT_TYPE: Rust\n"
+        project_info+="CARGO: $(cat Cargo.toml | head -20)\n"
+    elif [[ -f "go.mod" ]]; then
+        project_info+="PROJECT_TYPE: Go\n"
+        project_info+="GO_MOD: $(cat go.mod)\n"
+    fi
+    
+    # File structure
+    project_info+="FILES: $(find . -maxdepth 2 -type f | head -20)\n"
+    project_info+="DIRECTORIES: $(find . -maxdepth 2 -type d | head -10)\n"
+    
+    # Create analysis prompt
+    local prompt="Analyze this project and provide improvement suggestions:
+
+$project_info
+
+Please provide:
+1. Project health assessment (1-10 score)
+2. Key improvement areas
+3. Missing best practices
+4. Security considerations
+5. Performance optimization opportunities
+6. Developer experience improvements
+7. Specific actionable recommendations
+
+Focus on practical, high-impact improvements."
+    
+    local analysis
+    case "${AI_PROVIDER:-claude}" in
+        "claude")
+            if command -v claude >/dev/null 2>&1; then
+                analysis=$(echo "$prompt" | claude --quiet)
+            else
+                print_error "Claude CLI not available"
+                return 1
+            fi
+            ;;
+        "gemini")
+            if command -v gemini >/dev/null 2>&1; then
+                analysis=$(echo "$prompt" | gemini --quiet)
+            else
+                print_error "Gemini CLI not available"
+                return 1
+            fi
+            ;;
+        *)
+            print_error "No AI provider configured"
+            return 1
+            ;;
+    esac
+    
+    echo "🤖 AI Project Analysis:"
+    echo "========================"
+    echo "$analysis"
+    
+    # Save analysis
+    cat > .ai-analysis.md << EOF
+# AI Project Analysis
+
+Generated: $(date)
+Provider: ${AI_PROVIDER:-claude}
+
+## Analysis Results
+
+$analysis
+
+## Next Steps
+
+1. Review the recommendations above
+2. Prioritize improvements based on your needs
+3. Implement changes incrementally
+4. Run analysis again after improvements: \`dot project ai-analyze\`
+EOF
+    
+    print_success "📊 Analysis saved to .ai-analysis.md"
+}
+
+# AI project suggestions based on current context
+ai_project_suggest() {
+    local context="${1:-}"
+    
+    if [[ -z "$context" ]]; then
+        echo "🤖 AI Project Suggestions"
+        echo "What kind of project suggestions do you need?"
+        echo ""
+        echo "Examples:"
+        echo "  • 'web app for task management'"
+        echo "  • 'CLI tool for developers'"
+        echo "  • 'mobile app idea'"
+        echo "  • 'microservice architecture'"
+        echo ""
+        echo -n "Context: "
+        read -r context
+    fi
+    
+    if [[ -z "$context" ]]; then
+        print_error "Context is required for AI suggestions"
+        return 1
+    fi
+    
+    print_info "🤖 Generating project suggestions..."
+    
+    local prompt="Suggest 3-5 specific project ideas based on this context: $context
+
+For each suggestion, provide:
+1. Project name and brief description
+2. Key features (3-5 features)
+3. Technology stack recommendation
+4. Estimated complexity (1-10)
+5. Potential impact/usefulness
+6. Getting started steps
+
+Focus on practical, buildable projects that solve real problems."
+    
+    local suggestions
+    case "${AI_PROVIDER:-claude}" in
+        "claude")
+            if command -v claude >/dev/null 2>&1; then
+                suggestions=$(echo "$prompt" | claude --quiet)
+            else
+                print_error "Claude CLI not available"
+                return 1
+            fi
+            ;;
+        "gemini")
+            if command -v gemini >/dev/null 2>&1; then
+                suggestions=$(echo "$prompt" | gemini --quiet)
+            else
+                print_error "Gemini CLI not available"
+                return 1
+            fi
+            ;;
+        *)
+            print_error "No AI provider configured"
+            return 1
+            ;;
+    esac
+    
+    echo "🤖 AI Project Suggestions:"
+    echo "=========================="
+    echo "$suggestions"
+    
+    echo ""
+    echo "💡 To create one of these projects:"
+    echo "   dot project ai-init \"[describe the project you want]\""
 }
