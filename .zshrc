@@ -39,6 +39,9 @@ perf_time "Loading core modules"
 # Aliases
 [[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/aliases.zsh"
 
+# DOT CLI backward compatibility aliases
+[[ -f "$ZSH_CONFIG_DIR/dot-aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/dot-aliases.zsh"
+
 # ----- Load Function Modules -----
 perf_time "Loading function modules"
 

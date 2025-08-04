@@ -72,7 +72,7 @@ project_init() {
     
     case "$template_type" in
         "fastapi"|"python-api")
-            create_fastapi_project "$project_name"
+            create_fastapi_project "$project_name" "${3:-true}"
             ;;
         "react"|"react-app")
             create_react_project "$project_name"
@@ -82,6 +82,15 @@ project_init() {
             ;;
         "node"|"nodejs")
             create_node_project "$project_name"
+            ;;
+        "lit"|"lit-element")
+            create_lit_project "$project_name"
+            ;;
+        "ios"|"ios-swift")
+            create_ios_project "$project_name" "${3:-app}"
+            ;;
+        "fullstack")
+            create_fullstack_project "$project_name"
             ;;
         "rust")
             create_rust_project "$project_name"
@@ -121,10 +130,15 @@ project_list_templates() {
     echo "    react        - React app with Vite and TypeScript"
     echo "    nextjs       - Next.js app with TypeScript"
     echo "    node         - Node.js project with TypeScript"
+    echo "    lit          - Lit/LitElement PWA with modern tooling"
+    echo "    fullstack    - Full-stack FastAPI + Lit project"
     echo ""
     echo "  🦀 Systems Projects:"
     echo "    rust         - Rust project with Cargo"
     echo "    go           - Go project with modules"
+    echo ""
+    echo "  📱 Mobile Projects:"
+    echo "    ios          - iOS/SwiftUI project with modern tooling"
     echo ""
     echo "  🛠️  Tool Projects:"
     echo "    cli          - Command-line tool (multi-language)"
@@ -428,6 +442,453 @@ EOF
     create_common_files "$name" "docker"
 }
 
+# Create Lit/LitElement PWA project
+create_lit_project() {
+    local name="$1"
+    print_info "Creating Lit project: $name"
+    
+    if command -v bun >/dev/null 2>&1; then
+        bun create lit "$name"
+        cd "$name"
+        
+        # Add PWA-specific dependencies
+        bun add workbox-cli workbox-webpack-plugin
+        bun add --dev @web/dev-server @web/test-runner
+        
+        print_success "Lit project '$name' created with PWA support!"
+    else
+        mkdir -p "$name"
+        cd "$name"
+        
+        # Initialize with npm
+        npm init -y
+        npm install lit @lit/reactive-element @lit/localize
+        npm install --save-dev @web/dev-server @web/test-runner typescript
+        
+        # Create basic Lit structure
+        mkdir -p src
+        cat > src/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lit App</title>
+    <script type="module" src="./my-app.js"></script>
+</head>
+<body>
+    <my-app></my-app>
+</body>
+</html>
+EOF
+        
+        cat > src/my-app.js << 'EOF'
+import { LitElement, html, css } from 'lit';
+
+export class MyApp extends LitElement {
+    static properties = {
+        message: { type: String }
+    };
+
+    static styles = css`
+        :host {
+            display: block;
+            padding: 25px;
+            color: var(--my-app-text-color, #000);
+        }
+    `;
+
+    constructor() {
+        super();
+        this.message = 'Hello from Lit!';
+    }
+
+    render() {
+        return html`
+            <h1>${this.message}</h1>
+            <p>Welcome to your Lit PWA!</p>
+        `;
+    }
+}
+
+customElements.define('my-app', MyApp);
+EOF
+        
+        print_success "Lit project '$name' created!"
+    fi
+    
+    create_common_files "$name" "node"
+}
+
+# Create iOS/SwiftUI project
+create_ios_project() {
+    local name="$1"
+    local template="${2:-app}"
+    
+    print_info "Creating iOS project: $name"
+    
+    # Check if Xcode command line tools are available
+    if ! command -v xcodebuild >/dev/null 2>&1; then
+        print_error "Xcode command line tools not found. Install with: xcode-select --install"
+        return 1
+    fi
+    
+    case "$template" in
+        "app"|"swiftui")
+            create_ios_swiftui_app "$name"
+            ;;
+        "package"|"spm")
+            create_swift_package "$name"
+            ;;
+        *)
+            print_error "Unknown iOS template: $template"
+            echo "Available templates: app, swiftui, package, spm"
+            return 1
+            ;;
+    esac
+    
+    create_common_files "$name" "swift"
+    print_success "iOS project '$name' created successfully!"
+}
+
+create_ios_swiftui_app() {
+    local name="$1"
+    mkdir -p "$name"
+    cd "$name"
+    
+    # Create basic SwiftUI app structure
+    mkdir -p "$name" "${name}Tests" "${name}UITests"
+    
+    # Create Package.swift for dependencies
+    cat > Package.swift << EOF
+// swift-tools-version: 5.9
+import PackageDescription
+
+let package = Package(
+    name: "$name",
+    platforms: [
+        .iOS(.v15)
+    ],
+    products: [
+        .library(
+            name: "$name",
+            targets: ["$name"]
+        ),
+    ],
+    dependencies: [
+        // Add your dependencies here
+    ],
+    targets: [
+        .target(
+            name: "$name",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "${name}Tests",
+            dependencies: ["$name"]
+        ),
+    ]
+)
+EOF
+    
+    # Create main app file
+    cat > "$name/${name}App.swift" << EOF
+import SwiftUI
+
+@main
+struct ${name}App: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+EOF
+    
+    # Create content view
+    cat > "$name/ContentView.swift" << EOF
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Text("Hello, $name!")
+        }
+        .padding()
+    }
+}
+
+#Preview {
+    ContentView()
+}
+EOF
+    
+    # Create test file
+    cat > "${name}Tests/${name}Tests.swift" << EOF
+import XCTest
+@testable import $name
+
+final class ${name}Tests: XCTestCase {
+    func testExample() throws {
+        // This is an example of a functional test case.
+        XCTAssertTrue(true)
+    }
+}
+EOF
+    
+    print_info "Basic SwiftUI app structure created"
+    print_info "Run 'swift build' to build, or open in Xcode"
+}
+
+create_swift_package() {
+    local name="$1"
+    
+    if command -v swift >/dev/null 2>&1; then
+        swift package init --type library --name "$name"
+        cd "$name"
+        print_info "Swift package created with SPM"
+    else
+        print_error "Swift not found. Install Xcode or Swift toolchain"
+        return 1
+    fi
+}
+
+# Create full-stack project (FastAPI + Lit)
+create_fullstack_project() {
+    local name="$1"
+    print_info "Creating full-stack project: $name"
+    
+    mkdir -p "$name"
+    cd "$name"
+    
+    # Create backend directory with FastAPI
+    print_info "Setting up FastAPI backend..."
+    mkdir -p backend
+    cd backend
+    
+    if command -v uv >/dev/null 2>&1; then
+        uv init
+        uv add fastapi uvicorn[standard] python-multipart
+        uv add --dev pytest httpx
+    else
+        python -m venv venv
+        source venv/bin/activate
+        pip install fastapi uvicorn[standard] python-multipart pytest httpx
+    fi
+    
+    # Create FastAPI backend structure
+    mkdir -p app
+    cat > app/main.py << 'EOF'
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI(title="Full-Stack App API", version="1.0.0")
+
+# CORS middleware for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Serve static files from frontend build
+app.mount("/static", StaticFiles(directory="../frontend/dist"), name="static")
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "service": "api"}
+
+@app.get("/api/hello")
+async def hello():
+    return {"message": "Hello from FastAPI!"}
+EOF
+    
+    cd ..
+    
+    # Create frontend directory with Lit
+    print_info "Setting up Lit frontend..."
+    mkdir -p frontend
+    cd frontend
+    
+    if command -v bun >/dev/null 2>&1; then
+        bun init -y
+        bun add lit @lit/reactive-element
+        bun add --dev @web/dev-server vite typescript
+    else
+        npm init -y
+        npm install lit @lit/reactive-element
+        npm install --save-dev @web/dev-server vite typescript
+    fi
+    
+    # Create frontend structure
+    mkdir -p src
+    cat > src/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack App</title>
+    <script type="module" src="./app.js"></script>
+</head>
+<body>
+    <full-stack-app></full-stack-app>
+</body>
+</html>
+EOF
+    
+    cat > src/app.js << 'EOF'
+import { LitElement, html, css } from 'lit';
+
+export class FullStackApp extends LitElement {
+    static properties = {
+        apiMessage: { type: String },
+        loading: { type: Boolean }
+    };
+
+    static styles = css`
+        :host {
+            display: block;
+            padding: 2rem;
+            font-family: system-ui, sans-serif;
+        }
+        .loading {
+            opacity: 0.6;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            margin: 1rem 0;
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005999;
+        }
+    `;
+
+    constructor() {
+        super();
+        this.apiMessage = '';
+        this.loading = false;
+    }
+
+    async fetchFromAPI() {
+        this.loading = true;
+        try {
+            const response = await fetch('/api/hello');
+            const data = await response.json();
+            this.apiMessage = data.message;
+        } catch (error) {
+            this.apiMessage = 'Error connecting to API';
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    render() {
+        return html`
+            <h1>Full-Stack Lit + FastAPI App</h1>
+            <p>Frontend: Lit</p>
+            <p>Backend: FastAPI</p>
+            
+            <button @click=${this.fetchFromAPI} ?disabled=${this.loading}>
+                ${this.loading ? 'Loading...' : 'Test API Connection'}
+            </button>
+            
+            ${this.apiMessage ? html`
+                <div class=${this.loading ? 'loading' : ''}>
+                    <strong>API Response:</strong> ${this.apiMessage}
+                </div>
+            ` : ''}
+        `;
+    }
+}
+
+customElements.define('full-stack-app', FullStackApp);
+EOF
+    
+    # Add package.json scripts
+    cat > package.json << EOF
+{
+  "name": "$name-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite serve src --port 3000",
+    "build": "vite build src",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lit": "^3.0.0",
+    "@lit/reactive-element": "^2.0.0"
+  },
+  "devDependencies": {
+    "@web/dev-server": "^0.4.0",
+    "vite": "^5.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+EOF
+    
+    cd ..
+    
+    # Create root-level scripts
+    cat > start-dev.sh << 'EOF'
+#!/bin/bash
+echo "🚀 Starting full-stack development environment..."
+
+# Start backend in background
+cd backend
+if command -v uv >/dev/null 2>&1; then
+    uv run fastapi dev app/main.py --port 8000 &
+else
+    source venv/bin/activate
+    fastapi dev app/main.py --port 8000 &
+fi
+backend_pid=$!
+
+# Start frontend
+cd ../frontend
+if command -v bun >/dev/null 2>&1; then
+    bun run dev &
+else
+    npm run dev &
+fi
+frontend_pid=$!
+
+echo "✅ Services started:"
+echo "  🔗 Frontend: http://localhost:3000"
+echo "  🔗 Backend API: http://localhost:8000"
+echo "  📚 API Docs: http://localhost:8000/docs"
+echo ""
+echo "Press Ctrl+C to stop all services"
+
+# Cleanup function
+cleanup() {
+    echo "🛑 Stopping services..."
+    kill $backend_pid $frontend_pid 2>/dev/null
+    echo "✅ All services stopped"
+}
+
+trap cleanup EXIT INT TERM
+wait
+EOF
+    
+    chmod +x start-dev.sh
+    
+    print_success "Full-stack project '$name' created!"
+    print_info "Run './start-dev.sh' to start both frontend and backend"
+}
+
 # Create common files for all project types
 create_common_files() {
     local name="$1"
@@ -579,9 +1040,12 @@ PROJECT TYPES:
     react                React app with Vite and TypeScript
     nextjs               Next.js app with TypeScript
     node                 Node.js project with TypeScript
+    lit                  Lit/LitElement PWA with modern tooling
+    fullstack            Full-stack FastAPI + Lit project
     python               Generic Python project with poetry/uv
     rust                 Rust project with Cargo
     go                   Go project with modules
+    ios                  iOS/SwiftUI project with modern tooling
     cli                  Command-line tool (multi-language)
     docker               Dockerized application
 

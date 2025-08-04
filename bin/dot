@@ -169,9 +169,12 @@ OPTIONS:
 
 EXAMPLES:
     dot setup                     # Setup development environment
-    dot project init fastapi      # Create new FastAPI project
-    dot secret exec -- npm start  # Run with injected secrets
-    dot ai review src/main.py     # AI code review
+    dot project init fastapi my-api  # Create new FastAPI project
+    dot project init fullstack app   # Create full-stack project
+    dot ai commit --auto          # AI-powered commit with auto-approval
+    dot ai analyze security       # AI security analysis
+    dot ai debug "import error"   # Debug errors with AI
+    dot secret exec -- npm start # Run with injected secrets
     dot security scan            # Security audit
     dot perf optimize            # Optimize performance
 

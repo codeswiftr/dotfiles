@@ -40,6 +40,18 @@ dot_ai() {
         "setup")
             ai_setup
             ;;
+        "analyze")
+            ai_analyze_project "$@"
+            ;;
+        "debug")
+            ai_debug_error "$@"
+            ;;
+        "compare")
+            ai_compare_models "$@"
+            ;;
+        "context")
+            ai_context_helper "$@"
+            ;;
         "-h"|"--help"|"")
             show_ai_help
             ;;
@@ -503,6 +515,309 @@ setup_copilot_cli() {
     fi
 }
 
+# Project analysis with AI (enhanced from zsh version)
+ai_analyze_project() {
+    local analysis_type="${1:-overview}"
+    local provider="${AI_PROVIDER:-claude}"
+    
+    case "$analysis_type" in
+        "overview")
+            print_info "${AI} Analyzing project overview..."
+            local files=$(find . -name "README*" -o -name "*.md" | head -3)
+            files="$files $(find . -name "package.json" -o -name "pyproject.toml" -o -name "requirements.txt" | head -2)"
+            
+            local prompt="Analyze this project structure and provide an overview of what it does, its architecture, and key components"
+            if [[ -n "$files" ]]; then
+                case "$provider" in
+                    "claude")
+                        ai_analyze_with_claude "$files" "$prompt"
+                        ;;
+                    "gemini")
+                        ai_analyze_with_gemini "$files" "$prompt"
+                        ;;
+                    *)
+                        print_error "Analysis not supported for provider: $provider"
+                        return 1
+                        ;;
+                esac
+            else
+                print_warning "No project files found for analysis"
+            fi
+            ;;
+        "security")
+            print_info "${AI} Analyzing project security..."
+            local files=$(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            local prompt="Review this codebase for potential security vulnerabilities and suggest improvements"
+            
+            if [[ -n "$files" ]]; then
+                case "$provider" in
+                    "claude")
+                        ai_analyze_with_claude "$files" "$prompt"
+                        ;;
+                    "gemini")
+                        ai_analyze_with_gemini "$files" "$prompt"
+                        ;;
+                    *)
+                        print_error "Security analysis not supported for provider: $provider"
+                        return 1
+                        ;;
+                esac
+            else
+                print_warning "No source code files found for security analysis"
+            fi
+            ;;
+        "performance")
+            print_info "${AI} Analyzing project performance..."
+            local files=$(find . -name "*.py" -o -name "*.js" -o -name "*.ts" | head -10)
+            local prompt="Review this codebase for performance bottlenecks and optimization opportunities"
+            
+            if [[ -n "$files" ]]; then
+                case "$provider" in
+                    "claude")
+                        ai_analyze_with_claude "$files" "$prompt"
+                        ;;
+                    "gemini")
+                        ai_analyze_with_gemini "$files" "$prompt"
+                        ;;
+                    *)
+                        print_error "Performance analysis not supported for provider: $provider"
+                        return 1
+                        ;;
+                esac
+            else
+                print_warning "No source code files found for performance analysis"
+            fi
+            ;;
+        "documentation")
+            print_info "${AI} Analyzing project documentation..."
+            local files=$(find . -name "README*" -o -name "*.md" -o -name "docs/*" | head -5)
+            local prompt="Review this project's documentation and suggest improvements for clarity and completeness"
+            
+            if [[ -n "$files" ]]; then
+                case "$provider" in
+                    "claude")
+                        ai_analyze_with_claude "$files" "$prompt"
+                        ;;
+                    "gemini")
+                        ai_analyze_with_gemini "$files" "$prompt"
+                        ;;
+                    *)
+                        print_error "Documentation analysis not supported for provider: $provider"
+                        return 1
+                        ;;
+                esac
+            else
+                print_warning "No documentation files found for analysis"
+            fi
+            ;;
+        *)
+            print_error "Unknown analysis type: $analysis_type"
+            echo "Available types: overview, security, performance, documentation"
+            return 1
+            ;;
+    esac
+}
+
+# Error debugging with AI
+ai_debug_error() {
+    local error_input="$1"
+    local provider="${AI_PROVIDER:-claude}"
+    
+    if [[ -z "$error_input" ]]; then
+        print_error "Usage: dot ai debug <error_message_or_log_file>"
+        echo "   or: <command> 2>&1 | dot ai debug"
+        return 1
+    fi
+    
+    print_info "${AI} Debugging error with $provider..."
+    
+    local debug_prompt="Debug this error and provide solutions:"
+    
+    if [[ -f "$error_input" ]]; then
+        print_info "Analyzing error log: $error_input"
+        case "$provider" in
+            "claude")
+                echo "$debug_prompt" | claude --file "$error_input"
+                ;;
+            "gemini")
+                gemini "$debug_prompt" --file "$error_input"
+                ;;
+            *)
+                print_error "Debug not supported for provider: $provider"
+                return 1
+                ;;
+        esac
+    elif [[ -p /dev/stdin ]]; then
+        print_info "Analyzing piped error output..."
+        case "$provider" in
+            "claude")
+                echo "$debug_prompt" | claude
+                ;;
+            "gemini")
+                echo "$debug_prompt" | gemini
+                ;;
+            *)
+                print_error "Debug not supported for provider: $provider"
+                return 1
+                ;;
+        esac
+    else
+        print_info "Analyzing error message..."
+        case "$provider" in
+            "claude")
+                echo "$debug_prompt $error_input" | claude
+                ;;
+            "gemini")
+                echo "$debug_prompt $error_input" | gemini
+                ;;
+            *)
+                print_error "Debug not supported for provider: $provider"
+                return 1
+                ;;
+        esac
+    fi
+}
+
+# Multi-AI comparison for important decisions
+ai_compare_models() {
+    local prompt="$1"
+    local providers="${2:-claude,gemini}"
+    
+    if [[ -z "$prompt" ]]; then
+        print_error "Usage: dot ai compare <question> [providers]"
+        echo "Available providers: claude,gemini,copilot"
+        return 1
+    fi
+    
+    print_warning "This will send your prompt to multiple AI services"
+    echo "Providers: $providers"
+    echo "Continue? Type 'YES' to confirm:"
+    read -r confirmation
+    
+    if [[ "$confirmation" != "YES" ]]; then
+        print_error "Operation cancelled."
+        return 1
+    fi
+    
+    print_info "${AI} Getting opinions from multiple AI models..."
+    
+    IFS=',' read -ra provider_array <<< "$providers"
+    
+    for provider in "${provider_array[@]}"; do
+        provider=$(echo "$provider" | xargs) # trim whitespace
+        echo ""
+        echo "=== ${provider^} Response ==="
+        
+        case "$provider" in
+            "claude")
+                if command -v claude >/dev/null 2>&1; then
+                    echo "$prompt" | claude
+                else
+                    print_warning "Claude CLI not available"
+                fi
+                ;;
+            "gemini")
+                if command -v gemini >/dev/null 2>&1; then
+                    echo "$prompt" | gemini
+                else
+                    print_warning "Gemini CLI not available"
+                fi
+                ;;
+            "copilot")
+                if command -v gh >/dev/null 2>&1 && gh extension list | grep -q copilot; then
+                    echo "$prompt" | gh copilot suggest -t shell
+                else
+                    print_warning "GitHub Copilot CLI not available"
+                fi
+                ;;
+            *)
+                print_warning "Unknown provider: $provider"
+                ;;
+        esac
+    done
+    
+    echo ""
+    echo "=== Comparison complete ==="
+}
+
+# Context-aware AI helper
+ai_context_helper() {
+    local prompt="$1"
+    local provider="${AI_PROVIDER:-claude}"
+    
+    if [[ -z "$prompt" ]]; then
+        print_error "Usage: dot ai context <prompt>"
+        return 1
+    fi
+    
+    print_info "${AI} Analyzing with project context..."
+    
+    # Auto-detect relevant files based on project type
+    local context_files=""
+    if [[ -f "pyproject.toml" || -f "requirements.txt" ]]; then
+        context_files=$(find . -name "*.py" -not -path "./.venv/*" -not -path "./venv/*" | head -5)
+        print_info "Detected Python project, including .py files"
+    elif [[ -f "package.json" ]]; then
+        context_files=$(find . -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" | head -5)
+        print_info "Detected Node.js project, including JS/TS files"
+    elif [[ -f "Package.swift" ]]; then
+        context_files=$(find . -name "*.swift" | head -5)
+        print_info "Detected Swift project, including .swift files"
+    elif [[ -f "Cargo.toml" ]]; then
+        context_files=$(find . -name "*.rs" | head -5)
+        print_info "Detected Rust project, including .rs files"
+    else
+        context_files=$(find . -type f \\( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.swift" \\) | head -3)
+        print_info "Auto-detecting relevant source files"
+    fi
+    
+    case "$provider" in
+        "claude")
+            if [[ -n "$context_files" ]] && command -v claude >/dev/null 2>&1; then
+                echo "$prompt" | claude $context_files
+            else
+                echo "$prompt" | claude
+            fi
+            ;;
+        "gemini")
+            if [[ -n "$context_files" ]] && command -v gemini >/dev/null 2>&1; then
+                echo "$prompt" | gemini $context_files
+            else
+                echo "$prompt" | gemini
+            fi
+            ;;
+        *)
+            print_error "Context analysis not supported for provider: $provider"
+            return 1
+            ;;
+    esac
+}
+
+# Helper functions for AI analysis
+ai_analyze_with_claude() {
+    local files="$1"
+    local prompt="$2"
+    
+    if command -v claude >/dev/null 2>&1; then
+        echo "$prompt" | claude $files
+    else
+        print_error "Claude CLI not found. Install with: pip install claude-api"
+        return 1
+    fi
+}
+
+ai_analyze_with_gemini() {
+    local files="$1"
+    local prompt="$2"
+    
+    if command -v gemini >/dev/null 2>&1; then
+        echo "$prompt" | gemini $files
+    else
+        print_error "Gemini CLI not found. Install from: https://github.com/google/generative-ai-cli"
+        return 1
+    fi
+}
+
 # Help function
 show_ai_help() {
     cat << 'EOF'
@@ -519,6 +834,10 @@ COMMANDS:
     docs <file>              Generate documentation
     fix <file>               Suggest code fixes
     refactor <file>          Suggest refactoring improvements
+    analyze [type]           Analyze project (overview|security|performance|documentation)
+    debug <error>            Debug errors with AI assistance
+    compare <prompt>         Compare responses from multiple AI providers
+    context <prompt>         AI assistance with project context
     status                   Show AI integration status
     setup                    Install and configure AI providers
 
@@ -545,6 +864,10 @@ EXAMPLES:
     dot ai test utils.js jest         # Generate Jest tests
     dot ai commit --auto              # Auto-commit with AI message
     dot ai explain --simple app.go    # Simple explanation
+    dot ai analyze security           # Security analysis
+    dot ai debug "TypeError: undefined"  # Debug error
+    dot ai compare "Best Python web framework"  # Compare AI opinions
+    dot ai context "How can I optimize this?"   # Context-aware help
     dot ai status                     # Check AI setup
 EOF
 }
