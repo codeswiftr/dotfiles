@@ -1,0 +1,169 @@
+Dotfiles Testing Framework - Test Run Log
+==========================================
+Start Time: Wed Jul 16 11:11:46 EEST 2025
+Platform: darwin25
+Test Directory: /Users/bogdan/dotfiles/tests
+Dotfiles Directory: /Users/bogdan/dotfiles
+
+[0;34m[INFO][0m Environment setup complete
+[0;36m[1mInfrastructure Tests[0m
+[0;36m============================================================[0m
+[0;36m[1mRunning infrastructure: test_installation.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_installation.sh failed (0s)
+[0;34m[INFO][0m Starting Dotfiles Installation Testing Framework
+[0;34m[INFO][0m Platform: darwin25
+[0;34m[INFO][0m Date: Wed Jul 16 11:11:46 EEST 2025
+
+[0;34m[INFO][0m Setting up test environment...
+[0;34m[INFO][0m Running tests in current directory
+[0;34m[INFO][0m Running test: Installer script exists and is executable
+[0;32m[PASS][0m Installer script exists and is executable
+
+[0;36m[1mRunning infrastructure: test_health_checks.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_health_checks.sh failed (0s)
+[0;34m[INFO][0m Starting Dotfiles Health Check Testing Framework
+[0;34m[INFO][0m Platform: darwin25
+[0;34m[INFO][0m Date: Wed Jul 16 11:11:46 EEST 2025
+
+[0;34m[INFO][0m Running test: Health check script exists and is executable
+[0;32m[PASS][0m Health check script exists and is executable
+
+[0;36m[1mRunning infrastructure: test_configuration.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_configuration.sh failed (0s)
+[0;34m[INFO][0m Starting Dotfiles Configuration Testing Framework
+[0;34m[INFO][0m Platform: darwin25
+[0;34m[INFO][0m Date: Wed Jul 16 11:11:46 EEST 2025
+
+[0;34m[INFO][0m Running test: tools.yaml exists
+[0;32m[PASS][0m tools.yaml exists
+
+[0;36m[1mRunning infrastructure: test_linting.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_linting.sh failed (0s)
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/performance-advanced.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/ai-security.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/platform.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/plugin-system.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/backup-restore.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/performance.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/migration.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/secret.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/plugin.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/process.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/performance.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/devcontainer.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/migration.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/testing.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/project.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/metrics.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/backup.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/git.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/config.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/ai.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/database.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/security.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/cli/core.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/migrate.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/documentation.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/metrics.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/templating.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/version.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/performance-monitor.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: lib/ai-integration.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux-diagnose.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/music.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/temp.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/debug-install.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux-migrate.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/setup-hooks.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/install.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux-fix-complete.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/test-terminal-title.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/bootstrap.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/test-workflow-enhancements.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux/ai-layout.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux/web-layout.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux/ios-layout.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux/dev-layout.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux/fastapi-layout.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux-clipboard.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/health-check.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux-fix.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/nvim-migrate.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: scripts/tmux-verify.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: tests/test_runner.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: tests/infrastructure/test_installation.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: tests/infrastructure/test_linting.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: tests/infrastructure/test_configuration.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 30: shellcheck: command not found
+[0;31m[FAIL][0m shellcheck: tests/infrastructure/test_health_checks.sh
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 41: yamllint: command not found
+[0;31m[FAIL][0m yamllint: config/templates.yaml
+/Users/bogdan/dotfiles/tests/infrastructure/test_linting.sh: line 41: yamllint: command not found
+[0;31m[FAIL][0m yamllint: config/tools.yaml
+Tests Run: 58
+Tests Passed: 0
+Tests Failed: 58
+
+[0;36m[1mTest Results[0m
+[0;36m============================================================[0m
+[1;33m[WARNING][0m No tests were executed!
+[0;34m[INFO][0m Summary report generated: /Users/bogdan/dotfiles/tests/results/summary_20250716_111146.md

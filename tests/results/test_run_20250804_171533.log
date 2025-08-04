@@ -1,0 +1,232 @@
+Dotfiles Testing Framework - Test Run Log
+==========================================
+Start Time: Mon Aug  4 17:15:33 EEST 2025
+Platform: darwin25
+Test Directory: /Users/bogdan/dotfiles/tests
+Dotfiles Directory: /Users/bogdan/dotfiles
+
+[0;34m[INFO][0m Environment setup complete
+[0;36m[1mInfrastructure Tests[0m
+[0;36m============================================================[0m
+[0;36m[1mRunning infrastructure: test_installation.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_installation.sh failed (2s)
+[0;34m[INFO][0m Starting Dotfiles Installation Testing Framework
+[0;34m[INFO][0m Platform: darwin25
+[0;34m[INFO][0m Date: Mon Aug  4 17:15:33 EEST 2025
+
+[0;34m[INFO][0m Setting up test environment...
+[0;34m[INFO][0m Running tests in current directory
+[0;34m[INFO][0m Running test: Installer script exists and is executable
+[0;32m[PASS][0m Installer script exists and is executable
+[0;34m[INFO][0m Running test: Configuration file exists
+[0;32m[PASS][0m Configuration file exists
+[0;34m[INFO][0m Running test: Installer help command works
+[0;32m[PASS][0m Installer help command works
+[0;34m[INFO][0m Running test: Dry run mode works
+[0;32m[PASS][0m Dry run mode works
+[0;34m[INFO][0m Running test: Profiles command works
+[0;32m[PASS][0m Profiles command works
+[0;34m[INFO][0m Running test: YAML syntax is valid
+[0;32m[PASS][0m YAML syntax is valid
+[0;34m[INFO][0m Running test: Required directories exist
+[0;32m[PASS][0m Required directories exist
+[0;34m[INFO][0m Running test: Health check script exists
+[0;32m[PASS][0m Health check script exists
+[0;34m[INFO][0m Running test: Version management files exist
+[0;32m[PASS][0m Version management files exist
+[0;34m[INFO][0m Running test: DOT command structure is valid
+[0;32m[PASS][0m DOT command structure is valid
+[0;34m[INFO][0m Running test: Minimal profile dry run works
+[0;32m[PASS][0m Minimal profile dry run works
+[0;34m[INFO][0m Running test: Standard profile dry run works
+[0;32m[PASS][0m Standard profile dry run works
+[0;34m[INFO][0m Running test: Full profile dry run works
+[0;31m[FAIL][0m Full profile dry run works
+[0;34m[INFO][0m Running test: Cross-platform detection works
+[0;32m[PASS][0m Cross-platform detection works
+[0;34m[INFO][0m Running test: Error handling for invalid profiles
+[0;32m[PASS][0m Error handling for invalid profiles
+[0;34m[INFO][0m Running test: Installer startup time is reasonable
+[0;32m[PASS][0m Installer startup time is reasonable
+[0;34m[INFO][0m Cleaning up test environment...
+
+[0;34m[INFO][0m Test Results Summary:
+  Tests Run: 16
+  Tests Passed: 15
+  Tests Failed: 1
+[0;31m[FAIL][0m Some tests failed!
+
+[0;36m[1mRunning infrastructure: test_health_checks.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_health_checks.sh failed (5s)
+[0;34m[INFO][0m Starting Dotfiles Health Check Testing Framework
+[0;34m[INFO][0m Platform: darwin25
+[0;34m[INFO][0m Date: Mon Aug  4 17:15:35 EEST 2025
+
+[0;34m[INFO][0m Running test: Health check script exists and is executable
+[0;32m[PASS][0m Health check script exists and is executable
+[0;34m[INFO][0m Running test: Health check runs without errors
+[0;32m[PASS][0m Health check runs without errors
+[0;34m[INFO][0m Running test: Health check produces output
+[0;32m[PASS][0m Health check produces output
+[0;34m[INFO][0m Running test: Health check returns appropriate exit codes
+[0;32m[PASS][0m Health check returns appropriate exit codes
+[0;34m[INFO][0m Running test: Shell detection works
+[0;32m[PASS][0m Shell detection works
+[0;34m[INFO][0m Running test: OS detection works
+[0;31m[FAIL][0m OS detection works
+[0;34m[INFO][0m Running test: Git availability check works
+[0;32m[PASS][0m Git availability check works
+[0;34m[INFO][0m Running test: Homebrew detection works (macOS)
+[0;31m[FAIL][0m Homebrew detection works (macOS)
+[0;34m[INFO][0m Running test: Python detection works
+[0;32m[PASS][0m Python detection works
+[0;34m[INFO][0m Running test: Node.js detection works
+[0;32m[PASS][0m Node.js detection works
+[0;34m[INFO][0m Running test: Verbose mode works
+[0;32m[PASS][0m Verbose mode works
+[0;34m[INFO][0m Running test: JSON output works
+[0;32m[PASS][0m JSON output works
+[0;34m[INFO][0m Running test: Dotfiles structure validation works
+[0;32m[PASS][0m Dotfiles structure validation works
+[0;34m[INFO][0m Running test: Version consistency check works
+[0;32m[PASS][0m Version consistency check works
+[0;34m[INFO][0m Running test: Configuration validation works
+[0;32m[PASS][0m Configuration validation works
+[0;34m[INFO][0m Running test: Health check completes in reasonable time
+[0;32m[PASS][0m Health check completes in reasonable time
+[0;34m[INFO][0m Running test: Health check works after install
+[0;32m[PASS][0m Health check works after install
+
+[0;34m[INFO][0m Test Results Summary:
+  Tests Run: 17
+  Tests Passed: 15
+  Tests Failed: 2
+[0;31m[FAIL][0m Some tests failed!
+
+[0;36m[1mRunning infrastructure: test_configuration.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_configuration.sh failed (2s)
+[0;34m[INFO][0m Starting Dotfiles Configuration Testing Framework
+[0;34m[INFO][0m Platform: darwin25
+[0;34m[INFO][0m Date: Mon Aug  4 17:15:40 EEST 2025
+
+[0;34m[INFO][0m Running test: tools.yaml exists
+[0;32m[PASS][0m tools.yaml exists
+[0;34m[INFO][0m Running test: tools.yaml syntax is valid
+[0;32m[PASS][0m tools.yaml syntax is valid
+[0;34m[INFO][0m Running test: tools.yaml structure is valid
+[0;32m[PASS][0m tools.yaml structure is valid
+[0;34m[INFO][0m Running test: tools.yaml profile structure is valid
+[0;32m[PASS][0m tools.yaml profile structure is valid
+[0;34m[INFO][0m Running test: ZSH config directory exists
+[0;32m[PASS][0m ZSH config directory exists
+[0;34m[INFO][0m Running test: ZSH config files exist
+[0;31m[FAIL][0m ZSH config files exist
+[0;34m[INFO][0m Running test: ZSH config syntax is valid
+[0;32m[PASS][0m ZSH config syntax is valid
+[0;34m[INFO][0m Running test: ZSH environment variables are defined
+[0;32m[PASS][0m ZSH environment variables are defined
+[0;34m[INFO][0m Running test: ZSH aliases format is correct
+[0;32m[PASS][0m ZSH aliases format is correct
+[0;34m[INFO][0m Running test: ZSH functions format is correct
+[0;32m[PASS][0m ZSH functions format is correct
+[0;34m[INFO][0m Running test: Tmux config exists and syntax is valid
+[0;31m[FAIL][0m Tmux config exists and syntax is valid
+[0;34m[INFO][0m Running test: Tmux config syntax is valid
+[0;32m[PASS][0m Tmux config syntax is valid
+[0;34m[INFO][0m Running test: Git config exists
+[0;31m[FAIL][0m Git config exists
+[0;34m[INFO][0m Running test: Git config syntax is valid
+[0;32m[PASS][0m Git config syntax is valid
+[0;34m[INFO][0m Running test: Vim config exists
+[0;31m[FAIL][0m Vim config exists
+[0;34m[INFO][0m Running test: Vim config syntax is valid
+[0;32m[PASS][0m Vim config syntax is valid
+[0;34m[INFO][0m Running test: Theme files exist
+[0;32m[PASS][0m Theme files exist
+[0;34m[INFO][0m Running test: Theme syntax is valid
+[0;32m[PASS][0m Theme syntax is valid
+[0;34m[INFO][0m Running test: Platform-specific configs exist
+[0;32m[PASS][0m Platform-specific configs exist
+[0;34m[INFO][0m Running test: PATH configurations are valid
+[0;32m[PASS][0m PATH configurations are valid
+[0;34m[INFO][0m Running test: Configuration loading works
+[0;31m[FAIL][0m Configuration loading works
+
+[0;34m[INFO][0m Test Results Summary:
+  Tests Run: 21
+  Tests Passed: 16
+  Tests Failed: 5
+[0;31m[FAIL][0m Some tests failed!
+
+[0;36m[1mRunning infrastructure: test_linting.sh[0m
+[0;36m============================================================[0m
+[0;31m[ERROR][0m test_linting.sh failed (7s)
+[0;31m[FAIL][0m shellcheck: lib/performance-advanced.sh
+[0;31m[FAIL][0m shellcheck: lib/ai-security.sh
+[0;31m[FAIL][0m shellcheck: lib/platform.sh
+[0;31m[FAIL][0m shellcheck: lib/plugin-system.sh
+[0;31m[FAIL][0m shellcheck: lib/backup-restore.sh
+[0;31m[FAIL][0m shellcheck: lib/performance.sh
+[0;31m[FAIL][0m shellcheck: lib/migration.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/secret.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/plugin.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/process.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/performance.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/devcontainer.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/migration.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/testing.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/project.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/metrics.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/backup.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/git.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/config.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/ai.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/database.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/security.sh
+[0;31m[FAIL][0m shellcheck: lib/cli/core.sh
+[0;32m[PASS][0m shellcheck: lib/migrate.sh
+[0;31m[FAIL][0m shellcheck: lib/documentation.sh
+[0;31m[FAIL][0m shellcheck: lib/metrics.sh
+[0;31m[FAIL][0m shellcheck: lib/templating.sh
+[0;31m[FAIL][0m shellcheck: lib/version.sh
+[0;31m[FAIL][0m shellcheck: lib/performance-monitor.sh
+[0;31m[FAIL][0m shellcheck: lib/ai-integration.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux-diagnose.sh
+[0;31m[FAIL][0m shellcheck: scripts/music.sh
+[0;31m[FAIL][0m shellcheck: scripts/temp.sh
+[0;32m[PASS][0m shellcheck: scripts/debug-install.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux-migrate.sh
+[0;31m[FAIL][0m shellcheck: scripts/setup-hooks.sh
+[0;31m[FAIL][0m shellcheck: scripts/install.sh
+[0;32m[PASS][0m shellcheck: scripts/tmux-fix-complete.sh
+[0;32m[PASS][0m shellcheck: scripts/test-terminal-title.sh
+[0;32m[PASS][0m shellcheck: scripts/bootstrap.sh
+[0;32m[PASS][0m shellcheck: scripts/test-workflow-enhancements.sh
+[0;32m[PASS][0m shellcheck: scripts/tmux/ai-layout.sh
+[0;32m[PASS][0m shellcheck: scripts/tmux/web-layout.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux/ios-layout.sh
+[0;32m[PASS][0m shellcheck: scripts/tmux/dev-layout.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux/fastapi-layout.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux-clipboard.sh
+[0;32m[PASS][0m shellcheck: scripts/health-check.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux-fix.sh
+[0;31m[FAIL][0m shellcheck: scripts/nvim-migrate.sh
+[0;31m[FAIL][0m shellcheck: scripts/tmux-verify.sh
+[0;32m[PASS][0m shellcheck: tests/test_runner.sh
+[0;31m[FAIL][0m shellcheck: tests/infrastructure/test_installation.sh
+[0;32m[PASS][0m shellcheck: tests/infrastructure/test_linting.sh
+[0;31m[FAIL][0m shellcheck: tests/infrastructure/test_configuration.sh
+[0;32m[PASS][0m shellcheck: tests/infrastructure/test_health_checks.sh
+[0;31m[FAIL][0m yamllint: config/templates.yaml
+[0;31m[FAIL][0m yamllint: config/tools.yaml
+Tests Run: 58
+Tests Passed: 13
+Tests Failed: 45
+
+[0;36m[1mTest Results[0m
+[0;36m============================================================[0m
+[1;33m[WARNING][0m No tests were executed!
+[0;34m[INFO][0m Summary report generated: /Users/bogdan/dotfiles/tests/results/summary_20250804_171533.md
