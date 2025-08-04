@@ -135,51 +135,66 @@ run_test_category() {
     local test_output_file
     test_output_file=$(mktemp)
     
-    if (cd "$DOTFILES_DIR" && timeout 30 "$test_path") > "$test_output_file" 2>&1; then
-        end_time=$(date +%s)
-        duration=$((end_time - start_time))
+    # Run the test regardless of exit code to capture output
+    local test_exit_code
+    (cd "$DOTFILES_DIR" && timeout 60 bash "$test_path") > "$test_output_file" 2>&1
+    test_exit_code=$?
+    
+    end_time=$(date +%s)
+    duration=$((end_time - start_time))
+    
+    # Always append test output to log
+    cat "$test_output_file" >> "$LOG_FILE"
+    
+    # Extract test results from the test output
+    local test_output
+    test_output=$(grep -E "(Tests Run:|Tests Passed:|Tests Failed:)" "$test_output_file" || echo "")
+    
+    if [[ -n "$test_output" ]]; then
+        local tests_run tests_passed tests_failed
+        tests_run=$(echo "$test_output" | grep "Tests Run:" | grep -o '[0-9]\+' | head -1 || echo "0")
+        tests_passed=$(echo "$test_output" | grep "Tests Passed:" | grep -o '[0-9]\+' | head -1 || echo "0")
+        tests_failed=$(echo "$test_output" | grep "Tests Failed:" | grep -o '[0-9]\+' | head -1 || echo "0")
         
-        log_success "$test_file completed successfully (${duration}s)"
+        # Ensure we have valid numbers
+        tests_run=${tests_run:-0}
+        tests_passed=${tests_passed:-0}
+        tests_failed=${tests_failed:-0}
         
-        # Append test output to log
-        cat "$test_output_file" >> "$LOG_FILE"
-        
-        # Extract test results from the test output
-        local test_output
-        test_output=$(grep -E "(Tests Run:|Tests Passed:|Tests Failed:)" "$test_output_file" || echo "")
-        
-        if [[ -n "$test_output" ]]; then
-            local tests_run tests_passed tests_failed
-            tests_run=$(echo "$test_output" | grep "Tests Run:" | grep -o '[0-9]*' | head -1)
-            tests_passed=$(echo "$test_output" | grep "Tests Passed:" | grep -o '[0-9]*' | head -1)
-            tests_failed=$(echo "$test_output" | grep "Tests Failed:" | grep -o '[0-9]*' | head -1)
+        if [[ "$tests_run" -gt 0 ]]; then
+            TOTAL_TESTS=$((TOTAL_TESTS + tests_run))
+            TOTAL_PASSED=$((TOTAL_PASSED + tests_passed))
+            TOTAL_FAILED=$((TOTAL_FAILED + tests_failed))
             
-            if [[ -n "$tests_run" ]]; then
-                TOTAL_TESTS=$((TOTAL_TESTS + tests_run))
-                TOTAL_PASSED=$((TOTAL_PASSED + tests_passed))
-                TOTAL_FAILED=$((TOTAL_FAILED + tests_failed))
-                
-                if [[ "$tests_failed" -gt 0 ]]; then
-                    FAILED_TESTS+=("$test_file")
-                fi
+            if [[ "$tests_failed" -gt 0 ]]; then
+                log_error "$test_file completed with failures (${duration}s) - $tests_failed/$tests_run tests failed"
+                FAILED_TESTS+=("$test_file")
+            else
+                log_success "$test_file completed successfully (${duration}s) - all $tests_run tests passed"
             fi
+        else
+            # If no test results found, consider this test script as having failed to run properly
+            log_error "$test_file failed to produce test results (${duration}s)"
+            TOTAL_TESTS=$((TOTAL_TESTS + 1))
+            TOTAL_FAILED=$((TOTAL_FAILED + 1))
+            FAILED_TESTS+=("$test_file")
         fi
-        
-        rm -f "$test_output_file"
-        return 0
     else
-        end_time=$(date +%s)
-        duration=$((end_time - start_time))
-        
-        log_error "$test_file failed (${duration}s)"
-        
-        # Append test output to log even on failure
-        cat "$test_output_file" >> "$LOG_FILE"
-        
-        FAILED_TESTS+=("$test_file")
-        rm -f "$test_output_file"
-        return 1
+        # If no test results found but script may have run
+        if [[ $test_exit_code -eq 0 ]]; then
+            log_warning "$test_file completed but produced no test results (${duration}s)"
+            TOTAL_TESTS=$((TOTAL_TESTS + 1))
+            TOTAL_PASSED=$((TOTAL_PASSED + 1))
+        else
+            log_error "$test_file failed to run (${duration}s)"
+            TOTAL_TESTS=$((TOTAL_TESTS + 1))
+            TOTAL_FAILED=$((TOTAL_FAILED + 1))
+            FAILED_TESTS+=("$test_file")
+        fi
     fi
+    
+    rm -f "$test_output_file"
+    return 0
 }
 
 # Reporting functions

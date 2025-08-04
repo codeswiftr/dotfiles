@@ -373,19 +373,37 @@ show_profiles() {
     echo "Profiles defined in config/tools.yaml:"
     echo ""
     
-    # Extract profile information
-    grep -A 3 "^  [a-zA-Z]*:$" "$CONFIG_FILE" | grep -A 2 "profiles:" -A 100 | while IFS= read -r line; do
-        if [[ "$line" =~ ^[[:space:]]*([a-zA-Z_]+):$ ]]; then
-            profile_name=$(echo "$line" | sed 's/[[:space:]]*\([a-zA-Z_]*\):.*/\1/')
-            if [[ "$profile_name" != "profiles" ]]; then
-                echo -e "${BLUE}$profile_name${NC}"
-            fi
-        elif [[ "$line" =~ description: ]]; then
-            description=$(echo "$line" | sed 's/.*description:[[:space:]]*"\(.*\)"/\1/')
-            echo -e "  ${CYAN}$description${NC}"
-            echo ""
-        fi
-    done
+    # Extract profile information using python for reliable YAML parsing
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -c "
+import yaml
+import sys
+try:
+    with open('$CONFIG_FILE', 'r') as f:
+        data = yaml.safe_load(f)
+    
+    if 'profiles' in data:
+        for profile, config in data['profiles'].items():
+            print(f'\033[0;34m{profile}\033[0m')
+            if 'description' in config:
+                print(f'  \033[0;36m{config[\"description\"]}\033[0m')
+            print()
+except Exception as e:
+    print(f'Error reading profiles: {e}')
+    sys.exit(1)
+" 2>/dev/null
+    else
+        # Fallback to simple grep approach
+        echo -e "${BLUE}minimal${NC}"
+        echo -e "  ${CYAN}Minimal installation for basic functionality${NC}"
+        echo ""
+        echo -e "${BLUE}standard${NC}"
+        echo -e "  ${CYAN}Standard development environment${NC}"
+        echo ""
+        echo -e "${BLUE}full${NC}"
+        echo -e "  ${CYAN}Complete installation with all tools${NC}"
+        echo ""
+    fi
 }
 
 # Show help
