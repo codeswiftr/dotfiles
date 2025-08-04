@@ -47,11 +47,15 @@ run_test() {
     ((TESTS_RUN++))
     log_info "Running test: $test_name"
     
+    # Disable exit on error for test execution
+    set +e
     if $test_function; then
         log_success "$test_name"
     else
         log_error "$test_name"
     fi
+    # Re-enable exit on error
+    set -e
 }
 
 # Setup test environment
@@ -124,15 +128,15 @@ test_version_management() {
 }
 
 test_minimal_profile_dry_run() {
-    timeout 30 ./install.sh --dry-run install minimal >/dev/null 2>&1
+    timeout 30 bash -c './install.sh --dry-run install minimal >/dev/null 2>&1'
 }
 
 test_standard_profile_dry_run() {
-    timeout 30 ./install.sh --dry-run install standard >/dev/null 2>&1
+    timeout 30 bash -c './install.sh --dry-run install standard >/dev/null 2>&1'
 }
 
 test_full_profile_dry_run() {
-    timeout 30 ./install.sh --dry-run install full >/dev/null 2>&1
+    timeout 30 bash -c './install.sh --dry-run install full >/dev/null 2>&1'
 }
 
 test_cross_platform_detection() {

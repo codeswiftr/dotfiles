@@ -43,11 +43,15 @@ run_test() {
     ((TESTS_RUN++))
     log_info "Running test: $test_name"
     
+    # Disable exit on error for test execution
+    set +e
     if $test_function; then
         log_success "$test_name"
     else
         log_error "$test_name"
     fi
+    # Re-enable exit on error
+    set -e
 }
 
 # Test functions
@@ -56,7 +60,7 @@ test_health_check_exists() {
 }
 
 test_health_check_runs() {
-    timeout 30 ./scripts/health-check.sh >/dev/null 2>&1
+    timeout 30 bash -c './scripts/health-check.sh >/dev/null 2>&1'
 }
 
 test_health_check_basic_output() {
@@ -193,8 +197,8 @@ test_configuration_validation() {
 # Integration tests
 test_health_check_after_install() {
     # Test health check after a dry-run install
-    ./install.sh --dry-run install minimal >/dev/null 2>&1
-    ./scripts/health-check.sh >/dev/null 2>&1
+    timeout 30 bash -c './install.sh --dry-run install minimal >/dev/null 2>&1'
+    timeout 30 bash -c './scripts/health-check.sh >/dev/null 2>&1'
 }
 
 # Main test execution

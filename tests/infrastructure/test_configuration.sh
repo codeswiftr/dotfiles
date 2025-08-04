@@ -43,11 +43,15 @@ run_test() {
     ((TESTS_RUN++))
     log_info "Running test: $test_name"
     
+    # Disable exit on error for test execution
+    set +e
     if $test_function; then
         log_success "$test_name"
     else
         log_error "$test_name"
     fi
+    # Re-enable exit on error
+    set -e
 }
 
 # YAML Configuration Tests
