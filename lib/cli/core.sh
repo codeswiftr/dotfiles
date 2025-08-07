@@ -125,7 +125,7 @@ dot_check() {
     fi
     
     # Check dotfiles symlinks
-    local config_files=("$HOME/.zshrc" "$HOME/.tmux.conf" "$HOME/.config/nvim/init.lua")
+    local config_files=("$HOME/.zshrc" "$HOME/.tmux.conf" "$HOME/.config/nvim")
     for config in "${config_files[@]}"; do
         if [[ ! -L "$config" ]]; then
             [[ "$quiet" != "true" ]] && print_warning "Config not symlinked: $config"
