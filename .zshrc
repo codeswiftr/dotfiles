@@ -3,7 +3,7 @@
 # =============================================================================
 
 # ----- Configuration Directory Setup -----
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+DOTFILES_DIR="${DOTFILES_DIR:-$(dirname $(readlink -f ${(%):-%x} 2>/dev/null || echo ${ZDOTDIR:-$HOME}/.zshrc))}"
 ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 
 # Performance timing (optional)
