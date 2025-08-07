@@ -685,7 +685,22 @@ main() {
             install_profile "$PROFILE"
             link_dotfiles
             
-            print_success "Installation completed!"
+            # Final verification step
+            if [[ "$DRY_RUN" == "false" ]]; then
+                print_header "Final Verification"
+                if "$DOTFILES_DIR/bin/dot" check; then
+                    print_success "Setup completed and verified successfully!"
+                    print_info "Please restart your shell or run 'source ~/.zshrc' to apply changes."
+                    print_info "For a full reload, it's recommended to restart your terminal."
+                    echo -e "${ROCKET} Enjoy your new streamlined environment! ${ROCKET}"
+                else
+                    print_error "Setup completed but verification failed."
+                    print_warning "Run 'dot check' to see the issues."
+                    return 1
+                fi
+            else
+                print_success "Installation completed!"
+            fi
             print_info "Log file: $LOG_FILE"
             ;;
         "profiles")
