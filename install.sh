@@ -366,6 +366,113 @@ setup_package_manager() {
     esac
 }
 
+# =============================================================================
+# Dotfiles Linking Functions
+# =============================================================================
+
+# Link dotfiles configuration
+link_dotfiles() {
+    print_header "Linking Dotfiles Configuration"
+    
+    local linked_count=0
+    local failed_links=()
+    
+    # Create necessary directories
+    mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/zsh/completions" "$HOME/.config/git"
+    
+    # Define dotfiles to link (using arrays for compatibility)
+    local sources=(
+        ".zshrc"
+        ".tmux.conf"  
+        ".gitconfig"
+        "config/nvim"
+        "bin"
+        "completions/_dot"
+        "hooks"
+    )
+    
+    local targets=(
+        "$HOME/.zshrc"
+        "$HOME/.tmux.conf"
+        "$HOME/.gitconfig"
+        "$HOME/.config/nvim"
+        "$HOME/.local/bin"
+        "$HOME/.local/share/zsh/completions/_dot"
+        "$HOME/.config/git/hooks"
+    )
+    
+    # Link each dotfile
+    for i in "${!sources[@]}"; do
+        local source_path="${sources[$i]}"
+        local target_path="${targets[$i]}"
+        local source_full="$DOTFILES_DIR/$source_path"
+        
+        if [[ ! -e "$source_full" ]]; then
+            print_warning "Source not found: $source_full"
+            failed_links+=("$source_path (source missing)")
+            continue
+        fi
+        
+        if link_dotfile "$source_full" "$target_path"; then
+            ((linked_count++))
+        else
+            failed_links+=("$source_path")
+        fi
+    done
+    
+    # Summary
+    print_success "Successfully linked $linked_count dotfiles"
+    
+    if [[ ${#failed_links[@]} -gt 0 ]]; then
+        print_warning "Failed to link: ${failed_links[*]}"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Link individual dotfile with backup
+link_dotfile() {
+    local source="$1"
+    local target="$2"
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        print_info "DRY RUN: Would link $source -> $target"
+        return 0
+    fi
+    
+    # Check if target already exists
+    if [[ -e "$target" ]] || [[ -L "$target" ]]; then
+        if [[ -L "$target" ]] && [[ "$(readlink "$target")" == "$source" ]]; then
+            print_info "Already linked: $(basename "$target")"
+            return 0
+        fi
+        
+        # Backup existing file/link
+        local backup_path="$BACKUP_DIR/$(basename "$target")"
+        if [[ "$FORCE" == "true" ]] || [[ "$SKIP_EXISTING" == "false" ]]; then
+            print_step "Backing up existing $(basename "$target") to $backup_path"
+            mkdir -p "$BACKUP_DIR"
+            if ! mv "$target" "$backup_path" 2>/dev/null; then
+                print_error "Failed to backup $target"
+                return 1
+            fi
+        else
+            print_info "Skipping existing: $(basename "$target")"
+            return 0
+        fi
+    fi
+    
+    # Create the symlink
+    if ln -sf "$source" "$target"; then
+        print_success "Linked: $(basename "$target") -> $source"
+        return 0
+    else
+        print_error "Failed to link: $target -> $source"
+        return 1
+    fi
+}
+
 # Show available profiles
 show_profiles() {
     print_header "Available Installation Profiles"
@@ -419,6 +526,7 @@ COMMANDS:
     profiles              Show available installation profiles
     tools                 List all available tools
     verify                Verify current installation status
+    link                  Link dotfiles configuration only (skip tool installation)
     
 OPTIONS:
     -p, --profile PROFILE Installation profile (minimal|standard|full|ai_focused)
@@ -434,6 +542,8 @@ EXAMPLES:
     $0 --verbose --force install minimal  # Force install minimal with verbose output
     $0 profiles                           # Show available profiles
     $0 verify                            # Check current installation status
+    $0 link                              # Link dotfiles configuration only
+    $0 --dry-run link                    # Preview dotfiles linking
 
 CONFIG:
     Configuration file: config/tools.yaml
@@ -531,6 +641,10 @@ main() {
                 COMMAND="tools"
                 shift
                 ;;
+            link)
+                COMMAND="link"
+                shift
+                ;;
             *)
                 print_error "Unknown option: $1"
                 show_help
@@ -569,6 +683,7 @@ main() {
             
             setup_package_manager
             install_profile "$PROFILE"
+            link_dotfiles
             
             print_success "Installation completed!"
             print_info "Log file: $LOG_FILE"
@@ -582,6 +697,11 @@ main() {
         "tools")
             print_header "Available Tools"
             grep "^  [a-zA-Z].*:$" "$CONFIG_FILE" | grep -A 1000 "^tools:" | head -50 | sed 's/^  \([^:]*\):.*/\1/' | sort
+            ;;
+        "link")
+            print_header "Linking Dotfiles Only"
+            link_dotfiles
+            print_success "Linking completed!"
             ;;
         *)
             print_error "Unknown command: $COMMAND"

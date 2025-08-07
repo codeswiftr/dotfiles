@@ -3,11 +3,11 @@
 # Maintains compatibility with existing functions during transition
 # ============================================================================
 
-# Project initialization aliases
-alias fastapi-init='_dot_legacy_wrapper dot project init fastapi'
+# Project initialization aliases (some disabled due to conflicts with functions)
+# alias fastapi-init='_dot_legacy_wrapper dot project init fastapi'  # Disabled - conflicts with function in web-pwa.zsh
 alias ios-init='_dot_legacy_wrapper dot project init ios'
-alias lit-init='_dot_legacy_wrapper dot project init lit'
-alias fullstack-dev='_dot_legacy_wrapper dot project init fullstack'
+# alias lit-init='_dot_legacy_wrapper dot project init lit'  # Disabled - conflicts with function in web-pwa.zsh
+# alias fullstack-dev='_dot_legacy_wrapper dot project init fullstack'  # Disabled - conflicts with function in web-pwa.zsh
 
 # AI workflow aliases
 alias ai-commit='_dot_legacy_wrapper dot ai commit'
@@ -41,7 +41,7 @@ _dot_legacy_wrapper() {
 # Enhanced project aliases that work with new CLI
 alias fastapi-dev='dot run dev'
 alias fastapi-test='dot run test'
-alias web-serve='dot run serve'
+# alias web-serve='dot run serve'  # Disabled - conflicts with function in web-pwa.zsh
 alias ios-build='dot run build'
 alias ios-test='dot run test'
 
