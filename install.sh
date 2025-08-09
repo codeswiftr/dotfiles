@@ -134,24 +134,100 @@ detect_os() {
     fi
 }
 
-# Parse YAML (simplified parser for our specific format)
-parse_yaml() {
-    local file="$1"
-    local prefix="$2"
-    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-    
-    sed -ne "s|^\($s\):|\1|" \
-        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$file" |
-    awk -F"$fs" '{
-        indent = length($1)/2;
-        vname[indent] = $2;
-        for (i in vname) {if (i > indent) {delete vname[i]}}
-        if (length($3) > 0) {
-            vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-            printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
-        }
-    }'
+# YAML helpers (prefer Python PyYAML; fallback to legacy parsing)
+has_pyyaml() {
+    python3 -c 'import yaml' >/dev/null 2>&1
+}
+
+yaml_query_install_cmd() {
+    local tool="$1" os="$2"
+    if has_pyyaml; then
+        python3 - "$CONFIG_FILE" "$tool" "$os" <<'PY'
+import sys, yaml
+cfg_path, tool, os_name = sys.argv[1:4]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+cmd = (data.get('tools', {}).get(tool, {}).get('install', {}) or {}).get(os_name)
+print(cmd or "")
+PY
+    else
+        sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        sed -n "/    install:/,/^    [a-zA-Z]/p" | \
+        grep "      $os:" | cut -d'\"' -f2
+    fi
+}
+
+yaml_query_verify_cmd() {
+    local tool="$1"
+    if has_pyyaml; then
+        python3 - "$CONFIG_FILE" "$tool" <<'PY'
+import sys, yaml
+cfg_path, tool = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+print((data.get('tools', {}).get(tool, {}) or {}).get('verify', '') or '')
+PY
+    else
+        sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        grep "    verify:" | cut -d'\"' -f2
+    fi
+}
+
+yaml_query_post_install() {
+    local tool="$1"
+    if has_pyyaml; then
+        python3 - "$CONFIG_FILE" "$tool" <<'PY'
+import sys, yaml
+cfg_path, tool = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+pi = (data.get('tools', {}).get(tool, {}) or {}).get('post_install', []) or []
+for line in pi:
+    print(line)
+PY
+    else
+        sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        sed -n "/    post_install:/,/^    [a-zA-Z]/p" | \
+        grep "      -" | sed 's/      - \"//' | sed 's/\"//'
+    fi
+}
+
+yaml_query_group_tools() {
+    local group="$1"
+    if has_pyyaml; then
+        python3 - "$CONFIG_FILE" "$group" <<'PY'
+import sys, yaml
+cfg_path, group = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+tools = (data.get('groups', {}).get(group, {}) or {}).get('tools', []) or []
+for t in tools:
+    print(t)
+PY
+    else
+        sed -n "/^  $group:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        sed -n "/    tools:/,/^    [a-zA-Z]/p" | \
+        grep "      -" | sed 's/      - //'
+    fi
+}
+
+yaml_query_profile_groups() {
+    local profile="$1"
+    if has_pyyaml; then
+        python3 - "$CONFIG_FILE" "$profile" <<'PY'
+import sys, yaml
+cfg_path, profile = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+groups = (data.get('profiles', {}).get(profile, {}) or {}).get('groups', []) or []
+for g in groups:
+    print(g)
+PY
+    else
+        sed -n "/^  $profile:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        sed -n "/    groups:/,/^    [a-zA-Z]/p" | \
+        grep -o '"\w*"' | tr -d '"'
+    fi
 }
 
 # Get tool information from config
@@ -169,11 +245,7 @@ get_tool_info() {
 get_install_command() {
     local tool="$1"
     local os="${2:-$(detect_os)}"
-    
-    # Extract install command for specific OS
-    sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-    sed -n "/    install:/,/^    [a-zA-Z]/p" | \
-    grep "      $os:" | cut -d'"' -f2
+    yaml_query_install_cmd "$tool" "$os"
 }
 
 # Verify tool installation
@@ -181,8 +253,7 @@ verify_tool() {
     local tool="$1"
     local verify_cmd
     
-    verify_cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-                 grep "    verify:" | cut -d'"' -f2)
+    verify_cmd=$(yaml_query_verify_cmd "$tool")
     
     if [[ -n "$verify_cmd" ]]; then
         eval "$verify_cmd" >/dev/null 2>&1
@@ -223,9 +294,7 @@ install_tool() {
             
             # Run post-install commands if they exist
             local post_install
-            post_install=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-                          sed -n "/    post_install:/,/^    [a-zA-Z]/p" | \
-                          grep "      -" | sed 's/      - "//' | sed 's/"//')
+            post_install=$(yaml_query_post_install "$tool")
             
             if [[ -n "$post_install" ]]; then
                 print_step "Running post-install commands for $tool..."
@@ -251,9 +320,7 @@ install_group() {
     print_header "Installing group: $group"
     
     # Extract tools from group
-    tools=$(sed -n "/^  $group:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-           sed -n "/    tools:/,/^    [a-zA-Z]/p" | \
-           grep "      -" | sed 's/      - //')
+    tools=$(yaml_query_group_tools "$group")
     
     if [[ -z "$tools" ]]; then
         print_warning "No tools found in group: $group"
@@ -287,16 +354,14 @@ install_profile() {
     print_header "Installing profile: $profile"
     
     # Extract groups from profile
-    groups=$(sed -n "/^  $profile:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-            sed -n "/    groups:/,/^    [a-zA-Z]/p" | \
-            grep -o '"\w*"' | tr -d '"')
+    groups=$(yaml_query_profile_groups "$profile")
     
     if [[ -z "$groups" ]]; then
         print_error "Profile not found or has no groups: $profile"
         return 1
     fi
     
-    print_info "Profile $profile includes groups: $(echo $groups | tr '\n' ' ')"
+    print_info "Profile $profile includes groups: $(echo "$groups" | tr '\n' ' ')"
     
     local failed_groups=()
     
