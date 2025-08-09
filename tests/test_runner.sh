@@ -142,7 +142,11 @@ run_test_category() {
     
     # Run the test regardless of exit code to capture output
     local test_exit_code
-    (cd "$DOTFILES_DIR" && timeout 60 bash "$test_path") > "$test_output_file" 2>&1
+    if command -v timeout >/dev/null 2>&1; then
+        (cd "$DOTFILES_DIR" && timeout 60 bash "$test_path") > "$test_output_file" 2>&1
+    else
+        (cd "$DOTFILES_DIR" && bash "$test_path") > "$test_output_file" 2>&1
+    fi
     test_exit_code=$?
     
     end_time=$(date +%s)
