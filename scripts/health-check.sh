@@ -54,28 +54,38 @@ check_optional_command() {
     fi
 }
 
+OUTPUT_JSON=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --json)
+            OUTPUT_JSON=true
+            shift
+            ;;
+    esac
+done
+
 echo "🔍 Dotfiles Health Check"
 echo "========================"
 echo ""
 
 echo "📦 Core Tools:"
-print_info "OS: $(uname -s)"
+OS_NAME="$(uname -s)"
+print_info "OS: $OS_NAME"
 print_info "Shell: $SHELL"
-check_command "starship"
-check_command "zoxide" 
-check_command "eza"
-check_command "bat"
-check_command "rg"
-check_command "fd"
-check_command "fzf"
-check_command "mise"
-check_command "git"
-check_command "nvim"
-check_command "tmux"
+tools=(starship zoxide eza bat rg fd fzf mise git nvim tmux)
+declare -A TOOL_STATUS
+for t in "${tools[@]}"; do
+    if check_command "$t"; then
+        TOOL_STATUS[$t]="ok"
+    else
+        TOOL_STATUS[$t]="missing"
+    fi
+done
 
 echo ""
 echo "🧰 Package Managers:"
-if [[ "$(uname -s)" == "Darwin" ]]; then
+if [[ "$OS_NAME" == "Darwin" ]]; then
     if command -v brew >/dev/null 2>&1; then
         print_success "Homebrew (brew) is installed"
     else
@@ -85,15 +95,16 @@ fi
 
 echo ""
 echo "🐍 Python Environment:"
-check_command "python3"
-check_command "uv"
-check_command "ruff"
+py_tools=(python3 uv ruff)
+for pt in "${py_tools[@]}"; do
+    check_command "$pt" || true
+done
 
 echo ""
 echo "📦 Node.js Environment:"
-check_command "node"
-check_command "npm"
-check_optional_command "bun"
+check_command "node" || true
+check_command "npm" || true
+check_optional_command "bun" || true
 
 echo ""
 echo "🎨 Code Formatters:"
@@ -130,18 +141,38 @@ configs=(
     "$HOME/.config/starship.toml"
 )
 
+declare -A CONFIG_STATUS
 for config in "${configs[@]}"; do
     if [[ -f "$config" ]]; then
         print_success "$(basename "$config") exists"
+        CONFIG_STATUS["$(basename "$config")"]="ok"
     else
         print_error "$(basename "$config") is missing"
+        CONFIG_STATUS["$(basename "$config")"]="missing"
     fi
 done
 
-echo ""
-echo "✨ Health check complete!"
-echo ""
-echo "💡 Tips:"
-echo "  • Run 'nvim +checkhealth' for detailed Neovim diagnostics"
-echo "  • Use 'df-update' to check for dotfiles updates"
-echo "  • Install missing optional tools with your package manager"
+if [[ "$OUTPUT_JSON" == true ]]; then
+    # Compact JSON summary for agents/CI
+    printf '{"os":"%s","shell":"%s","tools":{' "$OS_NAME" "$SHELL"
+    first=1
+    for k in "${!TOOL_STATUS[@]}"; do
+        [[ $first -eq 1 ]] && first=0 || printf ','
+        printf '"%s":"%s"' "$k" "${TOOL_STATUS[$k]}"
+    done
+    printf '},"configs":{'
+    first=1
+    for k in "${!CONFIG_STATUS[@]}"; do
+        [[ $first -eq 1 ]] && first=0 || printf ','
+        printf '"%s":"%s"' "$k" "${CONFIG_STATUS[$k]}"
+    done
+    printf '}}\n'
+else
+    echo ""
+    echo "✨ Health check complete!"
+    echo ""
+    echo "💡 Tips:"
+    echo "  • Run 'nvim +checkhealth' for detailed Neovim diagnostics"
+    echo "  • Use 'df-update' to check for dotfiles updates"
+    echo "  • Install missing optional tools with your package manager"
+fi
