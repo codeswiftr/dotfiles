@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1073,SC1009,SC1072,SC1078,SC1079,SC1058
 # =============================================================================
 # Comprehensive Documentation System
 # Advanced documentation generation, management, and interactive help

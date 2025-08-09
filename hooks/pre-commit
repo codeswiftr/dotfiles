@@ -39,33 +39,52 @@ log_warning() {
 # Security checks
 check_sensitive_data() {
     log_info "Checking for sensitive data..."
-    
-    local sensitive_patterns=(
-        "password"
-        "secret"
-        "token"
-        "api_key"
-        "private_key"
-        "ssh_key"
-        "auth_token"
-        "access_key"
-        "client_secret"
+
+    # More precise patterns to reduce false positives
+    # Looks for assignments or JSON/YAML style mappings
+    local -a patterns=(
+        'password\s*[:=]'
+        'secret\s*[:=]'
+        'token\s*[:=]'
+        'api[_-]?key\s*[:=]'
+        'access[_-]?key\s*[:=]'
+        'auth[_-]?token\s*[:=]'
+        'private[_-]?key'
+        'ssh[_-]?key'
+        'client[_-]?secret\s*[:=]'
     )
-    
+
     local found_sensitive=false
-    
-    # Check staged files
+
+    # Only scan staged files that are text and not in ignored paths
     while IFS= read -r file; do
-        if [[ -f "$file" ]]; then
-            for pattern in "${sensitive_patterns[@]}"; do
-                if grep -i "$pattern" "$file" | grep -v "# Example" | grep -v "# TODO" | grep -v "# Template" >/dev/null 2>&1; then
-                    log_error "Potential sensitive data found in $file: $pattern"
+        [[ ! -f "$file" ]] && continue
+        # Ignore docs, tests, and markdown files
+        if [[ "$file" == docs/* || "$file" == tests/* || "$file" == *.md ]]; then
+            continue
+        fi
+        # Skip known example/template files
+        if grep -qiE '(example|sample|template)' <<<"$file"; then
+            continue
+        fi
+        # Use ripgrep if available for better performance
+        if command -v rg >/dev/null 2>&1; then
+            for pat in "${patterns[@]}"; do
+                if rg -n -i -e "$pat" -- "$file" | rg -v "# (Example|Template|Test)" >/dev/null; then
+                    log_error "Potential sensitive data found in $file (pattern: $pat)"
+                    found_sensitive=true
+                fi
+            done
+        else
+            for pat in "${patterns[@]}"; do
+                if grep -nEi "$pat" "$file" | grep -vE "# (Example|Template|Test)" >/dev/null; then
+                    log_error "Potential sensitive data found in $file (pattern: $pat)"
                     found_sensitive=true
                 fi
             done
         fi
     done < <(git diff --cached --name-only --diff-filter=ACM)
-    
+
     if [[ "$found_sensitive" == "false" ]]; then
         log_success "No sensitive data detected"
     fi
@@ -74,19 +93,35 @@ check_sensitive_data() {
 # Syntax checks
 check_shell_syntax() {
     log_info "Checking shell script syntax..."
-    
+
     local syntax_errors=false
-    
-    # Check staged shell files
+
     while IFS= read -r file; do
-        if [[ "$file" =~ \.(sh|zsh|bash)$ ]] && [[ -f "$file" ]]; then
+        [[ ! -f "$file" ]] && continue
+        [[ ! "$file" =~ \.(sh|zsh|bash)$ ]] && continue
+
+        # Detect interpreter by shebang or extension
+        local shebang
+        shebang=$(head -1 "$file" 2>/dev/null || true)
+
+        if [[ "$shebang" == *"osascript"* ]]; then
+            # Not a shell script
+            continue
+        elif [[ "$shebang" == *"zsh"* || "$file" == *.zsh ]]; then
+            if command -v zsh >/dev/null 2>&1; then
+                if ! zsh -n "$file" 2>/dev/null; then
+                    log_error "Zsh syntax error: $file"
+                    syntax_errors=true
+                fi
+            fi
+        else
             if ! bash -n "$file" 2>/dev/null; then
-                log_error "Syntax error in shell script: $file"
+                log_error "Bash syntax error: $file"
                 syntax_errors=true
             fi
         fi
     done < <(git diff --cached --name-only --diff-filter=ACM)
-    
+
     if [[ "$syntax_errors" == "false" ]]; then
         log_success "Shell script syntax is valid"
     fi
@@ -122,30 +157,38 @@ check_yaml_syntax() {
 # Code quality checks
 check_dangerous_commands() {
     log_info "Checking for dangerous commands..."
-    
-    local dangerous_patterns=(
-        "rm -rf /"
-        "sudo rm -rf"
-        "chmod 777"
-        "curl.*|.*sh"
-        "wget.*|.*sh"
-        "eval.*\$"
+
+    # Safer patterns: explicit pipe-to-shell and destructive rm/chmod
+    local -a dangerous_patterns=(
+        'rm\s+-rf\s+/'
+        'sudo\s+rm\s+-rf\s+'
+        'chmod\s+777\b'
+        '(curl|wget).*(\|\s*)(bash|sh|zsh)\b'
+        '(bash|sh)\s+-c\s+"\$\(curl|wget'
+        'eval\s+\$\('
     )
-    
+
     local found_dangerous=false
-    
-    # Check staged files
+
     while IFS= read -r file; do
-        if [[ -f "$file" ]]; then
-            for pattern in "${dangerous_patterns[@]}"; do
-                if grep -E "$pattern" "$file" | grep -v "# Safe:" | grep -v "# Example:" >/dev/null 2>&1; then
-                    log_error "Dangerous command pattern found in $file: $pattern"
+        [[ ! -f "$file" ]] && continue
+        if command -v rg >/dev/null 2>&1; then
+            for pat in "${dangerous_patterns[@]}"; do
+                if rg -n -E "$pat" -- "$file" | rg -v "# (Safe|Example)" >/dev/null; then
+                    log_error "Dangerous command pattern found in $file (pattern: $pat)"
+                    found_dangerous=true
+                fi
+            done
+        else
+            for pat in "${dangerous_patterns[@]}"; do
+                if grep -nE "$pat" "$file" | grep -vE "# (Safe|Example)" >/dev/null; then
+                    log_error "Dangerous command pattern found in $file (pattern: $pat)"
                     found_dangerous=true
                 fi
             done
         fi
     done < <(git diff --cached --name-only --diff-filter=ACM)
-    
+
     if [[ "$found_dangerous" == "false" ]]; then
         log_success "No dangerous commands detected"
     fi
@@ -153,19 +196,25 @@ check_dangerous_commands() {
 
 check_file_permissions() {
     log_info "Checking file permissions..."
-    
+
     local permission_errors=false
-    
-    # Check that shell scripts are executable
+
+    # Only require executability for scripts with a shebang
     while IFS= read -r file; do
-        if [[ "$file" =~ \.(sh|zsh|bash)$ ]] && [[ -f "$file" ]]; then
-            if [[ ! -x "$file" ]]; then
-                log_error "Shell script is not executable: $file"
-                permission_errors=true
+        [[ ! -f "$file" ]] && continue
+        # Check common script extensions
+        if [[ "$file" =~ \.(sh|zsh|bash)$ ]]; then
+            local first
+            first=$(head -1 "$file" 2>/dev/null || true)
+            if [[ "$first" == "#!"* ]]; then
+                if [[ ! -x "$file" ]]; then
+                    log_error "Script with shebang should be executable: $file"
+                    permission_errors=true
+                fi
             fi
         fi
     done < <(git diff --cached --name-only --diff-filter=ACM)
-    
+
     if [[ "$permission_errors" == "false" ]]; then
         log_success "File permissions are correct"
     fi

@@ -767,7 +767,8 @@ ai_context_helper() {
         context_files=$(find . -name "*.rs" | head -5)
         print_info "Detected Rust project, including .rs files"
     else
-        context_files=$(find . -type f \\( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.swift" \\) | head -3)
+        # shellcheck disable=SC1009,SC1036
+        context_files=$(find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.swift" \) | head -3)
         print_info "Auto-detecting relevant source files"
     fi
     

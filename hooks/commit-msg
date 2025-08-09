@@ -109,9 +109,10 @@ validate_commit_message() {
         echo "This is a warning - the commit will still proceed."
     fi
     
-    # Check for proper capitalization
+    # Check for proper capitalization – extract description robustly
     local description_part
-    description_part=$(echo "$first_line" | sed 's/^[a-z]*(\?[^)]*\)\?:\ //')
+    # Strip conventional prefix like: type(scope):<space> OR type:<space>
+    description_part=$(echo "$first_line" | sed -E 's/^[a-z]+(\([^)]*\))?:\s+//')
     if [[ "$description_part" =~ ^[A-Z] ]]; then
         log_warning "Description should start with lowercase letter"
         echo "Current: '$description_part'"

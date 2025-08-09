@@ -335,6 +335,7 @@ optimize_shell_performance() {
     # Compile zsh functions
     if [[ "$SHELL" == *"zsh"* ]]; then
         echo "  Compiling zsh functions..."
+        # shellcheck disable=SC1036
         for file in ~/.zsh/**/*.zsh(N); do
             if [[ ! -f "${file}.zwc" ]] || [[ "$file" -nt "${file}.zwc" ]]; then
                 zcompile "$file" 2>/dev/null && echo "    Compiled: $(basename "$file")"

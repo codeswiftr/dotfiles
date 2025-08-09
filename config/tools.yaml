@@ -1,3 +1,4 @@
+---
 # =============================================================================
 # Dotfiles Tools Configuration
 # Declarative configuration for all development tools and dependencies
@@ -119,7 +120,7 @@ tools:
     category: "editor"
     install:
       macos: "brew install neovim"
-      ubuntu: "sudo snap install nvim --classic"
+      ubuntu: "sudo apt install -y neovim"
       arch: "sudo pacman -S neovim"
     verify: "nvim --version"
     
