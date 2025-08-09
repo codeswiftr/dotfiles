@@ -17,7 +17,8 @@ jobs:
 
       - name: Set up test environment
         run: |
-          brew install python3 || true
+          brew install python3 shellcheck yamllint ripgrep || true
+          pip3 install --user pyyaml || true
 
       - name: Run infrastructure tests
         run: |
@@ -83,6 +84,7 @@ jobs:
 
       - name: Run security checks
         run: |
+          sudo apt-get update && sudo apt-get install -y ripgrep || true
           # Check for potential secrets in tracked files
           if rg -n "password|secret|api[_-]?key|private[_-]?key" \
             --glob '!tests/**' --glob '!docs/**' --glob '!**/*.md'; then
