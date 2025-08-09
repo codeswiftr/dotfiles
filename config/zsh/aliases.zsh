@@ -141,3 +141,6 @@ alias tcopy="~/dotfiles/scripts/tmux-clipboard.sh copy"
 alias tpaste="~/dotfiles/scripts/tmux-clipboard.sh paste"
 alias tclip-status="~/dotfiles/scripts/tmux-clipboard.sh status"
 alias tclip-test="~/dotfiles/scripts/tmux-clipboard.sh test"
+
+# Health check convenience
+alias dot-health="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/health-check.sh"
