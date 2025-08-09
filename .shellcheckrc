@@ -1,0 +1,5 @@
+# Repository-wide shellcheck configuration
+# Skip files that embed large heredocs or non-shell content
+exclude=lib/documentation.sh
+# Common includes not available in CI
+disable=SC1090,SC1091

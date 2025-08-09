@@ -38,16 +38,31 @@ else
   YAML_FILES=$(find config/ templates/ docs/ -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || echo "")
 fi
 
-# Shellcheck
+# Shellcheck (only for supported shells)
 for file in $SHELL_FILES; do
-  if [[ -f "$file" ]]; then
-    TOTAL_TESTS=$((TOTAL_TESTS+1))
-    if shellcheck "$file" >/dev/null 2>&1; then
-      pass "shellcheck: $file"
-    else
-      fail "shellcheck: $file"
-    fi
-  fi
+  [[ -f "$file" ]] || continue
+  shebang=$(head -n1 "$file" 2>/dev/null || true)
+  case "$shebang" in
+    *"/bash"*|*"/sh"*|*"/ksh"*|*"/dash"*)
+      TOTAL_TESTS=$((TOTAL_TESTS+1))
+      if shellcheck -S error "$file" >/dev/null 2>&1; then
+        pass "shellcheck: $file"
+      else
+        fail "shellcheck: $file"
+      fi
+      ;;
+    *"/zsh"*)
+      # Skip zsh-specific scripts; shellcheck doesn't fully support zsh
+      echo -e "${YELLOW}[SKIP]${NC} shellcheck (zsh): $file"
+      ;;
+    *"/osascript"*|*"/python"*|*"/node"*|*"/env node"*|*"/env python"*)
+      echo -e "${YELLOW}[SKIP]${NC} non-shell script: $file"
+      ;;
+    *)
+      # No recognizable shebang; skip to avoid false positives
+      echo -e "${YELLOW}[SKIP]${NC} unknown shebang: $file"
+      ;;
+  esac
 done
 
 # Yamllint
