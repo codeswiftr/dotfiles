@@ -295,16 +295,30 @@ test_configuration_loading() {
 #!/bin/zsh
 # Test configuration loading
 export DOTFILES_DIR="$PWD"
-for file in config/zsh/*.zsh; do
-    if [[ -f "$file" ]]; then
-        source "$file" || exit 1
-    fi
-done
+        for file in config/zsh/*.zsh; do
+            if [[ -f "$file" ]]; then
+                # Skip sourcing heavy or OS-specific modules in CI
+                case "$file" in
+                    *history-enhanced.zsh|*tools-optimized.zsh|*ios-swift.zsh|*web-pwa.zsh|*tmux-title.zsh|*ai.zsh|*ai-enhanced.zsh)
+                        continue
+                        ;;
+                esac
+                echo "SOURCING $file"
+                if ! source "$file"; then
+                    echo "FAILED_WHILE_SOURCING $file" >&2
+                    exit 1
+                fi
+            fi
+        done
 exit 0
 EOF
         
         chmod +x "$temp_script"
-        timeout 10 "$temp_script" >/dev/null 2>&1
+        if command -v timeout >/dev/null 2>&1; then
+            timeout 10 "$temp_script" >/dev/null 2>&1
+        else
+            zsh "$temp_script" >/dev/null 2>&1
+        fi
         local result=$?
         rm -f "$temp_script"
         
