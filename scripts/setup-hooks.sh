@@ -184,17 +184,21 @@ uninstall_hooks() {
     
     for hook in "${hooks[@]}"; do
         local hook_target="$GIT_HOOKS_DIR/$hook"
-        
+
         if [[ -f "$hook_target" ]]; then
             rm -f "$hook_target"
             log_success "Removed $hook hook"
         fi
-        
-        # Restore backup if it exists
-        if [[ -f "$hook_target.backup."* ]]; then
-            local backup_file
-            backup_file=$(ls -t "$hook_target.backup."* | head -1)
-            mv "$backup_file" "$hook_target"
+
+        # Restore the most recent backup if any exist
+        local latest_backup=""
+        for candidate in "$hook_target.backup."*; do
+            [[ -e "$candidate" ]] || continue
+            latest_backup="$candidate"
+            break
+        done
+        if [[ -n "$latest_backup" ]]; then
+            mv "$latest_backup" "$hook_target"
             log_info "Restored backup for $hook hook"
         fi
     done
