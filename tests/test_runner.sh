@@ -32,7 +32,12 @@ check_python_module() {
 check_dep shellcheck
 check_dep yamllint
 check_dep python3
-check_python_module yaml
+# PyYAML is optional; tests will fallback if missing
+if ! python3 -c "import yaml" >/dev/null 2>&1; then
+  echo -e "${YELLOW}[WARNING]${NC} Optional Python module missing: yaml (PyYAML). Falling back to non-Python checks."
+else
+  : # yaml available
+fi
 
 if [[ $missing -eq 1 ]]; then
   echo -e "${YELLOW}[INFO]${NC} To install dependencies with mise:"
