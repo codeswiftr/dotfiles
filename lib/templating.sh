@@ -233,8 +233,10 @@ process_include_blocks() {
     
     # Process {{>partial}} includes
     while [[ "$content" =~ \{\{>[[:space:]]*([^}]+)\}\} ]]; do
-        local partial_name="${BASH_REMATCH[1]// /}"
-        local full_match="${BASH_REMATCH[0]}"
+        local partial_name
+        partial_name="${BASH_REMATCH[1]// /}"
+        local full_match
+        full_match="${BASH_REMATCH[0]}"
         
         local partial_file="$TEMPLATE_DIR/partials/$partial_name"
         if [[ ! "$partial_name" =~ \. ]]; then

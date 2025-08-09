@@ -678,9 +678,13 @@ process_start_fullstack() {
         esac
     done
     
-    if [[ " ${ports[@]} " =~ " 8000 " ]]; then
-        echo "  📚 API Docs: http://localhost:8000/docs"
-    fi
+    # Show API docs link if backend port 8000 is present
+    for p in "${ports[@]}"; do
+        if [[ "$p" == "8000" ]]; then
+            echo "  📚 API Docs: http://localhost:8000/docs"
+            break
+        fi
+    done
     
     # Setup cleanup
     echo ""
@@ -915,12 +919,24 @@ process_analyze_stack() {
     # Generate suggestions
     echo "💡 Workflow Suggestions:"
     
-    if [[ " ${technologies[@]} " =~ " Frontend " ]] && [[ " ${technologies[@]} " =~ " Python Backend " ]]; then
+    has_frontend=false
+    has_py_backend=false
+    for t in "${technologies[@]}"; do
+        [[ "$t" == "Frontend" ]] && has_frontend=true
+        [[ "$t" == "Python Backend" ]] && has_py_backend=true
+    done
+    if $has_frontend && $has_py_backend; then
         suggestions+=("Use 'dot run fullstack' for integrated development")
         suggestions+=("Use 'dot run e2e' for end-to-end testing")
     fi
     
-    if [[ " ${technologies[@]} " =~ " iOS " ]] && [[ " ${technologies[@]} " =~ " Python Backend " ]]; then
+    has_ios=false
+    has_py_backend=false
+    for t in "${technologies[@]}"; do
+        [[ "$t" == "iOS" ]] && has_ios=true
+        [[ "$t" == "Python Backend" ]] && has_py_backend=true
+    done
+    if $has_ios && $has_py_backend; then
         suggestions+=("Use 'dot run dev' for mobile + API development")
         suggestions+=("Consider adding backend API versioning for mobile compatibility")
     fi

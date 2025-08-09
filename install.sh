@@ -474,7 +474,10 @@ link_dotfiles() {
         
         if [[ ! -e "$source_full" ]]; then
             print_warning "Source not found: $source_full"
-            failed_links+=("$source_path (source missing)")
+            # In dry-run mode, treat missing sources as warnings only
+            if [[ "$DRY_RUN" != "true" ]]; then
+                failed_links+=("$source_path (source missing)")
+            fi
             continue
         fi
         
@@ -490,7 +493,10 @@ link_dotfiles() {
     
     if [[ ${#failed_links[@]} -gt 0 ]]; then
         print_warning "Failed to link: ${failed_links[*]}"
-        return 1
+        # Do not fail the overall process in dry-run mode
+        if [[ "$DRY_RUN" != "true" ]]; then
+            return 1
+        fi
     fi
     
     return 0
