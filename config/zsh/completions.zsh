@@ -105,12 +105,18 @@ fi
 
 # Terraform (if available)
 if command -v terraform >/dev/null 2>&1; then
-    complete -o nospace -C terraform terraform
+    # Zsh uses compdef; 'complete' is bash-only
+    compdef _gnu_generic terraform
 fi
 
 # AWS CLI (if available)
 if command -v aws >/dev/null 2>&1; then
-    complete -C aws_completer aws
+    # Prefer aws zsh completion if available
+    if type _aws >/dev/null 2>&1; then
+        compdef _aws aws
+    elif command -v aws_completer >/dev/null 2>&1; then
+        compdef '_arguments "*: :($(aws_completer 2>/dev/null))"' aws
+    fi
 fi
 
 # Custom completions for dotfiles commands

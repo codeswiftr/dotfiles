@@ -3,12 +3,19 @@
 # Configuration for modern CLI tools and version managers
 # ============================================================================
 
-# Initialize completions with caching
-if type init_completions_cached >/dev/null 2>&1; then
-    init_completions_cached
-else
-    # Fallback to standard completion initialization
-    autoload -U compinit && compinit
+# Initialize completions with caching (only in interactive shells)
+if [[ $- == *i* ]]; then
+  if type init_completions_cached >/dev/null 2>&1; then
+      init_completions_cached
+  else
+      # Fallback to standard completion initialization
+      autoload -U compinit && compinit -C
+  fi
+fi
+
+# Skip tool runtime initialization in non-interactive shells (e.g., CI/tests)
+if [[ $- != *i* ]]; then
+    return 0
 fi
 
 # Mise (multi-language version manager) - optimized initialization
