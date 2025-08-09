@@ -334,13 +334,13 @@ Enhanced split navigation using s+hjkl for faster window management:
 
 ### **Dynamic Terminal Titles**
 
-Terminal titles automatically update to show tmux session and window information:
+Terminal titles automatically show the active tmux session and window in the format `session:window`.
 
 ```bash
-# Automatically shows format: "session:window"
 # Examples: "dot:vim", "dev:fastapi", "main:1"
+# Works automatically via tmux set-titles + set-titles-string
 
-# Manual control:
+# Manual control (outside tmux):
 title "My Custom Title"    # Set custom title
 tinfo                      # Show current session info
 ```

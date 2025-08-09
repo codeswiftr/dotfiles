@@ -14,6 +14,12 @@
 | `Ctrl-a r` | Reload config | **r**eload settings |
 | `Ctrl-a ?` | Help menu | **?** = help in most programs |
 
+### Titles
+| Command | Action |
+|---------|--------|
+| auto    | Terminal tab shows `session:window` |
+| `,`     | Rename current window (updates title) |
+
 **⏱️ Learning Goal**: Master these 9 commands in 15 minutes!
 
 ---

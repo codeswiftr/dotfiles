@@ -32,32 +32,8 @@ set_terminal_title() {
 update_terminal_title() {
     # Check if we're inside tmux
     if [[ -n "$TMUX" ]]; then
-        # Get tmux session name and window info
-        local session_name=$(tmux display-message -p '#S' 2>/dev/null)
-        local window_index=$(tmux display-message -p '#I' 2>/dev/null)
-        local window_name=$(tmux display-message -p '#W' 2>/dev/null)
-        local pane_title=$(tmux display-message -p '#T' 2>/dev/null)
-        
-        # Construct title based on available information
-        if [[ -n "$session_name" && -n "$window_name" ]]; then
-            # Format: "session:window" or "session:index-name" for clarity
-            if [[ "$window_name" != "zsh" && "$window_name" != "bash" ]]; then
-                # Use descriptive window name, but clean it up
-                local clean_window_name=$(echo "$window_name" | sed 's/\[.*\]//g' | xargs)
-                local title="$session_name:$clean_window_name"
-            else
-                # Use index when window name is generic
-                local title="$session_name:$window_index"
-            fi
-            
-            # Don't add pane title for now to keep it clean
-            # if [[ -n "$pane_title" && "$pane_title" != "$(hostname)" && "$pane_title" != "zsh" && "$pane_title" != "bash" ]]; then
-            #     title="$title [$pane_title]"
-            # fi
-        else
-            # Fallback to session name only
-            local title="${session_name:-tmux}"
-        fi
+        # Let tmux drive the terminal/tab title via set-titles-string; avoid double-setting here
+        return 0
     else
         # Not in tmux, use current directory or hostname
         local title="$(basename "$PWD")"
@@ -68,7 +44,7 @@ update_terminal_title() {
         fi
     fi
     
-    # Set the macOS Terminal.app window title using our direct function
+    # Set the terminal window/tab title using our direct function
     set_terminal_title "$title"
 }
 
