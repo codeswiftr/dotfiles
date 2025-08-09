@@ -147,13 +147,24 @@ import sys, yaml
 cfg_path, tool, os_name = sys.argv[1:4]
 with open(cfg_path, 'r') as f:
     data = yaml.safe_load(f)
-cmd = (data.get('tools', {}).get(tool, {}).get('install', {}) or {}).get(os_name)
+# Prefer OS-specific command; fall back to 'all'
+install_map = (data.get('tools', {}).get(tool, {}).get('install', {}) or {})
+cmd = install_map.get(os_name) or install_map.get('all')
 print(cmd or "")
 PY
     else
-        sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        # Try OS-specific first
+        local cmd
+        cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
         sed -n "/    install:/,/^    [a-zA-Z]/p" | \
-        grep "      $os:" | cut -d'\"' -f2
+        grep "      $os:" | cut -d'\"' -f2)
+        if [[ -z "$cmd" ]]; then
+            # Fallback to 'all:'
+            cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+            sed -n "/    install:/,/^    [a-zA-Z]/p" | \
+            grep "      all:" | cut -d'\"' -f2)
+        fi
+        echo "$cmd"
     fi
 }
 

@@ -3,8 +3,12 @@
 # Integrates AI assistance into daily development tasks
 # =============================================================================
 
-# Load AI integration framework
-source "$DOTFILES_DIR/lib/ai-integration.sh"
+# Load AI integration framework (guarded)
+if [[ -n "${DOTFILES_DIR:-}" && -f "$DOTFILES_DIR/lib/ai-integration.sh" ]]; then
+    source "$DOTFILES_DIR/lib/ai-integration.sh"
+elif [[ -f "$HOME/dotfiles/lib/ai-integration.sh" ]]; then
+    source "$HOME/dotfiles/lib/ai-integration.sh"
+fi
 
 # AI-enhanced Git workflow
 alias gai="ai_generate_commit"

@@ -94,7 +94,6 @@ kubectl_lazy_loader() {
         perf_time "Loading kubectl completions"
         source <(kubectl completion zsh)
         alias k=kubectl
-        complete -F __start_kubectl k
         perf_time "Kubectl completions loaded"
     fi
 }
