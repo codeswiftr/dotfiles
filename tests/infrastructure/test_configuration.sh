@@ -104,9 +104,12 @@ test_zsh_config_directory() {
 }
 
 test_zsh_config_files_exist() {
-    [[ -f "config/zsh/config.zsh" ]] &&
-    [[ -f "config/zsh/aliases.zsh" ]] &&
-    [[ -f "config/zsh/functions.zsh" ]]
+    # Accept either monolithic config.zsh or modular core.zsh layout
+    if [[ -f "config/zsh/config.zsh" ]]; then
+        [[ -f "config/zsh/aliases.zsh" ]] && [[ -f "config/zsh/functions.zsh" ]]
+    else
+        [[ -f "config/zsh/core.zsh" ]] && [[ -f "config/zsh/aliases.zsh" ]] && [[ -f "config/zsh/functions.zsh" ]]
+    fi
 }
 
 test_zsh_config_syntax() {
@@ -172,7 +175,8 @@ test_zsh_functions_format() {
 
 # Tmux Configuration Tests
 test_tmux_config_exists() {
-    [[ -f "config/tmux/tmux.conf" ]] || [[ -f "config/tmux.conf" ]]
+    # Accept either single file or modular tmux config
+    [[ -f "config/tmux/tmux.conf" ]] || [[ -f "config/tmux.conf" ]] || [[ -f "config/tmux/core.conf" ]]
 }
 
 test_tmux_config_syntax() {
@@ -290,6 +294,7 @@ test_configuration_loading() {
         cat > "$temp_script" << 'EOF'
 #!/bin/zsh
 # Test configuration loading
+export DOTFILES_DIR="$PWD"
 for file in config/zsh/*.zsh; do
     if [[ -f "$file" ]]; then
         source "$file" || exit 1

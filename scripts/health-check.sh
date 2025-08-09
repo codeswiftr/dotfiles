@@ -59,6 +59,8 @@ echo "========================"
 echo ""
 
 echo "📦 Core Tools:"
+print_info "OS: $(uname -s)"
+print_info "Shell: $SHELL"
 check_command "starship"
 check_command "zoxide" 
 check_command "eza"
@@ -70,6 +72,16 @@ check_command "mise"
 check_command "git"
 check_command "nvim"
 check_command "tmux"
+
+echo ""
+echo "🧰 Package Managers:"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    if command -v brew >/dev/null 2>&1; then
+        print_success "Homebrew (brew) is installed"
+    else
+        print_warning "Homebrew (brew) not found"
+    fi
+fi
 
 echo ""
 echo "🐍 Python Environment:"

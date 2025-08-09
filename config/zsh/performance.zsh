@@ -10,8 +10,8 @@
 # Set performance mode based on system resources
 if [[ -z "$DOTFILES_PERFORMANCE_MODE" ]]; then
     # Auto-detect performance mode based on system
-    local cpu_cores=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
-    local available_memory
+    cpu_cores=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
+    available_memory=""
     
     # Get available memory in MB
     if command -v free >/dev/null 2>&1; then
@@ -23,10 +23,10 @@ if [[ -z "$DOTFILES_PERFORMANCE_MODE" ]]; then
     fi
     
     # Set performance mode based on resources
-    if [[ $available_memory -lt 512 ]] || [[ $cpu_cores -lt 2 ]]; then
+    if [[ -n "$available_memory" && $available_memory -lt 512 ]] || [[ $cpu_cores -lt 2 ]]; then
         export DOTFILES_PERFORMANCE_MODE="fast"
         export DOTFILES_FAST_MODE=1
-    elif [[ $available_memory -gt 4096 ]] && [[ $cpu_cores -gt 4 ]]; then
+    elif [[ -n "$available_memory" && $available_memory -gt 4096 ]] && [[ $cpu_cores -gt 4 ]]; then
         export DOTFILES_PERFORMANCE_MODE="full"
     else
         export DOTFILES_PERFORMANCE_MODE="balanced"
@@ -351,5 +351,6 @@ alias perf-monitor='monitor_performance'
 alias perf-quick='quick_optimize'
 alias perf-status='performance_status'
 
-# Initialize the performance system
+# Initialize the performance system (if timing helper is available)
+type perf_time >/dev/null 2>&1 || perf_time() { :; }
 init_performance_system

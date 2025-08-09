@@ -1,0 +1,17 @@
+# Global Git configuration
+[user]
+	name = Your Name
+	email = your.email@example.com
+[core]
+	editor = nvim
+[diff]
+	tool = delta
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+	conflictstyle = zdiff3
+[delta]
+	navigate = true
+	line-numbers = true
+[color]
+	ui = auto
