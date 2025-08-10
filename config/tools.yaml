@@ -241,7 +241,7 @@ tools:
     description: "Platform for developing, shipping, and running applications"
     category: "development"
     install:
-      macos: "brew install --cask docker"
+      macos: "if [[ -z \"${DOTFILES_MODE:-}\" || \"${DOTFILES_MODE}\" != \"agent\" ]]; then brew install --cask docker; else echo 'Skipping Docker Desktop in agent mode'; fi"
       ubuntu: "sudo apt install docker.io docker-compose"
       arch: "sudo pacman -S docker docker-compose"
     post_install:
@@ -298,7 +298,7 @@ tools:
     category: "data"
     install:
       macos: "brew install yq"
-      ubuntu: "sudo snap install yq"
+      ubuntu: "sudo apt install -y yq || sudo snap install yq"
     verify: "yq --version"
 
   delta:
@@ -315,16 +315,16 @@ tools:
     description: "Modern API testing tool with Git-friendly collections"
     category: "testing"
     install:
-      macos: "brew install bruno"
-      ubuntu: "sudo snap install bruno"
-      arch: "yay -S bruno-bin"
+      macos: "brew install bruno || true"
+      ubuntu: "echo 'Skipping bruno by default on Ubuntu (snap)'; true"
+      arch: "yay -S bruno-bin || true"
     verify: "bruno --version"
 
   playwright:
     description: "Modern web testing framework for E2E testing"
     category: "testing"
     install:
-      all: "bun add -g @playwright/test"
+      all: "bun add -g @playwright/test || npm i -g @playwright/test"
     post_install:
       - "bunx playwright install"
     verify: "bunx playwright --version"
