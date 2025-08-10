@@ -5,6 +5,44 @@
 
 local M = {}
 
+-- Auto-detect tier based on environment or system resources
+local function auto_detect_tier()
+  -- 1) Explicit override via env
+  local env_tier = tonumber(vim.env.NVIM_TIER or "")
+  if env_tier and env_tier >= 1 and env_tier <= 3 then
+    return env_tier
+  end
+
+  -- 2) Agent mode prefers minimal footprint unless overridden
+  if (vim.env.DOTFILES_MODE or "") == "agent" then
+    return 1
+  end
+
+  -- 3) Heuristic based on CPU cores and total memory
+  local cores = 1
+  local ok_cpu, cpu_info = pcall(vim.loop.cpu_info)
+  if ok_cpu and type(cpu_info) == "table" then
+    cores = #cpu_info
+  end
+
+  local total_mem_bytes = 0
+  local ok_mem, total_mem = pcall(vim.loop.get_total_memory)
+  if ok_mem and type(total_mem) == "number" then
+    total_mem_bytes = total_mem
+  end
+
+  local total_mem_gb = total_mem_bytes > 0 and (total_mem_bytes / (1024 * 1024 * 1024)) or 0
+
+  -- Conservative defaults
+  if cores <= 2 or total_mem_gb > 0 and total_mem_gb < 4 then
+    return 1
+  elseif cores >= 4 and total_mem_gb >= 8 then
+    return 2
+  else
+    return 2
+  end
+end
+
 -- Tier definitions
 local TIERS = {
   [1] = {
@@ -33,9 +71,9 @@ local TIERS = {
   }
 }
 
--- Get current tier from global variable or default to 1
+-- Get current tier from global variable or auto-detection
 function M.get_current_tier()
-  return vim.g.nvim_tier or 1
+  return vim.g.nvim_tier or auto_detect_tier()
 end
 
 -- Set tier and reload configuration
@@ -59,7 +97,7 @@ function M.set_tier(tier)
   return true
 end
 
--- Load tier preference from file
+-- Load tier preference from file, else use auto-detection
 function M.load_tier_preference()
   local tier_file = vim.fn.stdpath("config") .. "/.nvim-tier"
   local file = io.open(tier_file, "r")
@@ -71,8 +109,9 @@ function M.load_tier_preference()
       return tier
     end
   end
-  vim.g.nvim_tier = 1
-  return 1
+  local detected = auto_detect_tier()
+  vim.g.nvim_tier = detected
+  return detected
 end
 
 -- Tier up command
