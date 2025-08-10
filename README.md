@@ -93,6 +93,33 @@ cd ~/dotfiles
 ./install.sh install standard
 ```
 
+### **2. Daily Workflow (Human)**
+
+```bash
+# Initialize configuration and run basic health
+dot init
+
+# Start coding
+nvim   # Press <Space>? for command discovery
+tmux   # Minimal essential keybindings
+
+# Quick health
+dot-health
+```
+
+### **Agent Mode (Headless / CI / Servers)**
+
+```bash
+# Use agent mode for non-interactive runs
+DOTFILES_MODE=agent ./install.sh --dry-run install standard
+
+# Health in JSON for machines
+./scripts/health-check.sh --json
+
+# Scripts honor headless mode
+DOTFILES_MODE=agent DOTFILES_NONINTERACTIVE=1 ./scripts/tmux-migrate.sh --preview
+```
+
 ### **2. Post-Installation Setup**
 
 ```bash
