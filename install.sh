@@ -737,6 +737,13 @@ verify_installation() {
 
 # Main function
 main() {
+    # Agent mode implies headless defaults
+    if [[ "${DOTFILES_MODE:-}" == "agent" ]]; then
+        HEADLESS=true
+        export DOTFILES_NONINTERACTIVE=1
+        PROFILE="${PROFILE:-standard}"
+    fi
+
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
