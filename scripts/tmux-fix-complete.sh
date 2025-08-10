@@ -53,11 +53,15 @@ if pgrep -f tmux >/dev/null; then
             echo "   This ensures a clean configuration reload"
             echo ""
         fi
-        read -p "Continue anyway? (y/N): " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "❌ Fix cancelled. Run 'tmux kill-server' first, then re-run this script."
-            exit 1
+        if [[ -n "${DOTFILES_NONINTERACTIVE:-}" || -n "${CI:-}" ]]; then
+            echo "Non-interactive mode detected; continuing by default."
+        else
+            read -p "Continue anyway? (y/N): " -n 1 -r
+            echo ""
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo "❌ Fix cancelled. Run 'tmux kill-server' first, then re-run this script."
+                exit 1
+            fi
         fi
     fi
 fi

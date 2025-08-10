@@ -243,6 +243,23 @@ main() {
             load_cli_lib "core"
             dot_update "$@"
             ;;
+        "init")
+            # One-shot initialization: link configs and run health check
+            load_cli_lib "core"
+            if [[ -f "$DOTFILES_DIR/install.sh" ]]; then
+                print_info "${GEAR} Linking dotfiles configuration..."
+                bash "$DOTFILES_DIR/install.sh" --dry-run link >/dev/null 2>&1 || true
+                bash "$DOTFILES_DIR/install.sh" link || print_warning "Linking reported warnings"
+            else
+                print_warning "Installer not found; proceeding to health check"
+            fi
+            if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
+                print_info "${GEAR} Running health check..."
+                "$DOTFILES_DIR/scripts/health-check.sh"
+            else
+                dot_check
+            fi
+            ;;
         "reload")
             exec "$SHELL"
             ;;

@@ -176,10 +176,14 @@ main() {
     show_migration_preview
     
     echo ""
-    read -p "Proceed with migration? (y/N): " -r
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log "Migration cancelled"
-        exit 0
+    if [[ -n "${DOTFILES_NONINTERACTIVE:-}" || -n "${CI:-}" ]]; then
+        log "Non-interactive mode detected; proceeding with migration."
+    else
+        read -p "Proceed with migration? (y/N): " -r
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "Migration cancelled"
+            exit 0
+        fi
     fi
     
     backup_config

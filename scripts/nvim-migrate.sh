@@ -222,24 +222,30 @@ select_initial_tier() {
     echo "   • All features including AI integration"
     echo ""
     
-    while true; do
-        read -p "Select tier (1-3) [1]: " tier_choice
-        tier_choice=${tier_choice:-1}
-        
-        case $tier_choice in
-            1|2|3)
-                # Update the tier in the new init.lua
-                if [[ -f "$NVIM_CONFIG_DIR/init.lua" ]]; then
-                    sed -i.bak "s/vim\.g\.nvim_tier = .*/vim.g.nvim_tier = $tier_choice/" "$NVIM_CONFIG_DIR/init.lua"
-                    success "Set initial tier to $tier_choice"
-                fi
-                break
-                ;;
-            *)
-                echo "Please enter 1, 2, or 3"
-                ;;
-        esac
-    done
+    if [[ -n "${DOTFILES_NONINTERACTIVE:-}" || -n "${CI:-}" ]]; then
+        tier_choice=1
+        if [[ -f "$NVIM_CONFIG_DIR/init.lua" ]]; then
+            sed -i.bak "s/vim\.g\.nvim_tier = .*/vim.g.nvim_tier = $tier_choice/" "$NVIM_CONFIG_DIR/init.lua"
+            success "Non-interactive: defaulted initial tier to $tier_choice"
+        fi
+    else
+        while true; do
+            read -p "Select tier (1-3) [1]: " tier_choice
+            tier_choice=${tier_choice:-1}
+            case $tier_choice in
+                1|2|3)
+                    if [[ -f "$NVIM_CONFIG_DIR/init.lua" ]]; then
+                        sed -i.bak "s/vim\.g\.nvim_tier = .*/vim.g.nvim_tier = $tier_choice/" "$NVIM_CONFIG_DIR/init.lua"
+                        success "Set initial tier to $tier_choice"
+                    fi
+                    break
+                    ;;
+                *)
+                    echo "Please enter 1, 2, or 3"
+                    ;;
+            esac
+        done
+    fi
 }
 
 # Main execution flow
@@ -254,10 +260,14 @@ main() {
     show_tier_comparison
     
     echo ""
-    read -p "Proceed with migration? (y/N): " -r
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log "Migration cancelled"
-        exit 0
+    if [[ -n "${DOTFILES_NONINTERACTIVE:-}" || -n "${CI:-}" ]]; then
+        log "Non-interactive mode detected; proceeding with migration."
+    else
+        read -p "Proceed with migration? (y/N): " -r
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "Migration cancelled"
+            exit 0
+        fi
     fi
     
     create_backup
