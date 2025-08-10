@@ -20,10 +20,10 @@ jobs:
           brew install python3 shellcheck yamllint ripgrep || true
           pip3 install --user pyyaml || true
 
-      - name: Run infrastructure tests
+      - name: Run infrastructure tests (agent mode)
         run: |
           chmod +x tests/test_runner.sh
-          ./tests/test_runner.sh --category infrastructure
+          DOTFILES_MODE=agent ./tests/test_runner.sh --category infrastructure
 
       - name: Upload test results
         if: always()
@@ -42,10 +42,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip zsh tmux git
 
-      - name: Run infrastructure tests
+      - name: Run infrastructure tests (agent mode)
         run: |
           chmod +x tests/test_runner.sh
-          ./tests/test_runner.sh --category infrastructure
+          DOTFILES_MODE=agent ./tests/test_runner.sh --category infrastructure
 
       - name: Upload test results
         if: always()
