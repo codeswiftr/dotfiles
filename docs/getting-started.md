@@ -23,6 +23,32 @@ If you encounter issues, see the [Troubleshooting Guide](troubleshooting.md) and
 
 ## 🎯 **Essential First Steps**
 
+### **Daily Workflow (Human)**
+```bash
+# Initialize configuration and run basic health
+cd ~/dotfiles
+./bin/dot init
+
+# Start coding
+nvim   # Press <Space>? for command discovery
+tmux   # Minimal essential keybindings
+
+# Quick health
+./scripts/health-check.sh --json | jq .  # or: dot-health
+```
+
+### **Agent Mode (Headless / CI / Servers)**
+```bash
+# Non-interactive install preview
+DOTFILES_MODE=agent ./install.sh --dry-run install standard
+
+# Health in JSON for machines
+./scripts/health-check.sh --json
+
+# Ensure scripts skip prompts
+DOTFILES_MODE=agent DOTFILES_NONINTERACTIVE=1 ./scripts/tmux-migrate.sh --preview
+```
+
 ### **1. Learn the Basics (5 minutes)**
 
 ```bash
