@@ -245,6 +245,33 @@ main() {
             ;;
         "init")
             # One-shot initialization: link configs and run health check
+            # Options:
+            #   --json    Output health as JSON (skip linking noise)
+            local init_json=false
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --json)
+                        init_json=true
+                        shift
+                        ;;
+                    *)
+                        break
+                        ;;
+                esac
+            done
+
+            if [[ "$init_json" == "true" ]]; then
+                # Pure JSON health (no extra output)
+                if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
+                    "$DOTFILES_DIR/scripts/health-check.sh" --json
+                    exit 0
+                else
+                    # Fallback: minimal JSON stub
+                    echo '{"error":"health-check script not found"}'
+                    exit 1
+                fi
+            fi
+
             load_cli_lib "core"
             if [[ -f "$DOTFILES_DIR/install.sh" ]]; then
                 print_info "${GEAR} Linking dotfiles configuration..."
