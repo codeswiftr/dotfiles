@@ -177,3 +177,12 @@ jobs:
             security-scan.txt
             security-scan.json
             security-scan.md
+
+      - name: Comment summary on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ -f security-scan.md ]]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body-file security-scan.md || true
+          fi
