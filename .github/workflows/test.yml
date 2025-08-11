@@ -158,6 +158,16 @@ jobs:
           DOTFILES_MODE=agent ./bin/dot security scan --quiet | tee security-scan.txt || true
           DOTFILES_MODE=agent ./bin/dot security scan --format json --quiet > security-scan.json || true
 
+      - name: Summarize results to job summary
+        run: |
+          chmod +x scripts/security/summary.sh || true
+          if [[ -f security-scan.json ]]; then
+            scripts/security/summary.sh security-scan.json > security-scan.md || true
+            cat security-scan.md >> "$GITHUB_STEP_SUMMARY" || true
+          else
+            echo "Security scan JSON not found" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Upload security scan artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -166,3 +176,4 @@ jobs:
           path: |
             security-scan.txt
             security-scan.json
+            security-scan.md

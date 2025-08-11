@@ -63,6 +63,7 @@ INFRASTRUCTURE_TESTS=(
     "test_linting.sh"
     "test_cli.sh"
     "test_security_cli.sh"
+    "test_security_summary.sh"
 )
 
 # Results tracking
