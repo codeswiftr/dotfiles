@@ -155,8 +155,12 @@ jobs:
       - name: Run lightweight security scan (non-blocking)
         run: |
           chmod +x bin/dot || true
-          DOTFILES_MODE=agent ./bin/dot security scan --quiet | tee security-scan.txt || true
           DOTFILES_MODE=agent ./bin/dot security scan --format json --quiet > security-scan.json || true
+
+      - name: Optionally gate on findings
+        run: |
+          chmod +x scripts/security/gate.sh || true
+          SECURITY_FAIL_ON=${{ vars.SECURITY_FAIL_ON || 'false' }} scripts/security/gate.sh security-scan.json || true
 
       - name: Summarize results to job summary
         run: |
@@ -174,7 +178,6 @@ jobs:
         with:
           name: security-scan
           path: |
-            security-scan.txt
             security-scan.json
             security-scan.md
 

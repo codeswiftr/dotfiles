@@ -9,22 +9,28 @@ if [[ -z "$file" || ! -f "$file" ]]; then
   exit 2
 fi
 
-content=$(tr -d '\n' < "$file")
-# naive extraction without jq to avoid extra deps
-extract_field() {
-  local key="$1"
-  echo "$content" | sed -n "s/.*\"${key}\":\"\([^\"]*\)\".*/\1/p"
-}
-extract_num_field() {
-  local key="$1"
-  echo "$content" | sed -n "s/.*\"${key}\":\([0-9]\+\).*/\1/p"
-}
-
-deps=$(extract_field "dependencies")
-code=$(extract_field "code")
-secrets=$(extract_field "secrets")
-docker=$(extract_field "docker")
-exit_code=$(extract_num_field "exit_code")
+if command -v jq >/dev/null 2>&1; then
+  deps=$(jq -r '.dependencies // "unknown"' "$file" 2>/dev/null || echo "unknown")
+  code=$(jq -r '.code // "unknown"' "$file" 2>/dev/null || echo "unknown")
+  secrets=$(jq -r '.secrets // "unknown"' "$file" 2>/dev/null || echo "unknown")
+  docker=$(jq -r '.docker // "skipped"' "$file" 2>/dev/null || echo "skipped")
+  exit_code=$(jq -r '.exit_code // 1' "$file" 2>/dev/null || echo 1)
+else
+  content=$(tr -d '\n' < "$file")
+  extract_field() {
+    local key="$1"
+    echo "$content" | sed -n "s/.*\"${key}\":\"\([^\"]*\)\".*/\1/p"
+  }
+  extract_num_field() {
+    local key="$1"
+    echo "$content" | sed -n "s/.*\"${key}\":\([0-9][0-9]*\).*/\1/p"
+  }
+  deps=$(extract_field "dependencies")
+  code=$(extract_field "code")
+  secrets=$(extract_field "secrets")
+  docker=$(extract_field "docker")
+  exit_code=$(extract_num_field "exit_code")
+fi
 
 [[ -z "$deps" ]] && deps="unknown"
 [[ -z "$code" ]] && code="unknown"
