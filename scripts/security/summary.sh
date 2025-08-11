@@ -50,9 +50,23 @@ status_emoji() {
 
 echo "## Security Scan Summary"
 
-echo "- Dependencies: $(status_emoji "$deps") $deps"
-echo "- Code Analysis: $(status_emoji "$code") $code"
-echo "- Secrets: $(status_emoji "$secrets") $secrets"
-echo "- Docker: $(status_emoji "$docker") $docker"
+# Traceability
+sha="${GITHUB_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo unknown)}"
+ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+echo "- Commit: ${sha}"
+echo "- Timestamp (UTC): ${ts}"
 
-echo "\nExit code: $exit_code"
+# All clean one-liner
+if [[ "$exit_code" -eq 0 ]]; then
+  echo
+  echo "All clean ✅"
+else
+  echo
+  echo "- Dependencies: $(status_emoji "$deps") $deps"
+  echo "- Code Analysis: $(status_emoji "$code") $code"
+  echo "- Secrets: $(status_emoji "$secrets") $secrets"
+  echo "- Docker: $(status_emoji "$docker") $docker"
+fi
+
+echo
+echo "Exit code: $exit_code"

@@ -64,6 +64,7 @@ INFRASTRUCTURE_TESTS=(
     "test_cli.sh"
     "test_security_cli.sh"
     "test_security_summary.sh"
+    "test_security_summary_clean.sh"
     "test_security_gate.sh"
 )
 
