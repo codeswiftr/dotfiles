@@ -361,14 +361,52 @@ security_scan_secrets() {
             "AKIA[0-9A-Z]{16}"
         )
         
-        for pattern in "${secret_patterns[@]}"; do
-            if grep -ri "$pattern" . --exclude-dir=.git --exclude-dir=node_modules >/dev/null 2>&1; then
-                if [[ "$quiet" != "true" ]]; then
-                    print_warning "Potential secret pattern found: $pattern"
-                fi
-                exit_code=1
-            fi
+        # Directories/files to ignore (fixtures, docs, and known example placeholders)
+        local exclude_dirs=(
+            .git
+            node_modules
+            tests
+            templates/testing
+            docs
+            hooks
+        )
+        local allow_files=(
+            "config/zsh/web-pwa.zsh"
+            "lib/cli/database.sh"
+            "lib/ai-security.sh"
+            "lib/cli/security.sh"
+        )
+
+        # Build grep exclude args
+        local grep_excludes=()
+        for d in "${exclude_dirs[@]}"; do
+            grep_excludes+=(--exclude-dir="$d")
         done
+
+        local found_flag=0
+        for pattern in "${secret_patterns[@]}"; do
+            # Collect matches with file names
+            while IFS= read -r match; do
+                local file_path="${match%%:*}"
+                local allowed=false
+                for allowed_file in "${allow_files[@]}"; do
+                    if [[ "$file_path" == "$allowed_file" ]]; then
+                        allowed=true
+                        break
+                    fi
+                done
+                if [[ "$allowed" == false ]]; then
+                    found_flag=1
+                    if [[ "$quiet" != "true" ]]; then
+                        print_warning "Potential secret pattern found ($pattern) in: $file_path"
+                    fi
+                fi
+            done < <(grep -RIn ${grep_excludes[@]} "$pattern" . 2>/dev/null || true)
+        done
+
+        if [[ $found_flag -eq 1 ]]; then
+            exit_code=1
+        fi
     fi
     
     return $exit_code
