@@ -396,11 +396,27 @@ main() {
             dot_migration "$@"
             ;;
 
-        # Legacy command mappings for backward compatibility
+        # Health command
         "health")
-            print_warning "Legacy command 'health' is deprecated. Use 'dot check' instead."
-            load_cli_lib "core"
-            dot_check "$@"
+            # Options: --json to output JSON via health-check script
+            case "${1:-}" in
+                --json)
+                    if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
+                        "$DOTFILES_DIR/scripts/health-check.sh" --json
+                    else
+                        echo '{"error":"health-check script not found"}'
+                        exit 1
+                    fi
+                    ;;
+                *)
+                    if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
+                        "$DOTFILES_DIR/scripts/health-check.sh"
+                    else
+                        load_cli_lib "core"
+                        dot_check
+                    fi
+                    ;;
+            esac
             ;;
 
         # Unknown command
