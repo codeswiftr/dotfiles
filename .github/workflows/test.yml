@@ -146,3 +146,23 @@ jobs:
             chmod +x scripts/health-check.sh
             ./scripts/health-check.sh || true
           fi
+
+  security-audit-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run lightweight security scan (non-blocking)
+        run: |
+          chmod +x bin/dot || true
+          DOTFILES_MODE=agent ./bin/dot security scan --quiet | tee security-scan.txt || true
+          DOTFILES_MODE=agent ./bin/dot security scan --format json --quiet > security-scan.json || true
+
+      - name: Upload security scan artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan
+          path: |
+            security-scan.txt
+            security-scan.json

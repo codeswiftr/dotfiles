@@ -61,6 +61,8 @@ INFRASTRUCTURE_TESTS=(
     "test_health_checks.sh"
     "test_configuration.sh"
     "test_linting.sh"
+    "test_cli.sh"
+    "test_security_cli.sh"
 )
 
 # Results tracking

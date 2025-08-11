@@ -64,7 +64,10 @@ security_full_scan() {
         esac
     done
     
-    print_info "${LOCK} Running comprehensive security scan..."
+    # Only print banner in non-quiet mode
+    if [[ "$quiet" != "true" ]]; then
+        print_info "${LOCK} Running comprehensive security scan..."
+    fi
     
     local exit_code=0
     local scan_results=()
@@ -119,20 +122,34 @@ security_full_scan() {
         fi
     fi
     
-    # Display results
-    if [[ "$quiet" != "true" ]]; then
-        echo ""
-        echo "📋 Security Scan Results:"
-        for result in "${scan_results[@]}"; do
-            echo "  $result"
+    # Display results (table or json)
+    if [[ "$format" == "json" ]]; then
+        # Always emit JSON when requested, even in quiet mode
+        local deps="unknown" code="unknown" secrets="unknown" docker="skipped"
+        for item in "${scan_results[@]}"; do
+            case "$item" in
+                Dependencies:*) deps="$item" ;;
+                Code\ Analysis:*) code="$item" ;;
+                Secret\ Scan:*) secrets="$item" ;;
+                Docker:*) docker="$item" ;;
+            esac
         done
-        echo ""
-        
-        if [[ $exit_code -eq 0 ]]; then
-            print_success "All security checks passed! ${LOCK}"
-        else
-            print_error "Security issues detected. Review above results."
-            echo "Run individual scans with detailed output for more information."
+        printf '{"dependencies":"%s","code":"%s","secrets":"%s","docker":"%s","exit_code":%d}\n' \
+            "$deps" "$code" "$secrets" "$docker" "$exit_code"
+    else
+        if [[ "$quiet" != "true" ]]; then
+            echo ""
+            echo "📋 Security Scan Results:"
+            for result in "${scan_results[@]}"; do
+                echo "  $result"
+            done
+            echo ""
+            if [[ $exit_code -eq 0 ]]; then
+                print_success "All security checks passed! ${LOCK}"
+            else
+                print_error "Security issues detected. Review above results."
+                echo "Run individual scans with detailed output for more information."
+            fi
         fi
     fi
     
