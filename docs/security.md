@@ -212,6 +212,18 @@ ai-call-approved claude "review this code" app.py
 ```
 
 ### **Emergency Security**
+## 🔎 **Repository Secret Scans**
+
+The built-in `dot security scan` performs three checks: dependencies, static analysis, and secret scanning. To reduce noise, the basic secret scanner skips fixtures and docs by default:
+
+- Ignored paths: `tests/**`, `templates/testing/**`, `docs/**`, `hooks/**`, `.git`, `node_modules`
+- Known example placeholders allowed in: `config/zsh/web-pwa.zsh`, `lib/cli/database.sh`
+
+Notes:
+- This does not relax third-party tools like gitleaks/truffleHog if installed; those take precedence.
+- If you intentionally include examples that look like secrets, add a short comment explaining they are placeholders.
+- For CI, you can run a quick scan with: `./bin/dot security scan --quiet`.
+
 ```bash
 # Immediately disable all AI features
 ai-emergency-disable
