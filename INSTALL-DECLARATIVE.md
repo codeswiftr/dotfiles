@@ -16,16 +16,16 @@ The new declarative installation system provides a modern, configurable, and rep
 
 ```bash
 # Standard installation (recommended)
-./install-declarative.sh install standard
+./install.sh install standard
 
 # Preview what would be installed
-./install-declarative.sh --dry-run install full
+./install.sh --dry-run install full
 
 # Check current status
-./install-declarative.sh verify
+./install.sh verify
 
 # See available profiles
-./install-declarative.sh profiles
+./install.sh profiles
 ```
 
 ## 📋 **Installation Profiles**
@@ -122,10 +122,10 @@ Preview installations without making changes:
 
 ```bash
 # See what would be installed
-./install-declarative.sh --dry-run install full
+./install.sh --dry-run install full
 
 # Verbose dry run with detailed logging
-./install-declarative.sh --dry-run --verbose install standard
+./install.sh --dry-run --verbose install standard
 ```
 
 ### **Force Installation**
@@ -133,10 +133,10 @@ Reinstall tools even if they already exist:
 
 ```bash
 # Force reinstall all tools
-./install-declarative.sh --force install standard
+./install.sh --force install standard
 
 # Force with verbose output
-./install-declarative.sh --force --verbose install minimal
+./install.sh --force --verbose install minimal
 ```
 
 ### **Custom Tool Installation**
@@ -144,10 +144,10 @@ Install individual tools or groups:
 
 ```bash
 # Install specific tools (would require extending the script)
-./install-declarative.sh install-tool nvim
+./install.sh install-tool nvim
 
 # Install specific groups
-./install-declarative.sh install-group development
+./install.sh install-group development
 ```
 
 ### **Status and Verification**
@@ -155,13 +155,13 @@ Check your current setup:
 
 ```bash
 # Detailed status of all tools
-./install-declarative.sh verify
+./install.sh verify
 
 # List all available tools
-./install-declarative.sh tools
+./install.sh tools
 
 # Show profiles
-./install-declarative.sh profiles
+./install.sh profiles
 ```
 
 ## 🐛 **Troubleshooting**
@@ -205,18 +205,18 @@ To migrate from the legacy `install.sh`:
 
 2. **Use the new declarative installer**:
    ```bash
-   ./install-declarative.sh verify  # Check current status
-   ./install-declarative.sh --dry-run install standard  # Preview
-   ./install-declarative.sh install standard  # Install
+   ./install.sh verify  # Check current status
+   ./install.sh --dry-run install standard  # Preview
+   ./install.sh install standard  # Install
    ```
 
 3. **Update your workflows** to use the new system
 
 ## 🎯 **Next Steps**
 
-1. **Try the verification**: `./install-declarative.sh verify`
-2. **Preview an installation**: `./install-declarative.sh --dry-run install full`
-3. **Explore profiles**: `./install-declarative.sh profiles`
+1. **Try the verification**: `./install.sh verify`
+2. **Preview an installation**: `./install.sh --dry-run install full`
+3. **Explore profiles**: `./install.sh profiles`
 4. **Customize the config**: Edit `config/tools.yaml` for your needs
 5. **Create custom profiles**: Add your own installation profiles
 

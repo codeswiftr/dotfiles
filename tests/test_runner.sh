@@ -66,6 +66,7 @@ INFRASTRUCTURE_TESTS=(
     "test_security_summary.sh"
     "test_security_summary_clean.sh"
     "test_security_gate.sh"
+    "test_tmux_bindings.sh"
 )
 
 # Results tracking
@@ -238,7 +239,12 @@ EOF
     
     for test_file in "${INFRASTRUCTURE_TESTS[@]}"; do
         local status="✅ PASSED"
-        for failed_test in "${FAILED_TESTS[@]}"; do
+        # Iterate safely even if FAILED_TESTS is unset or empty
+        _failed_list=()
+        if [[ ${#FAILED_TESTS[@]:-0} -gt 0 ]]; then
+            IFS=$'\n' read -r -d '' -a _failed_list < <(printf '%s\0' "${FAILED_TESTS[@]}" 2>/dev/null || true) || true
+        fi
+        for failed_test in "${_failed_list[@]:-}"; do
             if [[ "$failed_test" == "$test_file" ]]; then
                 status="❌ FAILED"
                 break

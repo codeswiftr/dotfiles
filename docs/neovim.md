@@ -402,3 +402,41 @@ Your Neovim is now a **modern, AI-enhanced development environment** with:
 - 🤖 [AI Workflows Guide](ai-workflows.md)
 - 🎨 [Theme Customization](themes.md)
 - ⚡ [Performance Optimization](performance.md)
+
+---
+
+## 📎 Neovim Quick Reference (merged)
+
+### Tier 1 essentials
+
+| Command | Action |
+|---------|--------|
+| `<Space>ff` | Find files |
+| `<Space>fg` | Live grep |
+| `<Space>e`  | File explorer |
+| `<Space>w`  | Save file |
+| `<Space>q`  | Quit |
+| `<C-h/j/k/l>` | Window navigation |
+| `<Space>b`  | Buffer list |
+| `<Space>/`  | Search in file |
+| `gd` / `gr` | Goto definition / references |
+| `<Space>ca` | Code actions |
+| `<Space>f`  | Format |
+| `<Space>?`  | Which-key help |
+
+### Tier management
+
+| Command | Action |
+|---------|--------|
+| `:TierUp` | Upgrade to next tier |
+| `:TierDown` | Downgrade to previous tier |
+| `:TierStatus` | Show current tier info |
+| `:TierHelp` | Tier help |
+
+### Emergency
+
+| Situation | Solution |
+|-----------|----------|
+| Lost in insert | `jk` or `jj` to escape |
+| Quit everything | `<Space>Q` |
+| Reload config | `:source $MYVIMRC` |

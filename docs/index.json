@@ -1,0 +1,51 @@
+{
+  "generated": "2025-08-12",
+  "rootFiles": [
+    ".gitconfig",
+    ".gitignore",
+    ".shellcheckrc",
+    ".tmux-fixed.conf",
+    ".tmux-ultimate.conf",
+    ".tmux.conf",
+    ".yamllint.yml",
+    ".zshrc",
+    ".zshrc-optimized",
+    "AGENTS.md",
+    "CHANGELOG-2025.1.7.md",
+    "CONTRIBUTING.md",
+    "INSTALL-DECLARATIVE.md",
+    "MODERNIZATION-COMPLETE.md",
+    "NEOVIM_MIGRATION_GUIDE.md",
+    "PHASE3-IMPLEMENTATION-PLAN.md",
+    "PLAN.md",
+    "README.md",
+    "TESTING-FRAMEWORKS-PLAN.md",
+    "VERSION",
+    "dotfiles-tutor",
+    "install.sh",
+    "viman"
+  ],
+  "dirs": {
+    ".claude": [
+      ".claude"
+    ],
+    ".config": [],
+    ".github": [],
+    "bin": [],
+    "completions": [],
+    "config": [],
+    "docs": [],
+    "hooks": [],
+    "lib": [],
+    "plugins": [],
+    "scripts": [],
+    "src": [],
+    "templates": [],
+    "tests": [],
+    "themes": []
+  },
+  "notes": [
+    "Excluded .git directory",
+    "Excluded generated artifacts: tests/results and .pytest_cache"
+  ]
+}

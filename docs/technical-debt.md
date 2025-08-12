@@ -23,6 +23,16 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 - Some guides (legacy-backup-20250714/*) are outdated or duplicated.
 - Migration plan: Archive legacy docs, update cross-links, and ensure all new docs are discoverable from docs/README.md.
 
+### Deletion candidates (post-merge)
+- `docs/legacy-backup-20250714/**` — content superseded by consolidated docs. Action: fold any remaining unique details into current guides, then remove folder.
+- `src/--help/` — empty placeholder. Action: populate with CLI examples or remove.
+- Generated artifacts: `tests/results/**`, `.pytest_cache/**`. Action: exclude from index, add cleanup script (e.g., `scripts/cleanup-artifacts.sh`).
+
+### Consolidation tasks
+- Merge `docs/shell-performance-guide.md` into `docs/performance.md` (single comprehensive performance guide).
+- Fold `docs/nvim-quick-reference.md` into `docs/neovim.md` as a Quick Reference section.
+- Review `docs/navigation.md` versus Neovim/tmux quick refs to remove duplication and cross-link.
+
 ## ⚡ Toolchain Consistency
 
 - Some templates/scripts may use older tools (pyenv, nvm, etc.) instead of mise, uv, bun.
@@ -49,3 +59,19 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 ---
 
 **Thank you for helping keep this project modern, clean, and friendly!**
+
+---
+
+## 🔧 Configuration and UX Debt (New)
+
+### Tmux keybinding conflicts
+- Analysis files (`config/tmux/tmux-analysis.md`, `config/tmux/tmux-dx-plan.md`) identify critical overrides (e.g., `Ctrl-a c/d`).
+- Action: Restore defaults for `c` (new-window) and `d` (detach), move AI/dev shortcuts under capital letters (A/D/T/G/M), keep Tier 1 ≤ 10 bindings.
+
+### Neovim tier enforcement
+- Ensure Tier 1 stays <200ms; reduce plugin count and verify `config/nvim/lua/tiers/*` reflect intended sets.
+- Action: Audit actual plugin set vs docs; align and document in `docs/neovim.md`.
+
+### Installer docs drift
+- `INSTALL-DECLARATIVE.md` now references `./install.sh`. Keep in sync with script flags and profiles.
+- Action: Add a short “sync checklist” in PR template for installer changes.

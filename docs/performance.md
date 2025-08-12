@@ -53,6 +53,31 @@ perf-status
 export DOTFILES_PERF_TIMING=true
 ```
 
+## 🔧 Shell Quick Start (merged)
+
+For an immediate boost to shell startup:
+
+```bash
+# Backup current config
+cp ~/.zshrc ~/.zshrc.backup
+
+# Use optimized configuration
+cp ~/dotfiles/.zshrc-optimized ~/.zshrc
+
+# Apply and benchmark
+exec zsh
+perf-bench
+```
+
+Handy commands:
+
+```bash
+perf-status              # Current performance status
+perf-quick               # One-command optimization
+perf-profile-startup     # Detailed timing
+export DOTFILES_FAST_MODE=1  # Ultra-fast mode for short sessions/CI
+```
+
 ### **Performance Modes**
 ```bash
 # Enable fast mode (minimal features)
