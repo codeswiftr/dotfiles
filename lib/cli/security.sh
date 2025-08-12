@@ -58,6 +58,12 @@ security_full_scan() {
                 format="$2"
                 shift 2
                 ;;
+            --json)
+                # Shorthand for machine-readable output
+                format="json"
+                quiet=true
+                shift
+                ;;
             *)
                 break
                 ;;
@@ -651,6 +657,7 @@ COMMANDS:
 OPTIONS:
     --quiet              Suppress output, return only exit code
     --format <format>    Output format (table, json, sarif)
+    --json               Shorthand for '--format json --quiet'
     -h, --help           Show this help message
 
 SECURITY TOOLS:

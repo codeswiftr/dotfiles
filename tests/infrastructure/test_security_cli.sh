@@ -42,10 +42,18 @@ security_scan_json_format() {
   [[ "$out" == *"{"* ]] && [[ "$out" == *"dependencies"* ]] && [[ "$out" == *"secrets"* ]]
 }
 
+# --json shorthand should emit valid-looking JSON keys
+security_scan_json_shorthand() {
+  local out
+  out=$(DOTFILES_MODE=agent ./bin/dot security scan --json 2>/dev/null || true)
+  [[ "$out" == *"{"* ]] && [[ "$out" == *"dependencies"* ]] && [[ "$out" == *"secrets"* ]]
+}
+
 main() {
   log_info "Starting Security CLI tests"
   run_test "dot security scan runs (quiet)" can_run_security_scan_quiet
   run_test "dot security scan outputs JSON in --format json" security_scan_json_format
+  run_test "dot security scan outputs JSON with --json shorthand" security_scan_json_shorthand
 
   echo
   echo "Tests Run: $TESTS_RUN"
