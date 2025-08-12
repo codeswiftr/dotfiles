@@ -309,6 +309,26 @@ run_quick_tests() {
     fi
 }
 
+# Index consistency
+validate_index_consistency() {
+    log_info "Validating docs index consistency..."
+    if [[ -x "scripts/generate-index.sh" ]]; then
+        # Run generator and see if index changes
+        before_hash_md=$(md5 -q docs/INDEX.md 2>/dev/null || md5sum docs/INDEX.md | awk '{print $1}' || true)
+        before_hash_json=$(md5 -q docs/index.json 2>/dev/null || md5sum docs/index.json | awk '{print $1}' || true)
+        bash scripts/generate-index.sh >/dev/null 2>&1 || true
+        after_hash_md=$(md5 -q docs/INDEX.md 2>/dev/null || md5sum docs/INDEX.md | awk '{print $1}' || true)
+        after_hash_json=$(md5 -q docs/index.json 2>/dev/null || md5sum docs/index.json | awk '{print $1}' || true)
+        if [[ "$before_hash_md" != "$after_hash_md" || "$before_hash_json" != "$after_hash_json" ]]; then
+            log_error "Docs index out of date. Please run scripts/generate-index.sh and re-commit."
+        else
+            log_success "Docs index is up to date"
+        fi
+    else
+        log_warning "Index generator not found; skipping index validation"
+    fi
+}
+
 # Version check
 check_version_consistency() {
     log_info "Checking version consistency..."
@@ -388,6 +408,10 @@ main() {
     
     # Run version checks
     check_version_consistency
+    echo
+
+    # Validate docs index
+    validate_index_consistency
     echo
     
     # Run quick tests
