@@ -24,6 +24,10 @@ jobs:
         run: |
           chmod +x tests/test_runner.sh
           DOTFILES_MODE=agent ./tests/test_runner.sh --category infrastructure
+      - name: Validate docs index consistency
+        run: |
+          bash scripts/generate-index.sh
+          git diff --exit-code docs/INDEX.md docs/index.json
 
       - name: Upload test results
         if: always()
@@ -46,6 +50,10 @@ jobs:
         run: |
           chmod +x tests/test_runner.sh
           DOTFILES_MODE=agent ./tests/test_runner.sh --category infrastructure
+      - name: Validate docs index consistency
+        run: |
+          bash scripts/generate-index.sh
+          git diff --exit-code docs/INDEX.md docs/index.json
 
       - name: Upload test results
         if: always()
