@@ -1,0 +1,34 @@
+dot security - Security operations and scanning
+
+USAGE:
+    dot security <command> [options]
+
+COMMANDS:
+    scan                 Full security scan (deps + code + secrets)
+    deps                 Check dependency vulnerabilities
+    code                 Static code analysis for security issues
+    secrets              Scan for exposed secrets and credentials
+    audit                System security audit
+    status               Show security tool status
+    setup                Install security scanning tools
+
+OPTIONS:
+    --quiet              Suppress output, return only exit code
+    --format <format>    Output format (table, json, sarif)
+    --json               Shorthand for '--format json --quiet'
+    -h, --help           Show this help message
+
+SECURITY TOOLS:
+    gitleaks             Secret scanning
+    semgrep              Static analysis (multi-language)
+    hadolint             Dockerfile security linting
+    safety               Python vulnerability scanning
+    npm audit            Node.js vulnerability scanning
+    cargo audit          Rust vulnerability scanning
+    govulncheck          Go vulnerability scanning
+
+EXAMPLES:
+    dot security scan              # Full security audit
+    dot security deps              # Check dependencies only
+    dot security secrets --quiet   # Silent secret scan
+    dot security setup             # Install security tools

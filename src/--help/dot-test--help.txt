@@ -1,0 +1,50 @@
+🧪 DOT CLI - Testing Module
+
+USAGE:
+    dot testing <command> [options]
+
+COMMANDS:
+    run [category]           Run comprehensive test suite
+    quick                   Run quick tests only
+    infrastructure          Run infrastructure tests
+    security               Run security validation tests
+    performance            Run performance tests
+    watch [pattern]        Watch and auto-run tests
+    coverage               Generate test coverage report
+    report                 Generate comprehensive test report
+    init [framework]       Initialize testing for project
+    setup                  Setup testing environment
+    benchmark              Run performance benchmarks
+
+CATEGORIES:
+    all                    Run all test categories
+    unit                   Unit tests only
+    integration           Integration tests only
+    e2e                   End-to-end tests only
+    api                   API tests only
+
+FRAMEWORKS:
+    pytest                Python testing with pytest
+    playwright            Browser testing with Playwright
+    bruno                 API testing with Bruno
+    k6                    Load testing with k6
+    jest                  JavaScript testing with Jest
+
+OPTIONS:
+    --verbose             Verbose output
+    --parallel           Run tests in parallel
+    --watch              Watch mode
+    --coverage           Generate coverage
+    --timeout <seconds>  Set timeout
+    --filter <pattern>   Filter tests by pattern
+    --dry-run           Show what would be tested
+
+EXAMPLES:
+    dot testing run                    # Run all tests
+    dot testing quick                  # Quick smoke tests
+    dot testing infrastructure        # Infrastructure tests
+    dot testing watch --filter api    # Watch API tests
+    dot testing init pytest           # Setup pytest
+    dot testing benchmark             # Performance benchmarks
+    dot testing report --coverage     # Full report with coverage
+

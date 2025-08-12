@@ -1,0 +1,48 @@
+dot ai - AI-powered development assistance
+
+USAGE:
+    dot ai <command> [options]
+
+COMMANDS:
+    review [file/dir]        AI code review for quality and security
+    test <file> [framework]  Generate comprehensive unit tests
+    commit [--auto]          Generate smart commit messages
+    explain [file]           Explain code in natural language
+    docs <file>              Generate documentation
+    fix <file>               Suggest code fixes
+    refactor <file>          Suggest refactoring improvements
+    analyze [type]           Analyze project (overview|security|performance|documentation)
+    debug <error>            Debug errors with AI assistance
+    compare <prompt>         Compare responses from multiple AI providers
+    context <prompt>         AI assistance with project context
+    status                   Show AI integration status
+    setup                    Install and configure AI providers
+
+OPTIONS:
+    --provider <name>        Use specific AI provider (claude|gemini|copilot)
+    --detailed               Provide detailed analysis
+    --simple                 Use simple explanations
+    --auto                   Auto-apply suggestions (where applicable)
+    -h, --help               Show this help message
+
+PROVIDERS:
+    claude                   Anthropic Claude (default)
+    gemini                   Google Gemini
+    copilot                  GitHub Copilot
+
+CONFIGURATION:
+    export AI_PROVIDER=claude     Set default provider
+    
+    Provider API keys should be configured according to each provider's
+    documentation (usually via environment variables or config files).
+
+EXAMPLES:
+    dot ai review src/main.py         # Review Python file
+    dot ai test utils.js jest         # Generate Jest tests
+    dot ai commit --auto              # Auto-commit with AI message
+    dot ai explain --simple app.go    # Simple explanation
+    dot ai analyze security           # Security analysis
+    dot ai debug "TypeError: undefined"  # Debug error
+    dot ai compare "Best Python web framework"  # Compare AI opinions
+    dot ai context "How can I optimize this?"   # Context-aware help
+    dot ai status                     # Check AI setup

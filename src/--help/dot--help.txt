@@ -1,0 +1,143 @@
+🚀 DOT CLI - Ultimate Development Environment
+
+USAGE:
+    dot <command> [options]
+
+CORE COMMANDS:
+    setup              Idempotent environment setup
+    check              Comprehensive health validation
+    update             Update entire system
+    reload             Reload shell configuration
+    version            Show version information
+
+DEVELOPMENT:
+    project            Project management and scaffolding
+        init [type]        Create new project from template
+        list               List available templates
+        switch             Switch between projects
+    
+    run                Process management
+        dev                Start development environment
+        test               Start test environment
+        prod               Production simulation
+
+SECURITY:
+    secret             Secret management
+        setup              Configure secret provider
+        get <key>          Retrieve secret
+        exec -- <cmd>      Execute with injected secrets
+    
+    security           Security operations
+        scan               Full security audit
+        deps               Check dependency vulnerabilities
+        code               Static code analysis
+
+AI INTEGRATION:
+    ai                 AI-powered development assistance
+        review             Code review with context
+        test               Generate tests
+        commit             Smart commit messages
+        explain [file]     Explain code
+
+TESTING:
+    test               Testing framework integration
+        run [category]     Run comprehensive test suite
+        quick              Quick smoke tests
+        watch              Watch mode for continuous testing
+        init [framework]   Initialize testing for project
+        coverage           Generate test coverage report
+    
+PERFORMANCE:
+    perf               Performance management
+        profile            Performance analysis
+        optimize           Apply optimizations
+        benchmark          Benchmark startup time
+
+CONFIGURATION:
+    config             Interactive configuration
+        theme              Switch themes
+        tools              Configure tool integrations
+        security           Adjust security settings
+    
+    template           Advanced configuration templating
+        generate           Generate config from template
+        process            Process all templates
+        create             Create template from file
+        validate           Validate template syntax
+        list               List available templates
+
+DATABASE:
+    db                 Database management
+        setup              Setup local databases
+        seed               Load test data
+        reset              Reset to clean state
+
+DEVCONTAINER:
+    devcontainer       Development container management
+        init [template]    Initialize devcontainer config
+        build              Build container image
+        up                 Start development container
+        exec [cmd]         Execute command in container
+
+GIT OPERATIONS:
+    git                Enhanced git operations
+        setup-signing      Configure commit signing
+        verify             Verify commit signatures
+
+DOCUMENTATION:
+    docs               Documentation system
+        generate           Generate documentation
+        build [format]     Build documentation site
+        serve [port]       Serve documentation locally
+        interactive        Interactive help system
+
+PLUGINS:
+    plugin             Plugin management system
+        install [name]     Install plugin from registry
+        list [filter]      List installed/available plugins
+        enable [name]      Enable installed plugin
+        create [name]      Create new plugin template
+
+BACKUP & RESTORE:
+    backup             Backup and restore system
+        create [type]      Create backup (full/incremental/config)
+        restore [name]     Restore from backup
+        list [filter]      List available backups
+        schedule           Manage automated backups
+
+METRICS & ANALYTICS:
+    metrics            Metrics collection and analytics
+        init               Initialize metrics system
+        collect            Collect system metrics
+        daemon [action]    Manage collection daemon
+        dashboard          Show metrics dashboard
+        report [type]      Generate analytics reports
+
+MIGRATION & UPGRADE:
+    migrate            Migration and upgrade system
+        status             Check migration status
+        migrate [version]  Run migration to target version
+        rollback [backup]  Rollback to previous state
+        backup [version]   Create manual backup
+
+OPTIONS:
+    -h, --help         Show this help message
+    -v, --version      Show version information
+    --verbose          Enable verbose output
+    --dry-run          Show what would be done
+
+EXAMPLES:
+    dot setup                     # Setup development environment
+    dot project init fastapi my-api  # Create new FastAPI project
+    dot project init fullstack app   # Create full-stack project
+    dot ai commit --auto          # AI-powered commit with auto-approval
+    dot ai analyze security       # AI security analysis
+    dot ai debug "import error"   # Debug errors with AI
+    dot secret exec -- npm start # Run with injected secrets
+    dot security scan            # Security audit
+    dot perf optimize            # Optimize performance
+
+For detailed help on any command:
+    dot <command> --help
+
+Documentation: https://github.com/user/dotfiles/docs/cli.md

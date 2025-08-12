@@ -1,0 +1,41 @@
+dot project - Project management and scaffolding
+
+USAGE:
+    dot project <command> [options]
+
+COMMANDS:
+    init <type> [name]    Create new project from template
+    list                  List available project templates
+    switch                Switch between projects (requires fzf + zoxide)
+    templates             Alias for 'list'
+    
+AI-POWERED COMMANDS:
+    ai-init <description> AI-guided project creation
+    ai-analyze [dir]      Analyze project and suggest improvements
+    ai-enhance [dir]      Apply AI enhancements to existing project
+    ai-suggest <context>  Get AI project idea suggestions
+
+PROJECT TYPES:
+    fastapi              FastAPI REST API with modern tooling
+    react                React app with Vite and TypeScript
+    nextjs               Next.js app with TypeScript
+    node                 Node.js project with TypeScript
+    lit                  Lit/LitElement PWA with modern tooling
+    fullstack            Full-stack FastAPI + Lit project
+    python               Generic Python project with poetry/uv
+    rust                 Rust project with Cargo
+    go                   Go project with modules
+    ios                  iOS/SwiftUI project with modern tooling
+    cli                  Command-line tool (multi-language)
+    docker               Dockerized application
+
+OPTIONS:
+    -h, --help           Show this help message
+
+EXAMPLES:
+    dot project init fastapi my-api
+    dot project list
+    dot project switch
+    dot project ai-init "Build a task management API"
+    dot project ai-analyze ./my-project
+    dot project ai-enhance ./my-project
