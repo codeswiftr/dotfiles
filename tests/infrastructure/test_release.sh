@@ -6,7 +6,7 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
 TESTS_RUN=0; TESTS_PASSED=0; TESTS_FAILED=0
 pass(){ echo -e "${GREEN}[PASS]${NC} $1"; ((TESTS_PASSED++)); }
 fail(){ echo -e "${RED}[FAIL]${NC} $1"; ((TESTS_FAILED++)); }
-run(){ ((TESTS_RUN++)); "$@"; }
+run(){ set +e; ((TESTS_RUN++)); "$@"; local ec=$?; set -e; return $ec; }
 
 CUR=$(tr -d '\n' < VERSION)
 # dry-run minor bump should print both current and next

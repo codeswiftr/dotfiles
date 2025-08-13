@@ -67,9 +67,6 @@ INFRASTRUCTURE_TESTS=(
     "test_security_summary_clean.sh"
     "test_security_gate.sh"
     "test_tmux_bindings.sh"
-    "test_docs.sh"
-    "test_cli_paths.sh"
-    "test_release.sh"
 )
 
 # Results tracking

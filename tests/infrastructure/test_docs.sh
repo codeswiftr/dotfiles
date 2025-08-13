@@ -14,7 +14,7 @@ TESTS_FAILED=0
 pass(){ echo -e "${GREEN}[PASS]${NC} $1"; ((TESTS_PASSED++)); }
 fail(){ echo -e "${RED}[FAIL]${NC} $1"; ((TESTS_FAILED++)); }
 
-run(){ ((TESTS_RUN++)); "$@"; }
+run(){ set +e; ((TESTS_RUN++)); "$@"; local ec=$?; set -e; return $ec; }
 
 # 1) dot docs check should pass (guard if command exists)
 if grep -q "docs_cli" bin/dot; then

@@ -11,20 +11,37 @@ DOCS_BUILD_DIR="$DOCS_DIR/_build"
 DOCS_CACHE_DIR="$HOME/.cache/dotfiles/docs"
 DOCS_CONFIG_FILE="$DOCS_DIR/config.yaml"
 
-# Documentation structure (guard against nounset in callers)
-declare -A DOC_CATEGORIES || true
-DOC_CATEGORIES=(
-    ["getting-started"]="Getting Started Guide"
-    ["installation"]="Installation Instructions"
-    ["configuration"]="Configuration Guide"
-    ["cli-reference"]="CLI Command Reference"
-    ["troubleshooting"]="Troubleshooting Guide"
-    ["development"]="Development Guide"
-    ["api"]="API Documentation"
-    ["examples"]="Examples and Tutorials"
-    ["changelog"]="Change Log"
-    ["contributing"]="Contributing Guide"
-)
+# Documentation structure (support shells without associative arrays)
+if (:
+); then :; fi
+if (declare -A TEST_ASSOC) 2>/dev/null; then
+  declare -A DOC_CATEGORIES
+  DOC_CATEGORIES=(
+      ["getting-started"]="Getting Started Guide"
+      ["installation"]="Installation Instructions"
+      ["configuration"]="Configuration Guide"
+      ["cli-reference"]="CLI Command Reference"
+      ["troubleshooting"]="Troubleshooting Guide"
+      ["development"]="Development Guide"
+      ["api"]="API Documentation"
+      ["examples"]="Examples and Tutorials"
+      ["changelog"]="Change Log"
+      ["contributing"]="Contributing Guide"
+  )
+else
+  DOC_CATEGORIES_KEYS=(
+      "getting-started"
+      "installation"
+      "configuration"
+      "cli-reference"
+      "troubleshooting"
+      "development"
+      "api"
+      "examples"
+      "changelog"
+      "contributing"
+  )
+fi
 
 # Initialize documentation system
 init_documentation() {
@@ -79,9 +96,15 @@ EOF
 # Create documentation structure
 create_docs_structure() {
     # Create main documentation directories
-    for category in "${!DOC_CATEGORIES[@]}"; do
-        mkdir -p "$DOCS_DIR/$category"
-    done
+    if declare -p DOC_CATEGORIES >/dev/null 2>&1; then
+        for category in "${!DOC_CATEGORIES[@]}"; do
+            mkdir -p "$DOCS_DIR/$category"
+        done
+    else
+        for category in "${DOC_CATEGORIES_KEYS[@]}"; do
+            mkdir -p "$DOCS_DIR/$category"
+        done
+    fi
     
     # Create additional directories
     mkdir -p "$DOCS_DIR"/{assets,templates,examples,api}
@@ -974,7 +997,7 @@ EOF
 generate_development_docs() {
     echo "📖 Generating development guide..."
     
-    cat > "$DOCS_DIR/development.md" << EOF
+    cat > "$DOCS_DIR/development.md" << 'EOF'
 # Development Guide
 
 Contribute to and extend the Modern Dotfiles project.
@@ -1244,7 +1267,7 @@ EOF
 generate_installation_docs() {
     echo "📖 Generating installation guide..."
     
-    cat > "$DOCS_DIR/installation.md" << EOF
+    cat > "$DOCS_DIR/installation.md" << 'EOF'
 # Installation Guide
 
 Complete installation instructions for all supported platforms.
@@ -1473,7 +1496,7 @@ generate_cli_documentation() {
     
     echo "📖 Generating CLI reference..."
     
-    cat > "$DOCS_DIR/cli-reference.md" << EOF
+    cat > "$DOCS_DIR/cli-reference.md" << 'EOF'
 # CLI Reference
 
 Complete reference for all \`dot\` command-line interface commands.
@@ -1798,7 +1821,7 @@ EOF
 generate_configuration_docs() {
     echo "📖 Generating configuration guide..."
     
-    cat > "$DOCS_DIR/configuration.md" << EOF
+    cat > "$DOCS_DIR/configuration.md" << 'EOF'
 # Configuration Guide
 
 Learn how to customize and configure your modern dotfiles environment.
@@ -2209,7 +2232,7 @@ EOF
 generate_troubleshooting_docs() {
     echo "📖 Generating troubleshooting guide..."
     
-    cat > "$DOCS_DIR/troubleshooting.md" << EOF
+    cat > "$DOCS_DIR/troubleshooting.md" << 'EOF'
 # Troubleshooting Guide
 
 Common issues and solutions for your modern dotfiles environment.
@@ -2763,7 +2786,7 @@ generate_api_documentation() {
     mkdir -p "$DOCS_DIR/api"
     
     # Generate main API index
-    cat > "$DOCS_DIR/api/README.md" << EOF
+    cat > "$DOCS_DIR/api/README.md" << 'EOF'
 # API Documentation
 
 This section contains API documentation for the dotfiles framework.
@@ -2808,7 +2831,7 @@ EOF
 
 # Generate core API documentation
 generate_core_api_docs() {
-    cat > "$DOCS_DIR/api/core.md" << EOF
+    cat > "$DOCS_DIR/api/core.md" << 'EOF'
 # Core API Documentation
 
 Core functions and utilities for the dotfiles framework.
@@ -2938,7 +2961,7 @@ generate_examples_documentation() {
     
     mkdir -p "$DOCS_DIR/examples"
     
-    cat > "$DOCS_DIR/examples/README.md" << EOF
+    cat > "$DOCS_DIR/examples/README.md" << 'EOF'
 # Examples and Tutorials
 
 Common use cases and workflows for your modern dotfiles environment.
@@ -2992,7 +3015,7 @@ EOF
 
 # Generate workflow examples
 generate_workflow_examples() {
-    cat > "$DOCS_DIR/examples/daily-workflow.md" << EOF
+    cat > "$DOCS_DIR/examples/daily-workflow.md" << 'EOF'
 # Daily Development Workflow
 
 Common daily tasks and workflows using your modern dotfiles environment.
@@ -3146,7 +3169,7 @@ EOF
 generate_main_readme() {
     echo "📖 Generating main README..."
     
-    cat > "$DOCS_DIR/README.md" << EOF
+    cat > "$DOCS_DIR/README.md" << 'EOF'
 # Modern Dotfiles Documentation
 
 Welcome to the comprehensive documentation for your modern development environment.
