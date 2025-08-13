@@ -329,6 +329,25 @@ validate_index_consistency() {
     fi
 }
 
+# Help snapshot freshness
+validate_help_snapshots() {
+    log_info "Validating CLI help snapshots..."
+    if [[ -x "scripts/capture-cli-help.sh" ]]; then
+        local before_hash
+        before_hash=$(tar -cf - src/--help 2>/dev/null | shasum | awk '{print $1}' || echo "")
+        bash scripts/capture-cli-help.sh >/dev/null 2>&1 || true
+        local after_hash
+        after_hash=$(tar -cf - src/--help 2>/dev/null | shasum | awk '{print $1}' || echo "")
+        if [[ "$before_hash" != "$after_hash" ]]; then
+            log_error "Help snapshots out of date. Run scripts/capture-cli-help.sh and commit."
+        else
+            log_success "Help snapshots are up to date"
+        fi
+    else
+        log_warning "Help capture script not found; skipping help validation"
+    fi
+}
+
 # Version check
 check_version_consistency() {
     log_info "Checking version consistency..."
@@ -412,6 +431,10 @@ main() {
 
     # Validate docs index
     validate_index_consistency
+    echo
+    
+    # Validate help snapshots
+    validate_help_snapshots
     echo
     
     # Run quick tests
