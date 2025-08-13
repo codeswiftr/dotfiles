@@ -304,6 +304,21 @@ main() {
     # Security checks
     check_security_compliance
     echo
+
+    # Docs index freshness gate (fast)
+    if [[ -x ./scripts/generate-index.sh ]]; then
+        BEFORE_MD=$(sha1sum docs/INDEX.md 2>/dev/null | awk '{print $1}' || true)
+        BEFORE_JSON=$(sha1sum docs/index.json 2>/dev/null | awk '{print $1}' || true)
+        ./scripts/generate-index.sh >/dev/null 2>&1 || true
+        AFTER_MD=$(sha1sum docs/INDEX.md 2>/dev/null | awk '{print $1}' || true)
+        AFTER_JSON=$(sha1sum docs/index.json 2>/dev/null | awk '{print $1}' || true)
+        if [[ "$BEFORE_MD" != "$AFTER_MD" || "$BEFORE_JSON" != "$AFTER_JSON" ]]; then
+            log_error "Docs index is stale. Run ./scripts/generate-index.sh and commit."
+        else
+            log_success "Docs index is up to date"
+        fi
+        echo
+    fi
     
     # Cross-platform compatibility
     check_cross_platform_compatibility

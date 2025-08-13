@@ -8,6 +8,7 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `.gitconfig`
 - `.gitignore`
 - `.tmux.conf`
+- `.yamllint`
 - `.zshrc`
 - `AGENTS.md`
 - `CHANGELOG-2025.1.7.md`
