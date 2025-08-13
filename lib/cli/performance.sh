@@ -51,6 +51,50 @@ dot_perf() {
     esac
 }
 
+# Minimal Neovim tier management (Epic 2 vertical slice)
+dot_nvim() {
+    local subcmd="${1:-help}"; shift || true
+    case "$subcmd" in
+        tier)
+            local action="${1:-info}"; shift || true
+            local tier_file="$HOME/.config/nvim/.nvim-tier"
+            case "$action" in
+                get|info)
+                    if [[ -f "$tier_file" ]]; then
+                        cat "$tier_file"
+                    else
+                        echo "(unset)"
+                    fi
+                    ;;
+                set)
+                    local tier_val="${1:-}"
+                    if [[ "$tier_val" =~ ^[123]$ ]]; then
+                        mkdir -p "$(dirname "$tier_file")"
+                        echo "$tier_val" > "$tier_file"
+                        echo "Tier set to $tier_val. Restart nvim to apply."
+                    else
+                        echo "Usage: dot nvim tier set 1|2|3" >&2; return 1
+                    fi
+                    ;;
+                bench)
+                    local tier_override="${1:-}"
+                    if [[ -n "$tier_override" && ! "$tier_override" =~ ^[123]$ ]]; then
+                        echo "Usage: dot nvim tier bench [1|2|3]" >&2; return 1
+                    fi
+                    NVIM_TIER="$tier_override" nvim --headless --startuptime /tmp/nvim-startup.log -c 'qa' >/dev/null 2>&1 || true
+                    tail -1 /tmp/nvim-startup.log 2>/dev/null || echo "No startup log"
+                    ;;
+                *)
+                    echo "Usage: dot nvim tier {get|set 1|2|3|bench [1|2|3]}" >&2; return 1
+                    ;;
+            esac
+            ;;
+        *)
+            echo "Usage: dot nvim tier {get|set 1|2|3|bench [1|2|3]}" >&2; return 1
+            ;;
+    esac
+}
+
 # System performance profiling
 perf_profile_system() {
     local duration="${1:-30}"

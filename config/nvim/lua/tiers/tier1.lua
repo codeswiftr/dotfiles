@@ -5,25 +5,13 @@
 -- Performance optimized: lazy loading, minimal config, essential only
 -- ============================================================================
 
--- Bootstrap lazy.nvim plugin manager
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
-    lazypath,
-  })
-end
-vim.opt.rtp:prepend(lazypath)
+-- NOTE: lazy.nvim bootstrap and setup are handled centrally in init.lua
 
 -- ============================================================================
 -- Plugin Specifications - Tier 1 (8 Essential Plugins)
 -- ============================================================================
 
-require("lazy").setup({
+return {
   -- ============================================================================
   -- 1. COLORSCHEME - Built-in scheme for minimal startup impact
   -- ============================================================================
@@ -212,62 +200,25 @@ require("lazy").setup({
     end,
   },
 
-}, {
-  -- Lazy.nvim configuration optimized for performance
-  install = { colorscheme = { "catppuccin" } },
-  checker = { enabled = false },
-  change_detection = { enabled = false }, -- Disable for performance
-  performance = {
-    cache = { enabled = true },
-    reset_packpath = true,
-    rtp = {
-      reset = true,
-      disabled_plugins = {
-        "gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin",
-        "tohtml", "tutor", "zipPlugin", "rplugin", "synmenu", "optwin",
-        "compiler", "bugreport", "ftplugin",
-      },
-    },
-  },
-})
+}
 
 -- ============================================================================
 -- Tier 1 Success Message
 -- ============================================================================
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    if vim.fn.argc() == 0 then
-      print("🚀 Neovim Tier 1 - Ultra-Fast Essential Editor")
-      print("📦 8 plugins | ⚡ <200ms startup | 🎯 Essential commands only")
-      print("🔍 <leader>ff (files) | 📄 <leader>fb (buffers) | 💬 gcc (comment)")
-      print("🚀 LSP: gd (definition) | K (hover) | <leader>ca (actions)")
-      print("📈 Upgrade: :TierUp | 📊 Status: :TierInfo | ❓ Help: <leader>")
-    end
-  end,
-})
+-- NOTE: Startup messaging handled in init.lua based on tier
 
 -- ============================================================================
 -- Performance Monitoring and Tier System
 -- ============================================================================
 
--- Essential keymaps for Tier 1
+-- Essential keymaps for Tier 1 (kept here to avoid duplication)
 vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
 vim.keymap.set("n", "<leader>q", "<cmd>q<cr>", { desc = "Quit" })
 vim.keymap.set("n", "<leader>/", "<cmd>nohlsearch<cr>", { desc = "Clear search" })
 vim.keymap.set("i", "jk", "<esc>", { desc = "Exit insert mode" })
 
 -- Startup time monitoring
-if vim.env.NVIM_PROFILE then
-  local started = vim.loop.hrtime()
-  vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-      local ms = (vim.loop.hrtime() - started) / 1000000
-      local target = 200
-      local status = ms <= target and "✅" or "⚠️"
-      print(string.format("%s Tier 1 startup: %.1fms (target: %dms)", status, ms, target))
-    end,
-  })
-end
+-- NOTE: Profiling handled in init.lua when tier == 1
 
 -- Set tier indicator
-vim.g.nvim_tier = 1
+-- NOTE: Tier indicator managed by tier-manager

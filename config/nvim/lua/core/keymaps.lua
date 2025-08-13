@@ -16,8 +16,12 @@ keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files"
 -- Find text in files (second most important)
 keymap("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "Find text (grep)" })
 
--- File explorer toggle
-keymap("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "File explorer" })
+-- File explorer toggle (fallback to Telescope if NvimTree not installed in Tier 1)
+if pcall(require, "nvim-tree") then
+  keymap("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "File explorer" })
+else
+  keymap("n", "<leader>e", "<cmd>Telescope find_files<cr>", { desc = "Files (Telescope)" })
+end
 
 -- Save file (essential)
 keymap("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })

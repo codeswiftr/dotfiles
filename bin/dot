@@ -335,6 +335,15 @@ main() {
             load_cli_lib "performance"
             dot_perf "$@"
             ;;
+        "nvim")
+            load_cli_lib "performance"
+            if declare -f dot_nvim >/dev/null 2>&1; then
+              dot_nvim "$@"
+            else
+              print_error "dot_nvim not available"
+              exit 1
+            fi
+            ;;
 
         # Configuration commands
         "config")
