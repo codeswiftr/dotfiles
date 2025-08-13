@@ -11,7 +11,12 @@ DATE_STR="$(date +%Y-%m-%d)"
 exclude_predicate() {
   local path="$1"
   case "$path" in
+    ./.github|./.github/*)
+      return 1;;
     ./.git/*|.git|./tests/results/*|./tests/results|./.pytest_cache/*|./.pytest_cache)
+      return 0;;
+    ./.*)
+      # Exclude other dot-directories (hidden) by default
       return 0;;
     *)
       return 1;;

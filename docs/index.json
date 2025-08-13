@@ -1,13 +1,13 @@
 {
-  "generated": "2025-08-12",
+  "generated": "2025-08-13",
   "rootFiles": [
     ".gitconfig",
     ".gitignore",
-    ".shellcheckrc",
+    "config/shellcheckrc",
     ".tmux-fixed.conf",
     ".tmux-ultimate.conf",
     ".tmux.conf",
-    ".yamllint.yml",
+    "config/yamllint.yml",
     ".zshrc",
     ".zshrc-optimized",
     "AGENTS.md",
@@ -17,20 +17,19 @@
     "MODERNIZATION-COMPLETE.md",
     "NEOVIM_MIGRATION_GUIDE.md",
     "PHASE3-IMPLEMENTATION-PLAN.md",
+    "TESTING-FRAMEWORKS-PLAN.md",
     "PLAN.md",
     "README.md",
-    "TESTING-FRAMEWORKS-PLAN.md",
+    
     "VERSION",
     "dotfiles-tutor",
     "install.sh",
-    "viman"
+    "bin/viman"
   ],
   "dirs": {
-    ".claude": [
-      ".claude"
+    ".github": [
+      ".github"
     ],
-    ".config": [],
-    ".github": [],
     "bin": [],
     "completions": [],
     "config": [],

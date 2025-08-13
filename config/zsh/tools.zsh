@@ -1,51 +1,26 @@
-# ============================================================================
-# Modern Tool Integration
-# Configuration for modern CLI tools and version managers
-# ============================================================================
+# --- Optimized Tool Configuration ---
+# This file uses 'mise' for tool management for faster shell startup.
 
-# Initialize completions with caching (only in interactive shells)
-if [[ $- == *i* ]]; then
-  if type init_completions_cached >/dev/null 2>&1; then
-      init_completions_cached
-  else
-      # Fallback to standard completion initialization
-      autoload -U compinit && compinit -C
-  fi
+# --- Mise (formerly rtx) ---
+# This is the primary tool manager.
+if command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
 fi
 
-# Skip tool runtime initialization in non-interactive shells (e.g., CI/tests)
-if [[ $- != *i* ]]; then
-    return 0
+# --- Bun ---
+# Enable shell completions
+if command -v bun &> /dev/null; then
+    [ -s "$HOME/.bun/install/bun-completion.zsh" ] && source "$HOME/.bun/install/bun-completion.zsh"
 fi
 
-# Mise (multi-language version manager) - optimized initialization
-if command -v mise >/dev/null 2>&1; then
-    if [[ -n "$DOTFILES_FAST_MODE" ]]; then
-        # Fast mode - minimal mise initialization
-        eval "$(mise activate zsh --quiet)"
-    else
-        # Full mise initialization with shell completions
-        eval "$(mise activate zsh)"
-        # Load mise completions asynchronously for better performance
-        { eval "$(mise completion zsh)" } &
-    fi
+# --- Starship Prompt ---
+# Loaded directly for speed
+if command -v starship &> /dev/null; then
+  eval "$(starship init zsh)"
 fi
 
-# Tool initialization with performance optimization
-if [[ -n "$DOTFILES_FAST_MODE" ]]; then
-    # Fast mode - minimal initialization
-    command -v starship >/dev/null && eval "$(starship init zsh)"
-    command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
-else
-    # Full initialization
-    command -v starship >/dev/null && eval "$(starship init zsh)"
-    command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
-    # Load atuin asynchronously for better performance
-    command -v atuin >/dev/null && { eval "$(atuin init zsh)" & }
-fi
-
-# FZF initialization
-if command -v fzf >/dev/null 2>&1; then
-    # Auto-completion
-    [[ $- == *i* ]] && source "$HOME/.fzf.zsh" 2>/dev/null
+# --- Zoxide ---
+# Loaded directly for speed
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh)"
 fi

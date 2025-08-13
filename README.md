@@ -507,6 +507,11 @@ cd dotfiles
 ## 📚 **Documentation**
 
 - **[Getting Started Guide](docs/getting-started.md)**
+- **[Declarative Installation Guide](docs/INSTALL-DECLARATIVE.md)**
+- **[Modernization Complete](docs/MODERNIZATION-COMPLETE.md)**
+- **[Neovim Migration Guide](docs/NEOVIM_MIGRATION_GUIDE.md)**
+- **[Phase 3 Implementation Plan](docs/PHASE3-IMPLEMENTATION-PLAN.md)**
+- **[Testing Frameworks Plan](docs/TESTING-FRAMEWORKS-PLAN.md)**
 - **[Troubleshooting Guide](docs/troubleshooting.md)**
 - **[Technical Debt & Migration](docs/technical-debt.md)**
 - **[Configuration Reference](docs/configuration.md)**

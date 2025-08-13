@@ -7,11 +7,11 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 ### Top-level files
 - `.gitconfig`
 - `.gitignore`
-- `.shellcheckrc`
+- `config/shellcheckrc`
 - `.tmux-fixed.conf`
 - `.tmux-ultimate.conf`
 - `.tmux.conf`
-- `.yamllint.yml`
+- `config/yamllint.yml`
 - `.zshrc`
 - `.zshrc-optimized`
 - `AGENTS.md`
@@ -21,24 +21,18 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `MODERNIZATION-COMPLETE.md`
 - `NEOVIM_MIGRATION_GUIDE.md`
 - `PHASE3-IMPLEMENTATION-PLAN.md`
+- `TESTING-FRAMEWORKS-PLAN.md`
 - `PLAN.md`
 - `README.md`
-- `TESTING-FRAMEWORKS-PLAN.md`
 - `VERSION`
 - `dotfiles-tutor`
 - `install.sh`
-- `viman`
+- `bin/viman`
 
 ### Directories
 
-#### `.claude` (1)
-- `.claude`
-
-#### `.config` (0)
-- (empty)
-
-#### `.github` (0)
-- (empty)
+#### `.github` (1)
+- `.github`
 
 #### `bin` (0)
 - (empty)
