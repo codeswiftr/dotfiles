@@ -24,6 +24,30 @@ jobs:
         run: |
           chmod +x tests/test_runner.sh
           DOTFILES_MODE=agent ./tests/test_runner.sh --category infrastructure
+      - name: Verify Neovim startup targets (Tier 1/2)
+        run: |
+          brew install neovim || true
+          # Tier 1 < 400ms on shared runners (allow headroom) and Tier 2 < 800ms
+          T1=$(NVIM_TIER=1 nvim --headless --startuptime /tmp/nvim-startup.log -c 'qa' >/dev/null 2>&1 || true; tail -1 /tmp/nvim-startup.log | grep -oE '[0-9]+\.[0-9]+' || echo 9999)
+          echo "Tier1 ms: $T1"
+          python3 - <<'PY'
+import sys
+try:
+  t1=float("$T1")
+  assert t1 < 400.0
+except Exception:
+  sys.exit(1)
+PY
+          T2=$(NVIM_TIER=2 nvim --headless --startuptime /tmp/nvim-startup2.log -c 'qa' >/dev/null 2>&1 || true; tail -1 /tmp/nvim-startup2.log | grep -oE '[0-9]+\.[0-9]+' || echo 9999)
+          echo "Tier2 ms: $T2"
+          python3 - <<'PY'
+import sys
+try:
+  t2=float("$T2")
+  assert t2 < 800.0
+except Exception:
+  sys.exit(1)
+PY
       - name: Validate docs index consistency
         run: |
           bash scripts/generate-index.sh
@@ -50,6 +74,29 @@ jobs:
         run: |
           chmod +x tests/test_runner.sh
           DOTFILES_MODE=agent ./tests/test_runner.sh --category infrastructure
+      - name: Verify Neovim startup targets (Tier 1/2)
+        run: |
+          sudo apt-get update && sudo apt-get install -y neovim || true
+          T1=$(NVIM_TIER=1 nvim --headless --startuptime /tmp/nvim-startup.log -c 'qa' >/dev/null 2>&1 || true; tail -1 /tmp/nvim-startup.log | grep -oE '[0-9]+\.[0-9]+' || echo 9999)
+          echo "Tier1 ms: $T1"
+          python3 - <<'PY'
+import sys
+try:
+  t1=float("$T1")
+  assert t1 < 500.0
+except Exception:
+  sys.exit(1)
+PY
+          T2=$(NVIM_TIER=2 nvim --headless --startuptime /tmp/nvim-startup2.log -c 'qa' >/dev/null 2>&1 || true; tail -1 /tmp/nvim-startup2.log | grep -oE '[0-9]+\.[0-9]+' || echo 9999)
+          echo "Tier2 ms: $T2"
+          python3 - <<'PY'
+import sys
+try:
+  t2=float("$T2")
+  assert t2 < 900.0
+except Exception:
+  sys.exit(1)
+PY
       - name: Validate docs index consistency
         run: |
           bash scripts/generate-index.sh

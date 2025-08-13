@@ -89,6 +89,51 @@ dot_nvim() {
                     ;;
             esac
             ;;
+        profile)
+            # Usage: dot nvim profile [1|2|3] [runs]
+            local tier_val="${1:-}"
+            local runs="${2:-3}"
+            if [[ -n "$tier_val" && ! "$tier_val" =~ ^[123]$ ]]; then
+                echo "Usage: dot nvim profile [1|2|3] [runs] [--json]" >&2; return 1
+            fi
+            shift || true
+            shift || true
+            local json=false
+            for arg in "$@"; do
+              [[ "$arg" == "--json" ]] && json=true
+            done
+
+            local total=0
+            local i
+            for (( i=1; i<=runs; i++ )); do
+              NVIM_TIER="$tier_val" nvim --headless --startuptime /tmp/nvim-startup.log -c 'qa' >/dev/null 2>&1 || true
+              # Extract last line milliseconds
+              local ms
+              ms=$(awk '/msec/ {last=$0} END{print last}' /tmp/nvim-startup.log 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo "0")
+              total=$(python3 - <<PY 2>/dev/null || echo 0
+t=$total
+try:
+  print(float(t)+float("$ms"))
+except Exception:
+  print(0)
+PY
+)
+            done
+            # Compute average
+            local avg
+            avg=$(python3 - <<PY 2>/dev/null || echo 0
+try:
+  print(round(float("$total")/float($runs), 1))
+except Exception:
+  print(0)
+PY
+)
+            if [[ "$json" == true ]]; then
+              printf '{"tier":%s,"runs":%s,"average_ms":%s}\n' "${tier_val:-null}" "$runs" "$avg"
+            else
+              echo "Tier: ${tier_val:-auto}, Runs: $runs, Average: ${avg}ms"
+            fi
+            ;;
         *)
             echo "Usage: dot nvim tier {get|set 1|2|3|bench [1|2|3]}" >&2; return 1
             ;;
