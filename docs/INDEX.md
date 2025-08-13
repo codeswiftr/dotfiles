@@ -1,33 +1,22 @@
 ## Repository Index (auto-generated)
 
-Generated: 2025-08-12
+Generated: 2025-08-13
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
 ### Top-level files
 - `.gitconfig`
 - `.gitignore`
-- `config/shellcheckrc`
-- `.tmux-fixed.conf`
-- `.tmux-ultimate.conf`
 - `.tmux.conf`
-- `config/yamllint.yml`
 - `.zshrc`
-- `.zshrc-optimized`
 - `AGENTS.md`
 - `CHANGELOG-2025.1.7.md`
 - `CONTRIBUTING.md`
-- `INSTALL-DECLARATIVE.md`
-- `MODERNIZATION-COMPLETE.md`
-- `NEOVIM_MIGRATION_GUIDE.md`
-- `PHASE3-IMPLEMENTATION-PLAN.md`
-- `TESTING-FRAMEWORKS-PLAN.md`
 - `PLAN.md`
 - `README.md`
 - `VERSION`
 - `dotfiles-tutor`
 - `install.sh`
-- `bin/viman`
 
 ### Directories
 

@@ -28,6 +28,9 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 - `src/--help/` — empty placeholder. Action: populate with CLI examples or remove.
 - Generated artifacts: `tests/results/**`, `.pytest_cache/**`. Action: exclude from index, add cleanup script (e.g., `scripts/cleanup-artifacts.sh`).
 
+#### New candidates
+- `docs/shell-performance-guide.md` — content duplicated in `docs/performance.md`. Action: merge any remaining unique tips, then delete.
+
 ### Consolidation tasks
 - Merge `docs/shell-performance-guide.md` into `docs/performance.md` (single comprehensive performance guide).
 - Fold `docs/nvim-quick-reference.md` into `docs/neovim.md` as a Quick Reference section.

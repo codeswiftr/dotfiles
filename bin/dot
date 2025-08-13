@@ -369,7 +369,7 @@ main() {
         # Documentation commands
         "docs"|"documentation")
             source "$DOTFILES_DIR/lib/documentation.sh"
-            documentation_cli "$@"
+            docs_cli "$@"
             ;;
 
         # Plugin commands

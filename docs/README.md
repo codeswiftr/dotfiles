@@ -95,6 +95,17 @@ See [AGENTS.md](../AGENTS.md) for full style guidelines and commit conventions.
 - **[Repository Index](INDEX.md)** — Navigable file map (auto-generated)
 - **CLI Help Snapshots** — See `src/--help/` for captured `dot` help (for agents/offline)
 
+### Single Source of Truth
+
+- Core docs in this `docs/` folder are authoritative. Redundant or legacy guides are consolidated here.
+- Auto-generated index: `docs/INDEX.md` (human), `docs/index.json` (agents/CLI).
+- After changes, run:
+
+```bash
+./scripts/generate-index.sh
+dot docs generate
+```
+
 ## 🏁 **Feature Guides**
 
 | Feature | Quick Reference | Detailed Guide |

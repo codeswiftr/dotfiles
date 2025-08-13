@@ -91,6 +91,32 @@ perf-status
 ```
 
 ### **System Health**
+## 🔁 Neovim Tier Performance Targets (single source)
+
+The Neovim tier system guarantees fast startup by constraining features per tier.
+
+- Tier 1 (Essential): <200ms target, ~8 plugins
+- Tier 2 (Enhanced): <400ms target, ~23 plugins
+- Tier 3 (Advanced): <1200ms target, AI features
+
+How to switch tiers quickly:
+
+```bash
+# One-shot env override (current session)
+NVIM_TIER=1 nvim
+NVIM_TIER=2 nvim
+
+# Persist preference
+echo 1 > ~/.config/nvim/.nvim-tier   # or 2 / 3
+```
+
+Measure and verify:
+
+```bash
+nvim --startuptime startup.log +qall && tail -1 startup.log
+nvim +Lazy profile
+```
+
 ```bash
 # Comprehensive system check
 df-health

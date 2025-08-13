@@ -496,11 +496,7 @@ post_install:
 
   - name: "Install vim-plug for Neovim"
     command: |
-      bash -lc '
-        set -euo pipefail
-        curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim \
-          --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-      '
+      echo "Skipping vim-plug: using lazy.nvim (managed via Lua)"
 
   - name: "Initialize mise"
     command: "mise install"
