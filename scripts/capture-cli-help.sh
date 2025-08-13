@@ -17,6 +17,8 @@ if [[ -x "bin/dot" ]]; then
   capture dot-ai--help bin/dot ai
   capture dot-test--help bin/dot test
   capture dot-security--help bin/dot security
+  capture dot-perf--help bin/dot perf
+  capture dot-nvim--help bin/dot nvim
 else
   echo "bin/dot not found or not executable; skipping" >&2
 fi

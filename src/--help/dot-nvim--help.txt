@@ -1,0 +1,1 @@
+/Users/bogdan/dotfiles/lib/performance-monitor.sh: line 339: syntax error near unexpected token `('
