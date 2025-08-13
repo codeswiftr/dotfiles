@@ -624,8 +624,8 @@ show_profiles() {
     echo "Profiles defined in config/tools.yaml:"
     echo ""
     
-    # Extract profile information using python for reliable YAML parsing
-    if command -v python3 >/dev/null 2>&1; then
+    # Extract profile information using python (only if PyYAML is available), otherwise fallback
+    if command -v python3 >/dev/null 2>&1 && python3 -c 'import yaml' >/dev/null 2>&1; then
         python3 -c "
 import yaml
 import sys
