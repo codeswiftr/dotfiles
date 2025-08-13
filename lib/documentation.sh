@@ -3433,6 +3433,30 @@ docs_cli() {
         "generate"|"gen")
             generate_documentation "$@"
             ;;
+        "check")
+            # Verify docs/INDEX.md and docs/index.json are up-to-date
+            local before_md after_md before_json after_json
+            if [[ -f "$DOCS_DIR/INDEX.md" ]]; then
+                before_md=$(shasum "$DOCS_DIR/INDEX.md" 2>/dev/null | awk '{print $1}')
+            fi
+            if [[ -f "$DOCS_DIR/index.json" ]]; then
+                before_json=$(shasum "$DOCS_DIR/index.json" 2>/dev/null | awk '{print $1}')
+            fi
+            (cd "$DOTFILES_DIR" && bash scripts/generate-index.sh) >/dev/null 2>&1 || true
+            if [[ -f "$DOCS_DIR/INDEX.md" ]]; then
+                after_md=$(shasum "$DOCS_DIR/INDEX.md" 2>/dev/null | awk '{print $1}')
+            fi
+            if [[ -f "$DOCS_DIR/index.json" ]]; then
+                after_json=$(shasum "$DOCS_DIR/index.json" 2>/dev/null | awk '{print $1}')
+            fi
+            if [[ "$before_md" != "$after_md" || "$before_json" != "$after_json" ]]; then
+                echo "Docs index is stale. Run scripts/generate-index.sh and commit changes." >&2
+                return 1
+            else
+                echo "Docs index is up to date."
+                return 0
+            fi
+            ;;
         "build")
             local format="${1:-html}"
             generate_documentation "$format" "all"
