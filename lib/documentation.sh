@@ -11,8 +11,9 @@ DOCS_BUILD_DIR="$DOCS_DIR/_build"
 DOCS_CACHE_DIR="$HOME/.cache/dotfiles/docs"
 DOCS_CONFIG_FILE="$DOCS_DIR/config.yaml"
 
-# Documentation structure
-declare -A DOC_CATEGORIES=(
+# Documentation structure (guard against nounset in callers)
+declare -A DOC_CATEGORIES || true
+DOC_CATEGORIES=(
     ["getting-started"]="Getting Started Guide"
     ["installation"]="Installation Instructions"
     ["configuration"]="Configuration Guide"

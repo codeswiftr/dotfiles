@@ -1,5 +1,8 @@
 ---
 name: Dotfiles Testing
+concurrency:
+  group: dotfiles-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -12,6 +15,7 @@ on:
 jobs:
   test-macos:
     runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -19,6 +23,13 @@ jobs:
         run: |
           brew install python3 shellcheck yamllint ripgrep || true
           pip3 install --user pyyaml || true
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Run infrastructure tests (agent mode)
         run: |
@@ -64,6 +75,7 @@ PY
 
   test-ubuntu:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -71,6 +83,13 @@ PY
         run: |
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip zsh tmux git
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Run infrastructure tests (agent mode)
         run: |
