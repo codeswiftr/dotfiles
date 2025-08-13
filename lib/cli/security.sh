@@ -348,11 +348,14 @@ security_scan_secrets() {
         if [[ "$quiet" != "true" ]]; then
             print_info "Running gitleaks secret scan..."
         fi
-        
+        local config_flag=()
+        if [[ -f "$DOTFILES_DIR/gitleaks.toml" ]]; then
+            config_flag=("--config" "$DOTFILES_DIR/gitleaks.toml")
+        fi
         if [[ "$quiet" == "true" ]]; then
-            gitleaks detect --no-git >/dev/null 2>&1 || exit_code=1
+            gitleaks detect ${config_flag[@]} --no-git >/dev/null 2>&1 || exit_code=1
         else
-            gitleaks detect --no-git || exit_code=1
+            gitleaks detect ${config_flag[@]} --no-git || exit_code=1
         fi
     # Fallback to truffleHog
     elif command -v truffleHog >/dev/null 2>&1; then

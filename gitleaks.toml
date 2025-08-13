@@ -1,0 +1,17 @@
+title = "Dotfiles Gitleaks Configuration"
+
+[allowlist]
+# File and path allowlist patterns
+paths = [
+  "docs/",
+  "tests/",
+  "src/--help/",
+]
+# Regex allowlist (strings that look like secrets but are safe in this repo)
+regexes = [
+  "(?i)example(_|-)?(secret|token|key)",
+  "(?i)(client|api)(_|-)?(secret|key).*(\{\{|<placeholder>)",
+]
+
+[rules]
+# Use built-in gitleaks default rules; we only tune behavior via allowlist

@@ -59,7 +59,7 @@ See [AGENTS.md](AGENTS.md) for full style guidelines and commit conventions.
 
 See [AGENTS.md](AGENTS.md) for full style guidelines.
 
-## 🧪 Testing & Linting
+## 🧪 Testing, Linting & Security
 
 - Run all tests: `./tests/test_runner.sh`
 - Shell lint: `find . -name "*.sh" -exec shellcheck {} \;`
@@ -68,6 +68,17 @@ See [AGENTS.md](AGENTS.md) for full style guidelines.
 - **Test results:**
   - Review summary in `tests/results/` after running the test suite.
   - If tests fail, check troubleshooting guides and open an issue or PR to help improve coverage.
+
+### Large Files & Binaries Policy
+
+- Do not commit compiled binaries to `bin/`. Use package managers or install scripts in `scripts/`.
+- If a binary is necessary for local workflows, add it to `.gitignore` and provide an installer.
+- Prefer Git LFS for unavoidable large artifacts; avoid in this repo when possible.
+
+### Secret Scanning
+
+- Secret scanning uses `gitleaks` when available, configured via `gitleaks.toml`.
+- Prefer environment variables and git-ignored `.env` files for secrets.
 
 ## 📝 Commit & PR Guidelines
 
