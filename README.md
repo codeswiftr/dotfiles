@@ -104,6 +104,9 @@ nvim   # Press <Space>? for command discovery
 tmux   # Minimal essential keybindings
 
 # Quick health
+dot reload   # or simply: reload
+
+# Quick health
 dot-health
 ```
 

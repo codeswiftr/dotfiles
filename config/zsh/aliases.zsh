@@ -92,7 +92,7 @@ alias jbook="jupyter notebook"
 
 # System aliases
 alias src="source ~/.zshrc"
-alias reload="source ~/.zshrc"
+alias reload="dot-reload"
 alias man="~/dotfiles/viman"
 alias vim="nvim"
 alias vi="nvim"
