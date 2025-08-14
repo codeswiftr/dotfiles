@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mode="${1:-python}"
+ver=""
+
+if [[ "$mode" == "python" ]]; then
+  if /bin/zsh -lc 'command -v mise >/dev/null 2>&1' >/dev/null 2>&1; then
+    # shellcheck disable=SC2016
+    ver=$(/bin/zsh -lc 'mise current python 2>/dev/null | awk "{print \$2}"' 2>/dev/null || true)
+  fi
+  if [[ -z "${ver:-}" ]]; then
+    ver=$(python3 - <<'PY' 2>/dev/null || true
+import sys
+print(f"{sys.version_info[0]}.{sys.version_info[1]}")
+PY
+)
+  fi
+  if [[ -z "${ver:-}" ]]; then
+    ver=$(python - <<'PY' 2>/dev/null || true
+import sys
+print(f"{sys.version_info[0]}.{sys.version_info[1]}")
+PY
+)
+  fi
+elif [[ "$mode" == "node" ]]; then
+  if /bin/zsh -lc 'command -v mise >/dev/null 2>&1' >/dev/null 2>&1; then
+    # shellcheck disable=SC2016
+    ver=$(/bin/zsh -lc 'mise current node 2>/dev/null | awk "{print \$2}"' 2>/dev/null || true)
+  fi
+  if [[ -z "${ver:-}" ]]; then
+    ver=$(node -v 2>/dev/null | sed -E 's/^v?([0-9]+).*/\1/' || true)
+  else
+    ver=$(printf "%s" "$ver" | sed -E 's/^v?([0-9]+).*/\1/')
+  fi
+else
+  printf "-"
+  exit 0
+fi
+
+if [[ -n "${ver:-}" ]]; then
+  printf "v%s" "$ver"
+else
+  printf "-"
+fi
+
+

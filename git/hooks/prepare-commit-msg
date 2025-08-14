@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Unified prepare-commit-msg hook runner (global)
+# Passes the commit message file to pre-commit when available
+
+COMMIT_MSG_FILE="${1:-}"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$REPO_ROOT"
+
+if command -v pre-commit >/dev/null 2>&1; then
+  if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always
+    exit $?
+  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always \
+      --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+    exit $?
+  fi
+fi
+
+exit 0
+
+

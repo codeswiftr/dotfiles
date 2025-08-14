@@ -21,18 +21,15 @@ if command -v cz >/dev/null 2>&1; then
   fi
 fi
 
-# 2) pre-commit commit-msg stage
+# 2) pre-commit commit-msg stage (pass commit message path explicitly)
 if command -v pre-commit >/dev/null 2>&1; then
-  if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ] || [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
-    # pre-commit handles staged input; for commit-msg, it inspects $1 via hooks that declare stages: [commit-msg]
-    if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
-      PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --color always
-      exit $?
-    else
-      PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --color always \
-        --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
-      exit $?
-    fi
+  if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always
+    exit $?
+  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always \
+      --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+    exit $?
   fi
 fi
 

@@ -81,6 +81,25 @@ exit 0
 EOF
   fi
 
+  # prepare-commit-msg runner
+  if [ ! -f "$HOOKS_PATH/prepare-commit-msg" ]; then
+    warn "Missing $HOOKS_PATH/prepare-commit-msg; creating minimal runner"
+    install -m 0755 /dev/stdin "$HOOKS_PATH/prepare-commit-msg" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+COMMIT_MSG_FILE="${1:-}"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; cd "$REPO_ROOT"
+if command -v pre-commit >/dev/null 2>&1; then
+  if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always
+  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+  fi
+fi
+exit 0
+EOF
+  fi
+
   # Set global hooks path
   git config --global core.hooksPath "$HOOKS_PATH"
   info "core.hooksPath set to $HOOKS_PATH"

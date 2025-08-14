@@ -4,12 +4,15 @@ set -euo pipefail
 # Unified pre-push hook runner (global)
 # Behavior:
 # - Prefer pre-commit hooks declared with stages: [pre-push]
+# - Pass remote and URL args to pre-commit via environment for tools needing context
 # - Else, run a minimal safety net: large file and conflict marker guard on pushed changes
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
 if command -v pre-commit >/dev/null 2>&1; then
+  export GIT_REMOTE_NAME="${1:-}"
+  export GIT_REMOTE_URL="${2:-}"
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always
     exit $?
