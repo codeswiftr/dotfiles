@@ -10,7 +10,7 @@
     editor = nvim
     autocrlf = input
     excludesfile = ~/.gitignore_global
-    hooksPath = ~/.config/git/hooks
+	hooksPath = ~/dotfiles/git/hooks
 
 [init]
     defaultBranch = main

@@ -1,0 +1,64 @@
+# Global pre-commit configuration for Bogdan's macOS dev environment
+# Runs only on staged files by default
+
+minimum_pre_commit_version: "3.5.0"
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+ci:
+  skip: [pre-push]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=5120"]
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+
+  # Shell
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.7.0-4
+    hooks:
+      - id: shfmt
+        additional_dependencies: []
+        files: \.(sh|bash|zsh)$
+        args: ["-i", "2", "-bn", "-ci"]
+
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: shellcheck
+        files: \.(sh|bash|zsh)$
+        # Only run if shellcheck is available; pre-commit will download otherwise
+
+  # Python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.8
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        additional_dependencies: []
+        exclude: ^(\.venv|\.env|.*/site-packages/)
+      - id: ruff-format
+
+  # JavaScript/TypeScript (if repo has Node project files)
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        additional_dependencies: []
+        types_or: [javascript, jsx, ts, tsx, json, yaml, markdown]
+        # Only run when Node toolchain is present
+        require_serial: false
+
+  # Commit message checks via commitizen (if configured in repo)
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.30.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+        additional_dependencies: []
+
+
