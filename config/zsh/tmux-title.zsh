@@ -280,7 +280,14 @@ tmux_attach_hook() {
 }
 
 # Override default tmux attach behavior (preserve shorthand)
-alias ta='tmux_attach_hook'
+# Keep interactive ta experience while preserving title hooks via picker route
+ta() {
+    if [[ -n "$1" ]]; then
+        tmux_session_with_title "$1"
+    else
+        tmux_session_picker
+    fi
+}
 alias tl='tmux list-sessions'
 
 echo "🪟 Dynamic terminal titles configured!"
