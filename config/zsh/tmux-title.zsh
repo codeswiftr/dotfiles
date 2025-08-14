@@ -279,8 +279,9 @@ tmux_attach_hook() {
     fi
 }
 
-# Override default tmux attach behavior
+# Override default tmux attach behavior (preserve shorthand)
 alias ta='tmux_attach_hook'
+alias tl='tmux list-sessions'
 
 echo "🪟 Dynamic terminal titles configured!"
 echo "💡 Commands:"

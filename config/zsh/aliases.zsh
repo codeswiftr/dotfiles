@@ -132,6 +132,7 @@ alias mise-opt="mise-optimize"
 
 # Tmux session management aliases
 alias ts="tmux list-sessions"       # List tmux sessions
+alias tl="tmux list-sessions"       # Common muscle memory: tl -> list
 alias ta="tmux attach-session -t"   # Attach to session by name
 alias tk="tmux kill-session -t"     # Kill session by name
 alias tn="tmux new-session -s"      # Create new named session
