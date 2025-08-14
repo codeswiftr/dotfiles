@@ -205,3 +205,16 @@ if [[ -d "$DOTFILES_DIR/completions" ]]; then
         fi
     done
 fi
+
+# -----------------------------------------------------------------------------
+# tmux session completion for `ta` (attach)
+# Restores fzf-friendly completion: `ta <TAB>` lists sessions
+# -----------------------------------------------------------------------------
+_ta() {
+    local -a sessions
+    sessions=(${(f)"$(tmux list-sessions -F '#S' 2>/dev/null)"})
+    if (( ${#sessions[@]} )); then
+        compadd -a sessions
+    fi
+}
+compdef _ta ta

@@ -142,7 +142,8 @@ ta() {
     # Interactive session picker
     local choice=""
     if command -v fzf >/dev/null 2>&1; then
-        choice=$(tmux list-sessions -F "#S" 2>/dev/null | fzf --prompt='attach> ' --height 40% --reverse || true)
+        # fzf picker with window preview
+        choice=$(tmux list-sessions -F "#S" 2>/dev/null | fzf --prompt='ta > ' --height 40% --reverse --preview 'tmux list-windows -t {}' --preview-window=down,50% || true)
     else
         local sessions=($(tmux list-sessions -F "#S" 2>/dev/null))
         if [[ ${#sessions[@]} -eq 0 ]]; then
