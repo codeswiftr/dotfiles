@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Unified pre-commit hook runner (global)
+# Behavior:
+# - If repo has its own .pre-commit-config.{yml,yaml}, run it on staged files
+# - Else, if a global config exists in dotfiles, run that on staged files
+# - Else, no-op
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$REPO_ROOT"
+
+if command -v pre-commit >/dev/null 2>&1; then
+    if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
+        PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-commit --color always
+        exit $?
+    elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+        PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-commit --color always \
+            --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+        exit $?
+    else
+        # Nothing to do
+        exit 0
+    fi
+else
+    echo "[pre-commit] pre-commit not found; skipping (install with: pipx install pre-commit)" 1>&2
+    exit 0
+fi
+
+

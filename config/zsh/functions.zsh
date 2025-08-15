@@ -29,6 +29,26 @@ function proj() {
     fi
 }
 
+# dot reload wrapper: reload all configs in the current interactive shell
+dot-reload() {
+    # 1) tmux: reload server-side config
+    if command -v tmux >/dev/null 2>&1; then
+        tmux source-file ~/.tmux.conf 2>/dev/null || true
+    fi
+    # 2) mise: refresh shims
+    if command -v mise >/dev/null 2>&1; then
+        mise reshim >/dev/null 2>&1 || true
+    fi
+    # 3) zsh: re-source configs in-place to avoid spawning a subshell
+    if [[ -f "$HOME/.zshrc" ]]; then
+        source "$HOME/.zshrc"
+        echo "✅ Reloaded shell configuration (zsh)"
+    fi
+}
+
+# Alias for convenience (muscle memory)
+alias dot-reload='dot-reload'
+
 # Tmux session management
 function tmux-project() {
     local project_name=$(basename $(pwd))

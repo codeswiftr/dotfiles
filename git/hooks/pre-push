@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Unified pre-push hook runner (global)
+# Behavior:
+# - Prefer pre-commit hooks declared with stages: [pre-push]
+# - Pass remote and URL args to pre-commit via environment for tools needing context
+# - Else, run a minimal safety net: large file and conflict marker guard on pushed changes
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$REPO_ROOT"
+
+if command -v pre-commit >/dev/null 2>&1; then
+  export GIT_REMOTE_NAME="${1:-}"
+  export GIT_REMOTE_URL="${2:-}"
+  if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always
+    exit $?
+  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always \
+      --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+    exit $?
+  fi
+fi
+
+# Minimal safety net when pre-commit not configured
+echo "[pre-push] pre-commit not configured; running minimal checks..." 1>&2
+
+# Identify to-be-pushed commits and files (best-effort)
+upstream="@{u}"
+if git rev-parse "$upstream" >/dev/null 2>&1; then
+  changed_files=$(git diff --name-only "$upstream"...HEAD || true)
+else
+  changed_files=$(git diff --name-only --cached || true)
+fi
+
+rc=0
+
+# Large file guard (>5MB)
+if [ -n "$changed_files" ]; then
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    size=$(wc -c < "$f" 2>/dev/null || echo 0)
+    if [ "$size" -gt 5242880 ]; then
+      echo "[pre-push] Large file detected (>5MB): $f" 1>&2
+      rc=1
+    fi
+  done <<EOF
+$changed_files
+EOF
+fi
+
+# Conflict marker guard
+if [ -n "$changed_files" ]; then
+  if rg -n "^(<<<<<<< |=======|>>>>>>> )" $changed_files >/dev/null 2>&1; then
+    echo "[pre-push] Conflict markers present in staged files." 1>&2
+    rc=1
+  fi
+fi
+
+exit "$rc"
+
+

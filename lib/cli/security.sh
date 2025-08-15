@@ -427,7 +427,7 @@ security_scan_secrets() {
                         print_warning "Potential secret pattern found ($pattern) in: $file_path"
                     fi
                 fi
-            done < <(grep -RIn ${grep_excludes[@]} "$pattern" . 2>/dev/null || true)
+            done < <(grep -RIn "${grep_excludes[@]}" "$pattern" . 2>/dev/null || true)
         done
 
         if [[ $found_flag -eq 1 ]]; then

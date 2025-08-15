@@ -1,6 +1,6 @@
 ## Repository Index (auto-generated)
 
-Generated: 2025-08-13
+Generated: 2025-08-14
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
@@ -17,6 +17,7 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `README.md`
 - `VERSION`
 - `dotfiles-tutor`
+- `gitleaks.toml`
 - `install.sh`
 
 ### Directories

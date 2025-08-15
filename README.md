@@ -104,6 +104,9 @@ nvim   # Press <Space>? for command discovery
 tmux   # Minimal essential keybindings
 
 # Quick health
+dot reload   # or simply: reload
+
+# Quick health
 dot-health
 ```
 
@@ -392,6 +395,69 @@ find . -name "*.yaml" -o -name "*.yml" | xargs yamllint
 ```
 
 - See [docs/technical-debt.md](docs/technical-debt.md) for current coverage gaps and how to help improve testing/linting.
+
+## 🔗 Global Git Hooks (Unified)
+
+This dotfiles setup installs fast, reliable global Git hooks powered by pre-commit.
+
+Quick start:
+
+```bash
+# One-time setup (idempotent)
+~/dotfiles/scripts/install_git_hooks.sh
+
+# Verify
+git config --global --get core.hooksPath   # -> ~/dotfiles/git/hooks
+pre-commit --version
+```
+
+How it works:
+
+- Global runners live in `~/dotfiles/git/hooks` and are set via `core.hooksPath`.
+- If a repository has its own `.pre-commit-config.yaml`, that configuration runs.
+- Otherwise, the global config `~/dotfiles/pre-commit-global.yaml` is used.
+- Commit messages are validated via `commitizen (cz)` if available, otherwise any commit-msg hooks in pre-commit are used. If neither is present, commit proceeds with a warning.
+
+What’s included globally:
+
+- Merge conflict marker guard, large file guard (5MB), EOF/trailing whitespace/line endings.
+- Shell: `shfmt`, `shellcheck`.
+- Python: `ruff` (lint + format).
+- JS/TS/Markdown/YAML: `prettier` (auto-format when Node is present).
+- Commit message: `commitizen` check (when installed).
+
+Performance & reliability:
+
+- Only staged files are processed by default.
+- Pre-commit caches environments automatically.
+- CI-safe: you can skip hooks using `--no-verify`; heavy checks should be run in CI.
+
+Per-repo overrides:
+
+- Add a `.pre-commit-config.yaml` in a repository to fully control hook behavior.
+- You can install additional hook types per repo:
+  ```bash
+  pre-commit install --hook-type commit-msg --hook-type pre-push
+  ```
+
+Rollback:
+
+```bash
+# Remove global hooks
+git config --global --unset core.hooksPath || true
+
+# Or switch to repo-local hooks directory
+git -C <repo> config core.hooksPath .git/hooks
+```
+
+Troubleshooting:
+
+- Install missing tools:
+  - pre-commit: `pipx install pre-commit`
+  - commitizen: `pipx install commitizen`
+  - shellcheck: `brew install shellcheck`
+  - shfmt: `brew install shfmt`
+
 
 ## 🔄 **Updates and Migration**
 

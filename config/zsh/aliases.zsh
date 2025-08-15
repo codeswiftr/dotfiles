@@ -92,7 +92,7 @@ alias jbook="jupyter notebook"
 
 # System aliases
 alias src="source ~/.zshrc"
-alias reload="source ~/.zshrc"
+alias reload="dot-reload"
 alias man="~/dotfiles/viman"
 alias vim="nvim"
 alias vi="nvim"
@@ -132,7 +132,33 @@ alias mise-opt="mise-optimize"
 
 # Tmux session management aliases
 alias ts="tmux list-sessions"       # List tmux sessions
-alias ta="tmux attach-session -t"   # Attach to session by name
+alias tl="tmux list-sessions"       # Common muscle memory: tl -> list
+# Attach to session by name; if no param, open interactive picker
+ta() {
+    if [[ -n "$1" ]]; then
+        tmux attach-session -t "$1"
+        return
+    fi
+    # Interactive session picker
+    local choice=""
+    if command -v fzf >/dev/null 2>&1; then
+        # fzf picker with window preview
+        choice=$(tmux list-sessions -F "#S" 2>/dev/null | fzf --prompt='ta > ' --height 40% --reverse --preview 'tmux list-windows -t {}' --preview-window=down,50% || true)
+    else
+        local sessions=($(tmux list-sessions -F "#S" 2>/dev/null))
+        if [[ ${#sessions[@]} -eq 0 ]]; then
+            echo "No tmux sessions found. Create one with: tn <name>"
+            return 1
+        fi
+        echo "Available sessions: ${sessions[*]}"
+        read -r "choice?Attach to session: "
+    fi
+    if [[ -n "$choice" ]]; then
+        tmux attach-session -t "$choice"
+    else
+        echo "Cancelled"
+    fi
+}
 alias tk="tmux kill-session -t"     # Kill session by name
 alias tn="tmux new-session -s"      # Create new named session
 

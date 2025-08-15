@@ -239,21 +239,18 @@ EOF
     
     for test_file in "${INFRASTRUCTURE_TESTS[@]}"; do
         local status="✅ PASSED"
-        # Iterate safely even if FAILED_TESTS is unset or empty
-        _failed_list=()
         if [[ ${#FAILED_TESTS[@]:-0} -gt 0 ]]; then
-            IFS=$'\n' read -r -d '' -a _failed_list < <(printf '%s\0' "${FAILED_TESTS[@]}" 2>/dev/null || true) || true
-        fi
-        for failed_test in "${_failed_list[@]:-}"; do
+          for failed_test in "${FAILED_TESTS[@]}"; do
             if [[ "$failed_test" == "$test_file" ]]; then
                 status="❌ FAILED"
                 break
             fi
-        done
+          done
+        fi
         echo "- $test_file: $status" >> "$report_file"
     done
     
-    if [[ ${#FAILED_TESTS[@]} -gt 0 ]]; then
+    if [[ ${#FAILED_TESTS[@]:-0} -gt 0 ]]; then
         cat >> "$report_file" << EOF
 
 ## Failed Tests

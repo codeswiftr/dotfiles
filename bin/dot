@@ -7,7 +7,8 @@
 set -euo pipefail
 
 # Configuration
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+# Resolve repository root based on this script location, unless explicitly provided
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 DOT_VERSION="1.0.0"
 DOT_CLI_DIR="$DOTFILES_DIR/lib/cli"
 
@@ -288,7 +289,19 @@ main() {
             fi
             ;;
         "reload")
-            exec "$SHELL"
+            # Best-effort reload of runtime-managed configs.
+            # Note: re-sourcing the parent shell (e.g., ~/.zshrc) must be done from the shell process.
+            # A zsh wrapper function is provided in config/zsh/functions.zsh to handle that automatically
+            # when you run `dot reload`. Here we refresh external daemons and tmux config.
+            if command -v tmux >/dev/null 2>&1; then
+                tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
+                print_info "Reloaded tmux configuration"
+            fi
+            if command -v mise >/dev/null 2>&1; then
+                mise reshim >/dev/null 2>&1 || true
+                print_info "Refreshed mise shims"
+            fi
+            print_info "If your shell environment did not refresh, run: source ~/.zshrc"
             ;;
         "version")
             show_version

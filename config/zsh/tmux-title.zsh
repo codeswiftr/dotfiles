@@ -18,10 +18,10 @@ set_terminal_title() {
     title=$(echo "$title" | tr -d '\000-\037\177' | head -c 100)
     
     if [[ -n "$title" ]]; then
-        # Use BEL terminator (\007) for better macOS Terminal.app compatibility
+        # Set both window (OSC 2), icon/tab (OSC 1), and general title (OSC 0)
         printf '\033]2;%s\007' "$title"
-        # Also set tab title for iTerm2
         printf '\033]1;%s\007' "$title"
+        printf '\033]0;%s\007' "$title"
     else
         echo "⚠️  Warning: Title was empty after sanitization"
         return 1
@@ -30,31 +30,36 @@ set_terminal_title() {
 
 # Function to update terminal title based on tmux state
 update_terminal_title() {
-    # Check if we're inside tmux
+    # If inside tmux, set title based on tmux session/window (avoid process suffix)
     if [[ -n "$TMUX" ]]; then
-        # Let tmux drive the terminal/tab title via set-titles-string; avoid double-setting here
+        local title
+        title="$(tmux display-message -p '#S > #W' 2>/dev/null || echo 'tmux')"
+        set_terminal_title "$title"
         return 0
-    else
-        # Not in tmux, use current directory or hostname
-        local title="$(basename "$PWD")"
-        
-        # If in home directory, show hostname instead
-        if [[ "$PWD" == "$HOME" ]]; then
-            title="$(hostname -s)"
-        fi
     fi
-    
-    # Set the terminal window/tab title using our direct function
+
+    # Not in tmux: use current directory or hostname
+    local title="$(basename "$PWD")"
+    if [[ "$PWD" == "$HOME" ]]; then
+        title="$(hostname -s)"
+    fi
     set_terminal_title "$title"
 }
 
 # Function to set up automatic title updates
 setup_tmux_title_integration() {
+    autoload -Uz add-zsh-hook 2>/dev/null || true
     # Update title when changing directories
     chpwd_functions+=(update_terminal_title)
     
     # Update title before each prompt (catches tmux session/window changes)
     precmd_functions+=(update_terminal_title)
+    
+    # Optional periodic refresh to override terminals that restore "active process" after idle
+    if [[ -z "${TMUX_TITLE_DISABLE_PERIODIC:-}" ]]; then
+        : ${PERIOD:=10}
+        add-zsh-hook periodic update_terminal_title 2>/dev/null || true
+    fi
     
     # Update title when entering/exiting tmux
     if [[ -n "$TMUX" ]]; then
@@ -80,10 +85,10 @@ tmux_session_with_title() {
     # Create or attach to session
     if tmux has-session -t "$session_name" 2>/dev/null; then
         echo "📱 Attaching to existing session: $session_name"
-        tmux attach-session -t "$session_name"
+        exec tmux attach-session -t "$session_name"
     else
         echo "🚀 Creating new session: $session_name"
-        tmux new-session -s "$session_name"
+        exec tmux new-session -s "$session_name"
     fi
     
     # Update title after tmux session change
@@ -114,7 +119,7 @@ tmux_session_picker() {
     case "$choice" in
         [1-9]*)
             if [[ $choice -le ${#sessions[@]} ]]; then
-                tmux_session_with_title "${sessions[$choice]}"
+            tmux_session_with_title "${sessions[$choice]}"
             else
                 echo "Invalid selection"
             fi
@@ -279,8 +284,16 @@ tmux_attach_hook() {
     fi
 }
 
-# Override default tmux attach behavior
-alias ta='tmux_attach_hook'
+# Override default tmux attach behavior (preserve shorthand)
+# Keep interactive ta experience while preserving title hooks via picker route
+ta() {
+    if [[ -n "$1" ]]; then
+        tmux_session_with_title "$1"
+    else
+        tmux_session_picker
+    fi
+}
+alias tl='tmux list-sessions'
 
 echo "🪟 Dynamic terminal titles configured!"
 echo "💡 Commands:"
