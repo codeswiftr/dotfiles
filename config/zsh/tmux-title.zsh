@@ -48,11 +48,18 @@ update_terminal_title() {
 
 # Function to set up automatic title updates
 setup_tmux_title_integration() {
+    autoload -Uz add-zsh-hook 2>/dev/null || true
     # Update title when changing directories
     chpwd_functions+=(update_terminal_title)
     
     # Update title before each prompt (catches tmux session/window changes)
     precmd_functions+=(update_terminal_title)
+    
+    # Optional periodic refresh to override terminals that restore "active process" after idle
+    if [[ -z "${TMUX_TITLE_DISABLE_PERIODIC:-}" ]]; then
+        : ${PERIOD:=10}
+        add-zsh-hook periodic update_terminal_title 2>/dev/null || true
+    fi
     
     # Update title when entering/exiting tmux
     if [[ -n "$TMUX" ]]; then
