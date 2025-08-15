@@ -84,6 +84,25 @@ return {
   },
 
   -- ============================================================================
+  -- 3b. INTEGRATED TERMINAL - Lightweight toggle terminal
+  -- ============================================================================
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    keys = {
+      { "<leader>tt", function() require("toggleterm").toggle() end, desc = "Toggle terminal" },
+    },
+    cmd = { "ToggleTerm", "TermExec" },
+    opts = {
+      open_mapping = [[<c-`>]],
+      direction = "float",
+      shade_terminals = true,
+      float_opts = { border = "rounded" },
+      size = 12,
+    },
+  },
+
+  -- ============================================================================
   -- 4. LSP CONFIGURATION - Lazy-loaded language server support
   -- ============================================================================
   {

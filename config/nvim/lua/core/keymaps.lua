@@ -39,6 +39,11 @@ keymap("n", "<C-j>", "<C-w>j", { desc = "Go to bottom window" })
 keymap("n", "<C-k>", "<C-w>k", { desc = "Go to top window" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 
+-- Optional split navigation via s+hjkl (only if module exists)
+pcall(function()
+  require("core.split-navigation")
+end)
+
 -- Buffer list (essential for file switching)
 keymap("n", "<leader>b", "<cmd>Telescope buffers<cr>", { desc = "Buffer list" })
 
@@ -87,6 +92,11 @@ keymap("v", "K", ":m '<-2<CR>gv=gv", opts)
 
 -- Better paste (don't lose clipboard content)
 keymap("v", "p", '"_dP', opts)
+
+-- Quick terminal toggle (if toggleterm is available)
+pcall(function()
+  keymap("n", "<leader>tt", function() require("toggleterm").toggle() end, { desc = "Toggle terminal" })
+end)
 
 -- ============================================================================
 -- Insert Mode Essentials
