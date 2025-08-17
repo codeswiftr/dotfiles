@@ -16,7 +16,10 @@
       "Bash(cp:*)",
       "Bash(./install.sh:*)",
       "Bash(git restore:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(gh repo view:*)",
+      "Bash(nvim:*)",
+      "Bash(tmux list-keys:*)"
     ],
     "deny": []
   }
