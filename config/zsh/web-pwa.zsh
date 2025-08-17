@@ -22,7 +22,7 @@ fastapi-init() {
     # Initialize with uv
     uv init
     uv add fastapi uvicorn[standard] python-multipart python-jose[cryptography] passlib[bcrypt]
-    uv add --dev pytest pytest-asyncio httpx pytest-cov ruff black
+    uv add --dev pytest pytest-asyncio httpx pytest-cov ruff
     
     # Add database dependencies if requested
     if [[ "$with_db" == "true" ]]; then

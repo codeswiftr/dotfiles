@@ -391,9 +391,8 @@ create_python_devcontainer() {
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "ms-python.black-formatter",
-                "ms-python.isort",
-                "charliermarsh.ruff"
+                "charliermarsh.ruff",
+                "ms-python.isort"
             ]
         }
     },

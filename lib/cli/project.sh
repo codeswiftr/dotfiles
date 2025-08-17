@@ -189,11 +189,11 @@ create_fastapi_project() {
     if command -v uv >/dev/null 2>&1; then
         uv init --python 3.11
         uv add fastapi uvicorn pytest httpx
-        uv add --dev black isort mypy
+        uv add --dev ruff mypy
     else
         python -m venv venv
         source venv/bin/activate
-        pip install fastapi uvicorn pytest httpx black isort mypy
+        pip install fastapi uvicorn pytest httpx ruff mypy
     fi
     
     # Create basic FastAPI structure
@@ -306,11 +306,11 @@ create_python_project() {
     
     if command -v uv >/dev/null 2>&1; then
         uv init --python 3.11
-        uv add --dev pytest black isort mypy
+        uv add --dev pytest ruff mypy
     else
         python -m venv venv
         source venv/bin/activate
-        pip install pytest black isort mypy
+        pip install pytest ruff mypy
     fi
     
     mkdir -p src tests

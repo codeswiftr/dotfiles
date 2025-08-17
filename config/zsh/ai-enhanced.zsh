@@ -145,8 +145,8 @@ optimize-code() {
         # Apply standard formatting
         case "$file" in
             *.py)
-                if command -v black >/dev/null 2>&1; then
-                    black "$file"
+                if command -v ruff >/dev/null 2>&1; then
+                    ruff format "$file"
                 fi
                 if command -v isort >/dev/null 2>&1; then
                     isort "$file"
