@@ -220,24 +220,3 @@ return {
   },
 
 }
-
--- ============================================================================
--- Tier 1 Success Message
--- ============================================================================
--- NOTE: Startup messaging handled in init.lua based on tier
-
--- ============================================================================
--- Performance Monitoring and Tier System
--- ============================================================================
-
--- Essential keymaps for Tier 1 (kept here to avoid duplication)
-vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
-vim.keymap.set("n", "<leader>q", "<cmd>q<cr>", { desc = "Quit" })
-vim.keymap.set("n", "<leader>/", "<cmd>nohlsearch<cr>", { desc = "Clear search" })
-vim.keymap.set("i", "jk", "<esc>", { desc = "Exit insert mode" })
-
--- Startup time monitoring
--- NOTE: Profiling handled in init.lua when tier == 1
-
--- Set tier indicator
--- NOTE: Tier indicator managed by tier-manager
