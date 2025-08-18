@@ -158,12 +158,12 @@ PY
         local cmd
         cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
         sed -n "/    install:/,/^    [a-zA-Z]/p" | \
-        grep "      $os:" | cut -d'\"' -f2)
+        grep "      $os:" | cut -d'"' -f2)
         if [[ -z "$cmd" ]]; then
             # Fallback to 'all:'
             cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
             sed -n "/    install:/,/^    [a-zA-Z]/p" | \
-            grep "      all:" | cut -d'\"' -f2)
+            grep "      all:" | cut -d'"' -f2)
         fi
         echo "$cmd"
     fi
@@ -181,7 +181,7 @@ print((data.get('tools', {}).get(tool, {}) or {}).get('verify', '') or '')
 PY
     else
         sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-        grep "    verify:" | cut -d'\"' -f2
+        grep "    verify:" | cut -d'"' -f2
     fi
 }
 
