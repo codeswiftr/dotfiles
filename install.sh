@@ -137,7 +137,11 @@ detect_os() {
 
 # YAML helpers (prefer Python PyYAML; fallback to legacy parsing)
 has_pyyaml() {
-    python3 -c 'import yaml' >/dev/null 2>&1
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -c 'import yaml' >/dev/null 2>&1
+    else
+        return 1
+    fi
 }
 
 yaml_query_install_cmd() {
@@ -413,6 +417,16 @@ setup_package_manager() {
             else
                 print_info "Homebrew already installed"
             fi
+            
+            # Ensure PyYAML is available for better YAML parsing
+            if ! has_pyyaml; then
+                print_step "Installing PyYAML for better configuration parsing..."
+                if [[ "$DRY_RUN" == "true" ]]; then
+                    print_info "DRY RUN: Would install PyYAML"
+                else
+                    python3 -m pip install --user PyYAML || pip3 install PyYAML || true
+                fi
+            fi
             ;;
         "ubuntu")
             if [[ "$DRY_RUN" == "true" ]]; then
@@ -421,6 +435,16 @@ setup_package_manager() {
                 print_step "Updating apt packages..."
                 sudo apt update && sudo apt upgrade -y
                 print_success "Package manager updated"
+            fi
+            
+            # Ensure PyYAML is available for better YAML parsing
+            if ! has_pyyaml; then
+                print_step "Installing PyYAML for better configuration parsing..."
+                if [[ "$DRY_RUN" == "true" ]]; then
+                    print_info "DRY RUN: Would install PyYAML"
+                else
+                    sudo apt install -y python3-pip python3-yaml || python3 -m pip install --user PyYAML || pip3 install PyYAML || true
+                fi
             fi
             ;;
         "arch")
@@ -435,6 +459,16 @@ setup_package_manager() {
                 fi
             else
                 print_info "yay already installed"
+            fi
+            
+            # Ensure PyYAML is available for better YAML parsing
+            if ! has_pyyaml; then
+                print_step "Installing PyYAML for better configuration parsing..."
+                if [[ "$DRY_RUN" == "true" ]]; then
+                    print_info "DRY RUN: Would install PyYAML"
+                else
+                    sudo pacman -S --noconfirm python-pip python-yaml || python3 -m pip install --user PyYAML || pip3 install PyYAML || true
+                fi
             fi
             ;;
         *)

@@ -6,6 +6,19 @@
 
 set -euo pipefail
 
+# Handle Graphviz dot command conflict
+if [[ $# -eq 0 ]] || [[ "$1" =~ ^-[VvGNETKlosxnLPqscyO?] ]]; then
+    # If no arguments or arguments look like Graphviz dot flags, delegate to system dot
+    if command -v /opt/homebrew/bin/dot >/dev/null 2>&1; then
+        exec /opt/homebrew/bin/dot "$@"
+    elif command -v /usr/bin/dot >/dev/null 2>&1; then
+        exec /usr/bin/dot "$@"
+    else
+        echo "Error: Graphviz dot command not found. Install with: brew install graphviz" >&2
+        exit 1
+    fi
+fi
+
 # Configuration
 # Resolve repository root based on this script location, unless explicitly provided
 DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
