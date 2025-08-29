@@ -1,0 +1,136 @@
+name: ⚡ Quick PR Validation
+
+on:
+  pull_request:
+    branches: [ main, master ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+
+env:
+  DOTFILES_CI: true
+  DOTFILES_AGENT_MODE: true
+
+jobs:
+  quick-checks:
+    name: ⚡ Quick Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck yamllint bc python3 python3-pip
+          python3 -m pip install --user pyyaml
+
+      - name: Syntax validation
+        run: |
+          echo "::group::Syntax Validation"
+          
+          # Check shell script syntax
+          find . -name "*.sh" -type f -exec bash -n {} \;
+          echo "✅ Shell script syntax valid"
+          
+          # Check YAML syntax  
+          python3 -c "
+          import yaml
+          with open('config/tools.yaml', 'r') as f:
+              yaml.safe_load(f)
+          print('✅ YAML syntax valid')
+          "
+          
+          echo "::endgroup::"
+
+      - name: Critical linting
+        run: |
+          echo "::group::Critical Linting"
+          
+          # Run shellcheck on critical files only
+          shellcheck install.sh bin/dot
+          echo "✅ Critical files pass shellcheck"
+          
+          # Basic YAML validation
+          yamllint config/tools.yaml
+          echo "✅ Configuration YAML is valid"
+          
+          echo "::endgroup::"
+
+      - name: Installation smoke test
+        run: |
+          echo "::group::Installation Smoke Test"
+          
+          # Quick dry-run test
+          ./install.sh install minimal --dry-run
+          echo "✅ Installation dry-run successful"
+          
+          # DOT CLI smoke test
+          export DOTFILES_DIR="$PWD"
+          ./bin/dot --help > /dev/null
+          ./bin/dot version > /dev/null
+          echo "✅ DOT CLI smoke test passed"
+          
+          echo "::endgroup::"
+
+      - name: Security quick scan
+        run: |
+          echo "::group::Security Quick Scan"
+          
+          # Look for obvious security issues
+          if grep -r -E "(password|secret|key).*=.*[\"'][^\"']{10,}" . \
+             --exclude-dir=.git --exclude="*.md" > /dev/null; then
+            echo "❌ Potential hardcoded secrets found"
+            exit 1
+          fi
+          
+          # Check file permissions
+          if find . -type f -perm /o+w -not -path "./.git/*" | head -1 | read; then
+            echo "⚠️  World-writable files detected"
+          fi
+          
+          echo "✅ Basic security checks passed"
+          echo "::endgroup::"
+
+  notify:
+    name: 📢 PR Status Update
+    runs-on: ubuntu-latest
+    needs: [quick-checks]
+    if: always()
+    steps:
+      - name: Update PR status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            
+            const success = '${{ needs.quick-checks.result }}' === 'success';
+            const status = success ? '✅ Quick validation passed' : '❌ Quick validation failed';
+            
+            const body = `## ${status}
+            
+            **Validation Summary:**
+            - Syntax validation: ${success ? '✅' : '❌'}
+            - Critical linting: ${success ? '✅' : '❌'} 
+            - Installation smoke test: ${success ? '✅' : '❌'}
+            - Security quick scan: ${success ? '✅' : '❌'}
+            
+            ${success ? 
+              '🚀 Ready for comprehensive testing! Use `/test` comment to trigger full test suite.' : 
+              '🔧 Please fix validation issues before comprehensive testing.'
+            }
+            
+            [View detailed results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

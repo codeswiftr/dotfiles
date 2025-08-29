@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Dotfiles Testing Framework - Main Test Runner
-# Runs all infrastructure tests and provides comprehensive reporting
+# Orchestrates comprehensive testing across all categories with enhanced reporting
 
 set -euo pipefail
 
@@ -14,7 +14,7 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-# Dependency checks (mise/asdf-friendly)
+# Enhanced dependency checking (mise/asdf-friendly)
 missing=0
 check_dep() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -29,9 +29,16 @@ check_python_module() {
   fi
 }
 
+# Check critical dependencies
 check_dep shellcheck
 check_dep yamllint
 check_dep python3
+
+# Check for performance testing dependencies
+if ! command -v bc >/dev/null 2>&1; then
+  echo -e "${YELLOW}[WARNING]${NC} bc (calculator) missing - performance tests will be skipped"
+fi
+
 # PyYAML is optional; tests will fallback if missing
 if ! python3 -c "import yaml" >/dev/null 2>&1; then
   echo -e "${YELLOW}[WARNING]${NC} Optional Python module missing: yaml (PyYAML). Falling back to non-Python checks."
@@ -44,7 +51,7 @@ if [[ $missing -eq 1 ]]; then
   echo "  mise install python@3.11"
   echo "  mise global python@3.11"
   echo "  mise exec python@3.11 -- pip install --user pyyaml"
-  echo "  brew install shellcheck yamllint"
+  echo "  brew install shellcheck yamllint bc"
   exit 1
 fi
 
@@ -55,25 +62,14 @@ RESULTS_DIR="$TEST_DIR/results"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOG_FILE="$RESULTS_DIR/test_run_$TIMESTAMP.log"
 
-# Test categories
-INFRASTRUCTURE_TESTS=(
-    "test_installation.sh"
-    "test_health_checks.sh"
-    "test_configuration.sh"
-    "test_linting.sh"
-    "test_cli.sh"
-    "test_security_cli.sh"
-    "test_security_summary.sh"
-    "test_security_summary_clean.sh"
-    "test_security_gate.sh"
-    "test_tmux_bindings.sh"
-)
+# Enhanced test runner path
+ENHANCED_RUNNER="$TEST_DIR/enhanced_test_runner.sh"
 
-# Results tracking
-TOTAL_TESTS=0
-TOTAL_PASSED=0
-TOTAL_FAILED=0
-FAILED_TESTS=()
+# Test execution modes
+RUN_MODE="comprehensive"  # comprehensive, quick, category-specific
+CATEGORY="all"           # all, infrastructure, unit, integration, performance
+VERBOSE_MODE=false
+QUICK_MODE=false
 
 # Helper functions
 log_info() {
@@ -310,19 +306,92 @@ EOF
     echo "$report_file"
 }
 
-# Main execution
+# Main execution with enhanced testing framework
 main() {
     local exit_code=0
     
     # Header
-    log_header "Dotfiles Testing Framework"
-    log_info "Starting comprehensive dotfiles testing..."
+    log_header "Dotfiles Testing Framework v2.0"
+    log_info "Starting comprehensive testing with category: $CATEGORY"
     
-    # Setup
+    # Setup test environment
     setup_test_environment
     
-    # Run infrastructure tests
-    log_header "Infrastructure Tests"
+    # Check if enhanced test runner exists
+    if [[ ! -f "$ENHANCED_RUNNER" ]]; then
+        log_error "Enhanced test runner not found at: $ENHANCED_RUNNER"
+        log_info "Falling back to legacy infrastructure tests only"
+        run_legacy_tests
+        exit_code=$?
+    else
+        # Use enhanced test runner for comprehensive testing
+        run_enhanced_tests
+        exit_code=$?
+    fi
+    
+    exit $exit_code
+}
+
+# Run enhanced comprehensive tests
+run_enhanced_tests() {
+    log_info "Using enhanced test framework for comprehensive testing"
+    
+    # Build enhanced runner command
+    local enhanced_cmd="$ENHANCED_RUNNER"
+    
+    # Add flags based on configuration
+    if [[ "$VERBOSE_MODE" == "true" ]]; then
+        enhanced_cmd="$enhanced_cmd --verbose"
+    fi
+    
+    if [[ "$QUICK_MODE" == "true" ]]; then
+        enhanced_cmd="$enhanced_cmd --quick"
+    fi
+    
+    if [[ "$CATEGORY" != "all" ]]; then
+        enhanced_cmd="$enhanced_cmd --category $CATEGORY"
+    fi
+    
+    # Execute enhanced test runner
+    log_info "Executing: $enhanced_cmd"
+    
+    # Run and capture exit code
+    if bash "$enhanced_cmd"; then
+        log_success "Enhanced testing completed successfully"
+        return 0
+    else
+        local enhanced_exit_code=$?
+        log_error "Enhanced testing completed with failures (exit code: $enhanced_exit_code)"
+        return $enhanced_exit_code
+    fi
+}
+
+# Fallback to legacy infrastructure testing
+run_legacy_tests() {
+    log_warning "Running legacy infrastructure tests only"
+    
+    # Legacy infrastructure tests list
+    local INFRASTRUCTURE_TESTS=(
+        "test_installation.sh"
+        "test_health_checks.sh"
+        "test_configuration.sh"
+        "test_linting.sh"
+        "test_cli.sh"
+        "test_security_cli.sh"
+        "test_security_summary.sh"
+        "test_security_summary_clean.sh"
+        "test_security_gate.sh"
+        "test_tmux_bindings.sh"
+    )
+    
+    # Results tracking for legacy mode
+    local TOTAL_TESTS=0
+    local TOTAL_PASSED=0
+    local TOTAL_FAILED=0
+    local FAILED_TESTS=()
+    
+    # Run legacy infrastructure tests
+    log_header "Infrastructure Tests (Legacy Mode)"
     for test_file in "${INFRASTRUCTURE_TESTS[@]}"; do
         if ! run_test_category "infrastructure" "$test_file"; then
             exit_code=1
@@ -330,75 +399,162 @@ main() {
         echo "" | tee -a "$LOG_FILE"
     done
     
-    # Generate reports
-    log_header "Test Results"
+    # Generate legacy summary
+    generate_legacy_summary "$TOTAL_TESTS" "$TOTAL_PASSED" "$TOTAL_FAILED" "${FAILED_TESTS[@]}"
     
-    if [[ $TOTAL_TESTS -eq 0 ]]; then
-        log_warning "No tests were executed!"
-        exit_code=1
+    if [[ $TOTAL_FAILED -eq 0 ]]; then
+        return 0
     else
-        log_info "Total Tests: $TOTAL_TESTS"
-        log_info "Tests Passed: $TOTAL_PASSED"
-        log_info "Tests Failed: $TOTAL_FAILED"
+        return 1
+    fi
+}
+
+# Generate legacy summary report
+generate_legacy_summary() {
+    local total_tests="$1"
+    local total_passed="$2"
+    local total_failed="$3"
+    shift 3
+    local failed_tests=("$@")
+    
+    log_header "Test Results (Legacy Mode)"
+    
+    if [[ $total_tests -eq 0 ]]; then
+        log_warning "No tests were executed!"
+        return 1
+    else
+        log_info "Total Tests: $total_tests"
+        log_info "Tests Passed: $total_passed"
+        log_info "Tests Failed: $total_failed"
         
-        if [[ $TOTAL_FAILED -eq 0 ]]; then
-            log_success "All tests passed! 🎉"
+        if [[ $total_failed -eq 0 ]]; then
+            log_success "All infrastructure tests passed! 🎉"
         else
-            log_error "Some tests failed! ❌"
-            log_info "Failed tests: ${FAILED_TESTS[*]}"
-            exit_code=1
+            log_error "Some infrastructure tests failed! ❌"
+            if [[ ${#failed_tests[@]} -gt 0 ]]; then
+                log_info "Failed tests: ${failed_tests[*]}"
+            fi
         fi
     fi
     
-    # Generate summary report
-    local report_file
-    report_file=$(generate_summary_report)
-    log_info "Summary report generated: $report_file"
+    # Generate basic report
+    local report_file="$RESULTS_DIR/legacy_summary_$TIMESTAMP.md"
+    cat > "$report_file" << EOF
+# Dotfiles Testing Framework - Legacy Summary Report
+
+**Test Run:** $TIMESTAMP  
+**Mode:** Legacy Infrastructure Tests  
+**Date:** $(date)
+
+## Test Results Overview
+
+| Metric | Value |
+|--------|-------|
+| Total Tests | $total_tests |
+| Tests Passed | $total_passed |
+| Tests Failed | $total_failed |
+| Success Rate | $( [[ $total_tests -gt 0 ]] && echo $(( total_passed * 100 / total_tests )) || echo 0 )% |
+
+EOF
+
+    if [[ ${#failed_tests[@]} -gt 0 ]]; then
+        cat >> "$report_file" << EOF
+## Failed Tests
+
+The following tests failed:
+
+EOF
+        for failed_test in "${failed_tests[@]}"; do
+            echo "- $failed_test" >> "$report_file"
+        done
+        echo "" >> "$report_file"
+    fi
+
+    cat >> "$report_file" << EOF
+## Recommendations
+
+EOF
     
-    # Display quick summary
-    if [[ $TOTAL_TESTS -gt 0 ]]; then
-        local success_rate
-        success_rate=$(( TOTAL_PASSED * 100 / TOTAL_TESTS ))
-        
-        echo "" | tee -a "$LOG_FILE"
-        log_header "Quick Summary"
-        echo "Success Rate: $success_rate%" | tee -a "$LOG_FILE"
-        echo "Log File: $LOG_FILE" | tee -a "$LOG_FILE"
-        echo "Report File: $report_file" | tee -a "$LOG_FILE"
+    if [[ $total_failed -eq 0 ]]; then
+        cat >> "$report_file" << EOF
+🎉 **All infrastructure tests passed!**
+
+### Upgrade to Enhanced Testing
+Consider upgrading to the enhanced testing framework for:
+- Unit tests for better code coverage
+- Integration tests for end-to-end validation  
+- Performance tests for optimization insights
+- Comprehensive reporting and analytics
+
+Run \`./tests/test_runner.sh --help\` for enhanced testing options.
+EOF
+    else
+        cat >> "$report_file" << EOF
+⚠️ **Some tests failed.** Please review and address the failing tests.
+
+### Immediate Actions Required
+1. Review the detailed log file: \`$LOG_FILE\`
+2. Fix the issues identified in failed tests
+3. Re-run the tests to verify fixes
+
+### Recommended Next Steps
+- Upgrade to enhanced testing framework for better diagnostics
+- Add unit tests to prevent regressions
+- Set up continuous integration for automated testing
+EOF
     fi
     
-    exit $exit_code
+    log_info "Legacy summary report generated: $report_file"
+    return 0
 }
 
-# Help function
+# Enhanced help function
 show_help() {
     cat << EOF
-Dotfiles Testing Framework - Main Test Runner
+Dotfiles Testing Framework v2.0 - Comprehensive Test Runner
 
 Usage: $0 [OPTIONS]
 
 Options:
-  -h, --help     Show this help message
-  -v, --verbose  Enable verbose output
-  --quick        Run only quick tests (skip performance tests)
-  --category     Run specific test category (infrastructure)
-
-Examples:
-  $0                    # Run all tests
-  $0 --category infrastructure  # Run only infrastructure tests
-  $0 --quick            # Run quick tests only
+  -h, --help              Show this help message
+  -v, --verbose           Enable verbose output and detailed logging
+  -q, --quick             Run only quick tests (skip performance tests)
+  -c, --category CATEGORY Run specific test category
+  -l, --legacy            Force legacy infrastructure-only testing
 
 Test Categories:
-  infrastructure        # Installation, health checks, configuration
+  all                     All test categories (default)
+  infrastructure         Installation, health checks, configuration
+  unit                   Unit tests for individual functions and modules
+  integration            End-to-end integration testing scenarios
+  performance            Performance benchmarks and optimization tests
+
+Examples:
+  $0                              # Run all comprehensive tests
+  $0 --category infrastructure    # Run only infrastructure tests
+  $0 --category unit             # Run only unit tests
+  $0 --quick --category unit     # Run unit tests in quick mode
+  $0 --verbose --category all    # Run all tests with detailed output
+  $0 --legacy                    # Use legacy testing framework
+
+Enhanced Features:
+  ✅ Multi-category testing (unit, integration, performance, infrastructure)
+  ✅ Performance benchmarking with thresholds
+  ✅ Comprehensive mocking and test isolation
+  ✅ Detailed reporting with actionable insights
+  ✅ Cross-platform compatibility testing
+  ✅ Automatic fallback to legacy mode if needed
 
 Results:
-  All test results are saved in: $RESULTS_DIR
-  Detailed logs are saved with timestamps for tracking
+  Test results:     $RESULTS_DIR
+  Execution logs:   Timestamped logs for debugging and tracking
+  Reports:          Comprehensive markdown reports with recommendations
 
+For more information: docs/testing.md
 EOF
 }
 
-# Parse command line arguments
+# Enhanced command line argument parsing
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -406,16 +562,30 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -v|--verbose)
-            set -x
+            VERBOSE_MODE=true
+            log_info "Verbose mode enabled"
             shift
             ;;
-        --quick)
-            log_info "Quick mode enabled"
+        -q|--quick)
+            QUICK_MODE=true
+            log_info "Quick mode enabled - performance tests will be skipped"
             shift
             ;;
-        --category)
-            log_info "Category mode: $2"
-            shift 2
+        -c|--category)
+            if [[ -n "$2" ]] && [[ "$2" != -* ]]; then
+                CATEGORY="$2"
+                log_info "Test category: $CATEGORY"
+                shift 2
+            else
+                log_error "--category requires an argument (all, infrastructure, unit, integration, performance)"
+                show_help
+                exit 1
+            fi
+            ;;
+        -l|--legacy)
+            RUN_MODE="legacy"
+            log_info "Legacy mode enabled - will use original infrastructure testing only"
+            shift
             ;;
         *)
             log_error "Unknown option: $1"
@@ -424,6 +594,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Force legacy mode if requested
+if [[ "$RUN_MODE" == "legacy" ]]; then
+    ENHANCED_RUNNER="/nonexistent/force_legacy"
+fi
 
 # Run main function
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
