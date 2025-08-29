@@ -158,16 +158,16 @@ cmd = install_map.get(os_name) or install_map.get('all')
 print(cmd or "")
 PY
     else
-        # Try OS-specific first
+        # Try OS-specific first using more robust parsing
         local cmd
         cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
         sed -n "/    install:/,/^    [a-zA-Z]/p" | \
-        grep "      $os:" | cut -d'"' -f2)
+        grep "      $os:" | sed 's/.*: *"\([^"]*\)".*/\1/')
         if [[ -z "$cmd" ]]; then
             # Fallback to 'all:'
             cmd=$(sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
             sed -n "/    install:/,/^    [a-zA-Z]/p" | \
-            grep "      all:" | cut -d'"' -f2)
+            grep "      all:" | sed 's/.*: *"\([^"]*\)".*/\1/')
         fi
         echo "$cmd"
     fi
@@ -185,7 +185,7 @@ print((data.get('tools', {}).get(tool, {}) or {}).get('verify', '') or '')
 PY
     else
         sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
-        grep "    verify:" | cut -d'"' -f2
+        grep "    verify:" | sed 's/.*: *"\([^"]*\)".*/\1/'
     fi
 }
 
