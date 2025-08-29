@@ -1,0 +1,46 @@
+---
+# CLI Plugin Template Metadata
+name: cli-plugin-template
+version: "1.0.0"
+description: "Template for creating CLI command plugins with comprehensive structure"
+author: "Dotfiles Framework"
+license: "MIT"
+homepage: "https://github.com/user/dotfiles"
+repository: "https://github.com/user/dotfiles"
+
+# Plugin type and category
+type: template
+category: development
+tags:
+  - "template"
+  - "cli"
+  - "development"
+  - "plugin"
+
+# Dependencies
+dependencies: []
+plugin_dependencies: []
+platforms:
+  - "macos"
+  - "linux"
+
+# Plugin configuration
+config:
+  auto_enable: false
+  priority: 50
+
+# Entry points
+commands:
+  - name: "example"
+    description: "Example CLI command demonstrating plugin structure"
+    function: "cli_template_example"
+  - name: "template-demo"
+    description: "Demonstrate template functionality"
+    function: "cli_template_demo"
+
+# Hooks
+hooks:
+  pre-install: []
+  post-install: []
+  pre-uninstall: []
+  post-uninstall: []

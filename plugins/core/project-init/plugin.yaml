@@ -1,0 +1,54 @@
+---
+# Project Init Plugin Metadata
+name: project-init
+version: "1.0.0"
+description: "Rapid project initialization with templates, tooling, and best practices"
+author: "Dotfiles Framework"
+license: "MIT"
+homepage: "https://github.com/user/dotfiles"
+repository: "https://github.com/user/dotfiles"
+
+# Plugin type and category
+type: productivity
+category: development
+tags:
+  - "project"
+  - "scaffolding"
+  - "templates"
+  - "productivity"
+  - "development"
+
+# Dependencies
+dependencies:
+  - "git"
+plugin_dependencies: []
+platforms:
+  - "macos"
+  - "linux"
+
+# Plugin configuration
+config:
+  auto_enable: false
+  priority: 80
+
+# Entry points
+commands:
+  - name: "init"
+    description: "Initialize new project with templates"
+    function: "project_init_main"
+  - name: "scaffold" 
+    description: "Scaffold project structure"
+    function: "project_scaffold_main"
+  - name: "templates"
+    description: "Manage project templates"
+    function: "project_templates_main"
+
+# Hooks
+hooks:
+  pre-install:
+    - "check_dependencies"
+  post-install:
+    - "setup_templates"
+  pre-uninstall: []
+  post-uninstall:
+    - "cleanup_templates"

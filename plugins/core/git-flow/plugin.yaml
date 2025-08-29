@@ -1,0 +1,56 @@
+---
+# Git Flow Plugin Metadata
+name: git-flow
+version: "1.0.0"
+description: "Enhanced git workflow management with branch conventions and automation"
+author: "Dotfiles Framework"
+license: "MIT"
+homepage: "https://github.com/user/dotfiles"
+repository: "https://github.com/user/dotfiles"
+
+# Plugin type and category
+type: productivity
+category: git
+tags:
+  - "git"
+  - "workflow" 
+  - "productivity"
+  - "branching"
+
+# Dependencies
+dependencies:
+  - "git"
+plugin_dependencies: []
+platforms:
+  - "macos"
+  - "linux"
+
+# Plugin configuration
+config:
+  auto_enable: false
+  priority: 90
+
+# Entry points
+commands:
+  - name: "flow"
+    description: "Git flow workflow management"
+    function: "git_flow_main"
+  - name: "feature"
+    description: "Feature branch management"
+    function: "git_flow_feature"
+  - name: "release"
+    description: "Release branch management" 
+    function: "git_flow_release"
+  - name: "hotfix"
+    description: "Hotfix branch management"
+    function: "git_flow_hotfix"
+
+# Hooks
+hooks:
+  pre-install:
+    - "check_git_config"
+  post-install:
+    - "setup_git_aliases"
+  pre-uninstall: []
+  post-uninstall:
+    - "cleanup_git_aliases"

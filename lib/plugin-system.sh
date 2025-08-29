@@ -1106,16 +1106,127 @@ setup_plugin_hooks() {
 # Register plugin commands
 register_plugin_commands() {
     local plugin_name="$1"
+    local plugin_dir="$PLUGINS_DIR/$plugin_name"
     
-    # This would integrate with the main CLI system
-    # Commands defined in plugin.yaml would be registered
+    # Load plugin metadata to get command definitions
+    load_plugin_metadata "$plugin_name"
+    
+    # Create command registry file if it doesn't exist
+    mkdir -p "$PLUGINS_CONFIG_DIR/commands"
+    local commands_file="$PLUGINS_CONFIG_DIR/commands/registry"
+    
+    # Parse commands from plugin.yaml and register them
+    if [[ -f "$plugin_dir/plugin.yaml" ]]; then
+        # Extract command names and register them
+        if command -v yq >/dev/null 2>&1; then
+            yq eval '.commands[].name' "$plugin_dir/plugin.yaml" 2>/dev/null | while read -r cmd_name; do
+                if [[ -n "$cmd_name" && "$cmd_name" != "null" ]]; then
+                    echo "$cmd_name:$plugin_name" >> "$commands_file"
+                fi
+            done
+        else
+            # Fallback: simple grep for command names
+            grep -A 1 "name:" "$plugin_dir/plugin.yaml" | grep -v "^--$" | grep -E "^\s*-\s+name:" | \
+            sed 's/.*name:\s*["'\'']*\([^"'\'']*\)["'\'']*$/\1/' | while read -r cmd_name; do
+                if [[ -n "$cmd_name" ]]; then
+                    echo "$cmd_name:$plugin_name" >> "$commands_file"
+                fi
+            done
+        fi
+    fi
 }
 
 # Unregister plugin commands
 unregister_plugin_commands() {
     local plugin_name="$1"
+    local commands_file="$PLUGINS_CONFIG_DIR/commands/registry"
     
-    # Remove plugin commands from CLI system
+    if [[ -f "$commands_file" ]]; then
+        # Remove commands for this plugin
+        grep -v ":$plugin_name$" "$commands_file" > "${commands_file}.tmp" 2>/dev/null || true
+        mv "${commands_file}.tmp" "$commands_file" 2>/dev/null || true
+    fi
+}
+
+# Check if a plugin command exists
+plugin_command_exists() {
+    local command_name="$1"
+    local commands_file="$PLUGINS_CONFIG_DIR/commands/registry"
+    
+    if [[ -f "$commands_file" ]]; then
+        grep -q "^$command_name:" "$commands_file"
+    else
+        return 1
+    fi
+}
+
+# Execute plugin command
+execute_plugin_command() {
+    local command_name="$1"
+    shift
+    local commands_file="$PLUGINS_CONFIG_DIR/commands/registry"
+    
+    if [[ ! -f "$commands_file" ]]; then
+        return 1
+    fi
+    
+    # Find which plugin provides this command
+    local plugin_name
+    plugin_name=$(grep "^$command_name:" "$commands_file" | cut -d':' -f2 | head -1)
+    
+    if [[ -z "$plugin_name" ]]; then
+        return 1
+    fi
+    
+    # Check if plugin is enabled
+    if ! plugin_is_enabled "$plugin_name"; then
+        echo "❌ Plugin command '$command_name' is available but plugin '$plugin_name' is not enabled"
+        echo "Enable with: dot plugin enable $plugin_name"
+        return 1
+    fi
+    
+    # Load the plugin if not already loaded
+    load_plugin "$plugin_name"
+    
+    # Get the function name for this command from plugin.yaml
+    local plugin_dir="$PLUGINS_DIR/$plugin_name"
+    local function_name=""
+    
+    if command -v yq >/dev/null 2>&1; then
+        function_name=$(yq eval ".commands[] | select(.name == \"$command_name\") | .function" "$plugin_dir/plugin.yaml" 2>/dev/null)
+    else
+        # Fallback: grep for the function name
+        # This is a simplified approach - in a real implementation you'd want more robust YAML parsing
+        function_name=$(awk -v cmd="$command_name" '
+            /^[[:space:]]*-[[:space:]]*name:/ {
+                if ($0 ~ cmd) {
+                    in_command = 1
+                    next
+                }
+            }
+            in_command && /^[[:space:]]*function:/ {
+                gsub(/^[[:space:]]*function:[[:space:]]*["'\'']*/, "")
+                gsub(/["'\'']*$/, "")
+                print $0
+                exit
+            }
+            /^[[:space:]]*-[[:space:]]*name:/ { in_command = 0 }
+        ' "$plugin_dir/plugin.yaml" 2>/dev/null)
+    fi
+    
+    if [[ -z "$function_name" || "$function_name" == "null" ]]; then
+        echo "❌ Function not defined for command '$command_name' in plugin '$plugin_name'"
+        return 1
+    fi
+    
+    # Execute the plugin function
+    if declare -f "$function_name" >/dev/null 2>&1; then
+        "$function_name" "$@"
+    else
+        echo "❌ Plugin function '$function_name' not found for command '$command_name'"
+        echo "Plugin '$plugin_name' may not be properly loaded"
+        return 1
+    fi
 }
 
 # Remove plugin from registry
@@ -1330,3 +1441,4 @@ fi
 export -f plugin_cli plugin_install plugin_uninstall plugin_enable plugin_disable
 export -f plugin_list plugin_search plugin_update plugin_create plugin_info
 export -f init_plugin_system load_enabled_plugins
+export -f plugin_command_exists execute_plugin_command register_plugin_commands unregister_plugin_commands
