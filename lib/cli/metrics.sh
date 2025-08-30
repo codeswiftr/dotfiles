@@ -46,8 +46,17 @@ dot_metrics() {
         "test"|"benchmark")
             run_metrics_tests "$@"
             ;;
+        "dashboard")
+            "${DOTFILES_DIR}/scripts/metrics-dashboard.sh" "$@"
+            ;;
+        "reporter")
+            "${DOTFILES_DIR}/scripts/metrics-reporter.sh" "$@"
+            ;;
+        "api")
+            "${DOTFILES_DIR}/scripts/metrics-api.sh" "$@"
+            ;;
         "-h"|"--help"|"help"|"")
-            show_metrics_help
+            show_enhanced_metrics_help
             ;;
         *)
             print_error "Unknown metrics subcommand: $subcommand"
@@ -638,6 +647,106 @@ run_performance_tests() {
     fi
 }
 
+# Show enhanced metrics help
+show_enhanced_metrics_help() {
+    cat << 'EOF'
+📊 Advanced Metrics Collection and Analytics System
+
+USAGE:
+    dot metrics <command> [options]
+
+CORE COMMANDS:
+    init                Initialize metrics system
+    collect             Collect current system metrics
+    daemon <action>     Manage metrics collection daemon
+      start               Start background collection
+      stop                Stop background collection
+      restart             Restart daemon
+      status              Show daemon status
+      
+VISUALIZATION & DASHBOARDS:
+    dashboard [mode]    Interactive metrics dashboard
+      live                Live dashboard with auto-refresh (default)
+      static              One-time static view
+      compact             Compact system overview
+      detailed            Detailed analysis with trends
+      
+AUTOMATED REPORTING:
+    reporter <action>   Automated reporting and alerting
+      init                Initialize reporter system
+      report [type]       Generate report (daily/weekly/monthly)
+      alerts              Check system health and send alerts
+      schedule            Setup automated reporting schedules
+      config              Configure reporting settings
+      
+DATA EXPORT & INTEGRATION:
+    api <action>        REST API for data export and integrations
+      start [port]        Start HTTP API server (default: 8080)
+      export [format]     Export metrics in various formats
+      integration <svc>   Export to monitoring services
+      config              Create integration templates
+      test                Test API endpoints
+      
+SYSTEM MANAGEMENT:
+    config [setting]    Configure metrics system
+    status              Show comprehensive system status
+    doctor              Run health diagnostics
+    test [type]         Run system tests (basic/collection/performance/all)
+    clean               Clean up old metrics data
+    help                Show this help message
+
+EXAMPLES:
+    # Quick start
+    dot metrics init
+    dot metrics daemon start
+    dot metrics dashboard live
+    
+    # Automated reporting
+    dot metrics reporter init
+    dot metrics reporter report weekly
+    dot metrics reporter alerts
+    
+    # Data export and API
+    dot metrics api start 8080
+    dot metrics api export prometheus
+    dot metrics api integration influxdb
+    
+    # System monitoring
+    dot metrics doctor
+    dot metrics test all
+    dot metrics dashboard detailed
+    
+ADVANCED FEATURES:
+    • Real-time system monitoring with customizable thresholds
+    • Automated alert notifications (desktop, email, webhook)
+    • REST API with authentication for external integrations
+    • Export to popular monitoring platforms (Prometheus, InfluxDB, etc.)
+    • Interactive dashboard with live updates and trend analysis
+    • Scheduled report generation with HTML and text formats
+    • Command execution tracking with performance analytics
+    • Cross-platform compatibility (macOS, Linux, WSL)
+
+CONFIGURATION:
+    Config directory: ~/.config/dotfiles/metrics/
+    Data directory: ~/.local/share/dotfiles/metrics/
+    
+    Key files:
+    • config.json       - Core metrics configuration
+    • reporter.json     - Reporting and alerting settings
+    • integrations.json - External service integrations
+    
+MONITORING INTEGRATIONS:
+    • Prometheus (with Pushgateway support)
+    • InfluxDB (time-series database)
+    • Grafana (visualization dashboards) 
+    • Datadog (cloud monitoring)
+    • Elasticsearch (log analytics)
+    • Custom webhook endpoints
+
+For detailed documentation: https://docs.dotfiles.dev/metrics
+EOF
+}
+
 # Export functions
 export -f dot_metrics show_metrics_status configure_metrics_system
-export -f metrics_system_doctor run_metrics_tests
+export -f metrics_system_doctor run_metrics_tests show_enhanced_metrics_help
