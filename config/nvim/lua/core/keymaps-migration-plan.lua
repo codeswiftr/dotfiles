@@ -28,15 +28,15 @@ M.migration_phases = {
     { "n", "<leader>gp", "<cmd>Git push<cr>", { desc = "Git push" } },
     { "n", "<leader>gl", "<cmd>Git log --oneline<cr>", { desc = "Git log" } },
     { "n", "<leader>gb", "<cmd>Gitsigns blame_line<cr>", { desc = "Git blame" } },
+    { "n", "<leader>d",  "<cmd>Gitsigns diffthis<cr>", { desc = "Git diff" } },
     
     -- Enhanced code actions (prefix consistency)
+    { "n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code actions" } },
     { "n", "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, { desc = "Code format" } },
     { "n", "<leader>cr", vim.lsp.buf.rename, { desc = "Code rename" } },
     { "n", "<leader>cd", vim.lsp.buf.hover, { desc = "Code documentation" } },
-  },
-  
-  -- Phase 3: Context-aware enhancements (new functionality)
-  phase3_enhancements = {
+
+    -- Context-aware run command (matches Tier 2 design)
     { "n", "<leader>r", function()
         local filetype = vim.bo.filetype
         if filetype == "python" then vim.cmd("!python %")
@@ -46,7 +46,10 @@ M.migration_phases = {
         else vim.cmd("make") end
       end, { desc = "Run/compile (context-aware)" }
     },
-  }
+  },
+  
+  -- Phase 3: Context-aware enhancements (new functionality)
+  phase3_enhancements = {}
 }
 
 -- ============================================================================
