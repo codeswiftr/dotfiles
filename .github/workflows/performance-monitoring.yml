@@ -96,7 +96,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-baseline-${{ github.run_number }}
           path: |
@@ -177,7 +177,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload trend report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-trend-report-${{ github.run_number }}
           path: performance-trend-report.md
