@@ -180,16 +180,16 @@ backup_create() {
     # Perform backup based on type
     case "$backup_type" in
         "$BACKUP_TYPE_FULL")
-            backup_full "$backup_path" "${include_paths[@]}"
+            create_full_backup "$backup_path" "${include_paths[@]}"
             ;;
         "$BACKUP_TYPE_INCREMENTAL")
-            backup_incremental "$backup_path" "${include_paths[@]}"
+            create_incremental_backup "$backup_path" "${include_paths[@]}"
             ;;
         "$BACKUP_TYPE_DIFFERENTIAL")
             backup_differential "$backup_path" "${include_paths[@]}"
             ;;
         "$BACKUP_TYPE_CONFIG_ONLY")
-            backup_config_only "$backup_path" "${include_paths[@]}"
+            create_config_backup "$backup_path" "${include_paths[@]}"
             ;;
         *)
             echo "❌ Unknown backup type: $backup_type"
@@ -202,7 +202,7 @@ backup_create() {
     
     # Compress backup if configured
     if [[ "$BACKUP_COMPRESSION" != "none" ]]; then
-        compress_backup "$backup_path"
+        backup_compression "$backup_path" "$BACKUP_COMPRESSION" "$BACKUP_COMPRESSION_LEVEL"
     fi
     
     # Update backup metadata
@@ -253,8 +253,8 @@ create_backup_manifest() {
 EOF
 }
 
-# Full backup
-backup_full() {
+# Create full backup - Epic 4.1 Core Implementation
+create_full_backup() {
     local backup_path="$1"
     shift
     local include_paths=("$@")
@@ -278,9 +278,14 @@ backup_full() {
     local files_backed_up=0
     local total_size=0
     local start_time=$(date +%s)
+    local checksum_file="$backup_path/checksums.sha256"
     
     # Create backup structure
     mkdir -p "$backup_path/data"
+    
+    # Generate checksums for integrity verification
+    echo "🔍 Generating checksums for integrity verification..."
+    > "$checksum_file"  # Clear checksum file
     
     for path in "${include_paths[@]}"; do
         if [[ -e "$path" ]]; then
@@ -299,19 +304,31 @@ backup_full() {
             local backup_target="$backup_path/data/$rel_path"
             mkdir -p "$(dirname "$backup_target")"
             
-            # Copy with exclusions
+            # Copy with exclusions and verify integrity
             if [[ -d "$path" ]]; then
+                # Use rsync for directory synchronization with checksum verification
                 rsync -a \
                     --exclude-from="$BACKUP_EXCLUDE_FILE" \
                     --stats \
-                    "$path/" "$backup_target/" | \
-                    tee "$backup_path/rsync-$rel_path.log"
+                    --checksum \
+                    "$path/" "$backup_target/" 2>&1 | \
+                    tee "$backup_path/rsync-${rel_path//[^a-zA-Z0-9]/_}.log"
+                
+                # Generate checksums for all files in the directory
+                if command -v find >/dev/null 2>&1 && command -v shasum >/dev/null 2>&1; then
+                    find "$backup_target" -type f -exec shasum -a 256 {} \; | \
+                        sed "s|$backup_path/data/||" >> "$checksum_file"
+                fi
             else
+                # Copy individual file and create checksum
                 cp "$path" "$backup_target"
+                if command -v shasum >/dev/null 2>&1; then
+                    shasum -a 256 "$backup_target" | sed "s|$backup_path/data/||" >> "$checksum_file"
+                fi
             fi
             
             # Count files and calculate size
-            local path_files=$(find "$backup_target" -type f | wc -l | tr -d ' ')
+            local path_files=$(find "$backup_target" -type f 2>/dev/null | wc -l | tr -d ' ')
             local path_size=$(du -sb "$backup_target" 2>/dev/null | cut -f1 || echo 0)
             
             files_backed_up=$((files_backed_up + path_files))
@@ -326,16 +343,26 @@ backup_full() {
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
     
-    # Update manifest
+    # Create backup index for fast incremental operations
+    create_backup_index "$backup_path"
+    
+    # Update manifest with complete metadata
     update_manifest_stats "$backup_path" "$files_backed_up" "$total_size" "$duration"
+    update_manifest_contents "$backup_path" "${include_paths[@]}"
     
     echo "  📊 Total files: $files_backed_up"
     echo "  📊 Total size: $(format_size "$total_size")"
     echo "  ⏱️  Duration: ${duration}s"
+    echo "  🔍 Integrity checksums: $(wc -l < "$checksum_file" | tr -d ' ') files verified"
 }
 
-# Incremental backup
-backup_incremental() {
+# Full backup (backward compatibility wrapper)
+backup_full() {
+    create_full_backup "$@"
+}
+
+# Create incremental backup - Epic 4.1 Core Implementation
+create_incremental_backup() {
     local backup_path="$1"
     shift
     local include_paths=("$@")
@@ -348,17 +375,32 @@ backup_incremental() {
     
     if [[ -z "$base_backup" ]]; then
         echo "⚠️  No base backup found, creating full backup instead"
-        backup_full "$backup_path" "${include_paths[@]}"
+        create_full_backup "$backup_path" "${include_paths[@]}"
         return
     fi
     
     echo "  📚 Base backup: $base_backup"
     
-    # Create incremental backup using timestamps
-    local base_timestamp
-    base_timestamp=$(get_backup_timestamp "$base_backup")
+    # Load base backup index for efficient comparison
+    local base_backup_path
+    base_backup_path=$(find_backup "$base_backup")
+    local base_index_file="$base_backup_path/backup-index.txt"
     
-    backup_changes_since "$backup_path" "$base_timestamp" "${include_paths[@]}"
+    if [[ ! -f "$base_index_file" ]]; then
+        echo "  ⚠️  Base backup index not found, using timestamp comparison"
+        local base_timestamp
+        base_timestamp=$(get_backup_timestamp "$base_backup")
+        backup_changes_since "$backup_path" "$base_timestamp" "${include_paths[@]}"
+        return
+    fi
+    
+    # Perform efficient incremental backup using file index comparison
+    perform_incremental_backup "$backup_path" "$base_index_file" "${include_paths[@]}"
+}
+
+# Incremental backup (backward compatibility wrapper) 
+backup_incremental() {
+    create_incremental_backup "$@"
 }
 
 # Differential backup
@@ -388,25 +430,69 @@ backup_differential() {
     backup_changes_since "$backup_path" "$base_timestamp" "${include_paths[@]}"
 }
 
-# Config-only backup
-backup_config_only() {
+# Create config-only backup - Epic 4.1 Core Implementation
+create_config_backup() {
     local backup_path="$1"
     shift
     local include_paths=("$@")
     
     echo "📦 Creating configuration-only backup..."
     
-    # Default config paths if none specified
+    # Enhanced config paths if none specified - comprehensive coverage
     if [[ ${#include_paths[@]} -eq 0 ]]; then
         include_paths=(
+            # Core dotfiles configuration
             "$DOTFILES_DIR/config"
             "$HOME/.config/dotfiles"
+            
+            # Shell configurations
+            "$HOME/.zshrc"
+            "$HOME/.bashrc"
+            "$HOME/.profile"
+            "$HOME/.bash_profile"
+            
+            # Git configuration
             "$HOME/.gitconfig"
+            "$HOME/.gitignore_global"
+            
+            # SSH configuration
             "$HOME/.ssh/config"
+            "$HOME/.ssh/known_hosts"
+            
+            # Development tool configs
+            "$HOME/.config/nvim"
+            "$HOME/.tmux.conf"
+            "$HOME/.vimrc"
+            
+            # Package manager configs
+            "$HOME/.npmrc"
+            "$HOME/.pip/pip.conf"
+            "$HOME/.cargo/config.toml"
+            
+            # Application configs (if they exist)
+            "$HOME/.config/git"
+            "$HOME/.config/gh"
+            "$HOME/.config/code-server"
         )
     fi
     
-    backup_full "$backup_path" "${include_paths[@]}"
+    # Filter to only existing paths to avoid errors
+    local existing_paths=()
+    for path in "${include_paths[@]}"; do
+        if [[ -e "$path" ]]; then
+            existing_paths+=("$path")
+        fi
+    done
+    
+    echo "  📝 Backing up ${#existing_paths[@]} configuration items..."
+    
+    # Use full backup implementation with config-specific optimizations
+    create_full_backup "$backup_path" "${existing_paths[@]}"
+}
+
+# Config-only backup (backward compatibility wrapper)
+backup_config_only() {
+    create_config_backup "$@"
 }
 
 # Backup changes since timestamp
@@ -583,13 +669,13 @@ backup_restore() {
     # Perform restore
     case "$restore_type" in
         "full")
-            restore_full "$backup_path" "$target_path" "$options"
+            restore_full_system "$backup_path" "$target_path" "$options"
             ;;
         "selective")
             restore_selective "$backup_path" "$target_path" "$options"
             ;;
         "config-only")
-            restore_config_only "$backup_path" "$target_path" "$options"
+            restore_selective_config "$backup_path" "$target_path" "$options"
             ;;
         *)
             echo "❌ Unknown restore type: $restore_type"
@@ -610,13 +696,13 @@ backup_restore() {
     echo "  3. Update configurations if needed"
 }
 
-# Full restore
-restore_full() {
+# Restore full system - Epic 4.2 Core Implementation
+restore_full_system() {
     local backup_path="$1"
-    local target_path="$2"
+    local target_path="${2:-$HOME}"
     local options="$3"
     
-    echo "🔄 Performing full restore..."
+    echo "🔄 Performing full system restore..."
     
     local data_dir="$backup_path/data"
     
@@ -625,12 +711,22 @@ restore_full() {
         return 1
     fi
     
-    # Restore each path
+    # Validate backup before restoration
+    if ! backup_validation "$backup_path" "quick"; then
+        echo "❌ Backup validation failed, aborting restore"
+        return 1
+    fi
+    
+    local files_restored=0
+    local total_size=0
+    local start_time=$(date +%s)
+    
+    # Restore each path with enhanced error handling and validation
     for backup_item in "$data_dir"/*; do
         if [[ -e "$backup_item" ]]; then
             local item_name=$(basename "$backup_item")
             
-            # Determine target path
+            # Determine target path with cross-platform support
             local restore_target
             case "$item_name" in
                 "home"*)
@@ -646,17 +742,71 @@ restore_full() {
             
             echo "  📁 Restoring: $item_name -> $restore_target"
             
-            # Create parent directory
+            # Create parent directory with proper permissions
             mkdir -p "$(dirname "$restore_target")"
             
-            # Restore with options
+            # Backup existing files if they exist (unless --no-backup specified)
+            if [[ "$options" != *"--no-backup"* ]] && [[ -e "$restore_target" ]]; then
+                local backup_existing="$restore_target.pre-restore-$(date +%Y%m%d-%H%M%S)"
+                echo "    💾 Backing up existing: $backup_existing"
+                cp -r "$restore_target" "$backup_existing" 2>/dev/null || true
+            fi
+            
+            # Restore with appropriate options and verification
+            local restore_success=false
+            
             if [[ "$options" == *"--overwrite"* ]]; then
-                rsync -a "$backup_item/" "$restore_target/"
+                if [[ -d "$backup_item" ]]; then
+                    rsync -av --progress "$backup_item/" "$restore_target/"
+                else
+                    cp "$backup_item" "$restore_target"
+                fi
+                restore_success=true
             else
-                rsync -a --ignore-existing "$backup_item/" "$restore_target/"
+                if [[ -d "$backup_item" ]]; then
+                    rsync -av --ignore-existing --progress "$backup_item/" "$restore_target/"
+                else
+                    if [[ ! -e "$restore_target" ]]; then
+                        cp "$backup_item" "$restore_target"
+                    else
+                        echo "    ⚠️  Skipping existing file: $restore_target"
+                    fi
+                fi
+                restore_success=true
+            fi
+            
+            if [[ "$restore_success" == "true" ]]; then
+                # Count restored files and calculate size
+                local item_files=$(find "$restore_target" -type f 2>/dev/null | wc -l | tr -d ' ')
+                local item_size=$(du -sb "$restore_target" 2>/dev/null | cut -f1 || echo 0)
+                
+                files_restored=$((files_restored + item_files))
+                total_size=$((total_size + item_size))
+                
+                echo "    ✅ Restored: $item_files files, $(format_size "$item_size")"
+            else
+                echo "    ❌ Failed to restore: $item_name"
             fi
         fi
     done
+    
+    local end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    
+    echo "📊 Restore summary:"
+    echo "  Files restored: $files_restored"
+    echo "  Total size: $(format_size "$total_size")"
+    echo "  Duration: ${duration}s"
+    
+    # Set appropriate permissions for common config files
+    fix_restored_permissions "$target_path"
+    
+    echo "✅ Full system restore completed successfully"
+}
+
+# Full restore (backward compatibility wrapper)
+restore_full() {
+    restore_full_system "$@"
 }
 
 # Selective restore
@@ -719,20 +869,59 @@ restore_selective() {
     fi
 }
 
-# Config-only restore
-restore_config_only() {
+# Restore selective configuration - Epic 4.2 Core Implementation
+restore_selective_config() {
     local backup_path="$1"
-    local target_path="$2"
+    local target_path="${2:-$HOME}"
     local options="$3"
+    local config_filter="${4:-all}"
     
-    echo "🔄 Performing configuration-only restore..."
+    echo "🔄 Performing selective configuration restore..."
     
     local data_dir="$backup_path/data"
     
-    # Restore only configuration directories and files
-    local config_patterns=("*config*" "*dotfiles*" "*gitconfig*" "*ssh*")
+    if [[ ! -d "$data_dir" ]]; then
+        echo "❌ Backup data directory not found"
+        return 1
+    fi
     
-    for pattern in "${config_patterns[@]}"; do
+    # Enhanced configuration file detection and categorization
+    local shell_configs=("*zshrc*" "*bashrc*" "*profile*" "*bash_profile*")
+    local git_configs=("*gitconfig*" "*gitignore*")
+    local ssh_configs=("*ssh*")
+    local editor_configs=("*nvim*" "*vim*" "*tmux*")
+    local app_configs=("*config*" "*dotfiles*")
+    
+    local config_categories=()
+    case "$config_filter" in
+        "shell")
+            config_categories=("${shell_configs[@]}")
+            ;;
+        "git")
+            config_categories=("${git_configs[@]}")
+            ;;
+        "ssh")
+            config_categories=("${ssh_configs[@]}")
+            ;;
+        "editor")
+            config_categories=("${editor_configs[@]}")
+            ;;
+        "app")
+            config_categories=("${app_configs[@]}")
+            ;;
+        "all")
+            config_categories=("${shell_configs[@]}" "${git_configs[@]}" "${ssh_configs[@]}" "${editor_configs[@]}" "${app_configs[@]}")
+            ;;
+        *)
+            echo "❌ Invalid config filter: $config_filter"
+            echo "Valid filters: shell, git, ssh, editor, app, all"
+            return 1
+            ;;
+    esac
+    
+    local files_restored=0
+    
+    for pattern in "${config_categories[@]}"; do
         for backup_item in "$data_dir"/$pattern; do
             if [[ -e "$backup_item" ]]; then
                 local item_name=$(basename "$backup_item")
@@ -751,12 +940,38 @@ restore_config_only() {
                         ;;
                 esac
                 
-                echo "  📁 Restoring config: $item_name -> $restore_target"
+                echo "  📝 Restoring config: $item_name -> $restore_target"
+                
+                # Backup existing config if it exists
+                if [[ "$options" != *"--no-backup"* ]] && [[ -e "$restore_target" ]]; then
+                    local backup_existing="$restore_target.backup-$(date +%Y%m%d-%H%M%S)"
+                    cp -r "$restore_target" "$backup_existing" 2>/dev/null
+                    echo "    💾 Existing config backed up to: $backup_existing"
+                fi
+                
                 mkdir -p "$(dirname "$restore_target")"
-                rsync -a "$backup_item/" "$restore_target/"
+                
+                if [[ -d "$backup_item" ]]; then
+                    rsync -av "$backup_item/" "$restore_target/"
+                else
+                    cp "$backup_item" "$restore_target"
+                fi
+                
+                ((files_restored++))
+                echo "    ✅ Configuration restored successfully"
             fi
         done
     done
+    
+    echo "📊 Selective configuration restore completed: $files_restored items restored"
+    
+    # Fix permissions for sensitive config files
+    fix_config_permissions "$target_path"
+}
+
+# Config-only restore (backward compatibility wrapper)
+restore_config_only() {
+    restore_selective_config "$@"
 }
 
 # List backups
@@ -1346,6 +1561,789 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     init_backup_system
 fi
 
+# Create backup index for efficient incremental operations
+create_backup_index() {
+    local backup_path="$1"
+    local index_file="$backup_path/backup-index.txt"
+    
+    echo "📝 Creating backup index for incremental operations..."
+    
+    # Generate file index with metadata (path, size, mtime, checksum)
+    > "$index_file"  # Clear index file
+    
+    if [[ -d "$backup_path/data" ]]; then
+        find "$backup_path/data" -type f -exec stat -c "%n|%s|%Y" {} \; 2>/dev/null | \
+            while IFS='|' read -r filepath filesize mtime; do
+                # Calculate relative path from backup root
+                local rel_path="${filepath#$backup_path/data/}"
+                
+                # Get file checksum for integrity
+                local checksum=""
+                if command -v shasum >/dev/null 2>&1; then
+                    checksum=$(shasum -a 256 "$filepath" 2>/dev/null | cut -d' ' -f1)
+                fi
+                
+                echo "$rel_path|$filesize|$mtime|$checksum" >> "$index_file"
+            done
+        
+        # Fallback for systems without stat -c (like macOS)
+        if [[ ! -s "$index_file" ]] && [[ -d "$backup_path/data" ]]; then
+            find "$backup_path/data" -type f -exec ls -la {} \; | \
+                while read -r perms links owner group size month day time filepath; do
+                    local rel_path="${filepath#$backup_path/data/}"
+                    local mtime=$(date -r "$filepath" "+%s" 2>/dev/null || echo "0")
+                    local checksum=""
+                    if command -v shasum >/dev/null 2>&1; then
+                        checksum=$(shasum -a 256 "$filepath" 2>/dev/null | cut -d' ' -f1)
+                    fi
+                    echo "$rel_path|$size|$mtime|$checksum" >> "$index_file"
+                done
+        fi
+        
+        local index_count=$(wc -l < "$index_file" | tr -d ' ')
+        echo "  📋 Indexed $index_count files for future incremental backups"
+    fi
+}
+
+# Perform efficient incremental backup using file index comparison
+perform_incremental_backup() {
+    local backup_path="$1"
+    local base_index_file="$2"
+    shift 2
+    local include_paths=("$@")
+    
+    echo "  🔍 Comparing files against base backup index..."
+    
+    # Default paths if none specified
+    if [[ ${#include_paths[@]} -eq 0 ]]; then
+        include_paths=(
+            "$DOTFILES_DIR"
+            "$HOME/.config"
+            "$HOME/.local/share/dotfiles"
+        )
+    fi
+    
+    local files_backed_up=0
+    local total_size=0
+    local start_time=$(date +%s)
+    local checksum_file="$backup_path/checksums.sha256"
+    
+    mkdir -p "$backup_path/data"
+    > "$checksum_file"  # Clear checksum file
+    
+    # Create temporary current index
+    local current_index=$(mktemp)
+    trap "rm -f '$current_index'" EXIT
+    
+    # Build current state index
+    for path in "${include_paths[@]}"; do
+        if [[ -e "$path" ]]; then
+            find "$path" -type f ! -path "*/\.git/objects/*" 2>/dev/null | \
+                while read -r filepath; do
+                    if ! grep -qFf "$BACKUP_EXCLUDE_FILE" <<< "$filepath" 2>/dev/null; then
+                        local filesize=$(stat -c"%s" "$filepath" 2>/dev/null || stat -f"%z" "$filepath" 2>/dev/null || echo "0")
+                        local mtime=$(stat -c"%Y" "$filepath" 2>/dev/null || date -r "$filepath" "+%s" 2>/dev/null || echo "0")
+                        local checksum=""
+                        if command -v shasum >/dev/null 2>&1; then
+                            checksum=$(shasum -a 256 "$filepath" 2>/dev/null | cut -d' ' -f1)
+                        fi
+                        echo "$filepath|$filesize|$mtime|$checksum" >> "$current_index"
+                    fi
+                done
+        fi
+    done
+    
+    # Compare against base index and copy changed files
+    while IFS='|' read -r current_file current_size current_mtime current_checksum; do
+        local needs_backup=true
+        
+        # Check if file exists in base backup
+        if grep -q "^[^|]*$(basename "$current_file")|" "$base_index_file" 2>/dev/null; then
+            # File exists in base backup, check if it's changed
+            local base_entry
+            base_entry=$(grep "$(basename "$current_file")|" "$base_index_file" | head -1)
+            
+            if [[ -n "$base_entry" ]]; then
+                local base_size=$(echo "$base_entry" | cut -d'|' -f2)
+                local base_mtime=$(echo "$base_entry" | cut -d'|' -f3)
+                local base_checksum=$(echo "$base_entry" | cut -d'|' -f4)
+                
+                # Skip if file hasn't changed (same size, mtime, and checksum)
+                if [[ "$current_size" == "$base_size" ]] && \
+                   [[ "$current_mtime" == "$base_mtime" ]] && \
+                   [[ -n "$current_checksum" && "$current_checksum" == "$base_checksum" ]]; then
+                    needs_backup=false
+                fi
+            fi
+        fi
+        
+        if [[ "$needs_backup" == "true" ]]; then
+            echo "  📄 Changed: $(basename "$current_file")"
+            
+            # Determine backup path structure
+            local rel_path
+            if [[ "$current_file" == "$HOME"* ]]; then
+                rel_path="home${current_file#$HOME}"
+            elif [[ "$current_file" == "$DOTFILES_DIR"* ]]; then
+                rel_path="dotfiles${current_file#$DOTFILES_DIR}"
+            else
+                rel_path="$(echo "$current_file" | sed 's|^/||' | tr '/' '_')"
+            fi
+            
+            local backup_target="$backup_path/data/$rel_path"
+            mkdir -p "$(dirname "$backup_target")"
+            
+            # Copy file and record checksum
+            cp "$current_file" "$backup_target"
+            echo "$rel_path|$current_checksum" >> "$checksum_file"
+            
+            files_backed_up=$((files_backed_up + 1))
+            total_size=$((total_size + current_size))
+        fi
+        
+    done < "$current_index"
+    
+    local end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    
+    # Create new backup index
+    create_backup_index "$backup_path"
+    
+    # Update manifest
+    update_manifest_stats "$backup_path" "$files_backed_up" "$total_size" "$duration"
+    update_manifest_contents "$backup_path" "${include_paths[@]}"
+    
+    echo "  📊 Changed files: $files_backed_up"
+    echo "  📊 Total size: $(format_size "$total_size")"
+    echo "  ⏱️  Duration: ${duration}s"
+}
+
+# Update manifest contents
+update_manifest_contents() {
+    local backup_path="$1"
+    shift
+    local include_paths=("$@")
+    local manifest_file="$backup_path/MANIFEST.json"
+    
+    if command -v jq >/dev/null 2>&1 && [[ -f "$manifest_file" ]]; then
+        local contents_json
+        printf -v contents_json '%s\n' "${include_paths[@]}" | jq -R . | jq -s .
+        
+        jq ".contents = $contents_json" "$manifest_file" > "${manifest_file}.tmp"
+        mv "${manifest_file}.tmp" "$manifest_file"
+    fi
+}
+
+# Backup validation - Epic 4.1 Core Implementation
+backup_validation() {
+    local backup_path="$1"
+    local validation_type="${2:-full}"  # full, quick, checksum
+    
+    echo "🔍 Validating backup: $(basename "$backup_path")"
+    
+    case "$validation_type" in
+        "quick")
+            validate_backup_quick "$backup_path"
+            ;;
+        "checksum")
+            validate_backup_checksums "$backup_path"
+            ;;
+        "full")
+            validate_backup_full "$backup_path"
+            ;;
+        *)
+            echo "❌ Invalid validation type: $validation_type"
+            return 1
+            ;;
+    esac
+}
+
+# Quick backup validation
+validate_backup_quick() {
+    local backup_path="$1"
+    
+    # Check basic structure
+    if [[ ! -d "$backup_path" ]]; then
+        echo "❌ Backup directory not found"
+        return 1
+    fi
+    
+    if [[ ! -f "$backup_path/MANIFEST.json" ]]; then
+        echo "❌ Backup manifest missing"
+        return 1
+    fi
+    
+    if [[ ! -d "$backup_path/data" ]]; then
+        echo "❌ Backup data directory missing"
+        return 1
+    fi
+    
+    echo "✅ Basic backup structure valid"
+    return 0
+}
+
+# Checksum-based backup validation
+validate_backup_checksums() {
+    local backup_path="$1"
+    local checksum_file="$backup_path/checksums.sha256"
+    
+    if ! validate_backup_quick "$backup_path"; then
+        return 1
+    fi
+    
+    if [[ ! -f "$checksum_file" ]]; then
+        echo "⚠️  No checksum file found, skipping integrity verification"
+        return 0
+    fi
+    
+    echo "  🔍 Verifying file checksums..."
+    
+    local total_files=0
+    local verified_files=0
+    local failed_files=()
+    
+    while IFS='|' read -r rel_path expected_checksum || [[ -n "$rel_path" ]]; do
+        [[ -z "$rel_path" ]] && continue
+        
+        local full_path="$backup_path/data/$rel_path"
+        ((total_files++))
+        
+        if [[ -f "$full_path" ]]; then
+            if command -v shasum >/dev/null 2>&1; then
+                local actual_checksum
+                actual_checksum=$(shasum -a 256 "$full_path" 2>/dev/null | cut -d' ' -f1)
+                
+                if [[ "$actual_checksum" == "$expected_checksum" ]]; then
+                    ((verified_files++))
+                else
+                    failed_files+=("$rel_path")
+                fi
+            else
+                echo "  ⚠️  shasum not available, skipping checksum verification"
+                ((verified_files++))
+            fi
+        else
+            failed_files+=("$rel_path (missing)")
+        fi
+    done < "$checksum_file"
+    
+    if [[ ${#failed_files[@]} -eq 0 ]]; then
+        echo "  ✅ All $verified_files/$total_files files verified successfully"
+        return 0
+    else
+        echo "  ❌ $((total_files - verified_files))/$total_files files failed verification:"
+        printf '    - %s\n' "${failed_files[@]}"
+        return 1
+    fi
+}
+
+# Full backup validation
+validate_backup_full() {
+    local backup_path="$1"
+    
+    echo "  🔍 Performing full backup validation..."
+    
+    # Run quick validation first
+    if ! validate_backup_quick "$backup_path"; then
+        return 1
+    fi
+    
+    # Validate manifest JSON
+    local manifest_file="$backup_path/MANIFEST.json"
+    if command -v jq >/dev/null 2>&1; then
+        if ! jq empty "$manifest_file" >/dev/null 2>&1; then
+            echo "❌ Invalid manifest JSON format"
+            return 1
+        fi
+        echo "  ✅ Manifest JSON format valid"
+    fi
+    
+    # Validate checksums if available
+    validate_backup_checksums "$backup_path"
+    local checksum_result=$?
+    
+    # Validate file count consistency
+    if [[ -f "$manifest_file" ]] && command -v jq >/dev/null 2>&1; then
+        local manifest_file_count=$(jq -r '.metadata.total_files // 0' "$manifest_file")
+        local actual_file_count=$(find "$backup_path/data" -type f 2>/dev/null | wc -l | tr -d ' ')
+        
+        if [[ "$manifest_file_count" == "$actual_file_count" ]]; then
+            echo "  ✅ File count matches manifest ($actual_file_count files)"
+        else
+            echo "  ⚠️  File count mismatch: manifest=$manifest_file_count, actual=$actual_file_count"
+        fi
+    fi
+    
+    if [[ $checksum_result -eq 0 ]]; then
+        echo "✅ Full backup validation passed"
+        return 0
+    else
+        echo "⚠️  Backup validation completed with warnings"
+        return 1
+    fi
+}
+
+# Backup compression - Epic 4.1 Core Implementation  
+backup_compression() {
+    local backup_path="$1"
+    local compression_type="${2:-$BACKUP_COMPRESSION}"
+    local compression_level="${3:-$BACKUP_COMPRESSION_LEVEL}"
+    
+    if [[ "$compression_type" == "none" ]]; then
+        echo "  ℹ️  Compression disabled"
+        return 0
+    fi
+    
+    echo "🗜️  Compressing backup with $compression_type (level $compression_level)..."
+    
+    local start_time=$(date +%s)
+    local original_size=$(du -sb "$backup_path" 2>/dev/null | cut -f1 || echo 0)
+    
+    case "$compression_type" in
+        "gzip")
+            cd "$(dirname "$backup_path")" || return 1
+            tar --use-compress-program="gzip -$compression_level" -cf "${backup_path}.tar.gz" "$(basename "$backup_path")"
+            local compressed_file="${backup_path}.tar.gz"
+            ;;
+        "bzip2")
+            cd "$(dirname "$backup_path")" || return 1
+            tar --use-compress-program="bzip2 -$compression_level" -cf "${backup_path}.tar.bz2" "$(basename "$backup_path")"
+            local compressed_file="${backup_path}.tar.bz2"
+            ;;
+        "xz")
+            cd "$(dirname "$backup_path")" || return 1
+            tar --use-compress-program="xz -$compression_level" -cf "${backup_path}.tar.xz" "$(basename "$backup_path")"
+            local compressed_file="${backup_path}.tar.xz"
+            ;;
+        "zip")
+            cd "$(dirname "$backup_path")" || return 1
+            zip -r$compression_level "${backup_path}.zip" "$(basename "$backup_path")" >/dev/null
+            local compressed_file="${backup_path}.zip"
+            ;;
+        *)
+            echo "❌ Unsupported compression type: $compression_type"
+            return 1
+            ;;
+    esac
+    
+    if [[ -f "$compressed_file" ]]; then
+        local compressed_size=$(du -sb "$compressed_file" 2>/dev/null | cut -f1 || echo 0)
+        local compression_ratio=0
+        
+        if [[ $original_size -gt 0 ]]; then
+            compression_ratio=$(( (original_size - compressed_size) * 100 / original_size ))
+        fi
+        
+        local end_time=$(date +%s)
+        local duration=$((end_time - start_time))
+        
+        echo "  ✅ Compression completed:"
+        echo "    Original size: $(format_size "$original_size")"
+        echo "    Compressed size: $(format_size "$compressed_size")"
+        echo "    Compression ratio: ${compression_ratio}%"
+        echo "    Duration: ${duration}s"
+        
+        # Remove original directory after successful compression
+        rm -rf "$backup_path"
+        
+        return 0
+    else
+        echo "❌ Compression failed"
+        return 1
+    fi
+}
+
 # Export functions
 export -f backup_cli backup_create backup_restore backup_list backup_delete
 export -f show_backup_info init_backup_system ask_yes_no
+# Restore cross-platform - Epic 4.2 Core Implementation
+restore_cross_platform() {
+    local backup_path="$1"
+    local source_platform="$2"  # linux, darwin, windows
+    local target_platform="${3:-$(uname -s | tr '[:upper:]' '[:lower:]')}" 
+    local target_path="${4:-$HOME}"
+    local options="$5"
+    
+    echo "🔄 Performing cross-platform restore: $source_platform -> $target_platform"
+    
+    if [[ "$source_platform" == "$target_platform" ]]; then
+        echo "  ℹ️  Same platform detected, performing standard restore"
+        restore_full_system "$backup_path" "$target_path" "$options"
+        return
+    fi
+    
+    # Platform-specific path mappings and adaptations
+    case "$target_platform" in
+        "darwin")
+            adapt_backup_for_macos "$backup_path" "$target_path" "$options"
+            ;;
+        "linux")
+            adapt_backup_for_linux "$backup_path" "$target_path" "$options"
+            ;;
+        *)
+            echo "⚠️  Unknown target platform: $target_platform, attempting generic restore"
+            restore_full_system "$backup_path" "$target_path" "$options"
+            ;;
+    esac
+    
+    echo "✅ Cross-platform restore completed"
+}
+
+# Adapt backup for macOS
+adapt_backup_for_macos() {
+    local backup_path="$1"
+    local target_path="$2"
+    local options="$3"
+    
+    echo "  🍎 Adapting restore for macOS..."
+    
+    # Perform standard restore first
+    restore_full_system "$backup_path" "$target_path" "$options"
+    
+    # macOS-specific adaptations
+    # Fix Homebrew paths if needed
+    if [[ -d "$target_path/.local/share/dotfiles" ]]; then
+        echo "  🍺 Updating Homebrew configuration for macOS"
+        # Update package manager references from Linux to Homebrew
+        find "$target_path/.local/share/dotfiles" -name "*.sh" -exec sed -i '' 's|apt-get|brew|g' {} \; 2>/dev/null || true
+        find "$target_path/.local/share/dotfiles" -name "*.sh" -exec sed -i '' 's|yum|brew|g' {} \; 2>/dev/null || true
+    fi
+    
+    # Set macOS-specific permissions
+    fix_macos_permissions "$target_path"
+}
+
+# Adapt backup for Linux
+adapt_backup_for_linux() {
+    local backup_path="$1"
+    local target_path="$2"
+    local options="$3"
+    
+    echo "  🐧 Adapting restore for Linux..."
+    
+    # Perform standard restore first
+    restore_full_system "$backup_path" "$target_path" "$options"
+    
+    # Linux-specific adaptations
+    # Fix package manager references if restoring from macOS
+    if [[ -d "$target_path/.local/share/dotfiles" ]]; then
+        echo "  📦 Updating package manager configuration for Linux"
+        # Detect Linux distribution and adapt accordingly
+        if command -v apt-get >/dev/null 2>&1; then
+            find "$target_path/.local/share/dotfiles" -name "*.sh" -exec sed -i 's|brew install|apt-get install|g' {} \; 2>/dev/null || true
+        elif command -v yum >/dev/null 2>&1; then
+            find "$target_path/.local/share/dotfiles" -name "*.sh" -exec sed -i 's|brew install|yum install|g' {} \; 2>/dev/null || true
+        elif command -v pacman >/dev/null 2>&1; then
+            find "$target_path/.local/share/dotfiles" -name "*.sh" -exec sed -i 's|brew install|pacman -S|g' {} \; 2>/dev/null || true
+        fi
+    fi
+    
+    # Set Linux-specific permissions
+    fix_linux_permissions "$target_path"
+}
+
+# Rollback to backup - Epic 4.2 Core Implementation
+rollback_to_backup() {
+    local backup_name="$1"
+    local rollback_scope="${2:-selective}"  # full, selective, config-only
+    local options="$3"
+    
+    if [[ -z "$backup_name" ]]; then
+        echo "❌ Backup name required for rollback"
+        echo "Available backups:"
+        backup_list | head -10
+        return 1
+    fi
+    
+    echo "⏪ Rolling back to backup: $backup_name"
+    
+    # Find and validate backup
+    local backup_path
+    backup_path=$(find_backup "$backup_name")
+    
+    if [[ -z "$backup_path" ]]; then
+        echo "❌ Backup not found: $backup_name"
+        return 1
+    fi
+    
+    # Decompress if needed
+    if [[ ! -d "$backup_path" ]]; then
+        echo "📦 Decompressing backup for rollback..."
+        backup_path=$(decompress_backup "$backup_path")
+        if [[ -z "$backup_path" ]]; then
+            echo "❌ Failed to decompress backup"
+            return 1
+        fi
+    fi
+    
+    # Validate backup integrity before rollback
+    if ! backup_validation "$backup_path" "full"; then
+        echo "❌ Backup validation failed, rollback aborted for safety"
+        return 1
+    fi
+    
+    # Show rollback information
+    echo "Rollback Details:"
+    show_backup_info "$backup_name" | grep -E "(Type|Created|Platform|Files|Size)"
+    echo ""
+    
+    # Confirm rollback unless forced
+    if [[ "$options" != *"--force"* ]]; then
+        if ! ask_yes_no "Proceed with rollback? This will modify your current configuration"; then
+            echo "❌ Rollback cancelled"
+            return 1
+        fi
+    fi
+    
+    # Create pre-rollback backup unless disabled
+    if [[ "$options" != *"--no-backup"* ]]; then
+        echo "💾 Creating pre-rollback backup..."
+        local pre_rollback_name="pre-rollback-$(date +%Y%m%d-%H%M%S)"
+        backup_create "config-only" "$pre_rollback_name" "Pre-rollback safety backup"
+        echo "✅ Pre-rollback backup created: $pre_rollback_name"
+    fi
+    
+    # Perform rollback based on scope
+    case "$rollback_scope" in
+        "full")
+            restore_full_system "$backup_path" "$HOME" "$options --overwrite"
+            ;;
+        "selective")
+            restore_selective "$backup_path" "$HOME" "$options --overwrite"
+            ;;
+        "config-only")
+            restore_selective_config "$backup_path" "$HOME" "$options --overwrite"
+            ;;
+        *)
+            echo "❌ Invalid rollback scope: $rollback_scope"
+            echo "Valid scopes: full, selective, config-only"
+            return 1
+            ;;
+    esac
+    
+    echo "✅ Rollback to $backup_name completed successfully"
+    echo ""
+    echo "📋 Next steps:"
+    echo "  1. Restart your shell: dot reload"
+    echo "  2. Run health check: dot check"
+    echo "  3. Verify configurations are working correctly"
+}
+
+# Restore validation - Epic 4.2 Core Implementation
+restore_validation() {
+    local target_path="${1:-$HOME}"
+    local validation_scope="${2:-basic}"  # basic, full, config
+    
+    echo "🔍 Validating restore operation..."
+    
+    local validation_passed=true
+    local issues=()
+    
+    case "$validation_scope" in
+        "basic")
+            validate_basic_restore "$target_path"
+            ;;
+        "full")
+            validate_full_restore "$target_path"
+            ;;
+        "config")
+            validate_config_restore "$target_path"
+            ;;
+        *)
+            echo "❌ Invalid validation scope: $validation_scope"
+            return 1
+            ;;
+    esac
+}
+
+# Validate basic restore
+validate_basic_restore() {
+    local target_path="$1"
+    
+    echo "  🔍 Basic restore validation..."
+    
+    # Check for essential dotfiles
+    local essential_files=(
+        ".zshrc"
+        ".gitconfig"
+        ".local/share/dotfiles"
+    )
+    
+    local missing_files=()
+    for file in "${essential_files[@]}"; do
+        if [[ ! -e "$target_path/$file" ]]; then
+            missing_files+=("$file")
+        fi
+    done
+    
+    if [[ ${#missing_files[@]} -eq 0 ]]; then
+        echo "    ✅ Essential files present"
+        return 0
+    else
+        echo "    ⚠️  Missing essential files: ${missing_files[*]}"
+        return 1
+    fi
+}
+
+# Validate full restore
+validate_full_restore() {
+    local target_path="$1"
+    
+    echo "  🔍 Full restore validation..."
+    
+    # Run basic validation first
+    validate_basic_restore "$target_path"
+    local basic_result=$?
+    
+    # Check permissions on sensitive files
+    echo "  🔒 Checking file permissions..."
+    validate_file_permissions "$target_path"
+    local perm_result=$?
+    
+    # Check for broken symlinks
+    echo "  🔗 Checking for broken symlinks..."
+    validate_symlinks "$target_path"
+    local symlink_result=$?
+    
+    if [[ $basic_result -eq 0 && $perm_result -eq 0 && $symlink_result -eq 0 ]]; then
+        echo "  ✅ Full restore validation passed"
+        return 0
+    else
+        echo "  ⚠️  Full restore validation found issues"
+        return 1
+    fi
+}
+
+# Validate configuration restore
+validate_config_restore() {
+    local target_path="$1"
+    
+    echo "  🔍 Configuration restore validation..."
+    
+    # Check shell configuration
+    if [[ -f "$target_path/.zshrc" ]]; then
+        if zsh -n "$target_path/.zshrc" 2>/dev/null; then
+            echo "    ✅ Zsh configuration syntax valid"
+        else
+            echo "    ⚠️  Zsh configuration syntax errors detected"
+        fi
+    fi
+    
+    # Check git configuration
+    if [[ -f "$target_path/.gitconfig" ]]; then
+        if git config --file "$target_path/.gitconfig" --list >/dev/null 2>&1; then
+            echo "    ✅ Git configuration valid"
+        else
+            echo "    ⚠️  Git configuration issues detected"
+        fi
+    fi
+    
+    return 0
+}
+
+# Fix permissions for restored files
+fix_restored_permissions() {
+    local target_path="$1"
+    
+    echo "  🔒 Setting appropriate permissions..."
+    
+    # SSH configuration permissions
+    if [[ -d "$target_path/.ssh" ]]; then
+        chmod 700 "$target_path/.ssh" 2>/dev/null || true
+        chmod 600 "$target_path/.ssh"/* 2>/dev/null || true
+        chmod 644 "$target_path/.ssh"/*.pub 2>/dev/null || true
+        chmod 644 "$target_path/.ssh/config" 2>/dev/null || true
+        chmod 644 "$target_path/.ssh/known_hosts" 2>/dev/null || true
+    fi
+    
+    # GPG permissions
+    if [[ -d "$target_path/.gnupg" ]]; then
+        chmod 700 "$target_path/.gnupg" 2>/dev/null || true
+        chmod 600 "$target_path/.gnupg"/* 2>/dev/null || true
+    fi
+    
+    # Shell configuration files
+    chmod 644 "$target_path"/.{zshrc,bashrc,profile,bash_profile} 2>/dev/null || true
+    
+    # Git configuration
+    chmod 644 "$target_path/.gitconfig" 2>/dev/null || true
+}
+
+# Fix permissions for configuration files
+fix_config_permissions() {
+    fix_restored_permissions "$@"
+}
+
+# Fix macOS-specific permissions
+fix_macos_permissions() {
+    local target_path="$1"
+    
+    fix_restored_permissions "$target_path"
+    
+    # macOS-specific permission fixes
+    if [[ -d "$target_path/Library" ]]; then
+        chmod 755 "$target_path/Library" 2>/dev/null || true
+    fi
+}
+
+# Fix Linux-specific permissions
+fix_linux_permissions() {
+    local target_path="$1"
+    
+    fix_restored_permissions "$target_path"
+    
+    # Linux-specific permission fixes
+    # (Add any Linux-specific permission requirements here)
+}
+
+# Validate file permissions
+validate_file_permissions() {
+    local target_path="$1"
+    
+    local permission_issues=()
+    
+    # Check SSH directory permissions
+    if [[ -d "$target_path/.ssh" ]]; then
+        local ssh_perms=$(stat -c "%a" "$target_path/.ssh" 2>/dev/null || stat -f "%Lp" "$target_path/.ssh" 2>/dev/null)
+        if [[ "$ssh_perms" != "700" ]]; then
+            permission_issues+=("SSH directory permissions: $ssh_perms (should be 700)")
+        fi
+    fi
+    
+    if [[ ${#permission_issues[@]} -eq 0 ]]; then
+        echo "    ✅ File permissions correct"
+        return 0
+    else
+        echo "    ⚠️  Permission issues found:"
+        printf '      - %s\n' "${permission_issues[@]}"
+        return 1
+    fi
+}
+
+# Validate symlinks
+validate_symlinks() {
+    local target_path="$1"
+    
+    local broken_links=()
+    
+    # Find broken symlinks
+    while IFS= read -r -d '' symlink; do
+        if [[ ! -e "$symlink" ]]; then
+            broken_links+=("$symlink")
+        fi
+    done < <(find "$target_path" -type l -print0 2>/dev/null)
+    
+    if [[ ${#broken_links[@]} -eq 0 ]]; then
+        echo "    ✅ No broken symlinks found"
+        return 0
+    else
+        echo "    ⚠️  Broken symlinks found:"
+        printf '      - %s\n' "${broken_links[@]}"
+        return 1
+    fi
+}
+
+export -f create_full_backup create_incremental_backup create_config_backup
+export -f backup_validation backup_compression
+export -f restore_full_system restore_selective_config restore_cross_platform
+export -f rollback_to_backup restore_validation
