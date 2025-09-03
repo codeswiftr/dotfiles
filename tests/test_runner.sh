@@ -352,11 +352,16 @@ run_enhanced_tests() {
         enhanced_cmd="$enhanced_cmd --category $CATEGORY"
     fi
     
+    # Ensure runner is executable (mode can be lost on checkout)
+    if [[ -f "$ENHANCED_RUNNER" && ! -x "$ENHANCED_RUNNER" ]]; then
+        chmod +x "$ENHANCED_RUNNER" || true
+    fi
+
     # Execute enhanced test runner
     log_info "Executing: $enhanced_cmd"
     
     # Run and capture exit code
-    if bash "$enhanced_cmd"; then
+    if bash -lc "$enhanced_cmd"; then
         log_success "Enhanced testing completed successfully"
         return 0
     else
