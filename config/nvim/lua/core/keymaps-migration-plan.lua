@@ -31,8 +31,8 @@ M.migration_phases = {
     
     -- Enhanced code actions (prefix consistency)
     { "n", "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, { desc = "Code format" } },
-    { "n", "<leader>cr", "vim.lsp.buf.rename", { desc = "Code rename" } },
-    { "n", "<leader>cd", "vim.lsp.buf.hover", { desc = "Code documentation" } },
+    { "n", "<leader>cr", vim.lsp.buf.rename, { desc = "Code rename" } },
+    { "n", "<leader>cd", vim.lsp.buf.hover, { desc = "Code documentation" } },
   },
   
   -- Phase 3: Context-aware enhancements (new functionality)
