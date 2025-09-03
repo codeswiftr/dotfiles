@@ -28,10 +28,20 @@ validate_lua_syntax() {
         return 1
     fi
     
-    # Check basic Lua syntax
-    if ! lua -c "$file" 2>/dev/null; then
+    # Prefer luac if available
+    if command -v luac >/dev/null 2>&1; then
+        if ! luac -p "$file" 2>/dev/null; then
+            echo "ERROR: Syntax error in $file"
+            luac -p "$file" 2>&1
+            return 1
+        fi
+        return 0
+    fi
+    
+    # Fallback to lua interpreter with loadfile
+    if ! lua -e "assert(loadfile(arg[1]))" "$file" 2>/dev/null; then
         echo "ERROR: Syntax error in $file"
-        lua -c "$file" 2>&1
+        lua -e "assert(loadfile(arg[1]))" "$file" 2>&1
         return 1
     fi
     

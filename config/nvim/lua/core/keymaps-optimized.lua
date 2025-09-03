@@ -112,12 +112,7 @@ keymap("n", "<leader>gp", "<cmd>Git push<cr>", { desc = "Git push" })
 keymap("n", "<leader>gl", "<cmd>Git log --oneline<cr>", { desc = "Git log" })
 keymap("n", "<leader>gb", "<cmd>Gitsigns blame_line<cr>", { desc = "Git blame" })
 
--- Search operations (leader+s prefix for "search")  
-keymap("n", "<leader>sf", "<cmd>Telescope find_files<cr>", { desc = "Search files" })
-keymap("n", "<leader>sg", "<cmd>Telescope live_grep<cr>", { desc = "Search text" })
-keymap("n", "<leader>sb", "<cmd>Telescope buffers<cr>", { desc = "Search buffers" })
-keymap("n", "<leader>sh", "<cmd>Telescope help_tags<cr>", { desc = "Search help" })
-keymap("n", "<leader>sk", "<cmd>Telescope keymaps<cr>", { desc = "Search keymaps" })
+-- Intentionally minimized search leader mappings to reduce cognitive load
 
 -- ============================================================================
 -- TIER 4: VISUAL MODE OPTIMIZATIONS

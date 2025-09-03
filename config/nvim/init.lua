@@ -8,7 +8,7 @@ vim.g.maplocalleader = " "
 
 -- Load core configurations
 require("core.options")
-require("core.keymaps")
+require("core.keymaps-migration-plan").load_keymaps()
 require("core.split-navigation")
 
 -- Initialize tier manager

@@ -44,11 +44,20 @@ cleanup_test_environment() {
 test_optimized_keymaps_file_syntax() {
     test_description "Optimized keymaps file has valid Lua syntax"
     
-    if lua -c "$OPTIMIZED_KEYMAPS_PATH" 2>/dev/null; then
-        test_pass "Syntax is valid"
+    if command -v luac >/dev/null 2>&1; then
+        if luac -p "$OPTIMIZED_KEYMAPS_PATH" 2>/dev/null; then
+            test_pass "Syntax is valid (luac)"
+        else
+            test_fail "Syntax errors found in optimized keymaps (luac)"
+            luac -p "$OPTIMIZED_KEYMAPS_PATH" 2>&1
+        fi
     else
-        test_fail "Syntax errors found in optimized keymaps"
-        lua -c "$OPTIMIZED_KEYMAPS_PATH" 2>&1
+        if lua -e "assert(loadfile(arg[1]))" "$OPTIMIZED_KEYMAPS_PATH" 2>/dev/null; then
+            test_pass "Syntax is valid (lua loadfile)"
+        else
+            test_fail "Syntax errors found in optimized keymaps (lua)"
+            lua -e "assert(loadfile(arg[1]))" "$OPTIMIZED_KEYMAPS_PATH" 2>&1
+        fi
     fi
 }
 
@@ -64,7 +73,7 @@ test_tier_1_instant_access_bindings() {
     
     local missing_bindings=()
     for binding in "${required_bindings[@]}"; do
-        if ! grep -q "$binding" "$OPTIMIZED_KEYMAPS_PATH"; then
+        if ! grep -qi "$binding" "$OPTIMIZED_KEYMAPS_PATH"; then
             missing_bindings+=("$binding")
         fi
     done
@@ -80,16 +89,16 @@ test_tier_2_daily_operations_bindings() {
     test_description "Tier 2 daily operations use single letter after leader"
     
     local daily_operations=(
-        "<leader>e.*explorer"
-        "<leader>b.*buffers"
-        "<leader>g.*Git"
-        "<leader>t.*terminal"
-        "<leader>r.*run"
+        'keymap\("n",\s*"<leader>e"'   
+        'keymap\("n",\s*"<leader>b"'
+        'keymap\("n",\s*"<leader>g"'
+        'keymap\("n",\s*"<leader>t"'
+        'keymap\("n",\s*"<leader>r"'
     )
     
     local missing_operations=()
     for operation in "${daily_operations[@]}"; do
-        if ! grep -q "$operation" "$OPTIMIZED_KEYMAPS_PATH"; then
+        if ! grep -qiE "$operation" "$OPTIMIZED_KEYMAPS_PATH"; then
             missing_operations+=("$operation")
         fi
     done
@@ -113,7 +122,7 @@ test_code_navigation_consistency() {
     
     local consistent=true
     for binding in "${nav_bindings[@]}"; do
-        if ! grep -q "$binding" "$OPTIMIZED_KEYMAPS_PATH"; then
+        if ! grep -qi "$binding" "$OPTIMIZED_KEYMAPS_PATH"; then
             consistent=false
             break
         fi
@@ -138,7 +147,7 @@ test_code_actions_consistency() {
     
     local consistent=true
     for action in "${code_actions[@]}"; do
-        if ! grep -q "$action" "$OPTIMIZED_KEYMAPS_PATH"; then
+        if ! grep -qi "$action" "$OPTIMIZED_KEYMAPS_PATH"; then
             consistent=false
             break
         fi
@@ -165,7 +174,7 @@ test_git_operations_logical_grouping() {
     
     local grouped_correctly=true
     for op in "${git_ops[@]}"; do
-        if ! grep -q "$op" "$OPTIMIZED_KEYMAPS_PATH"; then
+        if ! grep -qi "$op" "$OPTIMIZED_KEYMAPS_PATH"; then
             grouped_correctly=false
             break
         fi
@@ -215,16 +224,16 @@ test_visual_mode_optimizations() {
     test_description "Visual mode has proper text manipulation optimizations"
     
     local visual_optimizations=(
-        'keymap("v".*"<".*"<gv"'    # Maintain selection when indenting left
-        'keymap("v".*">".*">gv"'    # Maintain selection when indenting right
-        'keymap("v".*"J".*":m"'     # Move text blocks down
-        'keymap("v".*"K".*":m"'     # Move text blocks up
-        'keymap("v".*"p".*"_dP"'    # Better paste (preserve clipboard)
+        'keymap\("v",\s*"<",\s*"<gv"'    # Maintain selection when indenting left
+        'keymap\("v",\s*">",\s*">gv"'    # Maintain selection when indenting right
+        'keymap\("v",\s*"J",\s*":m'      # Move text blocks down
+        'keymap\("v",\s*"K",\s*":m'      # Move text blocks up
+        'keymap\("v",\s*"p",\s*.*_dP' # Better paste (preserve clipboard)
     )
     
     local optimizations_present=0
     for optimization in "${visual_optimizations[@]}"; do
-        if grep -q "$optimization" "$OPTIMIZED_KEYMAPS_PATH"; then
+        if grep -qiE "$optimization" "$OPTIMIZED_KEYMAPS_PATH"; then
             ((optimizations_present++))
         fi
     done

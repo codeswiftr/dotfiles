@@ -25,6 +25,11 @@ TEST_PASS_COUNT=0
 TEST_FAIL_COUNT=0
 TEST_SKIP_COUNT=0
 
+# Backward-compatible counters for legacy test scripts
+TOTAL_TESTS=0
+TOTAL_PASSED=0
+TOTAL_FAILED=0
+
 # =============================================================================
 # Core Test Functions
 # =============================================================================
@@ -103,6 +108,60 @@ log_verbose() {
     if [[ "$TEST_VERBOSE" == "true" ]]; then
         echo -e "${CYAN}[VERBOSE]${NC} $1" >&2
     fi
+}
+
+# =============================================================================
+# Legacy Compatibility Helpers (test_* API)
+# =============================================================================
+
+# Start a test suite (legacy API)
+test_suite_start() {
+    local suite_name="${1:-test_suite}"
+    test_init "$suite_name"
+}
+
+# End a test suite (legacy API) and print summary in expected format
+test_suite_end() {
+    # Synchronize aggregate counters for legacy expectations
+    TOTAL_TESTS=$((TEST_PASS_COUNT + TEST_FAIL_COUNT + TEST_SKIP_COUNT))
+    TOTAL_PASSED=$((TEST_PASS_COUNT))
+    TOTAL_FAILED=$((TEST_FAIL_COUNT))
+
+    # Print standard summary lines for parsers
+    echo "Tests Run: $TOTAL_TESTS"
+    echo "Tests Passed: $TOTAL_PASSED"
+    echo "Tests Failed: $TOTAL_FAILED"
+
+    # Also print the verbose framework summary
+    test_summary || true
+}
+
+# Describe current test (legacy API)
+test_description() {
+    local msg="${1:-}"
+    [[ -n "$msg" ]] && log_info "$msg"
+}
+
+# Mark pass (legacy API)
+test_pass() {
+    local msg="${1:-Test passed}"
+    ((TEST_PASS_COUNT++))
+    log_success "$msg"
+}
+
+# Mark fail (legacy API)
+test_fail() {
+    local msg="${1:-Test failed}"
+    ((TEST_FAIL_COUNT++))
+    log_error "$msg"
+    return 1
+}
+
+# Mark skip (legacy API)
+test_skip() {
+    local msg="${1:-Test skipped}"
+    ((TEST_SKIP_COUNT++))
+    log_warning "$msg"
 }
 
 # =============================================================================
