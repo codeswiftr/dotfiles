@@ -62,3 +62,6 @@
 # Include user-specific configurations
 [include]
     path = ~/.gitconfig.local
+[user]
+	name = Bogdan Veliscu
+	email = bogdan.veliscu@outlook.com
