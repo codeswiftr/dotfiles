@@ -23,6 +23,7 @@ M.migration_phases = {
   -- Phase 2: Optimize existing leader bindings (gradual replacement)
   phase2_optimizations = {
     -- Enhanced git workflow (additive, no conflicts)
+    { "n", "<leader>g",  "<cmd>Git<cr>", { desc = "Git status" } },
     { "n", "<leader>ga", "<cmd>Gitsigns stage_hunk<cr>", { desc = "Git add hunk" } },
     { "n", "<leader>gc", "<cmd>Git commit<cr>", { desc = "Git commit" } },
     { "n", "<leader>gp", "<cmd>Git push<cr>", { desc = "Git push" } },
