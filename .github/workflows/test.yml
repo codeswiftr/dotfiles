@@ -64,7 +64,8 @@ PY
       - name: Validate docs index consistency
         run: |
           bash scripts/generate-index.sh
-          git diff --exit-code docs/INDEX.md docs/index.json
+          # Ignore date fields when comparing indexes
+          git diff -I '^Generated: ' -I '"generated": ' --exit-code -- docs/INDEX.md docs/index.json
 
       - name: Upload test results
         if: always()

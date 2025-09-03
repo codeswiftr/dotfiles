@@ -198,11 +198,14 @@ jobs:
           echo "::group::Test Execution"
           
           # Build test command
-          TEST_CMD="./tests/test_runner.sh --category ${{ matrix.category }}"
+          TEST_CMD="bash ./tests/test_runner.sh --category ${{ matrix.category }}"
           
           if [[ "${{ github.event.inputs.verbose_mode }}" == "true" ]]; then
             TEST_CMD="$TEST_CMD --verbose"
           fi
+          
+          # Ensure enhanced runner is executable if present
+          chmod +x tests/enhanced_test_runner.sh 2>/dev/null || true
           
           # Run tests with timeout
           timeout 30m bash -c "$TEST_CMD" || {
@@ -308,9 +311,9 @@ jobs:
           echo "::group::Installation Flow Test"
           
           # Test dry-run installation
-          ./install.sh install minimal --dry-run
-          ./install.sh install standard --dry-run
-          ./install.sh install full --dry-run
+          ./install.sh --dry-run install minimal
+          ./install.sh --dry-run install standard
+          ./install.sh --dry-run install full
           
           echo "✅ All installation profiles validated"
           echo "::endgroup::"
