@@ -820,6 +820,83 @@ ai_analyze_with_gemini() {
 }
 
 # Help function
+ai_fix_code() {
+    local target_file="$1"
+    local provider="${AI_PROVIDER:-$(detect_preferred_provider)}"
+    
+    if [[ -z "$target_file" ]]; then
+        echo "Usage: dot ai fix <file>"
+        return 1
+    fi
+    
+    if [[ ! -f "$target_file" ]]; then
+        print_error "File not found: $target_file"
+        return 1
+    fi
+    
+    print_info "${AI} Analyzing code for issues and fixes..."
+    
+    local file_content=$(cat "$target_file")
+    local fix_prompt="Analyze this code and provide specific fixes for:
+1. Syntax errors and bugs
+2. Logic errors and edge cases
+3. Performance issues
+4. Security vulnerabilities
+5. Code quality improvements
+6. Best practices violations
+
+For each issue found, provide:
+- Description of the problem
+- Explanation of why it's an issue
+- Specific code fix with before/after examples
+- Any additional considerations
+
+Focus on actionable, implementable fixes."
+    
+    local fixes=$(ai_api_call "$provider" "$fix_prompt" "$file_content")
+    
+    if [[ -n "$fixes" ]] && [[ "$fixes" != "Error:"* ]]; then
+        echo "🔧 Code Fix Analysis for $target_file:"
+        echo ""
+        echo "$fixes"
+        
+        # Ask if user wants to create a fixed version
+        echo ""
+        read -p "Would you like to create a .fixed version of this file? [y/N]: " -r create_fixed
+        if [[ "$create_fixed" =~ ^[Yy]$ ]]; then
+            local fixed_file="${target_file%.*}.fixed.${target_file##*.}"
+            
+            local fix_apply_prompt="Apply the suggested fixes to this code and return the complete, corrected file. Only return the corrected code, no explanations."
+            local fixed_code=$(ai_api_call "$provider" "$fix_apply_prompt" "$file_content")
+            
+            if [[ -n "$fixed_code" ]] && [[ "$fixed_code" != "Error:"* ]]; then
+                echo "$fixed_code" > "$fixed_file"
+                echo "✅ Fixed code saved to: $fixed_file"
+                echo "Review the changes and replace the original file if satisfied."
+            else
+                echo "⚠️ Failed to generate fixed code"
+            fi
+        fi
+    else
+        print_error "Failed to analyze code for fixes"
+        return 1
+    fi
+}
+
+ai_refactor_code() {
+    local target_file="$1"
+    local focus="${2:-general}"
+    
+    if [[ -z "$target_file" ]]; then
+        echo "Usage: dot ai refactor <file> [focus]"
+        echo "Focus options: performance, maintainability, security, general"
+        return 1
+    fi
+    
+    print_info "${AI} Generating refactoring suggestions..."
+    ai_refactor_suggestions "$target_file" "$focus"
+}
+
 show_ai_help() {
     cat << 'EOF'
 dot ai - AI-powered development assistance

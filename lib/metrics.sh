@@ -1326,8 +1326,29 @@ For more information: https://docs.dotfiles.dev/metrics
 EOF
 }
 
+# Record AI usage metrics
+record_ai_usage() {
+    local provider="$1"
+    local tokens="$2"
+    local timestamp=$(date -Iseconds)
+    
+    if [[ ! -f "$METRICS_DATA_FILE" ]]; then
+        init_metrics_system
+    fi
+    
+    # Update AI usage metrics using jq
+    local temp_file=$(mktemp)
+    jq --arg provider "$provider" --arg tokens "$tokens" --arg timestamp "$timestamp" '
+    .metrics.ai_usage.total_requests += 1 |
+    .metrics.ai_usage.providers[$provider].requests += 1 |
+    .metrics.ai_usage.providers[$provider].tokens += ($tokens | tonumber) |
+    .metrics.ai_usage.total_tokens += ($tokens | tonumber) |
+    .metrics.ai_usage.last_used = $timestamp
+    ' "$METRICS_DATA_FILE" > "$temp_file" 2>/dev/null && mv "$temp_file" "$METRICS_DATA_FILE" || rm -f "$temp_file"
+}
+
 # Export functions
 export -f init_metrics_system collect_system_metrics collect_command_metrics
 export -f collect_performance_metrics collect_usage_metrics generate_metrics_report
 export -f show_metrics_dashboard start_metrics_daemon stop_metrics_daemon
-export -f export_metrics metrics_cli
+export -f export_metrics metrics_cli record_ai_usage
