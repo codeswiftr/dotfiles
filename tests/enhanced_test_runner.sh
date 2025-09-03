@@ -81,7 +81,10 @@ discover_tests() {
             if [[ -d "$SCRIPT_DIR/infrastructure" ]]; then
                 while IFS= read -r -d '' test_file; do
                     tests+=("$test_file")
-                done < <(find "$SCRIPT_DIR/infrastructure" -name "*.sh" -print0)
+                done < <(find "$SCRIPT_DIR/infrastructure" -maxdepth 1 -name "*.sh" -print0)
+                # Ensure deterministic order
+                IFS=$'\n' tests=($(printf '%s\n' "${tests[@]}" | sort))
+                unset IFS
             fi
             ;;
         "unit")
@@ -156,8 +159,9 @@ execute_test() {
     export TEST_TEMP_DIR="$RESULTS_DIR/temp_${test_name}_$$"
     export TEST_VERBOSE="$VERBOSE_MODE"
     
-    # Execute the test
+    # Execute the test (ensure executable bit or run via bash)
     local exit_code=0
+    if [[ ! -x "$test_file" ]]; then chmod +x "$test_file" 2>/dev/null || true; fi
     if bash "$test_file" > "$output_file" 2>&1; then
         exit_code=0
     else
