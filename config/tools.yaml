@@ -73,6 +73,21 @@ groups:
       - pytest_enhanced
     optional: true
 
+  security_tools:
+    description: "Enterprise security and compliance tools (Epic 6)"
+    tools:
+      - gitleaks
+      - semgrep
+      - trivy
+      - hadolint
+      - bandit
+      - safety
+      - grype
+      - osv_scanner
+      - age
+      - truffleHog
+    optional: true
+
   optional:
     description: "Nice-to-have tools for enhanced experience"
     tools:
@@ -454,6 +469,97 @@ configs:
     backup: true
     merge: true  # Merge with existing config
 
+  # Security Tools (Epic 6)
+  gitleaks:
+    description: "Git secret scanning tool"
+    category: "security"
+    install:
+      macos: "brew install gitleaks"
+      ubuntu: "wget -qO- https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh"
+      arch: "sudo pacman -S gitleaks"
+    verify: "gitleaks version"
+
+  semgrep:
+    description: "Static analysis security tool"
+    category: "security"
+    install:
+      macos: "brew install semgrep"
+      ubuntu: "pip install semgrep"
+      arch: "pip install semgrep"
+    verify: "semgrep --version"
+
+  trivy:
+    description: "Container and dependency vulnerability scanner"
+    category: "security"
+    install:
+      macos: "brew install trivy"
+      ubuntu: "sudo apt-get install wget apt-transport-https gnupg lsb-release && wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add - && echo \"deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main\" | sudo tee -a /etc/apt/sources.list.d/trivy.list && sudo apt-get update && sudo apt-get install trivy"
+      arch: "sudo pacman -S trivy"
+    verify: "trivy version"
+
+  hadolint:
+    description: "Dockerfile linter for security best practices"
+    category: "security"
+    install:
+      macos: "brew install hadolint"
+      ubuntu: "wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint"
+      arch: "sudo pacman -S hadolint"
+    verify: "hadolint --version"
+
+  bandit:
+    description: "Python security linter"
+    category: "security"
+    install:
+      macos: "pip install bandit"
+      ubuntu: "pip install bandit"
+      arch: "pip install bandit"
+    verify: "bandit --version"
+
+  safety:
+    description: "Python dependency vulnerability scanner"
+    category: "security"
+    install:
+      macos: "pip install safety"
+      ubuntu: "pip install safety"
+      arch: "pip install safety"
+    verify: "safety --version"
+
+  grype:
+    description: "Universal vulnerability scanner"
+    category: "security"
+    install:
+      macos: "brew install grype"
+      ubuntu: "curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin"
+      arch: "yay -S grype"
+    verify: "grype version"
+
+  osv_scanner:
+    description: "OSV vulnerability database scanner"
+    category: "security"
+    install:
+      macos: "brew install osv-scanner"
+      ubuntu: "go install github.com/google/osv-scanner/cmd/osv-scanner@v1"
+      arch: "yay -S osv-scanner"
+    verify: "osv-scanner --version"
+
+  age:
+    description: "Modern encryption tool for secrets at rest"
+    category: "security"
+    install:
+      macos: "brew install age"
+      ubuntu: "sudo apt install age"
+      arch: "sudo pacman -S age"
+    verify: "age --version"
+
+  truffleHog:
+    description: "Git secret scanner with high accuracy"
+    category: "security"
+    install:
+      macos: "brew install trufflesecurity/trufflehog/trufflehog"
+      ubuntu: "curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin"
+      arch: "yay -S trufflehog"
+    verify: "trufflehog --version"
+
 # Installation profiles
 profiles:
   minimal:
@@ -466,7 +572,7 @@ profiles:
 
   full:
     description: "Complete installation with all tools"
-    groups: ["essential", "modern_cli", "development", "ai_tools", "testing_tools", "optional"]
+    groups: ["essential", "modern_cli", "development", "ai_tools", "testing_tools", "security_tools", "optional"]
 
   ai_focused:
     description: "AI-enhanced development environment"

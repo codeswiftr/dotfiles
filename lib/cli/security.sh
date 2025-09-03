@@ -2,7 +2,14 @@
 # ============================================================================
 # DOT CLI - Security Operations
 # Comprehensive security scanning and management
+# Epic 6: Security & Compliance System Integration
 # ============================================================================
+
+# Load security system
+source "$DOTFILES_DIR/lib/security-system.sh" 2>/dev/null || {
+    print_error "Security system library not found"
+    return 1
+}
 
 # Security management command
 dot_security() {
@@ -14,13 +21,16 @@ dot_security() {
             security_full_scan "$@"
             ;;
         "deps")
-            security_check_dependencies "$@"
+            security_dependency_scan "$@"
             ;;
         "code")
-            security_static_analysis "$@"
+            security_code_analysis "$@"
             ;;
         "secrets")
-            security_scan_secrets "$@"
+            security_secret_detection "$@"
+            ;;
+        "container")
+            security_container_scan "$@"
             ;;
         "audit")
             security_audit_system "$@"
@@ -30,6 +40,45 @@ dot_security() {
             ;;
         "setup")
             security_setup_tools
+            ;;
+        # Epic 6.2: Compliance Automation
+        "compliance")
+            security_compliance_command "$@"
+            ;;
+        "soc2")
+            compliance_soc2_audit "$@"
+            ;;
+        "gdpr")
+            compliance_gdpr_scan "$@"
+            ;;
+        "report")
+            compliance_reporting "$@"
+            ;;
+        # Epic 6.3: Secret Management
+        "rotate")
+            secret_rotation_automation "$@"
+            ;;
+        "encrypt")
+            secret_encryption_at_rest "$@"
+            ;;
+        "access")
+            secret_access_control "$@"
+            ;;
+        "secret-audit")
+            secret_audit_logging "$@"
+            ;;
+        # Epic 6.4: Security Monitoring
+        "monitor")
+            security_threat_detection "$@"
+            ;;
+        "anomaly")
+            security_anomaly_detection "$@"
+            ;;
+        "incident")
+            security_incident_response "$@"
+            ;;
+        "dashboard")
+            security_dashboard "$@"
             ;;
         "-h"|"--help"|"")
             show_security_help
@@ -640,6 +689,58 @@ security_setup_tools() {
     print_success "Security tools setup completed!"
 }
 
+# Compliance command handler
+security_compliance_command() {
+    local subcommand="${1:-}"
+    shift || true
+    
+    case "$subcommand" in
+        "soc2")
+            compliance_soc2_audit "$@"
+            ;;
+        "gdpr")
+            compliance_gdpr_scan "$@"
+            ;;
+        "report")
+            compliance_reporting "$@"
+            ;;
+        "audit")
+            audit_trail_management "$@"
+            ;;
+        "-h"|"--help"|"")
+            show_compliance_help
+            ;;
+        *)
+            print_error "Unknown compliance subcommand: $subcommand"
+            echo "Run 'dot security compliance --help' for available commands."
+            return 1
+            ;;
+    esac
+}
+
+# Compliance help
+show_compliance_help() {
+    cat << 'EOF'
+dot security compliance - Compliance automation and auditing
+
+USAGE:
+    dot security compliance <command> [options]
+
+COMMANDS:
+    soc2 [scope]         SOC2 Type II compliance audit
+    gdpr [target]        GDPR compliance validation
+    report [type]        Generate compliance reports
+    audit [action]       Manage audit trails
+
+EXAMPLES:
+    dot security compliance soc2                    # Full SOC2 audit
+    dot security compliance soc2 security          # Security controls only
+    dot security compliance gdpr .                 # GDPR scan current directory
+    dot security compliance report all --format html
+    dot security compliance audit status
+EOF
+}
+
 # Help function
 show_security_help() {
     cat << 'EOF'
@@ -648,34 +749,74 @@ dot security - Security operations and scanning
 USAGE:
     dot security <command> [options]
 
-COMMANDS:
-    scan                 Full security scan (deps + code + secrets)
-    deps                 Check dependency vulnerabilities
-    code                 Static code analysis for security issues
-    secrets              Scan for exposed secrets and credentials
+CORE SECURITY:
+    scan                 Full security scan (deps + code + secrets + containers)
+    deps [target]        Check dependency vulnerabilities (Epic 6.1)
+    code [target]        Static code analysis for security issues (Epic 6.1)
+    secrets [target]     Scan for exposed secrets and credentials (Epic 6.1)
+    container <image>    Container vulnerability scanning (Epic 6.1)
     audit                System security audit
     status               Show security tool status
     setup                Install security scanning tools
 
+COMPLIANCE AUTOMATION (Epic 6.2):
+    compliance <cmd>     Compliance management (soc2, gdpr, report, audit)
+    soc2 [scope]         SOC2 Type II compliance audit
+    gdpr [target]        GDPR compliance validation  
+    report [type]        Generate compliance reports
+
+SECRET MANAGEMENT (Epic 6.3):
+    rotate <provider>    Automated secret rotation
+    encrypt <file>       Encrypt secrets at rest
+    access <action>      Role-based access control
+    secret-audit [action] Secret access auditing
+
+SECURITY MONITORING (Epic 6.4):
+    monitor [type]       Real-time threat detection
+    anomaly [target]     Behavioral anomaly detection
+    incident <type>      Incident response automation
+    dashboard [mode]     Security metrics dashboard
+
 OPTIONS:
     --quiet              Suppress output, return only exit code
-    --format <format>    Output format (table, json, sarif)
+    --format <format>    Output format (table, json, html, sarif)
     --json               Shorthand for '--format json --quiet'
     -h, --help           Show this help message
 
 SECURITY TOOLS:
     gitleaks             Secret scanning
     semgrep              Static analysis (multi-language)
+    trivy                Container and dependency scanner
     hadolint             Dockerfile security linting
-    safety               Python vulnerability scanning
+    bandit               Python security analysis
+    safety/pip-audit     Python vulnerability scanning
     npm audit            Node.js vulnerability scanning
     cargo audit          Rust vulnerability scanning
     govulncheck          Go vulnerability scanning
+    grype                Universal vulnerability scanner
+    osv-scanner          OSV vulnerability database scanner
 
 EXAMPLES:
-    dot security scan              # Full security audit
-    dot security deps              # Check dependencies only
-    dot security secrets --quiet   # Silent secret scan
-    dot security setup             # Install security tools
+    # Core Security Scanning
+    dot security scan                               # Full security audit
+    dot security deps . --format json              # Dependency scan with JSON output
+    dot security secrets . --include-git false     # Secret scan without git history
+    dot security container nginx:latest            # Container vulnerability scan
+    
+    # Compliance Automation  
+    dot security soc2 all                          # Complete SOC2 audit
+    dot security gdpr . --format html              # GDPR compliance report
+    dot security report all ~/reports              # All compliance reports
+    
+    # Secret Management
+    dot security rotate aws api_keys 30d           # Rotate AWS API keys every 30 days
+    dot security encrypt secrets.json age          # Encrypt with age
+    dot security access grant user1 /secrets/api read
+    
+    # Security Monitoring
+    dot security monitor network --duration 1h     # Network threat monitoring
+    dot security anomaly . --sensitivity high      # High sensitivity anomaly detection
+    dot security dashboard --refresh 10            # Live security dashboard
+    dot security incident malware_detected high true
 EOF
 }

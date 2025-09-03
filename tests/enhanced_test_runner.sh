@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # Enhanced Dotfiles Testing Framework - Main Test Runner
-# Supports unit, integration, performance, and infrastructure tests
+# Supports unit, integration, performance, security, and infrastructure tests
 # =============================================================================
 
 set -euo pipefail
@@ -109,11 +109,19 @@ discover_tests() {
                 done < <(find "$SCRIPT_DIR/performance" -name "*.sh" -print0)
             fi
             ;;
+        "security")
+            log_info "Discovering security tests..."
+            # Run the comprehensive security system tests
+            if [[ -f "$SCRIPT_DIR/test_security_system.sh" ]]; then
+                tests+=("$SCRIPT_DIR/test_security_system.sh")
+            fi
+            ;;
         "all")
             discover_tests "infrastructure"
             discover_tests "unit"
-            discover_tests "integration"
+            discover_tests "integration" 
             discover_tests "performance"
+            discover_tests "security"
             return 0
             ;;
         *)
@@ -235,7 +243,7 @@ generate_comprehensive_report() {
 EOF
 
     # Generate results by category
-    for category in "infrastructure" "unit" "integration" "performance"; do
+    for category in "infrastructure" "unit" "integration" "performance" "security"; do
         if [[ -d "$SCRIPT_DIR/$category" ]]; then
             echo "### $category Tests" >> "$report_file"
             echo "" >> "$report_file"
@@ -447,6 +455,7 @@ CATEGORIES:
     unit                   Unit tests for individual functions
     integration           End-to-end integration tests
     performance           Performance and benchmark tests
+    security              Security and compliance tests (Epic 6)
     all                   All test categories (default)
 
 EXAMPLES:
