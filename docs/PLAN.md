@@ -1,4 +1,4 @@
-# 🚀 Strategic Development Plan - Next 4 Epics (Updated)
+# 🚀 Strategic Development Plan - Next 4 Epics (Updated, Sept 2025)
 
 ## 🎯 **Executive Summary**
 
@@ -23,7 +23,7 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 - Advanced security scanning and compliance automation
 - Cross-platform configuration management and optimization
 
-## 📋 **Epic Roadmap (4-7) - Enterprise Completion Phase**
+## 📋 **Epic Roadmap (4-8) - Enterprise Completion Phase**
 
 ---
 
@@ -41,7 +41,7 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 - Cloud storage integration (AWS S3, Google Drive, etc.)
 - Encrypted backup archives with integrity verification
 
-### **Implementation Tasks**
+### **Implementation Tasks (TDD-first, vertical slices)**
 
 #### **4.1: Core Backup Engine (High Priority)**
 ```bash
@@ -53,6 +53,16 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 - backup_compression()           # Efficient storage
 ```
 
+Deliverables:
+- Unit tests covering success/error paths for each function (Linux + macOS)
+- CLI smoke tests via `lib/cli/backup.sh` (`dot backup create ...`)
+- Cross-platform path handling verified by tests (HOME, DOTFILES_DIR mapping)
+
+Acceptance Criteria:
+- Creating a full backup produces manifest, checksums, and index; `backup_validation full` passes
+- Incremental vs base backup correctly captures only changed files
+- Config-only backup includes the configured set and skips non-existent paths
+
 #### **4.2: Restoration System**
 ```bash
 # Implement restoration functions
@@ -63,6 +73,14 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 - restore_validation()           # Post-restore verification
 ```
 
+Deliverables:
+- Interactive selective restore with non-interactive option for CI
+- Permission fixers validated (SSH, GPG, shell configs)
+
+Acceptance Criteria:
+- Restoring a backup round-trips core files with matching checksums (where supported)
+- `restore_validation full` passes after restore on CI runners
+
 #### **4.3: Automated Scheduling**
 ```bash
 # Build scheduling system
@@ -71,6 +89,14 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 - backup_monitoring()            # Health checks
 - backup_notifications()         # Status alerts
 ```
+
+Deliverables:
+- Cron/systemd-user timer helpers with idempotent install/uninstall
+- Retention policy implementation (daily/weekly/monthly) + tests with fake timestamps
+
+Acceptance Criteria:
+- Enabling schedule adds correct entries; disabling removes them (tested with mocks)
+- Retention keeps requested windows and deletes extras, logged to metadata
 
 #### **4.4: Cloud Integration**
 ```bash
@@ -81,11 +107,23 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 - encryption_layer()             # Security for cloud storage
 ```
 
+Deliverables:
+- Pluggable upload interface (env-driven), dry-run and local-first default
+- Optional age/sops or OpenSSL encryption layer (passwordless for CI via test key)
+
+Acceptance Criteria:
+- When configured, `dot backup export` uploads artifact successfully (mocked in CI)
+
 ### **Implementation Order**
 1. Complete core backup functions (create, validate, compress)
 2. Build restoration system with cross-platform support
 3. Implement automated scheduling and retention policies
 4. Add cloud storage integrations with encryption
+
+### **Test Plan (Epic 4)**
+- New tests under `tests/unit/backup/` and `tests/integration/backup/`
+- CI runs both Linux and macOS matrix (already configured)
+- Performance budget: backup operations do not affect shell startup; long ops gated from startup path
 
 ---
 
@@ -147,6 +185,10 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 3. Create workflow automation tools
 4. Add context management and optimization
 
+### **Test Plan (Epic 5)**
+- Unit tests for provider adapters cover error handling, timeouts, retries
+- Snapshot tests for prompt composition; cost guardrails (token budgeting)
+
 ---
 
 ## 🔒 **EPIC 6: Security & Compliance System**
@@ -206,6 +248,10 @@ With Epics 1-3 successfully completed (Testing Infrastructure, Plugin System, an
 2. Implement compliance automation and reporting
 3. Create advanced secret management system
 4. Add real-time security monitoring
+
+### **Test Plan (Epic 6)**
+- Unit tests for each scanner; end-to-end CI gate in non-blocking preview job
+- Reports saved to artifacts and summarized in PR comments
 
 ---
 
@@ -364,5 +410,30 @@ Epic 5 (AI) ──────┘                       ├─→ ✅ Epic 7 (Ad
 - **Performance Automation**: AI-driven performance optimization with regression detection and automated tuning
 
 **Next Priority**: With Epic 7 complete, the remaining epics (4: Backup & Recovery, 5: AI Integration, 6: Security & Compliance) can now leverage these advanced workflow capabilities for enhanced user experience and productivity.
+
+---
+
+## 🧪 **EPIC 8: CI Reliability & Self-Healing Pipelines**
+*Keep shipping with confidence; eliminate flaky builds and drift*
+
+### **Strategic Priority**: **HIGH** – Directly serves core user journey (trustworthy updates)
+
+### **Success Criteria**
+- No deprecation-related CI failures (artifact actions, runner images) for 90 days
+- Self-healing steps fix common issues (chmod bits, retry transient network)
+- CI duration < 10 minutes, green on macOS and Ubuntu
+
+### **Implementation Tasks**
+- Add a reusable `ci/bootstrap.sh` to normalize env (chmod scripts, ensure bash)
+- Introduce a monitor job to comment status to PRs during long matrices (optional)
+- Harden test runner for headless environments and path issues (completed partially)
+- Cache heavy tools judiciously; add matrix-level concurrency controls
+
+### **Test Plan**
+- Force-run workflows on schedule and push; track flake rate in summary
+- Add a “canary” PR that runs all categories weekly
+
+### **DoD**
+- All pipelines pass on clean main; no known flaky jobs; regression guard in place
 
 This completes the strategic development plan's advanced workflow foundation, transforming the dotfiles into the definitive enterprise-grade development environment with cutting-edge workflow automation and cross-platform optimization capabilities.

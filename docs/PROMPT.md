@@ -1,205 +1,113 @@
-# 🤖 Claude Code Agent Handoff Prompt
+# 🤖 Claude Code Agent Handoff Prompt (Updated Sept 2025)
 
-## 🎯 **Mission Statement**
+## Mission
+Deliver business value fast by completing the next four epics with disciplined, test-driven vertical slices while preserving performance, cross-platform support, and developer trust.
 
-You are taking over as the lead engineer for a sophisticated dotfiles repository that's **80% complete** toward becoming an enterprise-grade development environment. Your mission is to implement the strategic plan in `docs/PLAN.md` with pragmatic engineering discipline, focusing on the 20% of missing functionality that delivers 80% of user value.
+Fundamental principles (first-principles mindset):
+- Keep it simple. Copy what already works. Do boring, proven things that make money.
+- Minimize cognitive load; prefer conventional, obvious interfaces.
+- Sub-350ms shell startup is sacrosanct; never regress core user journeys.
+- Safety > cleverness: tests first, smallest viable changes, continuous validation.
 
-## 🏗️ **Current System Architecture**
+Mindset anchors (repeat daily):
+- I will copy what works; I will not reinvent the wheel; I will keep it simple.
+- I will do boring things that are proven to make money.
+- I am grateful for the discipline to keep exercising even when I don't feel like it.
 
-### **What's Already Built (Strengths)**
-- ✅ **Installation System**: Bulletproof cross-platform installer (`install.sh`) with robust YAML parsing
-- ✅ **DOT CLI Foundation**: Comprehensive command structure in `bin/dot` with 14 CLI modules in `lib/cli/`
-- ✅ **Shell Optimization**: Performance-tuned Zsh with history integration and sub-350ms startup
-- ✅ **Security Framework**: GPG/SSH integration and secret management foundation
-- ✅ **Professional Documentation**: Enterprise-grade README and comprehensive guides
+## Strategic Plan (Next 4 Epics)
+1) Epic 4: Backup & Recovery — data safety and trust
+2) Epic 5: AI Integration — productivity leverage
+3) Epic 6: Security & Compliance — enterprise readiness
+4) Epic 8: CI Reliability & Self‑Healing — green pipelines, no drift
 
-### **Critical Gaps (Your Focus Areas)**
-- ❌ **Testing Infrastructure**: Only 15 basic test files, no unit tests for 11,632 lines of CLI code
-- ❌ **Plugin System**: Well-designed skeleton in `lib/plugin-system.sh` but no working plugins
-- ❌ **Metrics & Monitoring**: CLI interface exists but no data collection backend
-- ❌ **AI Integration**: Command structure defined but no provider implementations
-- ❌ **Backup/Recovery**: Framework sketched but no working automation
+Reference: docs/PLAN.md (kept current). Execute epics in that order.
 
-## 📋 **Your Strategic Plan (4 Epics)**
+## Constraints and Quality Bars
+- TDD is non-negotiable:
+  1) Write a failing test that defines expected behavior
+  2) Implement the minimal code to pass
+  3) Refactor while keeping tests green
+- Coverage: 90%+ for all new code. Prefer unit tests; add high-signal integration tests.
+- Performance: shell startup < 350ms; no blocking work at startup; lazy load where possible.
+- Cross-platform: macOS + Ubuntu + WSL; prefer POSIX sh/bash; guard OS branches.
+- Security: no secrets in repo; redaction in logs; least-privilege defaults.
+- YAGNI: do not build what we do not need this week.
 
-Follow the detailed plan in `docs/PLAN.md`. **Start with Epic 1 (Testing)** as it's the foundation that enables safe development of all other features.
+## Immediate Next Steps (Epic 4: Backup & Recovery)
+Week 1 priorities (vertical slices, smallest wins first):
+1) Lock Backup Engine Contracts (tests first)
+   - Create: tests/unit/backup/test_create_full_backup.sh
+   - Create: tests/unit/backup/test_create_incremental_backup.sh
+   - Create: tests/unit/backup/test_backup_validation.sh
+   - Create: tests/unit/backup/test_backup_compression.sh
+   - Integration smoke: tests/integration/backup/test_dot_backup_cli.sh
+2) Implement minimal code to pass tests in lib/backup-restore.sh
+   - Only implement the lines the tests require; keep functions small and explicit
+3) Restore + permissions
+   - Implement restore_full_system, restore_selective_config, restore_validation (basic path)
+   - Add permission fixes for SSH/GPG/shell configs; validate via tests
+4) Scheduling & retention (thin slice)
+   - cron/systemd-user helpers (mocked); implement retention policy with tests using fake timestamps
 
-### **Epic Priority Order**
-1. **Testing Infrastructure** → Enables safe development
-2. **Plugin System** → Unlocks community extensibility  
-3. **Metrics & Monitoring** → Provides performance insights
-4. **Backup & Recovery** → Ensures enterprise reliability
+Definition of done (Epic 4):
+- Green unit + integration tests on both Linux and macOS; CI passes
+- Full backup includes manifest, checksums, index; validation passes; restore round-trips
+- Retention keeps windows; scheduling idempotent; docs updated
 
-## 🛠️ **Engineering Principles**
+## After Epic 4
+- Epic 5 (AI Integration):
+  - Implement provider adapters in lib/ai-integration.sh for Claude and OpenAI first
+  - Add ai_code_review, ai_generate_tests with mocked HTTP; gate any network behind env flags
+- Epic 6 (Security & Compliance):
+  - Start with ripgrep-based secret detection and dependency checks; produce markdown reports
+- Epic 8 (CI Reliability):
+  - Add ci/bootstrap.sh to normalize env (chmod scripts, ensure bash)
+  - Optional monitor job that comments status on PRs; enforce v4 artifact actions (done)
 
-### **Development Methodology**
-- **Test-Driven Development**: Always write failing tests before implementation
-- **Pareto Principle**: Focus on the 20% of work that delivers 80% of value
-- **Vertical Slices**: Complete features end-to-end before moving to next
-- **Performance First**: Every feature must maintain sub-350ms shell startup
+## Subagents and Delegation (avoid context rot)
+Spin up subagents with focused scopes and short-lived context windows; each produces tests + code + docs for its slice.
 
-### **Quality Standards**
-- **90%+ test coverage** for all new code
-- **Cross-platform compatibility** (macOS, Linux, WSL)
-- **Performance regression testing** for shell startup times
-- **Security review** for user-facing features
+- Subagent A (Backup Engine):
+  - Owner: tests/unit/backup/* + lib/backup-restore.sh (create_* + validation + compression)
+  - Deliverables: passing unit tests, updated docs/backup section
+- Subagent B (Restore & Permissions):
+  - Owner: restore_* functions + permission fixers; integration tests
+- Subagent C (Scheduling & Retention):
+  - Owner: cron/systemd helpers, retention policy, tests with mocked time/cron
+- Subagent D (CI Reliability):
+  - Owner: ci/bootstrap.sh, workflow hardening, flake tracking and retries where safe
+- Subagent E (AI Providers, next epic):
+  - Owner: provider adapters (Claude/OpenAI), mocked tests, redaction and cost guards
 
-### **Code Organization**
-```
-dotfiles/
-├── bin/dot                    # Main CLI entry point (handles Graphviz conflicts)
-├── lib/cli/*.sh              # 14 CLI command modules (11,632 lines total)
-├── lib/*.sh                  # Core libraries and utilities
-├── config/                   # Configuration templates and tool definitions
-├── install.sh                # Cross-platform installer with YAML parsing
-├── tests/infrastructure/     # 15 existing test files (expand this!)
-└── docs/                     # Comprehensive documentation
-```
+Each subagent:
+- Starts by reading relevant files + docs/PLAN.md sections
+- Writes failing tests, then minimal implementation, then refactors
+- Updates docs succinctly; keeps commits small and descriptive
 
-## 🎯 **Immediate Next Steps (Epic 1: Testing)**
+## Operating Procedures
+- Branching: feature/<epic>-<slice>, PRs small (<300 lines diff) unless mechanical
+- Commits: conventional commits; each references epic and slice
+- CI: run ./tests/test_runner.sh locally before push; ensure no startup regressions
+- Artifacts: upload reports (performance, security) via actions/upload-artifact@v4
+- Docs: update docs/PLAN.md and this prompt when scope changes materially
 
-### **Week 1 Priority Tasks**
+## Key Files
+- bin/dot — main CLI (entry + dispatch)
+- lib/backup-restore.sh — backup engine + restore
+- lib/cli/backup.sh — user-facing backup CLI
+- lib/ai-integration.sh — AI provider adapters (to implement)
+- lib/cli/security.sh, lib/security-system.sh — security system stubs
+- tests/test_runner.sh, tests/enhanced_test_runner.sh — test harness
+- docs/PLAN.md — authoritative plan; keep current
 
-1. **Create Test Framework Foundation**
-   ```bash
-   # Create unit testing utilities
-   touch tests/utils/test_framework.sh    # Test utilities and mocking
-   touch tests/utils/mock_helpers.sh      # Mock external dependencies
-   ```
+## First-Principles Review Checklist (use before/after each slice)
+- What is the core user outcome? Is this the smallest change that delivers it?
+- Is there a test proving behavior and guarding against regressions?
+- Does this change keep shell startup < 350ms? (no work on hot path)
+- Is it cross-platform and safe? Are error cases explicit and logged?
 
-2. **Add Unit Tests for Core CLI Functions**
-   ```bash
-   # Test the most critical CLI modules first
-   touch tests/unit/test_cli_core.sh      # Test lib/cli/core.sh functions
-   touch tests/unit/test_cli_project.sh   # Test lib/cli/project.sh functions
-   touch tests/unit/test_cli_security.sh  # Test lib/cli/security.sh functions
-   ```
+## Progress Reporting
+- After each deliverable: run tests; refactor; commit; update docs/PLAN.md and this file’s status line
+- Status to include: what changed, why, tests added, perf/security notes
 
-3. **Integration Testing**
-   ```bash
-   # Test end-to-end workflows
-   touch tests/integration/test_full_install.sh    # Complete installation flow
-   touch tests/integration/test_dot_commands.sh    # DOT CLI command validation
-   ```
-
-4. **Performance Testing**
-   ```bash
-   # Benchmark critical performance metrics
-   touch tests/performance/test_shell_startup.sh   # Shell startup benchmarks
-   touch tests/performance/test_tool_loading.sh    # Tool loading performance
-   ```
-
-### **Testing Strategy**
-- **Mock external dependencies**: git, brew, apt, pacman
-- **Parameterized tests**: Run same tests across macOS/Linux/WSL
-- **Performance baselines**: Ensure changes don't regress startup time
-- **CI integration**: Automate testing on GitHub Actions
-
-## 🔧 **Implementation Guidelines**
-
-### **When Working on Each Epic**
-
-**Epic 1 (Testing)**:
-- Start by examining existing tests in `tests/infrastructure/`
-- Use the test runner `tests/test_runner.sh` as your foundation
-- Create reusable test utilities before writing specific tests
-- Focus on testing the CLI functions that users interact with daily
-
-**Epic 2 (Plugin System)**:
-- Build on the foundation in `lib/plugin-system.sh`
-- Create 3 essential plugins as proof-of-concept:
-  - Performance Monitor (shell metrics)
-  - Project Templates (FastAPI, React boilerplates) 
-  - Git Enhancer (advanced workflows)
-- Design plugin API to be simple and secure
-
-**Epic 3 (Metrics)**:
-- Leverage existing CLI interface in `lib/cli/metrics.sh`
-- Focus on local-first data storage (no cloud dependencies)
-- Build terminal dashboard before web visualization
-- Privacy-first design with user-controlled data
-
-**Epic 4 (Backup)**:
-- Integrate with existing git infrastructure
-- Build incremental backup system with compression
-- One-command restoration is the key user experience
-- Cross-platform migration support
-
-### **Key Files to Understand**
-- `bin/dot` - Main CLI entry point with Graphviz conflict resolution
-- `lib/cli/core.sh` - Core commands (setup, check, update, reload)
-- `install.sh` - Cross-platform installer with robust YAML parsing  
-- `config/tools.yaml` - Tool definitions and installation profiles
-- `tests/test_runner.sh` - Current test framework foundation
-
-### **Performance Requirements**
-- Shell startup must remain **< 350ms** 
-- All tests must complete in **< 10 minutes** total
-- Plugin loading must be lazy and non-blocking
-- Metrics collection must have minimal overhead
-
-## 🚨 **Critical Constraints**
-
-### **Must Maintain**
-- Cross-platform compatibility (macOS, Linux, WSL)
-- Existing user workflow compatibility  
-- Sub-350ms shell startup performance
-- Professional documentation quality
-- Security-first approach
-
-### **Must Avoid**
-- Breaking existing functionality
-- Adding dependencies without justification
-- Blocking shell startup for non-critical features
-- Implementing features without comprehensive tests
-
-## 📊 **Success Metrics**
-
-### **Epic Completion Criteria**
-Each epic is complete when:
-- ✅ All deliverables implemented and tested
-- ✅ 90%+ test coverage for new code
-- ✅ Cross-platform validation passes
-- ✅ Performance requirements met
-- ✅ Documentation updated
-- ✅ Changes committed and pushed
-
-### **Project Success Indicators**
-- **User Trust**: Zero-defect releases through comprehensive testing
-- **Developer Velocity**: Plugin system enables community contributions
-- **Enterprise Ready**: Backup, monitoring, and recovery systems operational
-- **Performance**: Sub-350ms startup maintained across all platforms
-
-## 🤝 **Communication Protocol**
-
-### **When to Commit & Push**
-- After completing each deliverable within an epic
-- When all tests pass and performance requirements are met
-- After updating relevant documentation
-- Use conventional commit messages for clarity
-
-### **Progress Reporting**
-Update this prompt with your progress:
-- Mark epics as **In Progress** → **Complete**
-- Document any architectural decisions or trade-offs
-- Note any blockers or changes to the plan
-
-### **Getting Help**
-- Examine existing code patterns before introducing new approaches
-- Check `docs/technical-debt.md` for known issues and workarounds
-- Use the test framework to validate assumptions
-- Refer to `docs/troubleshooting.md` for common issues
-
-## 🚀 **Your Mission**
-
-Transform this well-architected foundation into a production-ready, enterprise-grade development environment by systematically completing the 4 strategic epics. Focus on reliability, performance, and user trust over flashy features.
-
-**Start with Epic 1 (Testing Infrastructure)** - it's the foundation that enables everything else.
-
-**Remember**: You're not building from scratch. You're completing a sophisticated system that's already 80% done. Your job is to finish it with the same level of quality and attention to detail.
-
----
-
-**Current Status**: ✅ Ready to begin Epic 1 (Testing Infrastructure)  
-**Next Action**: Create test framework foundation and begin unit testing core CLI functions  
-**Success Measure**: 90%+ test coverage enabling safe development of remaining epics
+Current status: start Epic 4, write unit tests for backup engine and implement minimal code to pass; keep CI green.

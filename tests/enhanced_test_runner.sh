@@ -36,6 +36,10 @@ TOTAL_PASSED=0
 TOTAL_FAILED=0
 TOTAL_SKIPPED=0
 
+# Declare maps for safe use under `set -u`
+declare -A TEST_RESULTS
+declare -A TEST_TIMES
+
 # =============================================================================
 # Utility Functions
 # =============================================================================
