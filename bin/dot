@@ -107,6 +107,10 @@ PERFORMANCE:
         profile            Performance analysis
         optimize           Apply optimizations
         benchmark          Benchmark startup time
+        auto-tune [mode]   Automated performance tuning
+        regression         Performance regression detection
+        resource [target]  Resource optimization
+        startup [mode]     Shell startup time optimization
 
 CONFIGURATION:
     config             Interactive configuration
@@ -133,11 +137,18 @@ DEVCONTAINER:
         build              Build container image
         up                 Start development container
         exec [cmd]         Execute command in container
+        optimize [type]    Optimize devcontainer performance
+        cloud [platform]   Cloud development environment setup
+        remote [action]    Remote development tools
 
 GIT OPERATIONS:
     git                Enhanced git operations
         setup-signing      Configure commit signing
         verify             Verify commit signatures
+        workflow [type]    Automated git workflows (gitflow|github|feature)
+        branch [action]    Advanced branch management
+        commit-template    Smart commit templates and validation
+        team [action]      Team collaboration features
 
 DOCUMENTATION:
     docs               Documentation system
@@ -174,6 +185,14 @@ MIGRATION & UPGRADE:
         migrate [version]  Run migration to target version
         rollback [backup]  Rollback to previous state
         backup [version]   Create manual backup
+
+PLATFORM MANAGEMENT:
+    platform           Cross-platform configuration and optimization
+        config [level]     Platform-specific optimizations (auto|balanced|performance)
+        tools [action]     Platform tool management (install|update|list|sync)
+        performance [prof] Performance tuning (auto|high|balanced|development)
+        migrate [action]   Cross-platform migration (export|import|migrate|compare)
+        status             Platform compatibility check
 
 OPTIONS:
     -h, --help         Show this help message
@@ -429,6 +448,36 @@ main() {
         "migrate"|"migration"|"upgrade")
             load_cli_lib "migration"
             dot_migration "$@"
+            ;;
+        
+        # Platform management commands (Epic 7.1)
+        "platform")
+            source "$DOTFILES_DIR/lib/platform.sh"
+            case "${1:-status}" in
+                "config")
+                    platform_config_optimization "${2:-auto}" "${3:-}"
+                    ;;
+                "tools")
+                    platform_tool_management "${2:-status}" "${3:-}" "${4:-}"
+                    ;;
+                "performance")
+                    platform_performance_tuning "${2:-auto}" "${3:-false}"
+                    ;;
+                "migrate")
+                    platform_migration_tools "${2:-status}" "${3:-}" "${4:-}"
+                    ;;
+                "status")
+                    check_platform_compatibility
+                    ;;
+                *)
+                    echo "Platform management commands:"
+                    echo "  dot platform config [level]     - Platform-specific optimizations"
+                    echo "  dot platform tools [action]     - Platform tool management"
+                    echo "  dot platform performance [profile] - Performance tuning"
+                    echo "  dot platform migrate [action]   - Cross-platform migration"
+                    echo "  dot platform status             - Platform compatibility check"
+                    ;;
+            esac
             ;;
 
         # Health command

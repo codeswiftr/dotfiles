@@ -739,8 +739,931 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     set_platform_vars
 fi
 
+# ============================================================================
+# Epic 7.1: Cross-Platform Configuration Features
+# Advanced platform-specific optimizations and management
+# ============================================================================
+
+# Platform configuration optimization
+platform_config_optimization() {
+    local optimization_level="${1:-auto}"
+    local target_platform="${2:-$PLATFORM_OS}"
+    
+    print_info "🔧 Optimizing configuration for $target_platform (level: $optimization_level)..."
+    
+    case "$target_platform" in
+        "macos")
+            optimize_macos_config "$optimization_level"
+            ;;
+        "linux")
+            optimize_linux_config "$optimization_level"
+            ;;
+        "windows")
+            optimize_windows_config "$optimization_level"
+            ;;
+        *)
+            print_error "Unsupported platform: $target_platform"
+            return 1
+            ;;
+    esac
+    
+    # Apply universal optimizations
+    apply_universal_optimizations "$optimization_level"
+    
+    print_success "Platform configuration optimized!"
+}
+
+# macOS-specific optimizations
+optimize_macos_config() {
+    local level="$1"
+    
+    print_info "🍎 Applying macOS optimizations (level: $level)..."
+    
+    # Performance optimizations
+    case "$level" in
+        "max"|"performance")
+            # Disable visual effects for performance
+            defaults write com.apple.dock expose-animation-duration -float 0.1
+            defaults write com.apple.dock launchanim -bool false
+            defaults write com.apple.finder DisableAllAnimations -bool true
+            defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
+            ;;
+        "balanced"|"auto")
+            # Moderate optimizations
+            defaults write com.apple.dock autohide-time-modifier -float 0.5
+            defaults write com.apple.dock autohide-delay -float 0.2
+            ;;
+    esac
+    
+    # Development-specific optimizations
+    if [[ "$level" != "minimal" ]]; then
+        # Show hidden files in Finder
+        defaults write com.apple.finder AppleShowAllFiles -bool true
+        
+        # Show file extensions
+        defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+        
+        # Disable creation of .DS_Store files on network volumes
+        defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+        
+        # Enable developer tools
+        sudo DevToolsSecurity -enable 2>/dev/null || true
+    fi
+    
+    # Hardware-specific optimizations
+    if [[ "$PLATFORM_ARCH" == "arm64" ]]; then
+        # Apple Silicon specific optimizations
+        export HOMEBREW_PREFIX="/opt/homebrew"
+        export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+        
+        # Optimize for Rosetta compatibility if needed
+        if [[ -n "$ROSETTA_ACTIVE" ]]; then
+            export HOMEBREW_PREFIX="/usr/local"
+        fi
+    else
+        # Intel Mac optimizations
+        export HOMEBREW_PREFIX="/usr/local"
+        export HOMEBREW_CELLAR="/usr/local/Cellar"
+    fi
+    
+    # Apply changes
+    killall Dock 2>/dev/null || true
+    killall Finder 2>/dev/null || true
+}
+
+# Linux-specific optimizations
+optimize_linux_config() {
+    local level="$1"
+    
+    print_info "🐧 Applying Linux optimizations (level: $level)..."
+    
+    # Distribution-specific optimizations
+    case "$PLATFORM_DISTRO" in
+        "debian")
+            optimize_debian_config "$level"
+            ;;
+        "arch")
+            optimize_arch_config "$level"
+            ;;
+        "rhel")
+            optimize_rhel_config "$level"
+            ;;
+    esac
+    
+    # General Linux optimizations
+    if [[ "$level" != "minimal" ]]; then
+        # Optimize swappiness for development workloads
+        if [[ -w "/proc/sys/vm/swappiness" ]]; then
+            echo "10" | sudo tee /proc/sys/vm/swappiness >/dev/null 2>&1 || true
+        fi
+        
+        # Increase file watch limits for development tools
+        if [[ -w "/proc/sys/fs/inotify/max_user_watches" ]]; then
+            echo "524288" | sudo tee /proc/sys/fs/inotify/max_user_watches >/dev/null 2>&1 || true
+        fi
+    fi
+    
+    # Performance tuning based on hardware
+    optimize_linux_hardware "$level"
+}
+
+# Windows-specific optimizations
+optimize_windows_config() {
+    local level="$1"
+    
+    print_info "🪟 Applying Windows optimizations (level: $level)..."
+    
+    # WSL-specific optimizations
+    if [[ -n "$WSL_DISTRO_NAME" ]]; then
+        optimize_wsl_config "$level"
+        return
+    fi
+    
+    # Native Windows optimizations
+    case "$level" in
+        "max"|"performance")
+            # Disable visual effects for performance
+            powershell -Command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' -Name 'VisualFXSetting' -Value 2" 2>/dev/null || true
+            ;;
+        "balanced"|"auto")
+            # Moderate optimizations
+            powershell -Command "Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name 'MenuShowDelay' -Value 100" 2>/dev/null || true
+            ;;
+    esac
+    
+    # Development environment setup
+    if [[ "$level" != "minimal" ]]; then
+        # Enable developer mode
+        powershell -Command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock' -Name 'AllowDevelopmentWithoutDevLicense' -Value 1" 2>/dev/null || true
+        
+        # Set execution policy for PowerShell scripts
+        powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser" 2>/dev/null || true
+    fi
+}
+
+# Distribution-specific optimizations
+optimize_debian_config() {
+    local level="$1"
+    
+    if [[ "$level" != "minimal" ]]; then
+        # Update package lists more efficiently
+        sudo sed -i 's/^deb-src/#deb-src/' /etc/apt/sources.list 2>/dev/null || true
+        
+        # Configure APT for faster downloads
+        echo 'APT::Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80retries >/dev/null 2>&1 || true
+        echo 'Acquire::http::Pipeline-Depth "5";' | sudo tee /etc/apt/apt.conf.d/80pipeline >/dev/null 2>&1 || true
+    fi
+}
+
+optimize_arch_config() {
+    local level="$1"
+    
+    if [[ "$level" != "minimal" ]]; then
+        # Enable parallel downloads in pacman
+        sudo sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf 2>/dev/null || true
+        
+        # Use faster mirrors if reflector is available
+        if command -v reflector >/dev/null 2>&1; then
+            sudo reflector --country US --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist 2>/dev/null || true
+        fi
+    fi
+}
+
+optimize_rhel_config() {
+    local level="$1"
+    
+    if [[ "$level" != "minimal" ]]; then
+        # Configure DNF for faster operation
+        if [[ -f "/etc/dnf/dnf.conf" ]]; then
+            sudo sed -i 's/#max_parallel_downloads=3/max_parallel_downloads=10/' /etc/dnf/dnf.conf 2>/dev/null || true
+            sudo sed -i 's/#fastestmirror=True/fastestmirror=True/' /etc/dnf/dnf.conf 2>/dev/null || true
+        fi
+    fi
+}
+
+# WSL-specific optimizations
+optimize_wsl_config() {
+    local level="$1"
+    
+    print_info "🐧🪟 Applying WSL-specific optimizations..."
+    
+    # Create or update .wslconfig
+    local wslconfig="$HOME/../.wslconfig"
+    if [[ "$level" != "minimal" ]]; then
+        cat > "$wslconfig" << EOF
+[wsl2]
+memory=8GB
+processors=4
+swap=2GB
+localhostForwarding=true
+
+[experimental]
+autoMemoryReclaim=gradual
+sparseVhd=true
+EOF
+    fi
+    
+    # Optimize for development workflows
+    if [[ "$level" == "max" ]] || [[ "$level" == "performance" ]]; then
+        # Disable Windows Defender real-time protection for WSL paths
+        powershell.exe -Command "Add-MpPreference -ExclusionProcess '%LOCALAPPDATA%\\Packages\\*\\LocalState\\rootfs\\*'" 2>/dev/null || true
+    fi
+}
+
+# Hardware-specific Linux optimizations
+optimize_linux_hardware() {
+    local level="$1"
+    
+    # CPU-specific optimizations
+    local cpu_info=$(cat /proc/cpuinfo 2>/dev/null || echo "")
+    if echo "$cpu_info" | grep -qi "intel"; then
+        # Intel-specific optimizations
+        export CFLAGS="-march=native -O2"
+    elif echo "$cpu_info" | grep -qi "amd"; then
+        # AMD-specific optimizations
+        export CFLAGS="-march=native -O2"
+    fi
+    
+    # Memory-based optimizations
+    local total_memory=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo "0")
+    if [[ $total_memory -gt 16777216 ]]; then  # >16GB
+        export DOTFILES_HIGH_MEMORY=1
+        # Enable more aggressive caching
+        export ZSH_CACHE_SIZE=1000
+    elif [[ $total_memory -gt 8388608 ]]; then  # >8GB
+        export DOTFILES_MEDIUM_MEMORY=1
+        export ZSH_CACHE_SIZE=500
+    else
+        export DOTFILES_LOW_MEMORY=1
+        export ZSH_CACHE_SIZE=100
+    fi
+}
+
+# Universal optimizations across all platforms
+apply_universal_optimizations() {
+    local level="$1"
+    
+    print_info "🌐 Applying universal optimizations..."
+    
+    # Shell optimizations
+    case "$PLATFORM_SHELL" in
+        "zsh")
+            optimize_zsh_universal "$level"
+            ;;
+        "bash")
+            optimize_bash_universal "$level"
+            ;;
+    esac
+    
+    # Development tool optimizations
+    if [[ "$level" != "minimal" ]]; then
+        # Git optimizations
+        git config --global core.preloadindex true 2>/dev/null || true
+        git config --global core.fscache true 2>/dev/null || true
+        git config --global gc.auto 256 2>/dev/null || true
+        
+        # Node.js optimizations
+        if command -v node >/dev/null 2>&1; then
+            export NODE_OPTIONS="--max-old-space-size=8192"
+        fi
+        
+        # Python optimizations
+        export PYTHONOPTIMIZE=1
+        export PYTHONDONTWRITEBYTECODE=1
+    fi
+}
+
+# Shell-specific universal optimizations
+optimize_zsh_universal() {
+    local level="$1"
+    
+    # Optimize completion system
+    export ZSH_COMPDUMP="${ZSH_COMPDUMP:-${ZDOTDIR:-$HOME}/.zcompdump}"
+    
+    case "$level" in
+        "max"|"performance")
+            export DOTFILES_FAST_MODE=1
+            export ZSH_DISABLE_COMPFIX=true
+            ;;
+        "balanced"|"auto")
+            export DOTFILES_BALANCED_MODE=1
+            ;;
+    esac
+}
+
+optimize_bash_universal() {
+    local level="$1"
+    
+    # Optimize bash completion
+    export BASH_COMPLETION_USER_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion"
+    
+    case "$level" in
+        "max"|"performance")
+            export DOTFILES_FAST_MODE=1
+            ;;
+        "balanced"|"auto")
+            export DOTFILES_BALANCED_MODE=1
+            ;;
+    esac
+}
+
+# Platform-specific tool management
+platform_tool_management() {
+    local action="${1:-status}"
+    local tool_name="${2:-}"
+    
+    case "$action" in
+        "install")
+            platform_install_tool "$tool_name" "${3:-}"
+            ;;
+        "update")
+            platform_update_tools "$tool_name"
+            ;;
+        "remove")
+            platform_remove_tool "$tool_name"
+            ;;
+        "list")
+            platform_list_tools
+            ;;
+        "status")
+            platform_tool_status "$tool_name"
+            ;;
+        "sync")
+            platform_sync_tools
+            ;;
+        *)
+            print_error "Unknown action: $action"
+            echo "Available actions: install, update, remove, list, status, sync"
+            return 1
+            ;;
+    esac
+}
+
+# Install platform-specific tool
+platform_install_tool() {
+    local tool="$1"
+    local version="${2:-latest}"
+    
+    print_info "📦 Installing $tool ($version) on $PLATFORM_OS..."
+    
+    case "$tool" in
+        "docker")
+            install_docker_platform_specific
+            ;;
+        "nodejs"|"node")
+            install_nodejs_platform_specific "$version"
+            ;;
+        "python")
+            install_python_platform_specific "$version"
+            ;;
+        "rust")
+            install_rust_platform_specific
+            ;;
+        "go"|"golang")
+            install_go_platform_specific "$version"
+            ;;
+        "java")
+            install_java_platform_specific "$version"
+            ;;
+        *)
+            # Fallback to generic package installation
+            install_package "$tool"
+            ;;
+    esac
+}
+
+# Docker installation across platforms
+install_docker_platform_specific() {
+    case "$PLATFORM_OS" in
+        "macos")
+            if ! command -v docker >/dev/null 2>&1; then
+                brew install --cask docker
+                print_info "Docker Desktop installed. Please start it from Applications."
+            fi
+            ;;
+        "linux")
+            case "$PLATFORM_DISTRO" in
+                "debian")
+                    curl -fsSL https://get.docker.com | sh
+                    sudo usermod -aG docker "$USER"
+                    ;;
+                "arch")
+                    sudo pacman -S docker docker-compose
+                    sudo systemctl enable docker
+                    sudo usermod -aG docker "$USER"
+                    ;;
+                *)
+                    curl -fsSL https://get.docker.com | sh
+                    ;;
+            esac
+            ;;
+        "windows")
+            if command -v choco >/dev/null 2>&1; then
+                choco install docker-desktop -y
+            else
+                print_info "Please install Docker Desktop from https://docker.com/products/docker-desktop"
+            fi
+            ;;
+    esac
+}
+
+# Node.js installation with version management
+install_nodejs_platform_specific() {
+    local version="${1:-lts}"
+    
+    # Use mise/rtx for version management if available
+    if command -v mise >/dev/null 2>&1; then
+        mise install node@"$version"
+        mise use node@"$version"
+    elif command -v fnm >/dev/null 2>&1; then
+        fnm install "$version"
+        fnm use "$version"
+    elif command -v nvm >/dev/null 2>&1; then
+        nvm install "$version"
+        nvm use "$version"
+    else
+        # Fallback to package manager
+        case "$PLATFORM_OS" in
+            "macos")
+                brew install node
+                ;;
+            "linux")
+                # Install Node.js via NodeSource repository for latest version
+                case "$PLATFORM_DISTRO" in
+                    "debian")
+                        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+                        sudo apt-get install -y nodejs
+                        ;;
+                    "arch")
+                        sudo pacman -S nodejs npm
+                        ;;
+                    "rhel")
+                        curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+                        sudo dnf install -y nodejs
+                        ;;
+                esac
+                ;;
+        esac
+    fi
+}
+
+# Python installation with version management
+install_python_platform_specific() {
+    local version="${1:-3.11}"
+    
+    # Use mise/rtx for version management if available
+    if command -v mise >/dev/null 2>&1; then
+        mise install python@"$version"
+        mise use python@"$version"
+    elif command -v pyenv >/dev/null 2>&1; then
+        pyenv install "$version"
+        pyenv global "$version"
+    else
+        # Fallback to package manager
+        case "$PLATFORM_OS" in
+            "macos")
+                brew install python@"${version%.*}"
+                ;;
+            "linux")
+                case "$PLATFORM_DISTRO" in
+                    "debian")
+                        sudo apt-get install -y "python$version" "python$version-venv" "python$version-pip"
+                        ;;
+                    "arch")
+                        sudo pacman -S python python-pip
+                        ;;
+                    "rhel")
+                        sudo dnf install -y "python$version" "python$version-pip"
+                        ;;
+                esac
+                ;;
+        esac
+    fi
+    
+    # Install uv for fast Python package management
+    if ! command -v uv >/dev/null 2>&1; then
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+}
+
+# Platform performance tuning
+platform_performance_tuning() {
+    local performance_profile="${1:-auto}"
+    local apply_immediately="${2:-false}"
+    
+    print_info "⚡ Tuning platform performance (profile: $performance_profile)..."
+    
+    # Detect optimal performance profile if auto
+    if [[ "$performance_profile" == "auto" ]]; then
+        performance_profile=$(detect_optimal_performance_profile)
+        print_info "Detected optimal profile: $performance_profile"
+    fi
+    
+    # Apply performance tuning
+    case "$performance_profile" in
+        "high")
+            apply_high_performance_tuning
+            ;;
+        "balanced")
+            apply_balanced_performance_tuning
+            ;;
+        "battery")
+            apply_battery_optimized_tuning
+            ;;
+        "development")
+            apply_development_optimized_tuning
+            ;;
+        *)
+            print_error "Unknown performance profile: $performance_profile"
+            return 1
+            ;;
+    esac
+    
+    # Apply changes immediately if requested
+    if [[ "$apply_immediately" == "true" ]]; then
+        apply_performance_changes_immediately
+    fi
+    
+    print_success "Performance tuning applied! (profile: $performance_profile)"
+}
+
+# Detect optimal performance profile based on system capabilities
+detect_optimal_performance_profile() {
+    local cpu_cores=$(nproc 2>/dev/null || echo "1")
+    local total_memory=$(free -m 2>/dev/null | awk '/^Mem:/ {print $2}' || echo "1024")
+    local power_source="unknown"
+    
+    # Detect power source on different platforms
+    case "$PLATFORM_OS" in
+        "macos")
+            if pmset -g ps | grep -q "AC Power"; then
+                power_source="ac"
+            else
+                power_source="battery"
+            fi
+            ;;
+        "linux")
+            if [[ -f "/sys/class/power_supply/AC/online" ]] && [[ "$(cat /sys/class/power_supply/AC/online)" == "1" ]]; then
+                power_source="ac"
+            elif [[ -f "/sys/class/power_supply/ADP1/online" ]] && [[ "$(cat /sys/class/power_supply/ADP1/online)" == "1" ]]; then
+                power_source="ac"
+            else
+                power_source="battery"
+            fi
+            ;;
+    esac
+    
+    # Determine optimal profile
+    if [[ $cpu_cores -ge 8 ]] && [[ $total_memory -ge 16384 ]] && [[ "$power_source" == "ac" ]]; then
+        echo "high"
+    elif [[ $cpu_cores -ge 4 ]] && [[ $total_memory -ge 8192 ]]; then
+        echo "development"
+    elif [[ "$power_source" == "battery" ]]; then
+        echo "battery"
+    else
+        echo "balanced"
+    fi
+}
+
+# Apply high performance tuning
+apply_high_performance_tuning() {
+    print_info "🚀 Applying high performance tuning..."
+    
+    # Shell optimizations
+    export DOTFILES_FAST_MODE=1
+    export DOTFILES_HIGH_PERFORMANCE=1
+    export ZSH_DISABLE_COMPFIX=true
+    
+    # System-specific tuning
+    case "$PLATFORM_OS" in
+        "macos")
+            # Disable animations
+            defaults write com.apple.dock expose-animation-duration -float 0.1
+            defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
+            # Increase file handle limits
+            sudo launchctl limit maxfiles 65536 200000 2>/dev/null || true
+            ;;
+        "linux")
+            # Optimize I/O scheduler for SSDs
+            if [[ -f "/sys/block/sda/queue/scheduler" ]]; then
+                echo "noop" | sudo tee /sys/block/sda/queue/scheduler >/dev/null 2>&1 || true
+            fi
+            # Increase file watch limits
+            echo "524288" | sudo tee /proc/sys/fs/inotify/max_user_watches >/dev/null 2>&1 || true
+            ;;
+    esac
+    
+    # Development tool optimizations
+    export NODE_OPTIONS="--max-old-space-size=8192"
+    export PYTHONOPTIMIZE=1
+    export CARGO_BUILD_JOBS=$(nproc)
+    export MAKEFLAGS="-j$(nproc)"
+}
+
+# Apply development-optimized tuning
+apply_development_optimized_tuning() {
+    print_info "💻 Applying development-optimized tuning..."
+    
+    # Development-focused optimizations
+    export DOTFILES_DEV_MODE=1
+    export DOTFILES_FAST_COMPLETION=1
+    
+    # Tool-specific optimizations
+    export NODE_OPTIONS="--max-old-space-size=4096"
+    export PYTHONOPTIMIZE=0  # Disable for better debugging
+    export CARGO_BUILD_JOBS=$(($(nproc) / 2))
+    
+    # Git optimizations for large repositories
+    git config --global core.preloadindex true 2>/dev/null || true
+    git config --global core.untrackedCache true 2>/dev/null || true
+    git config --global feature.manyFiles true 2>/dev/null || true
+}
+
+# Apply performance changes immediately
+apply_performance_changes_immediately() {
+    print_info "🔄 Applying performance changes immediately..."
+    
+    case "$PLATFORM_OS" in
+        "macos")
+            # Restart affected services
+            killall Dock 2>/dev/null || true
+            killall SystemUIServer 2>/dev/null || true
+            ;;
+        "linux")
+            # Reload sysctl settings
+            sudo sysctl -p 2>/dev/null || true
+            ;;
+    esac
+    
+    # Reload shell configuration
+    if [[ -n "$ZSH_VERSION" ]]; then
+        autoload -U compinit && compinit
+    elif [[ -n "$BASH_VERSION" ]]; then
+        hash -r
+    fi
+}
+
+# Platform migration tools
+platform_migration_tools() {
+    local action="${1:-status}"
+    local source_platform="${2:-}"
+    local target_platform="${3:-$PLATFORM_OS}"
+    
+    case "$action" in
+        "export")
+            export_platform_config "$source_platform"
+            ;;
+        "import")
+            import_platform_config "$source_platform" "$target_platform"
+            ;;
+        "migrate")
+            migrate_between_platforms "$source_platform" "$target_platform"
+            ;;
+        "compare")
+            compare_platform_configs "$source_platform" "$target_platform"
+            ;;
+        "status")
+            show_migration_status
+            ;;
+        *)
+            print_error "Unknown migration action: $action"
+            echo "Available actions: export, import, migrate, compare, status"
+            return 1
+            ;;
+    esac
+}
+
+# Export platform configuration
+export_platform_config() {
+    local platform="${1:-$PLATFORM_OS}"
+    local export_file="${DOTFILES_DATA_DIR:-$HOME/.local/share}/dotfiles/platform-export-$platform-$(date +%Y%m%d).tar.gz"
+    
+    print_info "📤 Exporting $platform configuration..."
+    
+    mkdir -p "$(dirname "$export_file")"
+    
+    # Create temporary directory for export
+    local temp_dir=$(mktemp -d)
+    local export_dir="$temp_dir/platform-config"
+    mkdir -p "$export_dir"
+    
+    # Export platform-specific configurations
+    case "$platform" in
+        "macos")
+            # Export system preferences
+            defaults read > "$export_dir/macos-defaults.plist" 2>/dev/null || true
+            
+            # Export Homebrew packages
+            if command -v brew >/dev/null 2>&1; then
+                brew bundle dump --file="$export_dir/Brewfile" --force
+            fi
+            
+            # Export system information
+            system_profiler SPSoftwareDataType > "$export_dir/system-info.txt" 2>/dev/null || true
+            ;;
+        "linux")
+            # Export installed packages
+            case "$PLATFORM_PACKAGE_MANAGER" in
+                "apt")
+                    dpkg --get-selections > "$export_dir/packages-apt.txt" 2>/dev/null || true
+                    ;;
+                "pacman")
+                    pacman -Qqe > "$export_dir/packages-pacman.txt" 2>/dev/null || true
+                    ;;
+                "dnf")
+                    dnf list installed > "$export_dir/packages-dnf.txt" 2>/dev/null || true
+                    ;;
+            esac
+            
+            # Export system information
+            uname -a > "$export_dir/system-info.txt"
+            cat /etc/os-release >> "$export_dir/system-info.txt" 2>/dev/null || true
+            ;;
+        "windows")
+            # Export installed programs
+            if command -v powershell.exe >/dev/null 2>&1; then
+                powershell.exe -Command "Get-WmiObject -Class Win32_Product | Select-Object Name, Version | Export-Csv -Path '$export_dir/windows-programs.csv'" 2>/dev/null || true
+            fi
+            ;;
+    esac
+    
+    # Export common configurations
+    cp -r "$DOTFILES_DIR/config" "$export_dir/" 2>/dev/null || true
+    cp "$HOME/.zshrc" "$export_dir/" 2>/dev/null || true
+    cp "$HOME/.bashrc" "$export_dir/" 2>/dev/null || true
+    cp "$HOME/.gitconfig" "$export_dir/" 2>/dev/null || true
+    
+    # Create metadata
+    cat > "$export_dir/metadata.json" << EOF
+{
+    "platform": "$platform",
+    "distro": "$PLATFORM_DISTRO",
+    "architecture": "$PLATFORM_ARCH",
+    "export_date": "$(date -Iseconds)",
+    "dotfiles_version": "$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || echo 'unknown')"
+}
+EOF
+    
+    # Create archive
+    tar -czf "$export_file" -C "$temp_dir" "platform-config"
+    
+    # Cleanup
+    rm -rf "$temp_dir"
+    
+    print_success "Platform configuration exported to: $export_file"
+    echo "Archive size: $(du -h "$export_file" | cut -f1)"
+}
+
+# Import platform configuration
+import_platform_config() {
+    local source_platform="$1"
+    local target_platform="${2:-$PLATFORM_OS}"
+    local import_file="${3:-}"
+    
+    print_info "📥 Importing configuration from $source_platform to $target_platform..."
+    
+    # Find import file if not specified
+    if [[ -z "$import_file" ]]; then
+        local data_dir="${DOTFILES_DATA_DIR:-$HOME/.local/share}/dotfiles"
+        import_file=$(find "$data_dir" -name "platform-export-$source_platform-*.tar.gz" -type f | sort -r | head -1)
+        
+        if [[ -z "$import_file" ]]; then
+            print_error "No export file found for $source_platform"
+            return 1
+        fi
+        
+        print_info "Using export file: $(basename "$import_file")"
+    fi
+    
+    # Extract and import configuration
+    local temp_dir=$(mktemp -d)
+    tar -xzf "$import_file" -C "$temp_dir"
+    local import_dir="$temp_dir/platform-config"
+    
+    # Platform-specific import logic
+    case "$target_platform" in
+        "macos")
+            if [[ "$source_platform" == "linux" ]]; then
+                import_linux_to_macos "$import_dir"
+            fi
+            ;;
+        "linux")
+            if [[ "$source_platform" == "macos" ]]; then
+                import_macos_to_linux "$import_dir"
+            fi
+            ;;
+    esac
+    
+    # Import common configurations
+    if [[ -f "$import_dir/.zshrc" ]]; then
+        cp "$import_dir/.zshrc" "$HOME/.zshrc.imported"
+        print_info "ZSH configuration imported as ~/.zshrc.imported"
+    fi
+    
+    if [[ -f "$import_dir/.gitconfig" ]]; then
+        cp "$import_dir/.gitconfig" "$HOME/.gitconfig.imported"
+        print_info "Git configuration imported as ~/.gitconfig.imported"
+    fi
+    
+    # Cleanup
+    rm -rf "$temp_dir"
+    
+    print_success "Configuration import completed!"
+    print_info "Review imported configurations before replacing your current setup."
+}
+
+# Cross-platform migration helpers
+import_linux_to_macos() {
+    local import_dir="$1"
+    
+    print_info "🐧➡️🍎 Migrating Linux configuration to macOS..."
+    
+    # Convert package lists to Homebrew
+    if [[ -f "$import_dir/packages-apt.txt" ]]; then
+        convert_apt_to_brew "$import_dir/packages-apt.txt"
+    elif [[ -f "$import_dir/packages-pacman.txt" ]]; then
+        convert_pacman_to_brew "$import_dir/packages-pacman.txt"
+    fi
+}
+
+import_macos_to_linux() {
+    local import_dir="$1"
+    
+    print_info "🍎➡️🐧 Migrating macOS configuration to Linux..."
+    
+    # Convert Homebrew packages to Linux equivalents
+    if [[ -f "$import_dir/Brewfile" ]]; then
+        convert_brew_to_linux "$import_dir/Brewfile"
+    fi
+}
+
+# Package conversion utilities
+convert_apt_to_brew() {
+    local apt_packages="$1"
+    local brewfile="$HOME/Brewfile.migrated"
+    
+    print_info "Converting APT packages to Homebrew..."
+    
+    # Package mapping (simplified)
+    declare -A package_map=(
+        ["nodejs"]="node"
+        ["python3"]="python"
+        ["vim"]="neovim"
+        ["git"]="git"
+        ["curl"]="curl"
+        ["wget"]="wget"
+        ["tmux"]="tmux"
+        ["zsh"]="zsh"
+    )
+    
+    echo "# Generated Brewfile from APT packages" > "$brewfile"
+    
+    while read -r line; do
+        local package=$(echo "$line" | cut -f1)
+        local brew_package="${package_map[$package]:-$package}"
+        
+        # Skip if package is likely not available in Homebrew
+        case "$package" in
+            *"-dev"|*"-devel"|"lib"*)
+                echo "# Skipped development package: $package" >> "$brewfile"
+                ;;
+            *)
+                echo "brew \"$brew_package\"" >> "$brewfile"
+                ;;
+        esac
+    done < "$apt_packages"
+    
+    print_info "Brewfile created at: $brewfile"
+    print_info "Review and run: brew bundle --file=$brewfile"
+}
+
+# Show migration status
+show_migration_status() {
+    echo "🔄 Platform Migration Status"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Current Platform: $PLATFORM_OS ($PLATFORM_DISTRO)"
+    echo "Architecture: $PLATFORM_ARCH"
+    echo "Package Manager: $PLATFORM_PACKAGE_MANAGER"
+    echo ""
+    
+    # Show available exports
+    local data_dir="${DOTFILES_DATA_DIR:-$HOME/.local/share}/dotfiles"
+    if [[ -d "$data_dir" ]]; then
+        echo "Available Exports:"
+        find "$data_dir" -name "platform-export-*.tar.gz" -type f -exec basename {} \; 2>/dev/null | sort || echo "  No exports found"
+    fi
+    
+    echo ""
+    echo "Migration Commands:"
+    echo "  Export current: dot platform migrate export"
+    echo "  Import from other: dot platform migrate import <source-platform>"
+    echo "  Full migration: dot platform migrate migrate <source> <target>"
+}
+
 # Export functions
 export -f detect_platform install_package xopen xcopy xpaste
 export -f install_modern_tools check_platform_compatibility
 export -f get_config_dir get_cache_dir get_data_dir get_bin_dir
 export -f setup_platform_paths setup_shell_config
+export -f platform_config_optimization platform_tool_management
+export -f platform_performance_tuning platform_migration_tools
