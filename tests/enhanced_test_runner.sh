@@ -36,9 +36,36 @@ TOTAL_PASSED=0
 TOTAL_FAILED=0
 TOTAL_SKIPPED=0
 
-# Declare maps for safe use under `set -u`
-declare -A TEST_RESULTS
-declare -A TEST_TIMES
+# Results tracking files (Bash 3.x compatible; avoid associative arrays)
+# Each line format:
+#   TEST_RESULTS_FILE:  <test_name>|<status>
+#   TEST_TIMES_FILE:    <test_name>|<duration_seconds>
+
+# Record a single test's status
+record_test_result() {
+    local name="$1"; local status="$2"
+    echo "${name}|${status}" >> "$TEST_RESULTS_FILE"
+}
+
+# Record a single test's duration (seconds)
+record_test_time() {
+    local name="$1"; local secs="$2"
+    echo "${name}|${secs}" >> "$TEST_TIMES_FILE"
+}
+
+# Read status for a given test name (prints STATUS or empty)
+read_test_status() {
+    local name="$1"
+    [[ -f "$TEST_RESULTS_FILE" ]] || return 0
+    awk -F'|' -v n="$name" '$1==n {print $2}' "$TEST_RESULTS_FILE" | tail -1
+}
+
+# Read duration for a given test name (prints integer seconds or 0)
+read_test_time() {
+    local name="$1"
+    [[ -f "$TEST_TIMES_FILE" ]] || { echo 0; return; }
+    awk -F'|' -v n="$name" '$1==n {print $2}' "$TEST_TIMES_FILE" | tail -1
+}
 
 # =============================================================================
 # Utility Functions
@@ -193,12 +220,12 @@ process_test_results() {
     local output_file="$5"
     
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
-    TEST_TIMES["$test_name"]=$duration
+    record_test_time "$test_name" "$duration"
     
     if [[ $exit_code -eq 0 ]]; then
         # Success
         TOTAL_PASSED=$((TOTAL_PASSED + 1))
-        TEST_RESULTS["$test_name"]="PASSED"
+        record_test_result "$test_name" "PASSED"
         log_success "$category/$test_name completed successfully (${duration}s)"
         
         # Log any additional success information from test output
@@ -209,7 +236,7 @@ process_test_results() {
     else
         # Failure
         TOTAL_FAILED=$((TOTAL_FAILED + 1))
-        TEST_RESULTS["$test_name"]="FAILED"
+        record_test_result "$test_name" "FAILED"
         log_error "$category/$test_name failed with exit code $exit_code (${duration}s)"
         
         # Log error details
@@ -244,7 +271,7 @@ generate_comprehensive_report() {
 | Failed | $TOTAL_FAILED |
 | Skipped | $TOTAL_SKIPPED |
 | Success Rate | $( [[ $TOTAL_TESTS -gt 0 ]] && echo $(( TOTAL_PASSED * 100 / TOTAL_TESTS )) || echo 0 )% |
-| Total Duration | $(( $(printf '%s\n' "${TEST_TIMES[@]}" | paste -sd+ | bc 2>/dev/null || echo 0) ))s |
+| Total Duration | $( if [[ -f "$TEST_TIMES_FILE" ]]; then awk -F'|' '{s+=$2} END{print (s==""?0:s)}' "$TEST_TIMES_FILE"; else echo 0; fi )s |
 
 ## Test Results by Category
 
@@ -257,18 +284,18 @@ EOF
             echo "" >> "$report_file"
             
             local found_tests=false
-            for test_name in "${!TEST_RESULTS[@]}"; do
-                if [[ -f "$SCRIPT_DIR/$category/${test_name}.sh" ]]; then
-                    found_tests=true
-                    local status="${TEST_RESULTS[$test_name]}"
-                    local duration="${TEST_TIMES[$test_name]:-0}"
-                    local icon="❌"
-                    if [[ "$status" == "PASSED" ]]; then
-                        icon="✅"
+            if [[ -f "$TEST_RESULTS_FILE" ]]; then
+                while IFS='|' read -r test_name status; do
+                    if [[ -f "$SCRIPT_DIR/$category/${test_name}.sh" ]]; then
+                        found_tests=true
+                        local duration
+                        duration=$(read_test_time "$test_name")
+                        local icon="❌"
+                        if [[ "$status" == "PASSED" ]]; then icon="✅"; fi
+                        echo "- $test_name: $icon $status (${duration}s)" >> "$report_file"
                     fi
-                    echo "- $test_name: $icon $status (${duration}s)" >> "$report_file"
-                fi
-            done
+                done < "$TEST_RESULTS_FILE"
+            fi
             
             if [[ "$found_tests" == "false" ]]; then
                 echo "- No tests executed in this category" >> "$report_file"
@@ -284,17 +311,19 @@ EOF
 
 EOF
         
-        # Find slowest tests
-        local slowest_tests
-        slowest_tests=$(printf '%s %s\n' "${!TEST_TIMES[@]}" "${TEST_TIMES[@]}" | sort -k2 -nr | head -5)
-        
+        # Find slowest tests (Bash 3.x compatible via files)
         echo "### Slowest Tests" >> "$report_file"
         echo "" >> "$report_file"
-        while read -r test_name duration; do
-            if [[ -n "$test_name" && -n "$duration" ]]; then
-                echo "- $test_name: ${duration}s" >> "$report_file"
-            fi
-        done <<< "$slowest_tests"
+        if [[ -f "$TEST_TIMES_FILE" ]]; then
+            # Sort by duration descending and take top 5
+            awk -F'|' '{print $1" "$2}' "$TEST_TIMES_FILE" | sort -k2 -nr | head -5 | while read -r test_name duration; do
+                if [[ -n "$test_name" && -n "$duration" ]]; then
+                    echo "- $test_name: ${duration}s" >> "$report_file"
+                fi
+            done
+        else
+            echo "- No performance data collected" >> "$report_file"
+        fi
         echo "" >> "$report_file"
     fi
     
@@ -306,15 +335,19 @@ EOF
 The following tests failed and require attention:
 
 EOF
-        for test_name in "${!TEST_RESULTS[@]}"; do
-            if [[ "${TEST_RESULTS[$test_name]}" == "FAILED" ]]; then
-                echo "### $test_name" >> "$report_file"
-                echo "- **Status:** Failed" >> "$report_file"
-                echo "- **Duration:** ${TEST_TIMES[$test_name]:-0}s" >> "$report_file"
-                echo "- **Recommendation:** Check logs for detailed error information" >> "$report_file"
-                echo "" >> "$report_file"
-            fi
-        done
+        if [[ -f "$TEST_RESULTS_FILE" ]]; then
+            while IFS='|' read -r test_name status; do
+                if [[ "$status" == "FAILED" ]]; then
+                    local duration
+                    duration=$(read_test_time "$test_name")
+                    echo "### $test_name" >> "$report_file"
+                    echo "- **Status:** Failed" >> "$report_file"
+                    echo "- **Duration:** ${duration}s" >> "$report_file"
+                    echo "- **Recommendation:** Check logs for detailed error information" >> "$report_file"
+                    echo "" >> "$report_file"
+                fi
+            done < "$TEST_RESULTS_FILE"
+        fi
     fi
     
     # Add recommendations
@@ -375,8 +408,10 @@ display_summary() {
         return 1
     fi
     
-    local success_rate
-    success_rate=$(( TOTAL_PASSED * 100 / TOTAL_TESTS ))
+    local success_rate=0
+    if [[ $TOTAL_TESTS -gt 0 ]]; then
+        success_rate=$(( TOTAL_PASSED * 100 / TOTAL_TESTS ))
+    fi
     
     log_info "Tests executed: $TOTAL_TESTS"
     log_info "Passed: $TOTAL_PASSED"
