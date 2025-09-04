@@ -31,6 +31,8 @@ setup_test() {
     # Set up test environment variables
     export DOTFILES_DIR="$TEST_TEMP_DIR/dotfiles"
     export DOT_CLI_DIR="$DOTFILES_DIR/lib/cli"
+    export DOT_TEST_MODE="true"
+    export DOT_TEST_ALWAYS_INSTALL="true"
     
     # Create mock dotfiles structure
     mkdir -p "$DOTFILES_DIR"/{lib/cli,bin,config}

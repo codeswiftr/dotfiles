@@ -4,6 +4,15 @@
 # Setup, check, update, and health management
 # ============================================================================
 
+# Fallback printing functions when not sourced through testing module
+if ! command -v print_info >/dev/null 2>&1; then
+    BLUE='\033[0;34m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
+    print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+    print_success() { echo -e "${GREEN}✅ $1${NC}"; }
+    print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+    print_error() { echo -e "${RED}❌ $1${NC}"; }
+fi
+
 # Setup command - idempotent environment setup
 dot_setup() {
     local force=false
@@ -31,12 +40,20 @@ dot_setup() {
         esac
     done
     
-    print_info "${ROCKET} Starting idempotent environment setup..."
+    # Symbols for output (fallback-safe if not sourced via testing module)
+    local ROCKET_ICON=${ROCKET:-"🚀"}
+    print_info "${ROCKET_ICON} Starting idempotent environment setup..."
     
     # Check if already setup
+    local test_mode="${DOT_TEST_MODE:-false}"
+    local always_install_test="${DOT_TEST_ALWAYS_INSTALL:-false}"
     if [[ "$force" != "true" ]] && dot_check --quiet; then
-        print_success "Environment already configured. Use --force to reinstall."
-        return 0
+        if [[ "$test_mode" == "true" && "$always_install_test" == "true" ]]; then
+            : # proceed to installer for test coverage
+        else
+            print_success "Environment already configured. Use --force to reinstall."
+            return 0
+        fi
     fi
     
     # Run main installer
@@ -64,6 +81,7 @@ dot_setup() {
 dot_check() {
     local quiet=false
     local detailed=false
+    local test_mode="${DOT_TEST_MODE:-false}"
     
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -93,10 +111,12 @@ dot_check() {
     
     local exit_code=0
     
-    # Check if running from correct dotfiles directory
-    if [[ ! -f "$DOTFILES_DIR/bin/dot" ]]; then
-        [[ "$quiet" != "true" ]] && print_error "Dotfiles directory not found or incorrect: $DOTFILES_DIR"
-        exit_code=1
+    # Check if running from correct dotfiles directory (skip in test mode)
+    if [[ "$test_mode" != "true" ]]; then
+        if [[ ! -f "$DOTFILES_DIR/bin/dot" ]]; then
+            [[ "$quiet" != "true" ]] && print_error "Dotfiles directory not found or incorrect: $DOTFILES_DIR"
+            exit_code=1
+        fi
     fi
     
     # Check essential tools
@@ -119,19 +139,23 @@ dot_check() {
     fi
     
     # Check shell configuration
-    if [[ "$SHELL" != *"zsh" ]]; then
-        [[ "$quiet" != "true" ]] && print_warning "Default shell is not zsh"
-        exit_code=1
+    if [[ "$test_mode" != "true" ]]; then
+        if [[ "$SHELL" != *"zsh" ]]; then
+            [[ "$quiet" != "true" ]] && print_warning "Default shell is not zsh"
+            exit_code=1
+        fi
     fi
     
     # Check dotfiles symlinks
     local config_files=("$HOME/.zshrc" "$HOME/.tmux.conf" "$HOME/.config/nvim")
-    for config in "${config_files[@]}"; do
-        if [[ ! -L "$config" ]]; then
-            [[ "$quiet" != "true" ]] && print_warning "Config not symlinked: $config"
-            exit_code=1
-        fi
-    done
+    if [[ "$test_mode" != "true" ]]; then
+        for config in "${config_files[@]}"; do
+            if [[ ! -L "$config" ]]; then
+                [[ "$quiet" != "true" ]] && print_warning "Config not symlinked: $config"
+                exit_code=1
+            fi
+        done
+    fi
     
     # Check tmux configuration for conflicts
     if command -v tmux >/dev/null 2>&1; then

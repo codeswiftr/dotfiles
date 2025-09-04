@@ -285,6 +285,8 @@ mock_dotfiles_tools() {
     mock_brew "installed"
     mock_mise "version"
     mock_python "version"
+    # Ensure installer invocations are captured without executing real bash
+    create_mock "bash" "success" "0" ""
     
     # Mock command existence checks
     create_mock "command" "success" "0" ""
