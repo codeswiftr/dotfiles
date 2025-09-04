@@ -12,7 +12,7 @@ pass(){ echo -e "${GREEN}[PASS]${NC} $1"; PASSED=$((PASSED+1)); TOTAL=$((TOTAL+1
 fail(){ echo -e "${RED}[FAIL]${NC} $1"; FAILED=$((FAILED+1)); TOTAL=$((TOTAL+1)); }
 
 # Isolate HOME/DOTFILES_DIR to a temp sandbox
-REPO_DIR="$(cd "$(dirname "$0")"/../.. && pwd)"
+REPO_DIR="$(cd "$(dirname "$0")"/../../.. && pwd)"
 SANDBOX_HOME="$(mktemp -d)"
 export HOME="$SANDBOX_HOME"
 export DOTFILES_DIR="$REPO_DIR"

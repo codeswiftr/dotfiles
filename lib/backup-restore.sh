@@ -16,9 +16,9 @@ BACKUP_TYPE_INCREMENTAL="incremental"
 BACKUP_TYPE_DIFFERENTIAL="differential"
 BACKUP_TYPE_CONFIG_ONLY="config-only"
 
-# Backup compression
-BACKUP_COMPRESSION="gzip"
-BACKUP_COMPRESSION_LEVEL="6"
+# Backup compression (respect environment overrides)
+BACKUP_COMPRESSION="${BACKUP_COMPRESSION:-gzip}"
+BACKUP_COMPRESSION_LEVEL="${BACKUP_COMPRESSION_LEVEL:-6}"
 
 # Initialize backup system
 init_backup_system() {
@@ -155,7 +155,10 @@ backup_create() {
     local backup_type="${1:-$BACKUP_TYPE_FULL}"
     local backup_name="${2:-}"
     local description="${3:-}"
-    local include_paths=("${@:4}")
+    local include_paths=()
+    if [[ $# -ge 4 ]]; then
+        include_paths=("${@:4}")
+    fi
     
     # Generate backup name if not provided
     if [[ -z "$backup_name" ]]; then
@@ -180,16 +183,32 @@ backup_create() {
     # Perform backup based on type
     case "$backup_type" in
         "$BACKUP_TYPE_FULL")
-            create_full_backup "$backup_path" "${include_paths[@]}"
+            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+                create_full_backup "$backup_path" "${include_paths[@]}"
+            else
+                create_full_backup "$backup_path"
+            fi
             ;;
         "$BACKUP_TYPE_INCREMENTAL")
-            create_incremental_backup "$backup_path" "${include_paths[@]}"
+            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+                create_incremental_backup "$backup_path" "${include_paths[@]}"
+            else
+                create_incremental_backup "$backup_path"
+            fi
             ;;
         "$BACKUP_TYPE_DIFFERENTIAL")
-            backup_differential "$backup_path" "${include_paths[@]}"
+            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+                backup_differential "$backup_path" "${include_paths[@]}"
+            else
+                backup_differential "$backup_path"
+            fi
             ;;
         "$BACKUP_TYPE_CONFIG_ONLY")
-            create_config_backup "$backup_path" "${include_paths[@]}"
+            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+                create_config_backup "$backup_path" "${include_paths[@]}"
+            else
+                create_config_backup "$backup_path"
+            fi
             ;;
         *)
             echo "❌ Unknown backup type: $backup_type"
@@ -209,7 +228,7 @@ backup_create() {
     update_backup_metadata "$backup_name" "$backup_type" "$description" "$backup_path"
     
     # Clean up old backups based on retention policy
-    cleanup_old_backups
+    cleanup_old_backups || true
     
     echo "✅ Backup created successfully: $backup_path"
     echo "📊 Backup size: $(get_backup_size "$backup_path")"
@@ -256,13 +275,16 @@ EOF
 # Create full backup - Epic 4.1 Core Implementation
 create_full_backup() {
     local backup_path="$1"
-    shift
-    local include_paths=("$@")
+    shift || true
+    local include_paths=()
+    if [[ $# -gt 0 ]]; then
+        include_paths=("$@")
+    fi
     
     echo "📦 Creating full backup..."
     
     # Default paths if none specified
-    if [[ ${#include_paths[@]} -eq 0 ]]; then
+    if [[ ${#include_paths[@]:-0} -eq 0 ]]; then
         include_paths=(
             "$DOTFILES_DIR"
             "$HOME/.config"
@@ -375,7 +397,11 @@ create_incremental_backup() {
     
     if [[ -z "$base_backup" ]]; then
         echo "⚠️  No base backup found, creating full backup instead"
-        create_full_backup "$backup_path" "${include_paths[@]}"
+        if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            create_full_backup "$backup_path" "${include_paths[@]}"
+        else
+            create_full_backup "$backup_path"
+        fi
         return
     fi
     
@@ -388,14 +414,21 @@ create_incremental_backup() {
     
     if [[ ! -f "$base_index_file" ]]; then
         echo "  ⚠️  Base backup index not found, using timestamp comparison"
-        local base_timestamp
-        base_timestamp=$(get_backup_timestamp "$base_backup")
-        backup_changes_since "$backup_path" "$base_timestamp" "${include_paths[@]}"
+        # Use the base index file as a stable reference for -newer
+        if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            backup_changes_since "$backup_path" "$base_index_file" "${include_paths[@]}"
+        else
+            backup_changes_since "$backup_path" "$base_index_file"
+        fi
         return
     fi
     
     # Perform efficient incremental backup using file index comparison
-    perform_incremental_backup "$backup_path" "$base_index_file" "${include_paths[@]}"
+    if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+        perform_incremental_backup "$backup_path" "$base_index_file" "${include_paths[@]}"
+    else
+        perform_incremental_backup "$backup_path" "$base_index_file"
+    fi
 }
 
 # Incremental backup (backward compatibility wrapper) 
@@ -498,7 +531,7 @@ backup_config_only() {
 # Backup changes since timestamp
 backup_changes_since() {
     local backup_path="$1"
-    local since_timestamp="$2"
+    local since_ref="$2"   # file path (preferred) or timestamp
     shift 2
     local include_paths=("$@")
     
@@ -520,14 +553,14 @@ backup_changes_since() {
         if [[ -e "$path" ]]; then
             echo "  📁 Checking changes in: $path"
             
-            # Find files newer than timestamp
-            local changed_files
-            mapfile -t changed_files < <(find "$path" -type f -newer "$since_timestamp" 2>/dev/null | grep -v -f "$BACKUP_EXCLUDE_FILE" || true)
-            
-            if [[ ${#changed_files[@]} -gt 0 ]]; then
-                echo "    Found ${#changed_files[@]} changed files"
-                
-                for file in "${changed_files[@]}"; do
+            # Find files newer than reference (file preferred)
+            local changed_count=0
+            if [[ -f "$since_ref" ]]; then
+                while IFS= read -r file; do
+                    # Exclusion check using helper (ignores comments/blank lines)
+                    if is_path_excluded "$file"; then
+                        continue
+                    fi
                     # Calculate relative path
                     local rel_path
                     if [[ "$file" == "$HOME"* ]]; then
@@ -546,9 +579,14 @@ backup_changes_since() {
                     local file_size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo 0)
                     files_backed_up=$((files_backed_up + 1))
                     total_size=$((total_size + file_size))
-                done
-            else
+                    changed_count=$((changed_count + 1))
+                done < <(find "$path" -type f -newer "$since_ref" 2>/dev/null)
+            fi
+            
+            if [[ $changed_count -eq 0 ]]; then
                 echo "    No changes found"
+            else
+                echo "    Found $changed_count changed files"
             fi
         fi
     done
@@ -1363,6 +1401,23 @@ run_backup_hooks() {
     fi
 }
 
+# Determine if a given path should be excluded based on exclude list
+# - Ignores blank lines and comment lines (starting with '#') to mirror rsync behavior
+# - Uses fixed-string matching for simple, fast checks
+is_path_excluded() {
+    local path_to_check="$1"
+    if [[ -z "$path_to_check" ]]; then
+        return 1
+    fi
+    if [[ -f "$BACKUP_EXCLUDE_FILE" ]]; then
+        # Filter exclude patterns: drop comments and empty lines, normalize line endings
+        if grep -F -q -f <(sed -e 's/\r$//' -e '/^\s*#/d' -e '/^\s*$/d' "$BACKUP_EXCLUDE_FILE") -- <<< "$path_to_check" 2>/dev/null; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
 # Update backup metadata
 update_backup_metadata() {
     local backup_name="$1"
@@ -1414,8 +1469,9 @@ update_manifest_stats() {
     local manifest_file="$backup_path/MANIFEST.json"
     
     if command -v jq >/dev/null 2>&1; then
-        jq ".metadata.total_files = $files_count | .metadata.total_size = $total_size | .metadata.duration = $duration" "$manifest_file" > "${manifest_file}.tmp"
-        mv "${manifest_file}.tmp" "$manifest_file"
+        tmpfile=$(mktemp)
+        jq ".metadata.total_files = $files_count | .metadata.total_size = $total_size | .metadata.duration = $duration" "$manifest_file" > "$tmpfile" || true
+        [[ -s "$tmpfile" ]] && mv "$tmpfile" "$manifest_file" || rm -f "$tmpfile"
     fi
 }
 
@@ -1615,7 +1671,7 @@ perform_incremental_backup() {
     echo "  🔍 Comparing files against base backup index..."
     
     # Default paths if none specified
-    if [[ ${#include_paths[@]} -eq 0 ]]; then
+        if [[ ${#include_paths[@]} -eq 0 ]]; then
         include_paths=(
             "$DOTFILES_DIR"
             "$HOME/.config"
@@ -1640,15 +1696,16 @@ perform_incremental_backup() {
         if [[ -e "$path" ]]; then
             find "$path" -type f ! -path "*/\.git/objects/*" 2>/dev/null | \
                 while read -r filepath; do
-                    if ! grep -qFf "$BACKUP_EXCLUDE_FILE" <<< "$filepath" 2>/dev/null; then
-                        local filesize=$(stat -c"%s" "$filepath" 2>/dev/null || stat -f"%z" "$filepath" 2>/dev/null || echo "0")
-                        local mtime=$(stat -c"%Y" "$filepath" 2>/dev/null || date -r "$filepath" "+%s" 2>/dev/null || echo "0")
-                        local checksum=""
-                        if command -v shasum >/dev/null 2>&1; then
-                            checksum=$(shasum -a 256 "$filepath" 2>/dev/null | cut -d' ' -f1)
-                        fi
-                        echo "$filepath|$filesize|$mtime|$checksum" >> "$current_index"
+                    if is_path_excluded "$filepath"; then
+                        continue
                     fi
+                    local filesize=$(stat -c"%s" "$filepath" 2>/dev/null || stat -f"%z" "$filepath" 2>/dev/null || echo "0")
+                    local mtime=$(stat -c"%Y" "$filepath" 2>/dev/null || date -r "$filepath" "+%s" 2>/dev/null || echo "0")
+                    local checksum=""
+                    if command -v shasum >/dev/null 2>&1; then
+                        checksum=$(shasum -a 256 "$filepath" 2>/dev/null | cut -d' ' -f1)
+                    fi
+                    echo "$filepath|$filesize|$mtime|$checksum" >> "$current_index"
                 done
         fi
     done
@@ -1658,10 +1715,19 @@ perform_incremental_backup() {
         local needs_backup=true
         
         # Check if file exists in base backup
-        if grep -q "^[^|]*$(basename "$current_file")|" "$base_index_file" 2>/dev/null; then
+        # Compute relative path key same as create_backup_index
+        local rel_key
+        if [[ "$current_file" == "$HOME"* ]]; then
+            rel_key="home${current_file#$HOME}"
+        elif [[ "$current_file" == "$DOTFILES_DIR"* ]]; then
+            rel_key="dotfiles${current_file#$DOTFILES_DIR}"
+        else
+            rel_key=$(echo "$current_file" | sed 's|^/||' | tr '/' '_')
+        fi
+        if grep -Fq "^$rel_key|" "$base_index_file" 2>/dev/null; then
             # File exists in base backup, check if it's changed
             local base_entry
-            base_entry=$(grep "$(basename "$current_file")|" "$base_index_file" | head -1)
+            base_entry=$(grep -F "^$rel_key|" "$base_index_file" | head -1)
             
             if [[ -n "$base_entry" ]]; then
                 local base_size=$(echo "$base_entry" | cut -d'|' -f2)
@@ -1726,11 +1792,24 @@ update_manifest_contents() {
     local manifest_file="$backup_path/MANIFEST.json"
     
     if command -v jq >/dev/null 2>&1 && [[ -f "$manifest_file" ]]; then
+        local tmpfile
+        tmpfile=$(mktemp)
         local contents_json
-        printf -v contents_json '%s\n' "${include_paths[@]}" | jq -R . | jq -s .
-        
-        jq ".contents = $contents_json" "$manifest_file" > "${manifest_file}.tmp"
-        mv "${manifest_file}.tmp" "$manifest_file"
+        if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            # Safely build JSON array of include paths
+            contents_json=$(printf '%s\n' "${include_paths[@]}" | jq -R . | jq -s .)
+        else
+            contents_json='[]'
+        fi
+        # Only attempt jq write if we built valid JSON
+        if [[ -n "$contents_json" ]]; then
+            jq ".contents = $contents_json" "$manifest_file" > "$tmpfile" 2>/dev/null || true
+        fi
+        if [[ -s "$tmpfile" ]]; then
+            mv "$tmpfile" "$manifest_file"
+        else
+            rm -f "$tmpfile"
+        fi
     fi
 }
 
