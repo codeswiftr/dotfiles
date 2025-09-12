@@ -1,0 +1,31 @@
+# Documentation Configuration
+project:
+  name: "Modern Dotfiles"
+  version: "2025.1.0"
+  description: "Comprehensive development environment setup"
+  author: "bogdan"
+  repository: "https://github.com/bogdan/dotfiles"
+
+build:
+  output_dir: "_build"
+  theme: "modern"
+  syntax_highlighting: true
+  search_enabled: true
+  
+navigation:
+  - Getting Started: "getting-started.md"
+  - Installation: "installation.md" 
+  - Configuration: "configuration.md"
+  - CLI Reference: "cli-reference.md"
+  - Troubleshooting: "troubleshooting.md"
+  
+features:
+  auto_generate: true
+  include_examples: true
+  generate_api_docs: true
+  interactive_help: true
+  
+formats:
+  - markdown
+  - html
+  - pdf

@@ -1112,14 +1112,14 @@ dot docs cli-reference
 
 \`\`\`bash
 # Create command module
-cat > lib/cli/example.sh << 'EOF'
+cat > lib/cli/example.sh << 'END'
 #!/usr/bin/env bash
 # Example command implementation
 
 dot_example() {
     echo "Hello from example command!"
 }
-EOF
+END
 
 # Add to main CLI
 # In bin/dot, add:
@@ -1164,7 +1164,7 @@ tests/
 
 \`\`\`bash
 # Test template
-cat > tests/unit/example_test.sh << 'EOF'
+cat > tests/unit/example_test.sh << 'END'
 #!/usr/bin/env bash
 # Example test
 
@@ -1178,7 +1178,7 @@ test_example_function() {
 }
 
 run_tests
-EOF
+END
 \`\`\`
 
 ## Performance Optimization
@@ -1251,13 +1251,13 @@ feat: add new AI provider support
 fix: resolve shell startup performance issue
 docs: update installation guide
 test: add unit tests for templating engine
-\\`\\`\\`
+\`\`\`
 
 ## Getting Help
 
-- Run \\\\`dot <command> --help\\\\` for command-specific help
+- Run \`dot <command> --help\` for command-specific help
 - Check [Troubleshooting Guide](troubleshooting.md) for common issues
-- Use \\\\`dot ai explain <file>\\\\` for AI-powered code explanations
+- Use \`dot ai explain <file>\` for AI-powered code explanations
 
 Welcome to your enhanced development environment! 🚀
 EOF

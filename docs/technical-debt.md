@@ -59,6 +59,24 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 - See [README.md](../README.md) and [CONTRIBUTING.md](../CONTRIBUTING.md) for onboarding, workflow, and documentation guidelines.
 - If you spot documentation debt, legacy configs, or unclear instructions, please help improve them and add to this file!
 
+## ✅ Recent Improvements Completed (September 2025)
+
+### Critical Fixes
+- **✅ Syntax Errors**: Fixed bash syntax errors in `lib/performance-monitor.sh` and `lib/documentation.sh`
+- **✅ Test Infrastructure**: Stabilized `test_docs.sh` and CLI contract tests  
+- **✅ Tmux Configuration**: Reduced from 111 to 24 essential bindings, restored standard behavior
+- **✅ Epic 1 Testing Foundation**: CLI contracts passing, test runners stabilized
+
+### Configuration Improvements  
+- **Tmux**: `config/tmux/tmux.conf` now loads `tmux-minimal.conf` (24 bindings)
+- **Complex Config**: Preserved as `config/tmux/tmux-complex.conf` for advanced users
+- **Testing**: Fixed test framework inconsistencies and timeouts
+
+### Implementation Quality
+- **Performance Monitor**: Fixed zsh glob compatibility issues
+- **Documentation System**: Resolved nested HERE document syntax errors
+- **CLI Reliability**: All basic `dot` commands now function correctly
+
 ---
 
 **Thank you for helping keep this project modern, clean, and friendly!**
@@ -67,9 +85,10 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 
 ## 🔧 Configuration and UX Debt (New)
 
-### Tmux keybinding conflicts
-- Analysis files (`config/tmux/tmux-analysis.md`, `config/tmux/tmux-dx-plan.md`) identify critical overrides (e.g., `Ctrl-a c/d`).
-- Action: Restore defaults for `c` (new-window) and `d` (detach), move AI/dev shortcuts under capital letters (A/D/T/G/M), keep Tier 1 ≤ 10 bindings.
+### Tmux keybinding conflicts ✅ **RESOLVED**
+- ~~Analysis files (`config/tmux/tmux-analysis.md`, `config/tmux/tmux-dx-plan.md`) identify critical overrides (e.g., `Ctrl-a c/d`).~~
+- **✅ COMPLETED**: Restored defaults for `c` (new-window) and `d` (detach). Created `tmux-minimal.conf` with only 24 essential bindings.
+- **Configuration**: `config/tmux/tmux.conf` now uses streamlined config. Complex config preserved as `tmux-complex.conf`.
 
 ### Neovim tier enforcement
 - Ensure Tier 1 stays <200ms; reduce plugin count and verify `config/nvim/lua/tiers/*` reflect intended sets.

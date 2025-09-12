@@ -335,12 +335,14 @@ optimize_shell_performance() {
     # Compile zsh functions
     if [[ "$SHELL" == *"zsh"* ]]; then
         echo "  Compiling zsh functions..."
-        # shellcheck disable=SC1036
-        for file in ~/.zsh/**/*.zsh(N); do
-            if [[ ! -f "${file}.zwc" ]] || [[ "$file" -nt "${file}.zwc" ]]; then
-                zcompile "$file" 2>/dev/null && echo "    Compiled: $(basename "$file")"
-            fi
-        done
+        # Use bash-compatible globbing
+        if command -v zsh >/dev/null && [[ -d ~/.zsh ]]; then
+            find ~/.zsh -name "*.zsh" -type f | while read -r file; do
+                if [[ ! -f "${file}.zwc" ]] || [[ "$file" -nt "${file}.zwc" ]]; then
+                    zcompile "$file" 2>/dev/null && echo "    Compiled: $(basename "$file")"
+                fi
+            done
+        fi
         
         # Rebuild completion cache
         echo "  Rebuilding completion cache..."

@@ -8,6 +8,37 @@
 -- Tier 2 plugins extend Tier 1 with enhanced development features
 return {
   -- ============================================================================
+  -- FILE EXPLORER (NERDTree alternative) - nvim-tree (lazy loaded)
+  -- ============================================================================
+  {
+    "nvim-tree/nvim-tree.lua",
+    cmd = { "NvimTreeToggle", "NvimTreeFindFile" },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    init = function()
+      -- Recommended settings to avoid conflicts with netrw
+      vim.g.loaded_netrw = 1
+      vim.g.loaded_netrwPlugin = 1
+    end,
+    opts = {
+      disable_netrw = true,
+      hijack_netrw = true,
+      sync_root_with_cwd = true,
+      respect_buf_cwd = true,
+      update_focused_file = { enable = true, update_root = false },
+      renderer = {
+        highlight_git = true,
+        highlight_opened_files = "icon",
+        icons = { show = { file = true, folder = true, folder_arrow = true, git = true } },
+      },
+      view = { width = 32, side = "left" },
+      git = { enable = true, ignore = false },
+      filters = { dotfiles = false },
+    },
+    config = function(_, opts)
+      require("nvim-tree").setup(opts)
+    end,
+  },
+  -- ============================================================================
   -- GIT INTEGRATION - Essential for development workflow
   -- ============================================================================
   {

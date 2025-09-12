@@ -1,20 +1,23 @@
 {
-  "generated": "2025-08-14",
+  "generated": "2025-09-12",
   "rootFiles": [
     ".gitconfig",
     ".gitignore",
+    ".nvimlog",
     ".tmux.conf",
     ".yamllint",
     ".zshrc",
     "AGENTS.md",
     "CHANGELOG-2025.1.7.md",
+    "CLAUDE.md",
     "CONTRIBUTING.md",
     "PLAN.md",
     "README.md",
     "VERSION",
     "dotfiles-tutor",
     "gitleaks.toml",
-    "install.sh"
+    "install.sh",
+    "pre-commit-global.yaml"
   ],
   "dirs": {
     ".github": [
@@ -24,6 +27,7 @@
     "completions": [],
     "config": [],
     "docs": [],
+    "git": [],
     "hooks": [],
     "lib": [],
     "plugins": [],

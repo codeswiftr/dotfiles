@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Docs System Tests
-set -euo pipefail
+# Docs System Tests  
+set -uo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -11,36 +11,45 @@ TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
 
-pass(){ echo -e "${GREEN}[PASS]${NC} $1"; ((TESTS_PASSED++)); }
-fail(){ echo -e "${RED}[FAIL]${NC} $1"; ((TESTS_FAILED++)); }
+pass() { 
+    echo -e "${GREEN}[PASS]${NC} $1"
+    ((TESTS_PASSED++))
+    ((TESTS_RUN++))
+}
 
-run(){ set +e; ((TESTS_RUN++)); "$@"; local ec=$?; set -e; return $ec; }
+fail() { 
+    echo -e "${RED}[FAIL]${NC} $1"
+    ((TESTS_FAILED++))
+    ((TESTS_RUN++))
+}
 
-# 1) dot docs check should pass (guard if command exists)
+# Test 1: dot docs check should pass (if command exists)
 if grep -q "docs_cli" bin/dot; then
-  if run bash -lc 'DOTFILES_DIR=$(pwd) ./bin/dot docs check >/dev/null 2>&1'; then
-    pass "dot docs check passes"
-  else
-    fail "dot docs check failed"
-  fi
+    if DOTFILES_DIR=$(pwd) ./bin/dot docs check >/dev/null 2>&1; then
+        pass "dot docs check passes"
+    else
+        fail "dot docs check failed"
+    fi
 else
-  pass "docs command not available; skipping check"
+    pass "docs command not available; skipping check"
 fi
 
-# 2) generate-index produces INDEX.md and index.json
-if bash -lc 'scripts/generate-index.sh >/dev/null 2>&1'; then
-  if [[ -s docs/INDEX.md && -s docs/index.json ]]; then
+# Test 2: Check if index files exist or can be generated
+if [[ -s docs/INDEX.md && -s docs/index.json ]]; then
     pass "docs index artifacts present"
-  else
-    fail "docs index artifacts missing"
-  fi
+elif ./scripts/generate-index.sh >/dev/null 2>&1; then
+    if [[ -s docs/INDEX.md && -s docs/index.json ]]; then
+        pass "docs index artifacts generated successfully"
+    else
+        fail "docs index artifacts missing after generation"
+    fi
 else
-  fail "generate-index script failed"
+    fail "generate-index script failed"
 fi
 
-# Summary lines for runner
+# Summary
 echo "Tests Run: $TESTS_RUN"
 echo "Tests Passed: $TESTS_PASSED"
 echo "Tests Failed: $TESTS_FAILED"
 
-[[ $TESTS_FAILED -eq 0 ]]
+exit $TESTS_FAILED

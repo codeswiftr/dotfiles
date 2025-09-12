@@ -1,34 +1,38 @@
-# AGENTS.md
+# Repository Guidelines
 
-## Build, Lint, and Test Commands
-- **Run all tests:** `./tests/test_runner.sh`
-- **Shell lint:** `find . -name "*.sh" -exec shellcheck {} \;`
-- **YAML lint:** `find . -name "*.yaml" -o -name "*.yml" | xargs yamllint`
-- **Python tests:** `pytest` (single test: `pytest path/to/test_file.py::test_func`)
-- **JS/TS tests:** `npm test`, `jest`, `playwright`
-- **API tests:** `bruno`, `k6`
-- **iOS:** `ios-quick-build`, `ios-test-run`, `ios-ui-test-run`
-- **FastAPI:** `fastapi-test`, `fastapi-test tests/test_users.py` (single test)
-- **Web:** `lit-test`, `lit-test-component MyComponent`
+## Project Structure & Module Organization
+- `bin/`: primary CLI utilities (e.g., `dot`, helpers)
+- `config/`, `lib/`, `plugins/`, `scripts/`: core runtime and setup logic
+- `tests/`: shell-based test suites (unit, infrastructure, integration, performance) with runners
+- `docs/`: planning and ops docs; keep project plans and prompts here
+- Root scripts: `install.sh` (installer), plus repo metadata and configs
 
-## Code Style Guidelines
-- **Shell:** Use `shellcheck` and `shfmt` for linting/formatting.
-- **Python:** PEP8, explicit imports, type hints, descriptive names, try/except for errors.
-- **JS/TS:** ES6 imports, const/let, camelCase for vars/functions, PascalCase for classes/components, handle errors, use Prettier.
-- **Swift:** `swift-format --lint .`, Apple naming, explicit types, guard/if for errors.
-- **General:** Group/sort imports, avoid unused imports, prefer explicit, keep functions small, document public APIs, meaningful commits.
+## Build, Test, and Development Commands
+- Run all tests: `./tests/test_runner.sh` (logs to `tests/results/`)
+- Quick runner: `./tests/enhanced_test_runner.sh --quick`
+- Shell lint: `find . -name "*.sh" -exec shellcheck {} \;`
+- YAML lint: `find . -name "*.yml" -o -name "*.yaml" | xargs yamllint`
+- iOS helpers: `ios-quick-build`, `ios-test-run`, `ios-ui-test-run` (if installed)
+- FastAPI helpers: `fastapi-test` or `fastapi-test tests/test_users.py`
 
-## Commit Message Conventions
-- Use conventional commit format: `type(scope): description` (max 72 chars first line)
-- Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
-- Example: `feat: add new testing framework`
+## Coding Style & Naming Conventions
+- Shell: POSIX/Bash; lint with `shellcheck`; format with `shfmt`.
+- Python: PEP8, type hints where practical; run `pytest` when present.
+- JS/TS: ES modules, `const/let`, Prettier formatting.
+- Swift: `swift-format --lint .`; Apple naming; guard/if for errors.
+- Naming: kebab-case for scripts, snake_case for shell/Python functions, PascalCase for classes.
 
-## Git Hooks Integration
-- Automated hooks enforce quality gates: security, syntax, structure, commit message, and testing
-- Always run tests before commit/push; hooks will validate and block if issues are found
+## Testing Guidelines
+- Framework: shell-based tests with standardized output lines: `Tests Run/Passed/Failed`.
+- Conventions: place tests under `tests/{unit,integration,infrastructure,performance}`; name `test_*.sh`.
+- Coverage: prioritize critical paths (installer, `bin/dot`, security, performance budget).
+- Run locally before PRs; ensure `tests/results/` shows no failures.
 
-## Agentic Coding
-- Always run tests after changes
-- Prefer running single tests for fast feedback
-- Follow code style and error handling rules above
-- Document any new APIs or scripts
+## Commit & Pull Request Guidelines
+- Conventional Commits: `type(scope): summary` (e.g., `feat(cli): add perf bench`).
+- PRs: clear description, linked issues, screenshots or logs for UX/CLI changes, and test evidence.
+- Hooks: pre-commit and security gates may run; fix findings before merge.
+
+## Security & Configuration Tips
+- Secrets: never commit credentials; `gitleaks` runs via `gitleaks.toml`.
+- Keys: use `dot security` helpers where available; prefer `.env.local` patterns.

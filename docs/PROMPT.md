@@ -1,113 +1,59 @@
-# 🤖 Claude Code Agent Handoff Prompt (Updated Sept 2025)
+# Handoff Prompt: Claude Code Agent
 
-## Mission
-Deliver business value fast by completing the next four epics with disciplined, test-driven vertical slices while preserving performance, cross-platform support, and developer trust.
+You are the lead agent continuing work on this dotfiles repo. Operate like a pragmatic senior engineer. Prioritize must-haves, apply TDD, and ship small vertical slices. Keep `docs/PLAN.md` and this file current.
 
-Fundamental principles (first-principles mindset):
-- Keep it simple. Copy what already works. Do boring, proven things that make money.
-- Minimize cognitive load; prefer conventional, obvious interfaces.
-- Sub-350ms shell startup is sacrosanct; never regress core user journeys.
-- Safety > cleverness: tests first, smallest viable changes, continuous validation.
+## Objectives (Next 2 Weeks)
+- Complete Epic 1 (Testing Foundation) end-to-end.
+- Start Epic 2 (Security Hardening) with gitleaks tuning and tests.
+- Maintain zero test failures; keep docs in sync.
 
-Mindset anchors (repeat daily):
-- I will copy what works; I will not reinvent the wheel; I will keep it simple.
-- I will do boring things that are proven to make money.
-- I am grateful for the discipline to keep exercising even when I don't feel like it.
+## Priorities & Principles
+- Pareto: deliver the 20% that yields 80% value.
+- TDD: write a failing test → minimal code → refactor green.
+- YAGNI: avoid speculative features; ship vertical slices.
+- Clean boundaries: small, testable shell functions; clear CLI contracts.
 
-## Strategic Plan (Next 4 Epics)
-1) Epic 4: Backup & Recovery — data safety and trust
-2) Epic 5: AI Integration — productivity leverage
-3) Epic 6: Security & Compliance — enterprise readiness
-4) Epic 8: CI Reliability & Self‑Healing — green pipelines, no drift
+## Key Commands
+- Run all: `./tests/test_runner.sh`
+- Quick run: `./tests/enhanced_test_runner.sh --quick`
+- Lint: `find . -name "*.sh" -exec shellcheck {} \;`
+- YAML: `find . -name "*.yml" -o -name "*.yaml" | xargs yamllint`
 
-Reference: docs/PLAN.md (kept current). Execute epics in that order.
+## Work Plan (From docs/PLAN.md)
+1) Epic 1 — Testing Foundation
+- Add unit tests for `bin/dot` core subcommands (init, update, check, ai, security).
+- Add CLI contract tests (flags, exit codes, invalid args, help text).
+- Set performance budgets and assert in `tests/performance/test_shell_startup.sh`.
+- Standardize `Tests Run/Passed/Failed` outputs for all tests.
 
-## Constraints and Quality Bars
-- TDD is non-negotiable:
-  1) Write a failing test that defines expected behavior
-  2) Implement the minimal code to pass
-  3) Refactor while keeping tests green
-- Coverage: 90%+ for all new code. Prefer unit tests; add high-signal integration tests.
-- Performance: shell startup < 350ms; no blocking work at startup; lazy load where possible.
-- Cross-platform: macOS + Ubuntu + WSL; prefer POSIX sh/bash; guard OS branches.
-- Security: no secrets in repo; redaction in logs; least-privilege defaults.
-- YAGNI: do not build what we do not need this week.
+2) Epic 2 — Security & Secrets
+- Tune `gitleaks.toml` (reduce false positives, keep strong detection).
+- Add tests for `dot security` flows (GPG/SSH setup, secret exec stubs).
 
-## Immediate Next Steps (Epic 4: Backup & Recovery)
-Week 1 priorities (vertical slices, smallest wins first):
-1) Lock Backup Engine Contracts (tests first)
-   - Create: tests/unit/backup/test_create_full_backup.sh
-   - Create: tests/unit/backup/test_create_incremental_backup.sh
-   - Create: tests/unit/backup/test_backup_validation.sh
-   - Create: tests/unit/backup/test_backup_compression.sh
-   - Integration smoke: tests/integration/backup/test_dot_backup_cli.sh
-2) Implement minimal code to pass tests in lib/backup-restore.sh
-   - Only implement the lines the tests require; keep functions small and explicit
-3) Restore + permissions
-   - Implement restore_full_system, restore_selective_config, restore_validation (basic path)
-   - Add permission fixes for SSH/GPG/shell configs; validate via tests
-4) Scheduling & retention (thin slice)
-   - cron/systemd-user helpers (mocked); implement retention policy with tests using fake timestamps
+3) Ongoing — Docs & Consistency
+- Keep `AGENTS.md`, `docs/PLAN.md`, `docs/PROMPT.md` synchronized with changes.
 
-Definition of done (Epic 4):
-- Green unit + integration tests on both Linux and macOS; CI passes
-- Full backup includes manifest, checksums, index; validation passes; restore round-trips
-- Retention keeps windows; scheduling idempotent; docs updated
+## Deliverables Checklist
+- New/updated tests under `tests/{unit,integration,performance}`.
+- If code changes are needed, keep patches minimal and well-commented in commit body.
+- Test logs in `tests/results/`; zero failures.
+- Short PR description, link to plan item, and before/after logs.
 
-## After Epic 4
-- Epic 5 (AI Integration):
-  - Implement provider adapters in lib/ai-integration.sh for Claude and OpenAI first
-  - Add ai_code_review, ai_generate_tests with mocked HTTP; gate any network behind env flags
-- Epic 6 (Security & Compliance):
-  - Start with ripgrep-based secret detection and dependency checks; produce markdown reports
-- Epic 8 (CI Reliability):
-  - Add ci/bootstrap.sh to normalize env (chmod scripts, ensure bash)
-  - Optional monitor job that comments status on PRs; enforce v4 artifact actions (done)
+## Current State
+- New integration suite added: `tests/integration/test_cli_contracts.sh` covering version/help/health/check contracts.
+- Roadmap updated in `docs/PLAN.md` with subagent roles and exit criteria.
 
-## Subagents and Delegation (avoid context rot)
-Spin up subagents with focused scopes and short-lived context windows; each produces tests + code + docs for its slice.
+## Subagents (Optional)
+- Test Subagent: expands unit/contract tests; maintains runners.
+- Security Subagent: gitleaks tuning + security tests.
+- Docs Subagent: ensures README/AGENTS/PLAN/PROMPT consistency.
 
-- Subagent A (Backup Engine):
-  - Owner: tests/unit/backup/* + lib/backup-restore.sh (create_* + validation + compression)
-  - Deliverables: passing unit tests, updated docs/backup section
-- Subagent B (Restore & Permissions):
-  - Owner: restore_* functions + permission fixers; integration tests
-- Subagent C (Scheduling & Retention):
-  - Owner: cron/systemd helpers, retention policy, tests with mocked time/cron
-- Subagent D (CI Reliability):
-  - Owner: ci/bootstrap.sh, workflow hardening, flake tracking and retries where safe
-- Subagent E (AI Providers, next epic):
-  - Owner: provider adapters (Claude/OpenAI), mocked tests, redaction and cost guards
+## Guardrails
+- Timebox investigation to 30 minutes; then choose a simple path or leave a note.
+- Don’t break installer or baseline shell startup performance; respect budgets.
+- If uncertain, default to writing tests first to codify behavior.
 
-Each subagent:
-- Starts by reading relevant files + docs/PLAN.md sections
-- Writes failing tests, then minimal implementation, then refactors
-- Updates docs succinctly; keeps commits small and descriptive
-
-## Operating Procedures
-- Branching: feature/<epic>-<slice>, PRs small (<300 lines diff) unless mechanical
-- Commits: conventional commits; each references epic and slice
-- CI: run ./tests/test_runner.sh locally before push; ensure no startup regressions
-- Artifacts: upload reports (performance, security) via actions/upload-artifact@v4
-- Docs: update docs/PLAN.md and this prompt when scope changes materially
-
-## Key Files
-- bin/dot — main CLI (entry + dispatch)
-- lib/backup-restore.sh — backup engine + restore
-- lib/cli/backup.sh — user-facing backup CLI
-- lib/ai-integration.sh — AI provider adapters (to implement)
-- lib/cli/security.sh, lib/security-system.sh — security system stubs
-- tests/test_runner.sh, tests/enhanced_test_runner.sh — test harness
-- docs/PLAN.md — authoritative plan; keep current
-
-## First-Principles Review Checklist (use before/after each slice)
-- What is the core user outcome? Is this the smallest change that delivers it?
-- Is there a test proving behavior and guarding against regressions?
-- Does this change keep shell startup < 350ms? (no work on hot path)
-- Is it cross-platform and safe? Are error cases explicit and logged?
-
-## Progress Reporting
-- After each deliverable: run tests; refactor; commit; update docs/PLAN.md and this file’s status line
-- Status to include: what changed, why, tests added, perf/security notes
-
-Current status: start Epic 4, write unit tests for backup engine and implement minimal code to pass; keep CI green.
+## Start Now
+- Run `./tests/enhanced_test_runner.sh --quick`.
+- Pick the highest impact missing test for `bin/dot` and implement via TDD.
+- Update `docs/PLAN.md` progress notes when a slice ships.
