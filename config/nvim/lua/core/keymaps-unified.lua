@@ -95,6 +95,10 @@ M.tier1_keymaps = function()
   -- Emergency commands
   keymap("n", "<leader>Q", "<cmd>qa!<cr>", { desc = "Force quit all" })
   keymap("n", "<leader>W", "<cmd>wa<cr>", { desc = "Save all" })
+
+  -- Config management (RESTORED from legacy .vimrc)
+  keymap("n", "<leader>I", "<cmd>Lazy sync<cr>", { desc = "Install/update plugins (Lazy)" })
+  keymap("n", "<leader>E", "<cmd>edit $MYVIMRC<cr>", { desc = "Edit config" })
   keymap("n", "<leader>R", "<cmd>source $MYVIMRC<cr>", { desc = "Reload config" })
 end
 

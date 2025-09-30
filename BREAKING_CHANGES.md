@@ -37,14 +37,14 @@ This document tracks breaking changes introduced during the migration from legac
 |----------------------|------------------------------|----------------|-------------|
 | `<leader>m` | ❌ **REMOVED** | ✅ **RESTORED** → Window zoom/restore | Maximize/restore window (was MaximizerToggle) |
 
-### Editor Commands (Preserved)
+### Editor Commands (Now Restored)
 
-| Old Binding (.vimrc) | New Binding (init.lua) | Status | Description |
-|----------------------|------------------------|--------|-------------|
+| Old Binding (.vimrc) | Initial New Binding (July 6) | Current Status | Description |
+|----------------------|------------------------------|----------------|-------------|
 | `<leader>w` | `<leader>w` | ✅ Same | Save file |
 | `<leader>wq` | `<leader>q` | ⚠️ Changed | Quit (now prompts for unsaved) |
-| `<leader>I` | `:Lazy sync` | ⚠️ Changed | Plugin install (was :PlugInstall) |
-| `<leader>E` | `<leader>R` | ⚠️ Changed | Edit config (now reloads) |
+| `<leader>I` | ❌ Missing | ✅ **RESTORED** → `:Lazy sync` | Plugin install (was :PlugInstall) |
+| `<leader>E` | ❌ Missing | ✅ **RESTORED** → `:edit $MYVIMRC` | Edit config (was :e ~/.vimrc) |
 | `<leader>R` | `<leader>R` | ✅ Same | Reload config |
 
 ### File Finding (Upgraded)

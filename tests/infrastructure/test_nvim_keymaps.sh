@@ -150,6 +150,12 @@ test_essential_keybindings() {
     check_keymap_exists "<leader>ff" "Find files"
     check_keymap_exists "<leader>fg" "Live grep"
     check_keymap_exists "<leader>fb" "Buffer list"
+
+    # Config management (legacy .vimrc)
+    check_keymap_exists "<leader>I" "Install/update plugins"
+    check_keymap_exists "<leader>E" "Edit config"
+    check_keymap_exists "<leader>R" "Reload config"
+    check_keymap_pattern "Lazy sync" "Plugin install command"
 }
 
 # ============================================================================
