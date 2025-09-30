@@ -45,12 +45,33 @@ This plan consolidates current capabilities and defines the next high‑impact s
   - Optional: script `scripts/docs-validate.sh` used by hooks.
 - Exit criteria: doc checks pass; contributor guide and handoff prompt current.
 
+## Epic 5 — Neovim Migration Remediation (URGENT - P0)
+- Goals: restore broken git workflows and provide compatibility layer for legacy keybindings.
+- Context: July 6, 2025 migration (commit `f463a1d`) from `.vimrc` to Neovim Lua broke critical git merge conflict resolution and changed established keybindings.
+- Tasks:
+  - **URGENT**: Restore git merge conflict resolution:
+    - Add `<leader>gh` → `:diffget //3` or compatible alternative
+    - Add `<leader>gu` → `:diffget //2` or compatible alternative
+    - Verify vim-fugitive merge workflow intact
+  - Implement compatibility layer:
+    - Activate `keymaps-migration-plan.lua` with dual-binding support
+    - Add `NVIM_LEGACY_KEYMAPS=1` environment variable
+    - Preserve old + new keymaps without conflicts
+  - Restore missing workflow commands:
+    - Window maximizer (`<leader>m` equivalent)
+    - NvimTreeFindFile (`<leader>t` for reveal in tree)
+  - Documentation and testing:
+    - Create `BREAKING_CHANGES.md` with old → new keymap table
+    - Add keymap regression tests in `tests/infrastructure/`
+    - Document compatibility mode in README and migration guide
+- Exit criteria: git merge conflict shortcuts work; legacy keybindings accessible via env var; tests green; docs updated.
+
 ## Subagent Delegation
 - Test Subagent: Epic 1 ownership; maintain runners; build CLI contracts.
 - Security Subagent: Epic 2 tuning + tests.
-- DX Subagent: Epic 3 CLI diagnose + help UX.
-- Docs Subagent: Epic 4 drift checks + keep docs synced.
+- DX Subagent: Epic 3 CLI diagnose + help UX; **Epic 5 Neovim remediation**.
+- Docs Subagent: Epic 4 drift checks + keep docs synced; **Epic 5 breaking changes doc**.
 
 ## Execution Notes
 - TDD: write failing tests first; implement minimal code; refactor with tests green.
-- Prioritization: complete Epic 1 before 2–4; ship small, frequent PRs.
+- Prioritization: **Epic 5 is P0 (blocks git workflows)** → Epic 1 → Epics 2–4; ship small, frequent PRs.

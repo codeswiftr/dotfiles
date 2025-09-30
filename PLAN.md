@@ -82,5 +82,57 @@ The setup should streamline toolchain management, in‑editor LSP support, autom
    - Lit component scaffolding
    - SwiftUI View templates
 
+### Epic 9: Neovim Migration Remediation (URGENT)
+**Context**: July 6, 2025 migration (commit `f463a1d`) from legacy `.vimrc` to modern Neovim Lua introduced **breaking changes** to critical workflows.
+
+**Critical Issues Identified:**
+1. **Git Merge Conflict Resolution Broken**:
+   - `<leader>gh` changed from `:diffget //3` to `DiffviewFileHistory`
+   - `<leader>gu` (`:diffget //2`) **completely removed**
+   - Lost ability to quickly resolve merge conflicts using fugitive shortcuts
+
+2. **Git Workflow Keybindings Changed** (muscle memory broken):
+   - `<leader>gc`: `:GCheckout` → `:Git commit`
+   - `<leader>gb`: `:GBranches` → `Gitsigns blame_line`
+   - `<leader>ga`: `:Git fetch --all` → `Gitsigns stage_hunk`
+
+3. **Missing Essential Workflow Commands**:
+   - `<leader>m`: MaximizerToggle (window zoom) - removed
+   - `<leader>t`: NERDTreeFind (reveal file in tree) - removed
+   - Multiple NERDTree shortcuts consolidated
+
+4. **Migration Plan Not Implemented**:
+   - `config/nvim/lua/core/keymaps-migration-plan.lua` exists but unused
+   - No compatibility layer or gradual migration strategy
+   - Documentation focused on benefits, not breaking changes
+
+**Tasks:**
+1. **URGENT**: Restore git merge conflict resolution shortcuts:
+   - Add `<leader>gh` → `:diffget //3` (or alternate binding)
+   - Add `<leader>gu` → `:diffget //2` (or alternate binding)
+   - Ensure vim-fugitive merge workflow intact
+
+2. **Add compatibility layer** for legacy keybindings:
+   - Implement dual-binding system (old + new keymaps available)
+   - Use `keymaps-migration-plan.lua` as intended
+   - Add `NVIM_LEGACY_KEYMAPS=1` environment option
+
+3. **Restore missing workflow commands**:
+   - Add window maximizer plugin/function (replace MaximizerToggle)
+   - Add `<leader>t` for NvimTreeFindFile (reveal in tree)
+   - Document migration of consolidated shortcuts
+
+4. **Update migration documentation**:
+   - Create `BREAKING_CHANGES.md` with old → new mapping table
+   - Add migration troubleshooting guide
+   - Document compatibility mode in README
+
+5. **Add migration tests**:
+   - Test critical git workflow keybindings
+   - Verify merge conflict resolution shortcuts work
+   - Add keymap regression tests
+
+**Priority**: **P0 - URGENT** - blocks productive git workflows
+
 ---
 _This PLAN.md outlines the PRD and the key workstreams needed to level up our terminal environment for multi‑language development._
