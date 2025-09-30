@@ -36,6 +36,21 @@ return {
     },
     config = function(_, opts)
       require("nvim-tree").setup(opts)
+
+      -- Auto-open nvim-tree when opening a directory
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function(data)
+          -- Check if the argument is a directory
+          local directory = vim.fn.isdirectory(data.file) == 1
+
+          if directory then
+            -- Change to the directory
+            vim.cmd.cd(data.file)
+            -- Open nvim-tree
+            require("nvim-tree.api").tree.open()
+          end
+        end,
+      })
     end,
   },
   -- ============================================================================
@@ -177,12 +192,11 @@ return {
   -- ============================================================================
   {
     "akinsho/toggleterm.nvim",
-    cmd = { "ToggleTerm" },
     keys = {
-      { "<c-\\>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },
-      { "<leader>tf", "<cmd>ToggleTerm direction=float<cr>", desc = "Terminal float" },
-      { "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Terminal horizontal" },
-      { "<leader>tv", "<cmd>ToggleTerm direction=vertical size=80<cr>", desc = "Terminal vertical" },
+      { "<c-\\>", function() require("toggleterm").toggle() end, desc = "Toggle terminal" },
+      { "<leader>tf", function() vim.cmd("ToggleTerm direction=float") end, desc = "Terminal float" },
+      { "<leader>th", function() vim.cmd("ToggleTerm direction=horizontal") end, desc = "Terminal horizontal" },
+      { "<leader>tv", function() vim.cmd("ToggleTerm direction=vertical size=80") end, desc = "Terminal vertical" },
     },
     version = "*",
     config = function()
