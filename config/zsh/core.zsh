@@ -21,6 +21,21 @@ setopt HIST_VERIFY       # Show command before executing from history
 setopt HIST_IGNORE_DUPS  # Don't record duplicates in history
 setopt CORRECT           # Correct misspelled commands
 
+# Key bindings - Emacs mode (default) with proper arrow key support
+bindkey -e  # Enable emacs key bindings (Ctrl+A, Ctrl+E, arrow keys, etc.)
+
+# Ensure arrow keys work properly
+bindkey '^[[A' up-line-or-history    # Up arrow
+bindkey '^[[B' down-line-or-history  # Down arrow
+bindkey '^[[C' forward-char          # Right arrow
+bindkey '^[[D' backward-char         # Left arrow
+
+# Additional common key bindings
+bindkey '^[[H' beginning-of-line     # Home
+bindkey '^[[F' end-of-line           # End
+bindkey '^[[3~' delete-char          # Delete
+bindkey '^?' backward-delete-char    # Backspace
+
 # History configuration
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
