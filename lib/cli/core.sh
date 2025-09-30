@@ -82,7 +82,9 @@ dot_check() {
     local quiet=false
     local detailed=false
     local test_mode="${DOT_TEST_MODE:-false}"
-    
+    local gear_icon="${GEAR:-"⚙️"}"
+    local rocket_icon="${ROCKET:-"🚀"}"
+
     # Parse options
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -106,7 +108,7 @@ dot_check() {
     done
     
     if [[ "$quiet" != "true" ]]; then
-        print_info "${GEAR} Running comprehensive health check..."
+        print_info "${gear_icon} Running comprehensive health check..."
     fi
     
     local exit_code=0
@@ -235,7 +237,7 @@ dot_check() {
     
     if [[ "$quiet" != "true" ]]; then
         if [[ $exit_code -eq 0 ]]; then
-            print_success "All systems operational! ${ROCKET}"
+            print_success "All systems operational! ${rocket_icon}"
         else
             print_error "Issues detected. Run 'dot setup' to fix."
         fi
@@ -247,6 +249,7 @@ dot_check() {
 # Update command - update entire system
 dot_update() {
     local auto_confirm=false
+    local rocket_icon="${ROCKET:-"🚀"}"
     
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -266,7 +269,7 @@ dot_update() {
         esac
     done
     
-    print_info "${ROCKET} Updating development environment..."
+    print_info "${rocket_icon} Updating development environment..."
     
     # Update git repository
     print_info "Updating dotfiles repository..."
@@ -385,6 +388,40 @@ dot_update() {
     print_info "   nvim               # Progressive editor (press <Space>?)"
     print_info "   dot check          # Verify everything is working"
     print_info "   perf-status        # Check shell performance"
+}
+
+# Reload command - refresh key configurations without restarting shell
+dot_reload() {
+    local reload_icon="${ROCKET:-"🚀"}"
+
+    print_info "${reload_icon} Reloading key configurations..."
+
+    # Reload tmux configuration when available
+    if command -v tmux >/dev/null 2>&1; then
+        tmux source-file ~/.tmux.conf 2>/dev/null || true
+    fi
+
+    # Ask Neovim instances to reload via nvr when present
+    if command -v nvr >/dev/null 2>&1; then
+        nvr --remote-send ':source $MYVIMRC<CR>' >/dev/null 2>&1 || true
+    fi
+
+    print_success "Configuration reload triggered"
+}
+
+# Version command - display CLI version information
+dot_version() {
+    local version="${DOT_VERSION:-}"
+
+    if [[ -z "$version" ]] && [[ -f "$DOTFILES_DIR/VERSION" ]]; then
+        version=$(<"$DOTFILES_DIR/VERSION")
+    fi
+
+    if [[ -z "$version" ]]; then
+        version="0.0.0"
+    fi
+
+    echo "$version"
 }
 
 # Help functions

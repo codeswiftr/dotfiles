@@ -60,11 +60,14 @@ test_dot_setup_basic() {
     
     # Verify installer was called
     assert_mock_called "bash" "1" "Installer should be called once"
+    reset_mock_calls
 }
 
 test_dot_setup_force() {
     log_info "Testing dot_setup --force functionality"
     
+    reset_mock_calls
+
     # Mock the installer
     create_mock "bash" "success" "0" "Installation complete"
     
@@ -73,6 +76,7 @@ test_dot_setup_force() {
     
     # Verify installer was called even if system is already configured
     assert_mock_called "bash" "1" "Installer should be called with --force"
+    reset_mock_calls
 }
 
 test_dot_setup_missing_installer() {
@@ -87,37 +91,71 @@ test_dot_setup_missing_installer() {
 
 test_dot_check_basic() {
     log_info "Testing basic dot_check functionality"
-    
+
+    reset_mock_calls
+
     # Mock system tools as available
     create_mock "zsh" "success" "0" "zsh 5.8"
     create_mock "git" "success" "0" "git version 2.34.1"
     create_mock "nvim" "success" "0" "NVIM v0.8.0"
     create_mock "tmux" "success" "0" "tmux 3.3a"
-    
-    # Test health check
-    assert_command_success "dot_check" "dot_check should succeed with available tools"
-    
-    # Verify tools were checked
-    assert_mock_called "zsh" "1" "zsh should be checked"
-    assert_mock_called "git" "1" "git should be checked" 
-    assert_mock_called "nvim" "1" "nvim should be checked"
-    assert_mock_called "tmux" "1" "tmux should be checked"
+    create_mock "starship" "success" "0" "starship 1.0.0"
+    create_mock "eza" "success" "0" "eza 2024.1"
+    create_mock "bat" "success" "0" "bat 0.24"
+    create_mock "rg" "success" "0" "1"
+    create_mock "fd" "success" "0" "fd 9.0"
+    create_mock "fzf" "success" "0" "fzf 0.45"
+    hash -r 2>/dev/null || true
+
+    # Test health check and capture output for assertions
+    local output status
+    if output=$(dot_check 2>&1); then
+        status=0
+    else
+        status=$?
+    fi
+    assert_true "[[ $status -eq 0 ]]" "dot_check should exit successfully"
+    assert_output_contains "echo '$output'" "All essential tools installed" "dot_check should report tools installed"
+    assert_output_contains "echo '$output'" "All systems operational" "dot_check should report healthy status"
+    assert_mock_called "tmux" "4" "tmux should be inspected"
+    reset_mock_calls
 }
 
 test_dot_check_missing_tools() {
     log_info "Testing dot_check with missing tools"
     
-    # Mock some tools as missing
-    create_mock "zsh" "failure" "1" "command not found"
+    reset_mock_calls
+
     create_mock "git" "success" "0" "git version 2.34.1"
-    
-    # Test should report missing tools but not necessarily fail
-    # (depending on implementation - check what the actual behavior should be)
-    local output
-    output=$(dot_check 2>&1 || true)
-    
-    # Should contain information about tool status
-    assert_output_contains "echo '$output'" "zsh" "Output should mention zsh status"
+
+    local original_path="$PATH"
+    local zsh_mock="$MOCK_DIR/zsh"
+    local backup_zsh="$MOCK_DIR/zsh.bak"
+
+    if [[ -f "$zsh_mock" ]]; then
+        mv "$zsh_mock" "$backup_zsh"
+    fi
+
+    export PATH="$MOCK_DIR"
+    hash -r 2>/dev/null || true
+
+    local output status
+    if output=$(dot_check 2>&1); then
+        status=0
+    else
+        status=$?
+    fi
+
+    export PATH="$original_path"
+    if [[ -f "$backup_zsh" ]]; then
+        mv "$backup_zsh" "$zsh_mock"
+    fi
+    hash -r 2>/dev/null || true
+
+    assert_true "[[ $status -ne 0 ]]" "dot_check should fail when zsh is missing"
+    assert_output_contains "echo '$output'" "Missing tools" "dot_check should surface missing tools"
+    assert_output_contains "echo '$output'" "zsh" "dot_check output should mention zsh"
+    reset_mock_calls
 }
 
 test_dot_check_quiet_mode() {
@@ -137,16 +175,20 @@ test_dot_check_quiet_mode() {
 
 test_dot_update_basic() {
     log_info "Testing basic dot_update functionality"
-    
+
     # Mock git operations for update
+    reset_mock_calls
     mock_git "clean_repo"
     create_mock "git" "success" "0" "Already up to date."
-    
+    hash -r 2>/dev/null || true
+
     # Test update command
     assert_command_success "dot_update" "dot_update should succeed"
-    
-    # Should perform git operations
-    assert_mock_called "git" "1" "git should be called for update"
+
+    local git_calls
+    git_calls=$(grep -c " - git called" "$MOCK_LOG" 2>/dev/null || echo "0")
+    assert_true "[[ $git_calls -ge 1 ]]" "git should be invoked during update"
+    reset_mock_calls
 }
 
 test_dot_reload_basic() {

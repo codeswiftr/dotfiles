@@ -18,10 +18,11 @@ MOCK_LOG="${MOCK_LOG:-$TEST_TEMP_DIR/mock.log}"
 mock_init() {
     mkdir -p "$MOCK_DIR"
     export PATH="$MOCK_DIR:$PATH"
-    
+    hash -r 2>/dev/null || true
+
     # Clear mock log
     > "$MOCK_LOG"
-    
+
     log_verbose "Mock system initialized at $MOCK_DIR"
 }
 
@@ -46,7 +47,7 @@ create_mock() {
     local mock_script="$MOCK_DIR/$command_name"
     
     cat > "$mock_script" << EOF
-#!/usr/bin/env bash
+#!/bin/sh
 # Mock for: $command_name
 # Behavior: $mock_behavior
 
@@ -55,20 +56,20 @@ echo "\$(date '+%Y-%m-%d %H:%M:%S') - $command_name called with args: \$*" >> "$
 
 case "$mock_behavior" in
     "success")
-        if [[ -n "$output" ]]; then
+        if [ -n "$output" ]; then
             echo "$output"
         fi
         exit $return_code
         ;;
     "failure")
-        if [[ -n "$output" ]]; then
+        if [ -n "$output" ]; then
             echo "$output" >&2
         fi
         exit $return_code
         ;;
     "interactive")
         # For commands that might need interactive responses
-        if [[ -n "$output" ]]; then
+        if [ -n "$output" ]; then
             echo "$output"
         fi
         exit $return_code

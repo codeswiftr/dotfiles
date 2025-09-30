@@ -1,6 +1,6 @@
 ## Repository Index (auto-generated)
 
-Generated: 2025-09-12
+Generated: 2025-09-20
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
@@ -8,6 +8,7 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `.gitconfig`
 - `.gitignore`
 - `.nvimlog`
+- `.pre-commit-config.yaml`
 - `.tmux.conf`
 - `.yamllint`
 - `.zshrc`
@@ -15,6 +16,7 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `CHANGELOG-2025.1.7.md`
 - `CLAUDE.md`
 - `CONTRIBUTING.md`
+- `Makefile`
 - `PLAN.md`
 - `README.md`
 - `VERSION`

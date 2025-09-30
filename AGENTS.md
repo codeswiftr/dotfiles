@@ -1,38 +1,40 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `bin/`: primary CLI utilities (e.g., `dot`, helpers)
-- `config/`, `lib/`, `plugins/`, `scripts/`: core runtime and setup logic
-- `tests/`: shell-based test suites (unit, infrastructure, integration, performance) with runners
-- `docs/`: planning and ops docs; keep project plans and prompts here
-- Root scripts: `install.sh` (installer), plus repo metadata and configs
+- `bin/` ships the `dot` CLI and bundled helper scripts; keep entrypoints self-contained.
+- `config/`, `lib/`, `plugins/`, `scripts/` host runtime modules, installer assets, and automation hooks; update docs whenever you add a new plugin.
+- `src/`, `templates/`, `themes/` cover user-facing assets for shell, web, and theming experiments.
+- `tests/` holds shell harnesses under `unit`, `integration`, `infrastructure`, `performance`; artifacts land in `tests/results/`.
+- `docs/` stores planning notes; long-form prompts belong here, not in root.
 
 ## Build, Test, and Development Commands
-- Run all tests: `./tests/test_runner.sh` (logs to `tests/results/`)
-- Quick runner: `./tests/enhanced_test_runner.sh --quick`
-- Shell lint: `find . -name "*.sh" -exec shellcheck {} \;`
-- YAML lint: `find . -name "*.yml" -o -name "*.yaml" | xargs yamllint`
-- iOS helpers: `ios-quick-build`, `ios-test-run`, `ios-ui-test-run` (if installed)
-- FastAPI helpers: `fastapi-test` or `fastapi-test tests/test_users.py`
+- `./tests/test_runner.sh` runs the full shell suite and writes logs to `tests/results/`.
+- `./tests/enhanced_test_runner.sh --quick` gives a fast smoke pass before commits.
+- `make api-run` boots the FastAPI/Uvicorn dev server via `scripts/dev-api.sh`.
+- `make dev-web` launches the web harness; `make build-ios` wraps `scripts/dev-ios.sh build`.
+- `find . -name "*.sh" -exec shellcheck {} \;` and `shfmt -w` keep shell scripts consistent; pair with `find . -name "*.yml" -o -name "*.yaml" | xargs yamllint`.
 
 ## Coding Style & Naming Conventions
-- Shell: POSIX/Bash; lint with `shellcheck`; format with `shfmt`.
-- Python: PEP8, type hints where practical; run `pytest` when present.
-- JS/TS: ES modules, `const/let`, Prettier formatting.
-- Swift: `swift-format --lint .`; Apple naming; guard/if for errors.
-- Naming: kebab-case for scripts, snake_case for shell/Python functions, PascalCase for classes.
+- Shell scripts stay POSIX/Bash; prefer snake_case functions and kebab-case filenames.
+- Python follows PEP8 with type hints; lint using `make lint-py` (`ruff check`) and format via `make format-py`.
+- JavaScript/TypeScript use ES modules, `const`/`let`, and Prettier; Swift code uses `swift-format --lint .`.
+- Keep configuration keys lowercase with hyphen separators; classes stay PascalCase.
 
 ## Testing Guidelines
-- Framework: shell-based tests with standardized output lines: `Tests Run/Passed/Failed`.
-- Conventions: place tests under `tests/{unit,integration,infrastructure,performance}`; name `test_*.sh`.
-- Coverage: prioritize critical paths (installer, `bin/dot`, security, performance budget).
-- Run locally before PRs; ensure `tests/results/` shows no failures.
+- Place new tests in the matching `tests/<suite>/test_*.sh`; echo `Tests Run/Passed/Failed` per harness.
+- Critical coverage targets: `install.sh`, `bin/dot`, security flows, and performance budgets.
+- Capture command outputs in `tests/results/`; attach logs to PRs when failures occur.
 
 ## Commit & Pull Request Guidelines
-- Conventional Commits: `type(scope): summary` (e.g., `feat(cli): add perf bench`).
-- PRs: clear description, linked issues, screenshots or logs for UX/CLI changes, and test evidence.
-- Hooks: pre-commit and security gates may run; fix findings before merge.
+- Use Conventional Commits (`feat(cli):…`, `fix(tests):…`); reference issues in the body.
+- PRs should outline intent, link issues, include screenshots or terminal logs, and confirm tests.
+- Expect pre-commit and security gates (e.g., `gitleaks`); resolve before review.
 
 ## Security & Configuration Tips
-- Secrets: never commit credentials; `gitleaks` runs via `gitleaks.toml`.
-- Keys: use `dot security` helpers where available; prefer `.env.local` patterns.
+- Do not commit secrets; rely on `.env.local` patterns and `dot security` helpers.
+- Prefer reproducible scripts over manual steps; document new env vars in `docs/`.
+
+## Agent-Specific Instructions
+- Follow the minimal-diff principle: change only what is required and mirror existing style.
+- Reach for `rg` to explore the repo; avoid `git reset` or reverting user-owned changes.
+- When unsure, run the quick test suite before proposing large edits.

@@ -1,9 +1,18 @@
 bin/goose
 bin/temporal
 bin/temporal-service
+bin/uv
+bin/uvx
+bin/checksums
+bin/installing
+bin/no
+bin/to
+bin/verify
+
 # Generated artifacts
 tests/results/*.log
 tests/results/*.md
+tests/results/*.tmp
 .pytest_cache/
 *.pyc
 __pycache__/
@@ -12,3 +21,6 @@ __pycache__/
 .coverage
 .mypy_cache/
 
+# Neovim runtime files
+.nvimlog
+config/nvim/.nvim-tier

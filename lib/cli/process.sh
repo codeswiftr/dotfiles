@@ -58,6 +58,10 @@ dot_run() {
 process_start_dev() {
     local procfile="Procfile"
     local env_file=".env"
+    local use_tmux="false"
+    local want_api="false"
+    local want_web="false"
+    local want_ios="false"
     
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -70,12 +74,33 @@ process_start_dev() {
                 env_file="$2"
                 shift 2
                 ;;
+            --tmux)
+                use_tmux="true"
+                shift
+                ;;
+            --api)
+                want_api="true"
+                shift
+                ;;
+            --web)
+                want_web="true"
+                shift
+                ;;
+            --ios)
+                want_ios="true"
+                shift
+                ;;
             *)
                 break
                 ;;
         esac
     done
-    
+
+    if [[ "$use_tmux" == "true" ]]; then
+        process_start_tmux_dev "$want_api" "$want_web" "$want_ios"
+        return $?
+    fi
+
     # Auto-detect development setup if no Procfile
     if [[ ! -f "$procfile" ]]; then
         process_auto_detect_dev
@@ -102,6 +127,72 @@ process_start_dev() {
             return 1
             ;;
     esac
+}
+
+# Start tmux-based development workspace
+process_start_tmux_dev() {
+    local want_api="$1"; shift || true
+    local want_web="$1"; shift || true
+    local want_ios="$1"; shift || true
+
+    if ! command -v tmux >/dev/null 2>&1; then
+        print_error "tmux not installed. Install tmux or omit --tmux."
+        return 1
+    fi
+
+    # Default: if no explicit wants, enable api+web if their projects exist
+    if [[ "$want_api" != "true" && "$want_web" != "true" && "$want_ios" != "true" ]]; then
+        if [[ -f "pyproject.toml" || -f "requirements.txt" ]]; then want_api="true"; fi
+        if [[ -f "package.json" ]]; then want_web="true"; fi
+    fi
+
+    local session_name
+    session_name=$(basename "$PWD" | tr ' ' '-')
+    [[ -z "$session_name" ]] && session_name="dev"
+
+    local in_tmux=0
+    if [[ -n "${TMUX-}" ]]; then in_tmux=1; fi
+
+    if [[ $in_tmux -eq 0 ]]; then
+        tmux new-session -d -s "$session_name" -n "Dev"
+    else
+        tmux new-window -n "Dev"
+    fi
+
+    # Build two-pane layout for API/Web
+    tmux select-window -t "$session_name":- 2>/dev/null || true
+    tmux split-window -h -p 50
+    tmux select-pane -t 0
+
+    local df_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+
+    # Left pane: API
+    if [[ "$want_api" == "true" ]]; then
+        tmux send-keys "clear; echo '🚀 Starting API dev...'" C-m
+        tmux send-keys "bash '$df_dir/scripts/dev-api.sh'" C-m
+    else
+        tmux send-keys "echo 'ℹ️ API disabled. Use --api to enable.'" C-m
+    fi
+
+    # Right pane: Web
+    tmux select-pane -t 1
+    if [[ "$want_web" == "true" ]]; then
+        tmux send-keys "clear; echo '🌐 Starting Web dev...'" C-m
+        tmux send-keys "bash '$df_dir/scripts/dev-web.sh'" C-m
+    else
+        tmux send-keys "echo 'ℹ️ Web disabled. Use --web to enable.'" C-m
+    fi
+
+    # Optional iOS window
+    if [[ "$want_ios" == "true" ]]; then
+        tmux new-window -n "iOS"
+        tmux send-keys "clear; echo '🍎 iOS workspace'; bash '$df_dir/scripts/dev-ios.sh' help" C-m
+    fi
+
+    # Attach if we created the session
+    if [[ $in_tmux -eq 0 ]]; then
+        tmux attach -t "$session_name"
+    fi
 }
 
 # Start test environment
@@ -560,6 +651,8 @@ AUTO-DETECTION:
 OPTIONS:
     --procfile, -f <file>    Use specific Procfile
     --env <file>             Load environment variables from file
+    --tmux                   Launch a tmux-based workspace (API/Web/iOS)
+    --api|--web|--ios        Select which services to include with --tmux
     --force                  Force stop processes
     --follow, -f             Follow log output
     -h, --help               Show this help message

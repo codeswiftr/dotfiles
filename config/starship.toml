@@ -1,0 +1,45 @@
+# Starship prompt configuration (repo-managed)
+
+format = "\n$directory$git_branch$git_status$cmd_duration$line_break$python$nodejs$swift$character"
+
+[directory]
+style = "blue"
+truncate_to_repo = true
+truncation_length = 3
+
+[character]
+success_symbol = "[❯](purple)"
+error_symbol = "[❯](red)"
+vicmd_symbol = "[❮](green)"
+
+[git_branch]
+format = "[$branch]($style) "
+style = "bright-black"
+
+[git_status]
+style = "cyan"
+format = "([$all_status$ahead_behind]($style) )"
+
+[cmd_duration]
+min_time = 500
+format = "[⏱ $duration]($style) "
+style = "yellow"
+
+[python]
+symbol = "🐍 "
+format = "[$symbol$version]($style) "
+style = "green"
+
+[nodejs]
+symbol = "📦 "
+format = "[$symbol$version]($style) "
+style = "green"
+
+[swift]
+symbol = "🕊  "
+format = "[$symbol$version]($style) "
+style = "green"
+
+# Optional color palette hint used by repo tooling
+palette = "catppuccin_mocha"
+

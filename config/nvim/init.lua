@@ -8,16 +8,20 @@ vim.g.maplocalleader = " "
 
 -- Load core configurations
 require("core.options")
-require("core.keymaps-migration-plan").load_keymaps()
-require("core.split-navigation")
 
--- Initialize tier manager
+-- Initialize tier manager first
 local tier_manager = require("core.tier-manager")
 tier_manager.setup()
+
+-- Load keymaps after tier is set
+require("core.keymaps-unified").setup()
 
 -- Load language-specific configurations
 require("languages.swift")
 require("languages.web")
+require("languages.python")
+require("languages.javascript")
+require("snippets")
 
 -- Load plugins based on current tier (single lazy.setup)
 local function bootstrap_lazy()

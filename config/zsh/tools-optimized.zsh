@@ -145,6 +145,39 @@ init_tools_prioritized() {
     perf_time "Prioritized tool init done"
 }
 
+# ----------------------------------------------------------------------------
+# Optional Zsh plugins (fast, guarded sourcing)
+# ----------------------------------------------------------------------------
+
+fast_syntax_highlighting_loader() {
+    # Prefer fast-syntax-highlighting if installed, else noop
+    local candidates=(
+        "$HOME/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+        "/opt/homebrew/share/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+        "/usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+    )
+    for f in "${candidates[@]}"; do
+        if [[ -f "$f" ]]; then
+            source "$f"
+            return
+        fi
+    done
+}
+
+zsh_autocomplete_loader() {
+    local candidates=(
+        "/opt/homebrew/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+        "/usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+        "$HOME/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh"
+    )
+    for f in "${candidates[@]}"; do
+        if [[ -f "$f" ]]; then
+            source "$f"
+            return
+        fi
+    done
+}
+
 # ============================================================================
 # FZF Optimization
 # ============================================================================
@@ -293,6 +326,12 @@ init_tools_optimized() {
     
     # Load context-specific tools (async)
     { load_context_tools } &
+
+    # Load optional Zsh plugins asynchronously (non-blocking)
+    {
+        fast_syntax_highlighting_loader || true
+        zsh_autocomplete_loader || true
+    } &
     
     perf_time "Optimized tools initialization complete"
 }

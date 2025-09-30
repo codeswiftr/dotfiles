@@ -102,11 +102,14 @@ function M.load_tier_preference()
   local tier_file = vim.fn.stdpath("config") .. "/.nvim-tier"
   local file = io.open(tier_file, "r")
   if file then
-    local tier = tonumber(file:read("*a"):gsub("%s+", ""))
+    local content = file:read("*a"):gsub("%s+", "")
     file:close()
-    if tier and TIERS[tier] then
-      vim.g.nvim_tier = tier
-      return tier
+    if content and content ~= "" then
+      local tier = tonumber(content)
+      if tier and TIERS[tier] then
+        vim.g.nvim_tier = tier
+        return tier
+      end
     end
   end
   local detected = auto_detect_tier()

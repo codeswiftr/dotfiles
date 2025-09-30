@@ -84,23 +84,10 @@ return {
   },
 
   -- ============================================================================
-  -- 3b. INTEGRATED TERMINAL - Lightweight toggle terminal
+  -- 3b. TERMINAL INTEGRATION - Moved to Tier 2 for performance
   -- ============================================================================
-  {
-    "akinsho/toggleterm.nvim",
-    version = "*",
-    keys = {
-      { "<leader>tt", function() require("toggleterm").toggle() end, desc = "Toggle terminal" },
-    },
-    cmd = { "ToggleTerm", "TermExec" },
-    opts = {
-      open_mapping = [[<c-`>]],
-      direction = "float",
-      shade_terminals = true,
-      float_opts = { border = "rounded" },
-      size = 12,
-    },
-  },
+  -- ToggleTerm moved to Tier 2 to keep Tier 1 under 200ms startup target
+  -- Users can access terminal via :terminal command in Tier 1
 
   -- ============================================================================
   -- 4. LSP CONFIGURATION - Lazy-loaded language server support

@@ -10,8 +10,8 @@ alias fapi-prod="fastapi run --host 0.0.0.0 --port 8000"
 alias fapi-docs="open http://localhost:8000/docs"
 alias fapi-redoc="open http://localhost:8000/redoc"
 
-# Advanced FastAPI development functions
-fastapi-init() {
+# Legacy FastAPI development functions (use 'dot project init fastapi' instead)
+fastapi-init-legacy() {
     local project_name=${1:-"fastapi-app"}
     local with_db=${2:-"true"}
     echo "🚀 Creating FastAPI project: $project_name"
@@ -316,7 +316,7 @@ alias lit-serve="npm run serve"
 alias lit-test="npm run test"
 
 # LitElement project initialization
-lit-init() {
+lit-init-legacy() {
     local project_name=${1:-"lit-app"}
     echo "🔥 Creating Lit project: $project_name"
     
@@ -426,7 +426,7 @@ browser-open() {
 }
 
 # Full-stack development workflow
-fullstack-dev() {
+fullstack-dev-legacy() {
     local backend_port=${1:-8000}
     local frontend_port=${2:-3000}
     

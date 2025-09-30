@@ -170,3 +170,8 @@ alias tclip-test="~/dotfiles/scripts/tmux-clipboard.sh test"
 
 # Health check convenience
 alias dot-health="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/health-check.sh"
+
+# Development helpers
+alias api="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-api.sh"
+alias pwa="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-web.sh"
+alias swiftui="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-ios.sh preview"

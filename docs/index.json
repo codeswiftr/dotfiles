@@ -1,9 +1,10 @@
 {
-  "generated": "2025-09-12",
+  "generated": "2025-09-20",
   "rootFiles": [
     ".gitconfig",
     ".gitignore",
     ".nvimlog",
+    ".pre-commit-config.yaml",
     ".tmux.conf",
     ".yamllint",
     ".zshrc",
@@ -11,6 +12,7 @@
     "CHANGELOG-2025.1.7.md",
     "CLAUDE.md",
     "CONTRIBUTING.md",
+    "Makefile",
     "PLAN.md",
     "README.md",
     "VERSION",
