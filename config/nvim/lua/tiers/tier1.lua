@@ -1,14 +1,14 @@
 -- ============================================================================
 -- Neovim Tier 1 Configuration - Essential Plugins Only
--- 8 carefully chosen plugins for maximum productivity with minimal complexity
--- Target: Professional editor ready in 30 minutes, <200ms startup
+-- 9 carefully chosen plugins for maximum productivity with minimal complexity
+-- Target: Professional editor ready in 30 minutes, <250ms startup
 -- Performance optimized: lazy loading, minimal config, essential only
 -- ============================================================================
 
 -- NOTE: lazy.nvim bootstrap and setup are handled centrally in init.lua
 
 -- ============================================================================
--- Plugin Specifications - Tier 1 (8 Essential Plugins)
+-- Plugin Specifications - Tier 1 (9 Essential Plugins)
 -- ============================================================================
 
 return {
@@ -62,7 +62,53 @@ return {
   },
 
   -- ============================================================================
-  -- 3. FUZZY FINDER - Essential for file/text navigation
+  -- 3. FILE EXPLORER - Essential tree viewer
+  -- ============================================================================
+  {
+    "nvim-tree/nvim-tree.lua",
+    cmd = { "NvimTreeToggle", "NvimTreeFindFile" },
+    keys = {
+      { "<leader>e", "<cmd>NvimTreeToggle<cr>", desc = "Toggle file explorer" },
+      { "<leader>t", "<cmd>NvimTreeFindFile<cr>", desc = "Reveal file in tree" },
+    },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    init = function()
+      vim.g.loaded_netrw = 1
+      vim.g.loaded_netrwPlugin = 1
+    end,
+    opts = {
+      disable_netrw = true,
+      hijack_netrw = true,
+      sync_root_with_cwd = true,
+      respect_buf_cwd = true,
+      update_focused_file = { enable = true, update_root = false },
+      renderer = {
+        highlight_git = true,
+        highlight_opened_files = "icon",
+        icons = { show = { file = true, folder = true, folder_arrow = true, git = true } },
+      },
+      view = { width = 32, side = "left" },
+      git = { enable = true, ignore = false },
+      filters = { dotfiles = false },
+    },
+    config = function(_, opts)
+      require("nvim-tree").setup(opts)
+
+      -- Auto-open nvim-tree when opening a directory
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function(data)
+          local directory = vim.fn.isdirectory(data.file) == 1
+          if directory then
+            vim.cmd.cd(data.file)
+            require("nvim-tree.api").tree.open()
+          end
+        end,
+      })
+    end,
+  },
+
+  -- ============================================================================
+  -- 4. FUZZY FINDER - Essential for file/text navigation
   -- ============================================================================
   {
     "nvim-telescope/telescope.nvim",
@@ -84,13 +130,7 @@ return {
   },
 
   -- ============================================================================
-  -- 3b. TERMINAL INTEGRATION - Moved to Tier 2 for performance
-  -- ============================================================================
-  -- ToggleTerm moved to Tier 2 to keep Tier 1 under 200ms startup target
-  -- Users can access terminal via :terminal command in Tier 1
-
-  -- ============================================================================
-  -- 4. LSP CONFIGURATION - Lazy-loaded language server support
+  -- 5. LSP CONFIGURATION - Lazy-loaded language server support
   -- ============================================================================
   {
     "neovim/nvim-lspconfig",
@@ -129,7 +169,7 @@ return {
   },
 
   -- ============================================================================
-  -- 5. AUTOCOMPLETION - Minimal completion setup
+  -- 6. AUTOCOMPLETION - Minimal completion setup
   -- ============================================================================
   {
     "hrsh7th/nvim-cmp",
@@ -163,7 +203,7 @@ return {
   },
 
   -- ============================================================================
-  -- 6. GIT INTEGRATION - Essential version control
+  -- 7. GIT INTEGRATION - Essential version control
   -- ============================================================================
   {
     "tpope/vim-fugitive",
@@ -175,7 +215,7 @@ return {
   },
 
   -- ============================================================================
-  -- 7. KEY BINDING DISCOVERY - Essential for learning
+  -- 8. KEY BINDING DISCOVERY - Essential for learning
   -- ============================================================================
   {
     "folke/which-key.nvim",
@@ -189,7 +229,7 @@ return {
   },
 
   -- ============================================================================
-  -- 8. ESSENTIAL UTILITIES - Comments only (autopairs removed for performance)
+  -- 9. ESSENTIAL UTILITIES - Comments only (autopairs removed for performance)
   -- ============================================================================
   {
     "numToStr/Comment.nvim",

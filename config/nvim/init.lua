@@ -87,8 +87,8 @@ if current_tier == 1 then
     callback = function()
       if vim.fn.argc() == 0 then
         print("🚀 Neovim Tier 1 - Ultra-Fast Essential Editor")
-        print("📦 ~8 plugins | ⚡ <200ms startup | 🎯 Essentials only")
-        print("🔍 <leader>ff (files) | 📄 <leader>fb (buffers) | 💬 gcc (comment)")
+        print("📦 ~9 plugins | ⚡ <250ms startup | 🎯 Essentials + Tree")
+        print("📁 <leader>e (tree) | <leader>t (reveal) | 🔍 <leader>ff (files)")
         print("🚀 LSP: gd (def) | K (hover) | <leader>ca (actions)")
       end
     end,
@@ -99,7 +99,7 @@ if current_tier == 1 then
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
         local ms = (vim.loop.hrtime() - started) / 1000000
-        local target = 200
+        local target = 250
         local status = ms <= target and "✅" or "⚠️"
         print(string.format("%s Tier 1 startup: %.1fms (target: %dms)", status, ms, target))
       end,
