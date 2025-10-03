@@ -156,6 +156,10 @@ test_essential_keybindings() {
     check_keymap_exists "<leader>E" "Edit config"
     check_keymap_exists "<leader>R" "Reload config"
     check_keymap_pattern "Lazy sync" "Plugin install command"
+
+    # Git review workflow (Tier 1)
+    check_keymap_exists "<leader>g" "Git status (review files)"
+    check_keymap_exists "<leader>gd" "Git diff (review changes)"
 }
 
 # ============================================================================
@@ -179,12 +183,13 @@ test_config_structure() {
 test_auto_open_tree() {
     test_description "Auto-open Tree on Directory"
 
-    local tier2_file="$NVIM_CONFIG/lua/tiers/tier2.lua"
+    # nvim-tree is now in tier1 (moved from tier2)
+    local tier1_file="$NVIM_CONFIG/lua/tiers/tier1.lua"
 
-    if grep -q "VimEnter" "$tier2_file" && \
-       grep -q "isdirectory" "$tier2_file" && \
-       grep -q "tree.open()" "$tier2_file"; then
-        test_pass "Auto-open tree autocmd configured"
+    if grep -q "VimEnter" "$tier1_file" && \
+       grep -q "isdirectory" "$tier1_file" && \
+       grep -q "tree.open()" "$tier1_file"; then
+        test_pass "Auto-open tree autocmd configured (Tier 1)"
     else
         test_fail "Auto-open tree autocmd missing or incomplete"
     fi
