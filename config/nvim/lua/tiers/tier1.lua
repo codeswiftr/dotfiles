@@ -134,6 +134,7 @@ return {
   -- ============================================================================
   {
     "neovim/nvim-lspconfig",
+    version = false, -- Use latest commit (required for Neovim 0.11+ compatibility)
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       { "williamboman/mason.nvim", config = true },
