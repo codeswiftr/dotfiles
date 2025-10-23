@@ -8,6 +8,7 @@ bin/installing
 bin/no
 bin/to
 bin/verify
+bin/specify
 
 # Generated artifacts
 tests/results/*.log
