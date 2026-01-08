@@ -2,6 +2,11 @@
 # =============================================================================
 # Dotfiles Bootstrap Installer
 # Standalone installer that clones repository and runs main installer
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash -s -- install full
+#   ./bootstrap.sh install full
 # =============================================================================
 
 set -e
@@ -12,18 +17,26 @@ REPO_BRANCH="master"
 DOTFILES_DIR="$HOME/dotfiles"
 TEMP_DIR="/tmp/dotfiles-install-$$"
 
-# Colors
+# Detect if running via pipe (curl | bash)
+PIPED_EXECUTION=false
+if [[ ! -t 0 ]]; then
+    PIPED_EXECUTION=true
+fi
+
+# Colors (force colors even in pipe mode for better UX)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Logging functions
-log_info() { echo -e "${BLUE}ℹ️ $1${NC}"; }
-log_success() { echo -e "${GREEN}✅ $1${NC}"; }
-log_error() { echo -e "${RED}❌ $1${NC}"; }
-log_warning() { echo -e "${YELLOW}⚠️ $1${NC}"; }
+# Logging functions - output to stderr to ensure visibility in pipe mode
+log_info() { echo -e "${BLUE}ℹ️  $1${NC}" >&2; }
+log_success() { echo -e "${GREEN}✅ $1${NC}" >&2; }
+log_error() { echo -e "${RED}❌ $1${NC}" >&2; }
+log_warning() { echo -e "${YELLOW}⚠️  $1${NC}" >&2; }
+log_step() { echo -e "${CYAN}▶  $1${NC}" >&2; }
 
 # Error handling
 cleanup() {
@@ -49,7 +62,7 @@ check_user() {
 
 # Install prerequisites
 install_prerequisites() {
-    log_info "Installing prerequisites..."
+    log_step "Checking prerequisites..."
 
     # Detect OS
     if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -65,26 +78,26 @@ install_prerequisites() {
             # Wait for installation with user-friendly feedback
             local timeout=300  # 5 minutes
             local elapsed=0
-            echo -e "${YELLOW}Waiting for Xcode Command Line Tools installation...${NC}"
-            echo -e "${BLUE}This is required for git and developer tools.${NC}"
+            echo -e "${YELLOW}Waiting for Xcode Command Line Tools installation...${NC}" >&2
+            echo -e "${BLUE}This is required for git and developer tools.${NC}" >&2
             while ! xcode-select -p &>/dev/null && [[ $elapsed -lt $timeout ]]; do
                 sleep 5
                 ((elapsed+=5))
-                echo -n "."
+                echo -n "." >&2
             done
-            echo ""
+            echo "" >&2
 
             if xcode-select -p &>/dev/null; then
                 log_success "Xcode Command Line Tools installed"
             else
                 log_error "Xcode Command Line Tools installation timed out or was cancelled"
-                echo ""
-                echo -e "${YELLOW}To install manually:${NC}"
-                echo "  1. Run: xcode-select --install"
-                echo "  2. Click 'Install' in the dialog"
-                echo "  3. Wait for completion"
-                echo "  4. Re-run this script"
-                echo ""
+                echo "" >&2
+                echo -e "${YELLOW}To install manually:${NC}" >&2
+                echo "  1. Run: xcode-select --install" >&2
+                echo "  2. Click 'Install' in the dialog" >&2
+                echo "  3. Wait for completion" >&2
+                echo "  4. Re-run this script" >&2
+                echo "" >&2
                 error_exit "Xcode CLI tools required for installation"
             fi
         else
@@ -110,12 +123,12 @@ install_prerequisites() {
         sudo pacman -Sy --noconfirm git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     else
         log_warning "Unknown package manager."
-        echo ""
-        echo -e "${YELLOW}Please ensure these tools are installed:${NC}"
-        echo "  - git"
-        echo "  - curl"
-        echo ""
-        echo "Then re-run this script."
+        echo "" >&2
+        echo -e "${YELLOW}Please ensure these tools are installed:${NC}" >&2
+        echo "  - git" >&2
+        echo "  - curl" >&2
+        echo "" >&2
+        echo "Then re-run this script." >&2
         error_exit "Required tools not found"
     fi
 
@@ -124,25 +137,36 @@ install_prerequisites() {
 
 # Clone repository
 clone_repository() {
-    log_info "Cloning dotfiles repository..."
-    
+    log_step "Cloning dotfiles repository..."
+
     # Remove existing directory if it exists
     if [[ -d "$DOTFILES_DIR" ]]; then
         log_warning "Existing dotfiles directory found at $DOTFILES_DIR"
-        read -p "Remove existing directory and continue? (y/N): " -r
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            rm -rf "$DOTFILES_DIR"
+
+        if [[ "$PIPED_EXECUTION" == "true" ]]; then
+            # In pipe mode, auto-backup and continue
+            local backup_dir="$HOME/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+            log_info "Pipe mode: backing up existing directory to $backup_dir"
+            mv "$DOTFILES_DIR" "$backup_dir"
+            log_success "Existing dotfiles backed up"
         else
-            error_exit "Installation cancelled"
+            # Interactive mode: ask user
+            read -p "Remove existing directory and continue? (y/N): " -r </dev/tty
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                rm -rf "$DOTFILES_DIR"
+            else
+                error_exit "Installation cancelled"
+            fi
         fi
     fi
-    
+
     # Clone to temporary directory first
+    log_info "Downloading from $REPO_URL..."
     mkdir -p "$TEMP_DIR"
-    if ! git clone --branch "$REPO_BRANCH" "$REPO_URL" "$TEMP_DIR"; then
-        error_exit "Failed to clone repository"
+    if ! git clone --branch "$REPO_BRANCH" "$REPO_URL" "$TEMP_DIR" 2>&1; then
+        error_exit "Failed to clone repository. Check your internet connection."
     fi
-    
+
     # Move to final location
     mv "$TEMP_DIR" "$DOTFILES_DIR"
     log_success "Repository cloned to $DOTFILES_DIR"
@@ -150,54 +174,66 @@ clone_repository() {
 
 # Run main installer
 run_installer() {
-    log_info "Running main installer..."
-    
+    log_step "Running main installer..."
+
     local installer="$DOTFILES_DIR/install.sh"
     if [[ ! -f "$installer" ]]; then
         error_exit "Main installer not found at $installer"
     fi
-    
+
     # Make installer executable
     chmod +x "$installer"
-    
+
     # Check if config file exists
     local config_file="$DOTFILES_DIR/config/tools.yaml"
     if [[ ! -f "$config_file" ]]; then
         log_error "Configuration file not found: $config_file"
         log_info "Available files in config directory:"
-        ls -la "$DOTFILES_DIR/config/" || true
+        ls -la "$DOTFILES_DIR/config/" >&2 || true
         error_exit "Missing configuration file"
     fi
-    
+
     # Run installer with passed arguments, default to 'install standard' if no args
     cd "$DOTFILES_DIR"
-    log_info "Current directory: $(pwd)"
-    log_info "Installer path: $installer"
-    log_info "Config file: $config_file"
-    
+
+    # Add headless flag for pipe mode
+    local extra_args=""
+    if [[ "$PIPED_EXECUTION" == "true" ]]; then
+        extra_args="--headless"
+    fi
+
     if [[ $# -eq 0 ]]; then
-        log_info "No arguments provided, using default profile 'standard'"
-        log_info "Running: $installer install standard"
-        "$installer" install standard
+        log_info "Using default profile 'standard'"
+        "$installer" $extra_args install standard
     else
-        log_info "Running with arguments: $installer $*"
-        "$installer" "$@"
+        log_info "Running with profile: $*"
+        "$installer" $extra_args "$@"
     fi
 }
 
 # Main function
 main() {
-    echo "================================"
-    echo "🚀 Modern Dotfiles Bootstrap"
-    echo "================================"
-    
+    # Immediate feedback - output to stderr for pipe visibility
+    echo "" >&2
+    echo "================================" >&2
+    echo "🚀 Modern Dotfiles Bootstrap" >&2
+    echo "================================" >&2
+    echo "" >&2
+
+    if [[ "$PIPED_EXECUTION" == "true" ]]; then
+        log_info "Running in pipe mode (curl | bash)"
+    fi
+
     check_user
     install_prerequisites
     clone_repository
     run_installer "$@"
+
+    echo "" >&2
+    log_success "Bootstrap complete!"
+    echo "" >&2
 }
 
-# Handle script being sourced vs executed
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+# Always run main when this script executes
+# Works correctly for both: ./bootstrap.sh AND curl | bash
+main "$@"
