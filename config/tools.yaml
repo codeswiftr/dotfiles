@@ -40,11 +40,20 @@ groups:
       - bun
       - docker
 
-  ai_tools:
-    description: "AI development assistance tools"
+  deployment:
+    description: "Cloud deployment CLIs for Railway and Cloudflare"
     tools:
-      - aider
-      - gh_copilot
+      - railway
+      - wrangler
+
+  ai_tools:
+    description: "AI coding agents and assistants"
+    tools:
+      - claude_code
+      - cursor
+      - amp
+      - opencode
+      - codex
     optional: true
 
   ios_development:
@@ -263,22 +272,68 @@ tools:
       - "sudo usermod -aG docker $USER"  # Linux only
     verify: "docker --version"
 
-  # AI tools (optional)
-  aider:
-    description: "AI pair programming in your terminal"
-    category: "ai"
+  # Deployment tools
+  railway:
+    description: "Railway deployment CLI for backend services"
+    category: "deployment"
     install:
-      all: "pip install aider-chat"
-    verify: "aider --version"
+      macos: "brew install railway"
+      ubuntu: "curl -fsSL https://railway.app/install.sh | sh"
+      arch: "yay -S railway"
+    verify: "railway --version"
 
-  gh_copilot:
-    description: "GitHub Copilot CLI"
+  wrangler:
+    description: "Cloudflare Workers/Pages CLI for frontend deployment"
+    category: "deployment"
+    install:
+      all: "bun add -g wrangler"
+    verify: "wrangler --version"
+
+  # AI coding tools
+  claude_code:
+    description: "Claude Code - Anthropic's agentic coding CLI"
     category: "ai"
     install:
-      all: "gh extension install github/gh-copilot"
-    pre_install:
-      - "gh auth login"
-    verify: "gh copilot --version"
+      macos: "brew install --cask claude-code"
+      ubuntu: "curl -fsSL https://claude.ai/install.sh | bash"
+      arch: "curl -fsSL https://claude.ai/install.sh | bash"
+    verify: "claude --version"
+
+  cursor:
+    description: "Cursor - AI-first code editor"
+    category: "ai"
+    install:
+      macos: "brew install --cask cursor"
+      ubuntu: "echo 'Download Cursor from https://cursor.com/download'; false"
+      arch: "echo 'Download Cursor from https://cursor.com/download'; false"
+    verify: "cursor --version || test -d '/Applications/Cursor.app'"
+
+  amp:
+    description: "Amp - Sourcegraph's agentic coding CLI"
+    category: "ai"
+    install:
+      macos: "curl -fsSL https://ampcode.com/install.sh | bash"
+      ubuntu: "curl -fsSL https://ampcode.com/install.sh | bash"
+      arch: "curl -fsSL https://ampcode.com/install.sh | bash"
+    verify: "amp --version"
+
+  opencode:
+    description: "OpenCode - Open source AI coding agent"
+    category: "ai"
+    install:
+      macos: "brew install anomalyco/tap/opencode"
+      ubuntu: "curl -fsSL https://opencode.ai/install | bash"
+      arch: "paru -S opencode-bin"
+    verify: "opencode --version"
+
+  codex:
+    description: "OpenAI Codex CLI - AI-powered coding assistant"
+    category: "ai"
+    install:
+      macos: "brew install --cask codex"
+      ubuntu: "npm i -g @openai/codex"
+      arch: "npm i -g @openai/codex"
+    verify: "codex --version"
 
   # Optional tools
   tree:
@@ -568,11 +623,11 @@ profiles:
 
   standard:
     description: "Standard development environment"
-    groups: ["essential", "modern_cli", "development"]
+    groups: ["essential", "modern_cli", "development", "deployment"]
 
   full:
     description: "Complete installation with all tools"
-    groups: ["essential", "modern_cli", "development", "ai_tools", "testing_tools", "security_tools", "optional"]
+    groups: ["essential", "modern_cli", "development", "deployment", "ai_tools", "testing_tools", "security_tools", "optional"]
 
   ai_focused:
     description: "AI-enhanced development environment"

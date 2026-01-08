@@ -50,35 +50,75 @@ check_user() {
 # Install prerequisites
 install_prerequisites() {
     log_info "Installing prerequisites..."
-    
+
     # Detect OS
-    if command -v apt-get >/dev/null 2>&1; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        # macOS
+        log_info "Detected macOS system"
+
+        # Check for Xcode Command Line Tools (required for git)
+        if ! xcode-select -p &>/dev/null; then
+            log_info "Installing Xcode Command Line Tools..."
+            log_info "A dialog may appear - please click 'Install' and wait for completion."
+            xcode-select --install 2>/dev/null || true
+
+            # Wait for installation with user-friendly feedback
+            local timeout=300  # 5 minutes
+            local elapsed=0
+            echo -e "${YELLOW}Waiting for Xcode Command Line Tools installation...${NC}"
+            echo -e "${BLUE}This is required for git and developer tools.${NC}"
+            while ! xcode-select -p &>/dev/null && [[ $elapsed -lt $timeout ]]; do
+                sleep 5
+                ((elapsed+=5))
+                echo -n "."
+            done
+            echo ""
+
+            if xcode-select -p &>/dev/null; then
+                log_success "Xcode Command Line Tools installed"
+            else
+                log_error "Xcode Command Line Tools installation timed out or was cancelled"
+                echo ""
+                echo -e "${YELLOW}To install manually:${NC}"
+                echo "  1. Run: xcode-select --install"
+                echo "  2. Click 'Install' in the dialog"
+                echo "  3. Wait for completion"
+                echo "  4. Re-run this script"
+                echo ""
+                error_exit "Xcode CLI tools required for installation"
+            fi
+        else
+            log_info "Xcode Command Line Tools already installed"
+        fi
+
+    elif command -v apt-get >/dev/null 2>&1; then
         # Ubuntu/Debian
         log_info "Detected Ubuntu/Debian system"
-        apt-get update -qq || error_exit "Failed to update package list"
-        apt-get install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        sudo apt-get update -qq || error_exit "Failed to update package list"
+        sudo apt-get install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     elif command -v yum >/dev/null 2>&1; then
         # RHEL/CentOS
         log_info "Detected RHEL/CentOS system"
-        yum install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        sudo yum install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     elif command -v dnf >/dev/null 2>&1; then
         # Fedora
         log_info "Detected Fedora system"
-        dnf install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        sudo dnf install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     elif command -v pacman >/dev/null 2>&1; then
         # Arch Linux
         log_info "Detected Arch Linux system"
-        pacman -Sy --noconfirm git curl wget ca-certificates || error_exit "Failed to install prerequisites"
-    elif command -v brew >/dev/null 2>&1; then
-        # macOS
-        log_info "Detected macOS system"
-        if ! command -v git >/dev/null 2>&1; then
-            xcode-select --install 2>/dev/null || true
-        fi
+        sudo pacman -Sy --noconfirm git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     else
-        log_warning "Unknown package manager. Please ensure git and curl are installed."
+        log_warning "Unknown package manager."
+        echo ""
+        echo -e "${YELLOW}Please ensure these tools are installed:${NC}"
+        echo "  - git"
+        echo "  - curl"
+        echo ""
+        echo "Then re-run this script."
+        error_exit "Required tools not found"
     fi
-    
+
     log_success "Prerequisites installed"
 }
 

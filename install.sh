@@ -401,18 +401,62 @@ install_profile() {
 # Setup package manager
 setup_package_manager() {
     local os="${1:-$(detect_os)}"
-    
+
     print_step "Setting up package manager for $os..."
-    
+
     case "$os" in
         "macos")
+            # Check for Xcode CLI tools first (required for git, compilers, etc.)
+            if ! xcode-select -p &>/dev/null; then
+                print_step "Installing Xcode Command Line Tools..."
+                print_info "This may take a few minutes..."
+                if [[ "$DRY_RUN" == "true" ]]; then
+                    print_info "DRY RUN: Would install Xcode Command Line Tools"
+                else
+                    xcode-select --install 2>/dev/null || true
+                    # Wait for Xcode CLI tools installation
+                    local timeout=300  # 5 minutes
+                    local elapsed=0
+                    echo -e "${YELLOW}Waiting for Xcode Command Line Tools installation...${NC}"
+                    echo -e "${CYAN}If a dialog appeared, please click 'Install' and wait for completion.${NC}"
+                    while ! xcode-select -p &>/dev/null && [[ $elapsed -lt $timeout ]]; do
+                        sleep 5
+                        ((elapsed+=5))
+                        echo -n "."
+                    done
+                    echo ""
+                    if xcode-select -p &>/dev/null; then
+                        print_success "Xcode Command Line Tools installed"
+                    else
+                        print_error "Xcode Command Line Tools installation timed out"
+                        print_info "Please run 'xcode-select --install' manually and try again"
+                        return 1
+                    fi
+                fi
+            else
+                print_info "Xcode Command Line Tools already installed"
+            fi
+
             if ! command_exists brew; then
                 print_step "Installing Homebrew..."
+                print_info "This is the macOS package manager - required for installing development tools"
                 if [[ "$DRY_RUN" == "true" ]]; then
                     print_info "DRY RUN: Would install Homebrew"
                 else
-                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                    print_success "Homebrew installed"
+                    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+                        print_error "Failed to install Homebrew"
+                        print_info "Please visit https://brew.sh for manual installation instructions"
+                        return 1
+                    fi
+
+                    # Setup Homebrew PATH for Apple Silicon
+                    if [[ "$(uname -m)" == "arm64" ]]; then
+                        eval "$(/opt/homebrew/bin/brew shellenv)"
+                        print_info "Apple Silicon detected - Homebrew installed at /opt/homebrew"
+                    else
+                        eval "$(/usr/local/bin/brew shellenv)"
+                    fi
+                    print_success "Homebrew installed successfully"
                 fi
             else
                 print_info "Homebrew already installed"
@@ -769,6 +813,119 @@ verify_installation() {
     fi
 }
 
+# =============================================================================
+# Plugin Validation Functions
+# =============================================================================
+
+# Validate Neovim plugins are installed
+validate_nvim_plugins() {
+    print_step "Validating Neovim plugin setup..."
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        print_info "DRY RUN: Would validate Neovim plugins"
+        return 0
+    fi
+
+    if ! command_exists nvim; then
+        print_warning "Neovim not installed, skipping plugin validation"
+        return 0
+    fi
+
+    local nvim_config="$HOME/.config/nvim"
+    local lazy_dir="$HOME/.local/share/nvim/lazy"
+
+    # Check if config is linked
+    if [[ ! -d "$nvim_config" ]]; then
+        print_warning "Neovim config not found at $nvim_config"
+        return 1
+    fi
+
+    # Check for lazy.nvim bootstrap
+    if [[ -d "$lazy_dir/lazy.nvim" ]]; then
+        print_success "lazy.nvim plugin manager installed"
+    else
+        print_info "Bootstrapping lazy.nvim (first-time setup)..."
+        # Run nvim headlessly to bootstrap plugins
+        if nvim --headless "+Lazy! sync" +qa 2>/dev/null; then
+            print_success "Neovim plugins installed successfully"
+        else
+            print_warning "Plugin installation may need manual intervention"
+            print_info "Run 'nvim' and wait for plugins to install, or run ':Lazy sync'"
+        fi
+    fi
+
+    # Count installed plugins
+    if [[ -d "$lazy_dir" ]]; then
+        local plugin_count
+        plugin_count=$(find "$lazy_dir" -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+        ((plugin_count--)) # Subtract 1 for the lazy_dir itself
+        print_info "Neovim plugins installed: $plugin_count"
+    fi
+
+    return 0
+}
+
+# Validate Tmux plugins are installed
+validate_tmux_plugins() {
+    print_step "Validating Tmux plugin setup..."
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        print_info "DRY RUN: Would validate Tmux plugins"
+        return 0
+    fi
+
+    if ! command_exists tmux; then
+        print_warning "Tmux not installed, skipping plugin validation"
+        return 0
+    fi
+
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+
+    # Check for TPM (Tmux Plugin Manager)
+    if [[ -d "$tpm_dir" ]]; then
+        print_success "TPM (Tmux Plugin Manager) installed"
+    else
+        print_info "Installing TPM (Tmux Plugin Manager)..."
+        if git clone https://github.com/tmux-plugins/tpm "$tpm_dir" 2>/dev/null; then
+            print_success "TPM installed successfully"
+        else
+            print_warning "Failed to install TPM"
+            print_info "TPM will auto-install on first tmux session"
+        fi
+    fi
+
+    # Install plugins via TPM if it exists
+    if [[ -d "$tpm_dir" ]] && [[ -f "$tpm_dir/bin/install_plugins" ]]; then
+        print_info "Installing Tmux plugins via TPM..."
+        if "$tpm_dir/bin/install_plugins" >/dev/null 2>&1; then
+            print_success "Tmux plugins installed"
+        else
+            print_info "Plugins will install on first tmux session"
+        fi
+    fi
+
+    # Count installed plugins
+    local plugins_dir="$HOME/.tmux/plugins"
+    if [[ -d "$plugins_dir" ]]; then
+        local plugin_count
+        plugin_count=$(find "$plugins_dir" -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+        ((plugin_count--)) # Subtract 1 for the plugins_dir itself
+        print_info "Tmux plugins installed: $plugin_count"
+    fi
+
+    return 0
+}
+
+# Run all post-installation validations
+run_post_install_validations() {
+    print_header "Post-Installation Validation"
+
+    validate_nvim_plugins
+    validate_tmux_plugins
+
+    print_success "Post-installation validation complete"
+}
+
 # Main function
 main() {
     # Agent mode implies headless defaults
@@ -875,22 +1032,26 @@ main() {
             setup_package_manager
             install_profile "$PROFILE"
             link_dotfiles
-            
+
+            # Run plugin validations and setup
+            run_post_install_validations
+
             # Final verification step
             if [[ "$DRY_RUN" == "false" ]]; then
                 print_header "Final Verification"
-                if "$DOTFILES_DIR/bin/dot" check; then
+                if "$DOTFILES_DIR/bin/dot" check 2>/dev/null; then
                     print_success "Setup completed and verified successfully!"
-                    print_info "Please restart your shell or run 'source ~/.zshrc' to apply changes."
-                    print_info "For a full reload, it's recommended to restart your terminal."
-                    echo -e "${ROCKET} Enjoy your new streamlined environment! ${ROCKET}"
                 else
-                    print_error "Setup completed but verification failed."
-                    print_warning "Run 'dot check' to see the issues."
-                    return 1
+                    print_warning "Some checks may need attention. Run 'dot check' for details."
                 fi
+                echo ""
+                print_success "Installation complete!"
+                print_info "Please restart your shell or run 'source ~/.zshrc' to apply changes."
+                print_info "For a full reload, it's recommended to restart your terminal."
+                echo ""
+                echo -e "${ROCKET} Enjoy your new streamlined environment! ${ROCKET}"
             else
-                print_success "Installation completed!"
+                print_success "Dry run completed - no changes made!"
             fi
             print_info "Log file: $LOG_FILE"
             ;;
