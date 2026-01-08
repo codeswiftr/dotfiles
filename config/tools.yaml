@@ -492,7 +492,7 @@ tools:
     description: "Static analysis security tool"
     category: "security"
     install:
-      macos: "brew install semgrep"
+      macos: "brew install semgrep || brew link --overwrite semgrep 2>/dev/null || true"
       ubuntu: "uv tool install semgrep"
       arch: "uv tool install semgrep"
     verify: "semgrep --version"
