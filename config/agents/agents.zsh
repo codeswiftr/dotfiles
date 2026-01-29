@@ -120,41 +120,35 @@ ai-explain() {
 # MULTI-AGENT WORKFLOWS
 # ============================================================================
 
-# Compare outputs from multiple agents
-ai-compare() {
+# NOTE: ai-compare is defined in config/zsh/ai.zsh with security prompts.
+# If you need a non-interactive version, use this alias:
+alias ai-compare-quick='_ai_compare_quick'
+
+_ai_compare_quick() {
     local prompt="$1"
     
     if [[ -z "$prompt" ]]; then
-        echo "Usage: ai-compare 'your prompt here'"
+        echo "Usage: ai-compare-quick 'your prompt here'"
+        echo "Note: For security-prompted version, use 'ai-compare' from ai.zsh"
         return 1
     fi
     
-    echo "🔄 Comparing responses from multiple agents..."
+    echo "🔄 Quick comparison (no security prompts)..."
     echo "Prompt: $prompt"
     echo ""
     
-    # Run agents in background, capture outputs
-    local tmpdir=$(mktemp -d)
-    
+    # Run available agents sequentially
     if command -v claude &>/dev/null; then
-        echo "--- Claude ---" > "$tmpdir/claude.txt"
-        timeout 60 claude --print "$prompt" >> "$tmpdir/claude.txt" 2>&1 &
-    fi
-    
-    if command -v aider &>/dev/null; then
-        echo "--- Aider ---" > "$tmpdir/aider.txt"
-        timeout 60 aider --message "$prompt" --yes-always >> "$tmpdir/aider.txt" 2>&1 &
-    fi
-    
-    wait
-    
-    # Display results
-    for f in "$tmpdir"/*.txt; do
-        [[ -f "$f" ]] && cat "$f"
+        echo "=== Claude ===" 
+        timeout 60 claude --print "$prompt" 2>&1 || echo "(timeout or error)"
         echo ""
-    done
+    fi
     
-    rm -rf "$tmpdir"
+    if command -v gemini &>/dev/null; then
+        echo "=== Gemini ==="
+        timeout 60 gemini "$prompt" 2>&1 || echo "(timeout or error)"
+        echo ""
+    fi
 }
 
 # ============================================================================

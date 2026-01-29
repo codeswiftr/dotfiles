@@ -51,8 +51,12 @@ groups:
     tools:
       - claude_code
       - cursor
-      - amp
+      - aider
       - opencode
+      - amp
+      - pi
+      - kimi
+      - gemini_cli
       - codex
     optional: true
 
@@ -334,6 +338,36 @@ tools:
       ubuntu: "npm i -g @openai/codex"
       arch: "npm i -g @openai/codex"
     verify: "codex --version"
+
+  aider:
+    description: "Aider - Git-aware AI pair programming"
+    category: "ai"
+    install:
+      macos: "uv tool install aider-chat"
+      ubuntu: "uv tool install aider-chat"
+      arch: "uv tool install aider-chat"
+    verify: "aider --version"
+
+  pi:
+    description: "Pi - Terminal-native AI coding agent"
+    category: "ai"
+    install:
+      all: "npm i -g @mariozechner/pi-coding-agent"
+    verify: "pi --version"
+
+  gemini_cli:
+    description: "Gemini CLI - Google's AI assistant"
+    category: "ai"
+    install:
+      all: "npm i -g @anthropic/gemini || echo 'Gemini CLI not yet publicly available'"
+    verify: "gemini --version || true"
+
+  kimi:
+    description: "Kimi - Moonshot AI coding assistant"
+    category: "ai"
+    install:
+      all: "uv tool install kimi-cli"
+    verify: "kimi --version"
 
   # Optional tools
   tree:

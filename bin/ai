@@ -34,6 +34,7 @@ AGENTS:
     pi             Pi - Terminal-native coding agent
     gemini, g      Gemini CLI - Google's AI
     kimi           Kimi - Moonshot AI coding assistant
+    codex, cx      Codex - OpenAI's coding assistant
 
 EXAMPLES:
     ai                     # Launch default agent (claude)
@@ -61,6 +62,7 @@ list_agents() {
         "pi:Pi:pi --version"
         "gemini:Gemini:gemini --version"
         "kimi:Kimi:kimi --version"
+        "codex:Codex:codex --version"
     )
     
     for entry in "${agents[@]}"; do
@@ -165,7 +167,7 @@ case "$agent" in
             exec pi "$@"
         else
             echo -e "${RED}Pi not installed${NC}"
-            echo "Install: npm i -g @anthropic/pi"
+            echo "Install: npm i -g @mariozechner/pi-coding-agent"
             exit 1
         fi
         ;;
@@ -188,6 +190,17 @@ case "$agent" in
         else
             echo -e "${RED}Kimi not installed${NC}"
             echo "Install: uv tool install kimi-cli"
+            exit 1
+        fi
+        ;;
+    
+    # Codex (OpenAI)
+    codex|cx)
+        if command -v codex &>/dev/null; then
+            exec codex "$@"
+        else
+            echo -e "${RED}Codex not installed${NC}"
+            echo "Install: npm i -g @openai/codex"
             exit 1
         fi
         ;;
