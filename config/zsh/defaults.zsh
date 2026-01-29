@@ -48,8 +48,15 @@ export MISE_USE_TOML="1"
 # Themes
 export BAT_THEME="Catppuccin Mocha"
 
-# FZF - Single source of truth
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+# FZF - Single source of truth (with fallbacks for missing tools)
+if command -v fd &>/dev/null; then
+    export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+elif command -v rg &>/dev/null; then
+    export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git/*'"
+else
+    # Fallback to find (slower but universally available)
+    export FZF_DEFAULT_COMMAND="find . -type f -not -path '*/.git/*'"
+fi
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="
     --height 40% 

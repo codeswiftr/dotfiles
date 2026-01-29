@@ -3,6 +3,12 @@
 # Advanced lazy loading and performance-optimized tool initialization
 # ============================================================================
 
+# Ensure perf_time is defined (no-op if not already loaded)
+# This prevents "command not found" errors when performance.zsh is not sourced
+if ! typeset -f perf_time > /dev/null 2>&1; then
+    perf_time() { : ; }  # No-op function
+fi
+
 # Load advanced performance optimizations
 if [[ -f "$DOTFILES_DIR/lib/performance-advanced.sh" ]]; then
     source "$DOTFILES_DIR/lib/performance-advanced.sh"
