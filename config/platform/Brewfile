@@ -61,9 +61,16 @@ brew "wget"                 # File downloader
 # =============================================================================
 # Container & Infrastructure
 # =============================================================================
-# brew "docker"             # Uncomment if needed (Orbstack preferred)
-# brew "colima"             # Lightweight Docker runtime
-# cask "orbstack"           # Modern Docker/Linux VM replacement
+cask "orbstack"             # Modern Docker/Linux VM (fast, lightweight)
+# brew "docker"             # Uncomment if Orbstack not preferred
+# brew "colima"             # Lightweight Docker runtime alternative
+
+# =============================================================================
+# Terminal & Editors
+# =============================================================================
+cask "ghostty"              # Fast, native terminal emulator
+# cask "cursor"             # AI code editor (installed via manual download)
+# cask "warp"               # Modern terminal alternative
 
 # =============================================================================
 # AI & LLM Tools (optional)
@@ -72,10 +79,11 @@ brew "wget"                 # File downloader
 # brew "llm"                # CLI for LLMs
 
 # =============================================================================
-# Productivity Apps (optional)
+# Productivity & Knowledge Management
 # =============================================================================
-# cask "cursor"             # AI code editor (installed via manual download)
-# cask "warp"               # Modern terminal
+cask "obsidian"             # Markdown-based knowledge base
+cask "notion"               # Team wiki & project management
+cask "p4v"                  # Perforce visual client
 # cask "raycast"            # Better Spotlight
 
 # =============================================================================
