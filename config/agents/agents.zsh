@@ -23,6 +23,9 @@ alias ai-list="ai --list"
 # Claude Code
 alias claude-resume="claude --resume"
 alias claude-continue="claude --continue"
+alias ccr="claude --review"
+alias ccd="claude --doc"
+alias cce="claude --explain"
 
 # Aider with common configurations
 alias aider-gpt4="aider --model gpt-4-turbo"

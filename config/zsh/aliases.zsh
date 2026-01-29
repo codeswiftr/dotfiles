@@ -136,27 +136,10 @@ alias vim="nvim"
 alias vi="nvim"
 
 # ============================================================================
-# AI Agent Aliases (unified via bin/ai launcher)
-# See config/agents/agents.zsh for full integration
+# AI Agent Aliases
+# NOTE: Primary AI aliases are in config/agents/agents.zsh
+# Only legacy/misc AI-related aliases below
 # ============================================================================
-
-# Unified launcher - 'ai' command is the primary interface
-# Usage: ai [agent] [args...]  or  ai --list
-
-# Quick agent shortcuts (single letter where possible)
-alias c="ai claude"           # Primary: Claude Code
-alias cu="ai cursor"          # Cursor Agent
-alias aa="ai aider"           # Aider (git-aware pair programming)
-alias oc="ai opencode"        # OpenCode
-
-# Claude-specific
-alias ccr="claude --review"
-alias ccd="claude --doc"
-alias cce="claude --explain"
-
-# Aider-specific
-alias aider-gpt4="aider --model gpt-4-turbo"
-alias aider-sonnet="aider --model claude-3-5-sonnet-20241022"
 
 # GitHub Copilot CLI
 alias cop="gh copilot"
