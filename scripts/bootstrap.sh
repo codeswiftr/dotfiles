@@ -13,7 +13,7 @@ set -e
 
 # Configuration
 REPO_URL="https://github.com/codeswiftr/dotfiles.git"
-REPO_BRANCH="master"
+REPO_BRANCH="main"
 DOTFILES_DIR="$HOME/dotfiles"
 TEMP_DIR="/tmp/dotfiles-install-$$"
 

@@ -54,10 +54,10 @@ Built from the ground up with intelligent performance optimization, comprehensiv
 
 ```bash
 # Recommended (standard profile)
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 
 # With AI coding tools
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash -s -- install ai-dev
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash -s -- install ai-dev
 ```
 
 ### Manual Installation
@@ -385,12 +385,12 @@ Built with love for the developer community, incorporating best practices and mo
 **Join thousands of developers who've revolutionized their workflow**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 ```
 
 *Installation takes 2-5 minutes. Rollback available if needed.*
 
-[![Deploy Now](https://img.shields.io/badge/🚀%20Deploy%20Now-One%20Click%20Install-success.svg?style=for-the-badge)](https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh)
+[![Deploy Now](https://img.shields.io/badge/🚀%20Deploy%20Now-One%20Click%20Install-success.svg?style=for-the-badge)](https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)
 
 **Trusted by development teams worldwide** • **Enterprise-grade security** • **24/7 reliability**
 

@@ -142,7 +142,7 @@ Ready for productive development work! 🚀
 
 ---
 
-**Installation:** `curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash`
+**Installation:** `curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash`
 
 **Documentation:** All features documented in README.md and docs/ directory
 

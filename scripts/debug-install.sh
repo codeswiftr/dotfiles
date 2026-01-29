@@ -23,7 +23,7 @@ curl -I https://github.com 2>/dev/null && echo "GitHub: OK" || echo "GitHub: FAI
 echo "=== DEBUG: Testing git clone ==="
 TEMP_DIR="/tmp/dotfiles-test-$$"
 mkdir -p "$TEMP_DIR"
-if git clone --branch master https://github.com/codeswiftr/dotfiles.git "$TEMP_DIR"; then
+if git clone --branch main https://github.com/codeswiftr/dotfiles.git "$TEMP_DIR"; then
     echo "Clone: OK"
     ls -la "$TEMP_DIR"
     if [[ -f "$TEMP_DIR/install.sh" ]]; then

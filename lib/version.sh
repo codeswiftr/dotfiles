@@ -28,7 +28,7 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 VERSION_FILE="$DOTFILES_DIR/VERSION"
 LAST_UPDATE_FILE="$HOME/.dotfiles_last_update_check"
 UPDATE_INTERVAL=$((7 * 24 * 60 * 60)) # 7 days in seconds
-REMOTE_VERSION_URL="https://raw.githubusercontent.com/codeswiftr/dotfiles/master/VERSION"
+REMOTE_VERSION_URL="https://raw.githubusercontent.com/codeswiftr/dotfiles/main/VERSION"
 REPO_URL="https://github.com/codeswiftr/dotfiles"
 
 # ============================================================================
