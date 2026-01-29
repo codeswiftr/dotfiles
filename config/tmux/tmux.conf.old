@@ -1,0 +1,42 @@
+# ============================================================================
+# Tmux Configuration - Ultra-Minimal (24 bindings total)
+# 
+# Restores standard tmux behavior with only essential operations.
+# No development tool conflicts - clean, predictable experience.
+#
+# For complex configuration with dev tools: source tmux-complex.conf instead
+# ============================================================================
+
+# Load minimal configuration (26 essential bindings with full clipboard support)
+source-file "$HOME/dotfiles/config/tmux/tmux-minimal.conf"
+
+# ============================================================================
+# QUICK REFERENCE:
+#
+# CORE OPERATIONS:
+#   Ctrl-a n     New window
+#   Ctrl-a z     Detach session
+#   Ctrl-a x     Close pane
+#   Ctrl-a | -   Split horizontal/vertical
+#   Ctrl-a hjkl  Navigate panes
+#   Ctrl-a 1-9   Select window by number
+#   Ctrl-a s     Session picker
+#   Ctrl-a ?     Help (list all bindings)
+#   Ctrl-a r     Reload config
+#
+# COPY/PASTE (System Clipboard):
+#   Ctrl-a [     Enter copy mode
+#   v            Start selection (in copy mode)
+#   y / Enter    Copy to system clipboard
+#   Mouse drag   Auto-copy to system clipboard
+#   Ctrl-a ]     Paste from tmux buffer
+#   Ctrl-a C-v   Paste from SYSTEM clipboard
+#   Ctrl-a C-c   Copy tmux buffer to system clipboard
+#
+# FEATURES:
+#   ✅ Full system clipboard integration
+#   ✅ Mouse support enabled
+#   ✅ Vi-style copy mode
+#   ✅ Cross-platform (macOS/Linux)
+#   ✅ Clean, minimal theme
+# ============================================================================

@@ -47,7 +47,12 @@ return {
     event = { "BufReadPost", "BufNewFile" }, -- Lazy load on file open
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
+      local ok, configs = pcall(require, "nvim-treesitter.configs")
+      if not ok then
+        vim.notify("nvim-treesitter not available. Run :Lazy sync", vim.log.levels.WARN)
+        return
+      end
+      configs.setup({
         ensure_installed = { "lua", "python", "javascript", "typescript" }, -- Minimal set
         auto_install = false, -- Manual install to avoid startup delay
         highlight = {

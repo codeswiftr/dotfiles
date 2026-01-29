@@ -302,6 +302,7 @@ dot plugin template
 | **[⚙️ Configuration Reference](docs/configuration.md)** | Complete configuration options | Advanced users |
 | **[🔌 Plugin Development](docs/plugins.md)** | Create custom plugins | Developers |
 | **[🛠️ Troubleshooting](docs/troubleshooting.md)** | Common issues and solutions | All users |
+| **[⚒️ FORGE Workflow](docs/forge.md)** | Portfolio workflow commands | FORGE users |
 | **[📦 Migration Guide](docs/technical-debt.md)** | Legacy configuration migration | Existing users |
 | **[🔗 API Documentation](docs/api.md)** | Programmatic interfaces | Integrators |
 

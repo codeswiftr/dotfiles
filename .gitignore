@@ -1,3 +1,4 @@
+# Binary tools (installed locally, not committed)
 bin/goose
 bin/temporal
 bin/temporal-service
@@ -9,6 +10,7 @@ bin/no
 bin/to
 bin/verify
 bin/specify
+bin/droid
 
 # Generated artifacts
 tests/results/*.log
@@ -25,3 +27,4 @@ __pycache__/
 # Neovim runtime files
 .nvimlog
 config/nvim/.nvim-tier
+config/zsh/secrets.zsh

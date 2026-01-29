@@ -45,6 +45,7 @@ perf_time "Loading core configuration"
 # Environment and PATH setup
 [[ -f "$ZSH_CONFIG_DIR/environment.zsh" ]] && source "$ZSH_CONFIG_DIR/environment.zsh"
 [[ -f "$ZSH_CONFIG_DIR/paths.zsh" ]] && source "$ZSH_CONFIG_DIR/paths.zsh"
+[[ -f "$ZSH_CONFIG_DIR/secrets.zsh" ]] && source "$ZSH_CONFIG_DIR/secrets.zsh"
 
 perf_time "Core configuration loaded"
 
@@ -71,12 +72,18 @@ perf_time "Loading function libraries"
 
 # Core functions
 [[ -f "$ZSH_CONFIG_DIR/functions.zsh" ]] && source "$ZSH_CONFIG_DIR/functions.zsh"
+if [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]] && [[ -d "${FORGE_ROOT:-}" ]]; then
+    source "$ZSH_CONFIG_DIR/forge.zsh"
+fi
 
 # Enhanced history and autosuggestions (critical for UX)
 [[ -f "$ZSH_CONFIG_DIR/history-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/history-enhanced.zsh"
 
 # Aliases (fast loading)
 [[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/aliases.zsh"
+
+# AI Agent integration
+[[ -f "$DOTFILES_DIR/config/agents/agents.zsh" ]] && source "$DOTFILES_DIR/config/agents/agents.zsh"
 
 # Development optimizations
 [[ -f "$ZSH_CONFIG_DIR/optimization.zsh" ]] && source "$ZSH_CONFIG_DIR/optimization.zsh"
@@ -221,3 +228,15 @@ if [[ "$DOTFILES_PERF_TIMING" == "true" ]] && [[ $- == *i* ]]; then
         echo "⚠️  Slow startup (${total_time}s). Try: export DOTFILES_FAST_MODE=1"
     fi
 fi
+
+# FORGE Fleet Status
+fleet-status() {
+  echo "=== FORGE Agent Fleet ==="
+  for s in codex-task cursor-task amp-task opencode-task gemini-task; do
+    if tmux has-session -t $s 2>/dev/null; then
+      echo "🟢 $s: $(tmux capture-pane -t $s -p | tail -1 | cut -c1-50)"
+    else
+      echo "⚪ $s: No session"
+    fi
+  done
+}

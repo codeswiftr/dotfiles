@@ -28,7 +28,25 @@
 
 [diff]
     tool = nvim
-    colorMoved = default
+    algorithm = histogram     # Clearer diffs on moved/edited lines
+    colorMoved = plain        # Highlight moved blocks in diffs
+    mnemonicPrefix = true     # More intuitive refs in diff output
+
+[commit]
+    verbose = true            # Include diff in commit message template
+
+[column]
+    ui = auto                 # Output in columns when possible
+
+[branch]
+    sort = -committerdate     # Sort branches by most recent commit
+
+[tag]
+    sort = -version:refname   # Sort version numbers naturally
+
+[rerere]
+    enabled = true            # Record and reuse conflict resolutions
+    autoupdate = true         # Apply stored resolutions automatically
 
 [alias]
     st = status
@@ -65,3 +83,5 @@
 [user]
 	name = Bogdan Veliscu
 	email = bogdan.veliscu@outlook.com
+[protocol "file"]
+	allow = always

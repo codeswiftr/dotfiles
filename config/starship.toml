@@ -1,6 +1,6 @@
 # Starship prompt configuration (repo-managed)
 
-format = "\n$directory$git_branch$git_status$cmd_duration$line_break$python$nodejs$swift$character"
+format = "\n$directory$custom$git_branch$git_status$cmd_duration$line_break$python$nodejs$swift$character"
 
 [directory]
 style = "blue"
@@ -39,6 +39,19 @@ style = "green"
 symbol = "🕊  "
 format = "[$symbol$version]($style) "
 style = "green"
+
+# FORGE portfolio indicator - shows project name in prompt when inside FORGE
+[custom.forge]
+command = """
+if [[ "$PWD" == *"/FORGE/"* ]]; then
+  # Extract domain-project from path
+  echo "$PWD" | sed -n 's|.*/FORGE/[^/]*/\\([^/]*\\).*|\\1|p' | head -1
+fi
+"""
+when = '[[ "$PWD" == *"/FORGE/"* ]]'
+shell = ["bash", "--noprofile", "--norc"]
+format = "[⚒ $output]($style) "
+style = "bold cyan"
 
 # Optional color palette hint used by repo tooling
 palette = "catppuccin_mocha"

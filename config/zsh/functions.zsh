@@ -244,3 +244,141 @@ function linkedin-post() {
     mkdir -p ~/content
     sgpt "Create a professional LinkedIn post about $topic, include relevant hashtags, make it engaging for tech professionals with 8+ years of Python experience" | tee ~/content/linkedin-$(date +%Y%m%d-%H%M).md
 }
+
+# ============================================================================
+# Utility Functions (inspired by Omarchy)
+# ============================================================================
+
+# Compression helpers
+compress() { 
+    tar -czf "${1%/}.tar.gz" "${1%/}"
+    echo "✅ Created: ${1%/}.tar.gz"
+}
+alias decompress="tar -xzf"
+
+# Cross-platform open command
+open() {
+    if [[ "$OSTYPE" == darwin* ]]; then
+        command open "$@"
+    elif command -v xdg-open &>/dev/null; then
+        xdg-open "$@" >/dev/null 2>&1 &
+    else
+        echo "No open command available"
+        return 1
+    fi
+}
+
+# Quick HTTP server
+serve() {
+    local port="${1:-8000}"
+    echo "🌐 Serving current directory on http://localhost:$port"
+    if command -v python3 &>/dev/null; then
+        python3 -m http.server "$port"
+    elif command -v bun &>/dev/null; then
+        bunx serve -p "$port"
+    else
+        echo "No server available (need python3 or bun)"
+    fi
+}
+
+# Quick JSON formatting
+json() {
+    if [[ -p /dev/stdin ]]; then
+        cat | python3 -m json.tool
+    elif [[ -f "$1" ]]; then
+        python3 -m json.tool "$1"
+    else
+        echo "Usage: json <file> or cat file.json | json"
+    fi
+}
+
+# Weather (requires curl)
+weather() {
+    local location="${1:-}"
+    curl -s "wttr.in/${location}?format=3"
+}
+
+# Quick note taking
+note() {
+    local notes_dir="${NOTES_DIR:-$HOME/notes}"
+    mkdir -p "$notes_dir"
+    local note_file="$notes_dir/$(date +%Y-%m-%d).md"
+    
+    if [[ $# -eq 0 ]]; then
+        ${EDITOR:-nvim} "$note_file"
+    else
+        echo "## $(date +%H:%M)" >> "$note_file"
+        echo "$*" >> "$note_file"
+        echo "" >> "$note_file"
+        echo "📝 Added to $note_file"
+    fi
+}
+
+# Port finder - what's running on a port
+port() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: port <number>"
+        return 1
+    fi
+    lsof -i :"$1"
+}
+
+# Kill process on port
+killport() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: killport <port>"
+        return 1
+    fi
+    local pid=$(lsof -t -i:"$1")
+    if [[ -n "$pid" ]]; then
+        kill -9 "$pid"
+        echo "✅ Killed process $pid on port $1"
+    else
+        echo "No process found on port $1"
+    fi
+}
+
+# Quick backup
+backup() {
+    local file="$1"
+    if [[ -z "$file" ]]; then
+        echo "Usage: backup <file>"
+        return 1
+    fi
+    cp "$file" "${file}.bak.$(date +%Y%m%d-%H%M%S)"
+    echo "✅ Backed up: $file"
+}
+
+# Extract any archive
+extract() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: extract <file>"
+        return 1
+    fi
+    
+    if [[ ! -f "$1" ]]; then
+        echo "File not found: $1"
+        return 1
+    fi
+    
+    case "$1" in
+        *.tar.bz2)   tar xjf "$1"     ;;
+        *.tar.gz)    tar xzf "$1"     ;;
+        *.tar.xz)    tar xJf "$1"     ;;
+        *.bz2)       bunzip2 "$1"     ;;
+        *.rar)       unrar x "$1"     ;;
+        *.gz)        gunzip "$1"      ;;
+        *.tar)       tar xf "$1"      ;;
+        *.tbz2)      tar xjf "$1"     ;;
+        *.tgz)       tar xzf "$1"     ;;
+        *.zip)       unzip "$1"       ;;
+        *.Z)         uncompress "$1"  ;;
+        *.7z)        7z x "$1"        ;;
+        *)           echo "Cannot extract: $1" ;;
+    esac
+}
+
+# Create directory and cd into it
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}

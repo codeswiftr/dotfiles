@@ -86,6 +86,44 @@ alias nrm="bun remove"
 alias fapi="fastapi dev"
 alias fapi-run="fastapi run"
 
+# Database migrations (SQLModel/Alembic)
+alias alembic="uv run alembic"
+alias db-migrate="uv run alembic upgrade head"
+alias db-revision="uv run alembic revision --autogenerate -m"
+alias db-history="uv run alembic history"
+alias db-down="uv run alembic downgrade -1"
+alias db-current="uv run alembic current"
+
+# Vite development
+alias vite="bunx vite"
+alias vbuild="bun run build"
+alias vpreview="bun run preview"
+alias vdev="bun run dev"
+
+# TailwindCSS v4
+alias tw="bunx tailwindcss"
+alias tw-build="bunx tailwindcss -o dist/styles.css --minify"
+alias tw-watch="bunx tailwindcss -o dist/styles.css --watch"
+
+# Railway deployment
+alias rw="railway"
+alias rwup="railway up"
+alias rwlogs="railway logs"
+alias rwrun="railway run"
+alias rwlink="railway link"
+alias rwenv="railway variables"
+alias rwdeploy="railway up --detach"
+alias rwopen="railway open"
+
+# Cloudflare (Wrangler)
+alias cf="wrangler"
+alias cfpages="wrangler pages"
+alias cfdeploy="wrangler pages deploy"
+alias cfdev="wrangler pages dev"
+alias cfsecret="wrangler secret"
+alias cflogin="wrangler login"
+alias cflist="wrangler pages project list"
+
 # AI/ML tools
 alias jlab="jupyter lab"
 alias jbook="jupyter notebook"
@@ -97,31 +135,36 @@ alias man="~/dotfiles/viman"
 alias vim="nvim"
 alias vi="nvim"
 
-# AI Integration aliases
-alias ai="aider"
-alias ask="sgpt"
-alias aider-review="aider --review"
-alias aider-test="aider --test"
-alias aider-doc="aider --doc"
+# ============================================================================
+# AI Agent Aliases (unified via bin/ai launcher)
+# See config/agents/agents.zsh for full integration
+# ============================================================================
 
-# Claude Code CLI aliases
-alias claude="claude"
-alias cc="claude"
+# Unified launcher - 'ai' command is the primary interface
+# Usage: ai [agent] [args...]  or  ai --list
+
+# Quick agent shortcuts (single letter where possible)
+alias c="ai claude"           # Primary: Claude Code
+alias cu="ai cursor"          # Cursor Agent
+alias aa="ai aider"           # Aider (git-aware pair programming)
+alias oc="ai opencode"        # OpenCode
+
+# Claude-specific
 alias ccr="claude --review"
 alias ccd="claude --doc"
 alias cce="claude --explain"
 
-# Gemini CLI aliases  
-alias gem="gemini"
-alias gg="gemini"
-alias ggr="gemini --review"
-alias ggd="gemini --doc"
-alias gge="gemini --explain"
+# Aider-specific
+alias aider-gpt4="aider --model gpt-4-turbo"
+alias aider-sonnet="aider --model claude-3-5-sonnet-20241022"
 
 # GitHub Copilot CLI
 alias cop="gh copilot"
 alias cop-explain="gh copilot explain"
 alias cop-suggest="gh copilot suggest"
+
+# Legacy compatibility
+alias ask="sgpt"
 
 # Modern tool shortcuts
 alias dev-optimize="optimize-dev-tools"

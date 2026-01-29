@@ -213,7 +213,12 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      require("nvim-treesitter.configs").setup({
+      local ok, configs = pcall(require, "nvim-treesitter.configs")
+      if not ok then
+        vim.notify("nvim-treesitter not available. Run :Lazy sync", vim.log.levels.WARN)
+        return
+      end
+      configs.setup({
         textobjects = {
           select = {
             enable = true,
