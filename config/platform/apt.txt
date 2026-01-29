@@ -1,0 +1,59 @@
+# APT packages for Debian/Ubuntu
+# Usage: xargs -a apt.txt sudo apt install -y
+# Generated from config/tools.yaml
+
+# Core Shell & Terminal
+zsh
+tmux
+
+# Version Control
+git
+
+# Modern CLI (some need PPAs or manual install)
+fzf
+ripgrep
+bat
+fd-find
+
+# Text Processing
+jq
+
+# Editors
+# neovim (use PPA for latest: ppa:neovim-ppa/unstable)
+
+# Database Tools
+postgresql-client
+redis-tools
+
+# API & Web Tools
+httpie
+curl
+wget
+
+# System Utilities
+htop
+tree
+
+# Clipboard (X11)
+xclip
+
+# Clipboard (Wayland)
+# wl-clipboard
+
+# Build essentials (for compiling tools)
+build-essential
+cmake
+pkg-config
+
+# Python build dependencies
+python3-dev
+python3-pip
+python3-venv
+
+# NOTE: Many modern tools need manual installation:
+# - starship: curl -sS https://starship.rs/install.sh | sh
+# - eza: cargo install eza (or from GitHub releases)
+# - zoxide: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+# - mise: curl https://mise.run | sh
+# - uv: curl -LsSf https://astral.sh/uv/install.sh | sh
+# - atuin: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh

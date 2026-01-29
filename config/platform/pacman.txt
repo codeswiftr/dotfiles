@@ -1,0 +1,61 @@
+# Pacman packages for Arch Linux
+# Usage: xargs -a pacman.txt sudo pacman -S --noconfirm
+# Generated from config/tools.yaml
+
+# Core Shell & Terminal
+zsh
+tmux
+starship
+
+# Version Control
+git
+git-delta
+
+# Modern CLI
+fzf
+ripgrep
+bat
+fd
+eza
+zoxide
+
+# Text Processing
+jq
+yq
+glow
+
+# Editors
+neovim
+
+# Database Tools
+postgresql
+redis
+
+# API & Web Tools
+httpie
+curl
+wget
+
+# System Utilities
+htop
+btop
+tree
+duf
+
+# Clipboard
+xclip
+wl-clipboard
+
+# Build essentials
+base-devel
+cmake
+
+# Python
+python
+python-pip
+
+# NOTE: AUR packages (use yay/paru):
+# - mise-bin
+# - atuin
+# - claude-code-bin (if available)
+# - opencode-bin

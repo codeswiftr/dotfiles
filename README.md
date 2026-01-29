@@ -53,11 +53,11 @@ Built from the ground up with intelligent performance optimization, comprehensiv
 ### One-Line Installation
 
 ```bash
-# Recommended installation
+# Recommended (standard profile)
 curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash
 
-# With custom profile
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash -s -- install full
+# With AI coding tools
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/bootstrap.sh | bash -s -- install ai-dev
 ```
 
 ### Manual Installation
@@ -65,17 +65,26 @@ curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/scripts/
 ```bash
 git clone https://github.com/codeswiftr/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-./install.sh install standard
+./scripts/setup.sh standard    # or: minimal, full, ai-dev
 ```
 
 ### Installation Profiles
 
 | Profile | Description | Best For |
 |---------|-------------|----------|
-| **`minimal`** | Essential tools only | Servers, minimal setups |
-| **`standard`** | Recommended setup with modern CLI tools | Most developers |
-| **`full`** | Complete setup with AI tools | Power users, teams |
-| **`ai_focused`** | AI-enhanced development environment | AI/ML developers |
+| **`minimal`** | Symlinks only (zsh, tmux, nvim, git) | Servers, containers |
+| **`standard`** | + Modern CLI tools (starship, fzf, eza, bat, etc.) | Most developers |
+| **`ai-dev`** | + AI coding agents (claude, aider, opencode) | AI-assisted development |
+| **`full`** | Everything including optional tools | Power users |
+
+### Platform Support
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS Tahoe (Apple Silicon) | ✅ Full | Primary development platform |
+| macOS Ventura (Intel) | ✅ Full | Tested on 2018 MBP |
+| Arch Linux | ✅ Full | Wayland + X11 clipboard support |
+| Debian/Ubuntu | ✅ Full | APT package list included |
 
 ## 📋 **What's Included**
 

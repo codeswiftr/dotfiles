@@ -1,29 +1,26 @@
-# User-specific Git Configuration
-# ================================
-# Copy this file to ~/.gitconfig.local and customize:
-#   cp ~/.dotfiles/git/gitconfig.local.template ~/.gitconfig.local
-#
-# This file is NOT tracked by git for privacy and security.
+# =============================================================================
+# Local Git Configuration Template
+# Copy to ~/.gitconfig.local and customize
+# This file is included by the main .gitconfig
+# =============================================================================
 
 [user]
     name = Your Name
-    email = your.email@example.com
-    
-    # Optional: GPG signing key
+    email = you@example.com
     # signingkey = YOUR_GPG_KEY_ID
 
-# Optional: GitHub CLI token (if not using gh auth)
-# [github]
-#     user = your-github-username
-#     oauth-token = your-token-here
+# Uncomment to enable commit signing
+# [commit]
+#     gpgsign = true
 
-# Optional: Private Git server credentials
-# [credential "https://git.private-company.com"]
-#     username = your-username
-# 
-# [url "https://oauth2:TOKEN@git.private-company.com"]
-#     insteadOf = https://git.private-company.com
+# Uncomment for GitHub-specific settings
+# [url "git@github.com:"]
+#     insteadOf = https://github.com/
 
-# Optional: Personal aliases (in addition to shared ones)
+# Machine-specific aliases
 # [alias]
-#     personal-log = log --author="Your Name" --oneline
+#     deploy = !./scripts/deploy.sh
+
+# Work vs personal email based on directory
+# [includeIf "gitdir:~/work/"]
+#     path = ~/.gitconfig.work
