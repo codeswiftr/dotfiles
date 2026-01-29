@@ -19,11 +19,12 @@ find_cursor() {
 }
 
 OTHER_CURSOR=$(find_cursor || true)
+CMD="${1-}"
 
 if [ -n "${OTHER_CURSOR:-}" ]; then
   exec "$OTHER_CURSOR" "$@"
 else
-  if [ "${1:-}" != "agent" ]; then
+  if [ "$CMD" != "agent" ]; then
     echo "Error: No Cursor IDE installation found. Use 'cursor agent' or 'agent' to run the agent." 1>&2
     echo "Or, install Cursor at https://cursor.com/download" 1>&2
     exit 1

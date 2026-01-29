@@ -4,6 +4,20 @@ set -eu
 # Portable cursor-agent wrapper
 # Dynamically finds the latest installed version
 
+# Prefer cursor-agent if directly available
+if command -v cursor-agent >/dev/null 2>&1; then
+  exec cursor-agent "$@"
+fi
+
+# Check common Cursor app bundle locations
+for candidate in \
+  "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor-agent" \
+  "/Applications/Cursor.app/Contents/Resources/app/bin/cursor-agent"; do
+  if [ -x "$candidate" ]; then
+    exec "$candidate" "$@"
+  fi
+done
+
 # Find latest cursor-agent version
 CURSOR_AGENT_DIR="${HOME}/.local/share/cursor-agent/versions"
 
