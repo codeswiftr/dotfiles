@@ -178,7 +178,7 @@ case "$agent" in
             exec gemini "$@"
         else
             echo -e "${RED}Gemini CLI not installed${NC}"
-            echo "Install: npm i -g @anthropic/gemini"
+            echo "Install: npm i -g @google/generative-ai-cli"
             exit 1
         fi
         ;;

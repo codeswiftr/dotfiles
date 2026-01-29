@@ -188,9 +188,11 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/config/starship.toml" "$HOME/.config/starship.toml"
     log_info "Linked: .config/starship.toml"
     
-    # Add dotfiles bin to PATH check
-    if ! grep -q 'dotfiles/bin' "$HOME/.zshrc.local" 2>/dev/null; then
-        echo 'export PATH="$HOME/dotfiles/bin:$PATH"' >> "$HOME/.zshrc.local"
+    # Add dotfiles bin to PATH (using actual install location)
+    local bin_path="$DOTFILES_DIR/bin"
+    if ! grep -q "$bin_path" "$HOME/.zshrc.local" 2>/dev/null; then
+        echo "export PATH=\"$bin_path:\$PATH\"" >> "$HOME/.zshrc.local"
+        log_info "Added $bin_path to PATH in ~/.zshrc.local"
     fi
     
     log_success "Symlinks created"

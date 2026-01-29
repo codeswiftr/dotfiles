@@ -358,9 +358,10 @@ tools:
   gemini_cli:
     description: "Gemini CLI - Google's AI assistant"
     category: "ai"
+    optional: true
     install:
-      all: "npm i -g @anthropic/gemini || echo 'Gemini CLI not yet publicly available'"
-    verify: "gemini --version || true"
+      all: "npm i -g @google/generative-ai-cli"
+    verify: "gemini --version"
 
   kimi:
     description: "Kimi - Moonshot AI coding assistant"
