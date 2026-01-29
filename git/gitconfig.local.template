@@ -1,0 +1,29 @@
+# User-specific Git Configuration
+# ================================
+# Copy this file to ~/.gitconfig.local and customize:
+#   cp ~/.dotfiles/git/gitconfig.local.template ~/.gitconfig.local
+#
+# This file is NOT tracked by git for privacy and security.
+
+[user]
+    name = Your Name
+    email = your.email@example.com
+    
+    # Optional: GPG signing key
+    # signingkey = YOUR_GPG_KEY_ID
+
+# Optional: GitHub CLI token (if not using gh auth)
+# [github]
+#     user = your-github-username
+#     oauth-token = your-token-here
+
+# Optional: Private Git server credentials
+# [credential "https://git.private-company.com"]
+#     username = your-username
+# 
+# [url "https://oauth2:TOKEN@git.private-company.com"]
+#     insteadOf = https://git.private-company.com
+
+# Optional: Personal aliases (in addition to shared ones)
+# [alias]
+#     personal-log = log --author="Your Name" --oneline

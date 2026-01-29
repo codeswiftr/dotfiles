@@ -1,10 +1,14 @@
-# [user]
-#     name = Your Name  
-#     email = your.email@example.com
-# 
-# Note: User configuration should be set in ~/.gitconfig.local
-# Run: git config --global user.name "Your Name"
-# Run: git config --global user.email "your.email@example.com"
+# User Configuration
+# ==================
+# User-specific settings (name, email, signing key) should be in ~/.gitconfig.local
+# This file is NOT tracked in dotfiles for privacy/security.
+#
+# To set up:
+#   git config --global user.name "Your Name"
+#   git config --global user.email "your.email@example.com"
+#
+# Or copy the template:
+#   cp ~/.dotfiles/git/gitconfig.local.template ~/.gitconfig.local
 
 [core]
     editor = nvim
@@ -80,8 +84,3 @@
 # Include user-specific configurations
 [include]
     path = ~/.gitconfig.local
-[user]
-	name = Bogdan Veliscu
-	email = bogdan.veliscu@outlook.com
-[protocol "file"]
-	allow = always

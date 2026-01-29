@@ -1,0 +1,92 @@
+# Brewfile - macOS packages
+# Core development tools for the FORGE portfolio
+
+# =============================================================================
+# Core Shell & Terminal
+# =============================================================================
+brew "zsh"                  # Modern shell
+brew "tmux"                 # Terminal multiplexer
+brew "starship"             # Cross-shell prompt
+
+# =============================================================================
+# Version Control & Git Tools
+# =============================================================================
+brew "git"                  # Version control
+brew "gh"                   # GitHub CLI
+brew "git-delta"            # Better git diffs
+
+# =============================================================================
+# Modern CLI Replacements
+# =============================================================================
+brew "fzf"                  # Fuzzy finder
+brew "ripgrep"              # Fast grep (rg)
+brew "fd"                   # Fast find
+brew "bat"                  # Better cat
+brew "eza"                  # Better ls
+brew "zoxide"               # Smart cd
+brew "duf"                  # Better df
+brew "btop"                 # Better top
+
+# =============================================================================
+# Text Processing
+# =============================================================================
+brew "jq"                   # JSON processor
+brew "yq"                   # YAML processor
+brew "glow"                 # Markdown renderer
+
+# =============================================================================
+# Editors
+# =============================================================================
+brew "neovim"               # Modern vim
+
+# =============================================================================
+# Development Languages & Runtimes
+# =============================================================================
+brew "mise"                 # Universal version manager (replaces asdf/nvm/pyenv)
+brew "uv"                   # Fast Python package manager
+
+# =============================================================================
+# Database Tools
+# =============================================================================
+brew "postgresql@16"        # PostgreSQL client
+brew "redis"                # Redis client
+
+# =============================================================================
+# API & Web Tools
+# =============================================================================
+brew "httpie"               # HTTP client
+brew "curl"                 # Standard HTTP tool
+brew "wget"                 # File downloader
+
+# =============================================================================
+# Container & Infrastructure
+# =============================================================================
+# brew "docker"             # Uncomment if needed (Orbstack preferred)
+# brew "colima"             # Lightweight Docker runtime
+# cask "orbstack"           # Modern Docker/Linux VM replacement
+
+# =============================================================================
+# AI & LLM Tools (optional)
+# =============================================================================
+# brew "ollama"             # Local LLM runtime
+# brew "llm"                # CLI for LLMs
+
+# =============================================================================
+# Productivity Apps (optional)
+# =============================================================================
+# cask "cursor"             # AI code editor (installed via manual download)
+# cask "warp"               # Modern terminal
+# cask "raycast"            # Better Spotlight
+
+# =============================================================================
+# Fonts
+# =============================================================================
+cask "font-jetbrains-mono-nerd-font"
+cask "font-fira-code-nerd-font"
+cask "font-meslo-lg-nerd-font"
+
+# =============================================================================
+# Mac App Store (requires `mas` CLI)
+# =============================================================================
+# brew "mas"
+# mas "Xcode", id: 497799835

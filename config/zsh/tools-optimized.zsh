@@ -181,31 +181,11 @@ zsh_autocomplete_loader() {
 # ============================================================================
 # FZF Optimization
 # ============================================================================
+# Note: FZF_DEFAULT_COMMAND and FZF_DEFAULT_OPTS are defined in defaults.zsh
 
 init_fzf_optimized() {
     if command -v fzf >/dev/null 2>&1; then
         perf_time "Loading FZF"
-        
-        # Load FZF with optimized settings
-        export FZF_DEFAULT_OPTS="
-            --height 40% 
-            --layout=reverse 
-            --border 
-            --inline-info
-            --cycle
-            --bind='ctrl-u:preview-half-page-up'
-            --bind='ctrl-d:preview-half-page-down'
-            --bind='ctrl-/:toggle-preview'
-        "
-        
-        # Use faster finder if available
-        if command -v fd >/dev/null 2>&1; then
-            export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-            export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-        elif command -v rg >/dev/null 2>&1; then
-            export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
-            export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-        fi
         
         # Load key bindings if available
         if [[ -f "$HOME/.fzf.zsh" ]]; then
