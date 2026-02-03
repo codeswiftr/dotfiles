@@ -159,6 +159,21 @@ alias mise-opt="mise-optimize"
 # Tmux session management aliases
 alias ts="tmux list-sessions"       # List tmux sessions
 alias tl="tmux list-sessions"       # Common muscle memory: tl -> list
+
+# Auto-resume tmux: attach to existing session or create new one
+tmux() {
+    if [[ $# -eq 0 ]]; then
+        # No arguments: auto-attach or create
+        if command tmux has-session 2>/dev/null; then
+            command tmux attach-session
+        else
+            command tmux new-session
+        fi
+    else
+        # Pass through any arguments to real tmux
+        command tmux "$@"
+    fi
+}
 # Attach to session by name; if no param, open interactive picker
 ta() {
     if [[ -n "$1" ]]; then
