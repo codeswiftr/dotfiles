@@ -16,6 +16,7 @@ groups:
     tools:
       - zsh
       - git
+      - gh
       - curl
       - nvim
       - tmux
@@ -118,9 +119,9 @@ tools:
     description: "Z Shell - Modern shell with advanced features"
     category: "shell"
     install:
-      macos: "brew install zsh"
-      ubuntu: "sudo apt install zsh"
-      arch: "sudo pacman -S zsh"
+      macos: "brew install zsh zsh-autosuggestions zsh-history-substring-search"
+      ubuntu: "sudo apt install -y zsh zsh-autosuggestions zsh-history-substring-search"
+      arch: "sudo pacman -S zsh zsh-autosuggestions zsh-history-substring-search"
     post_install:
       - "chsh -s $(which zsh)"
     verify: "zsh --version"
@@ -130,16 +131,33 @@ tools:
     category: "vcs"
     install:
       macos: "brew install git"
-      ubuntu: "sudo apt install git"
+      ubuntu: "sudo apt install -y git"
       arch: "sudo pacman -S git"
     verify: "git --version"
+
+  gh:
+    description: "GitHub CLI - GitHub from the command line"
+    category: "vcs"
+    install:
+      macos: "brew install gh"
+      ubuntu: |
+        (type -p wget >/dev/null || sudo apt install -y wget) \
+        && sudo mkdir -p -m 755 /etc/apt/keyrings \
+        && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+        && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+        && sudo apt update \
+        && sudo apt install -y gh
+      arch: "sudo pacman -S github-cli"
+    verify: "gh --version"
 
   curl:
     description: "Command line tool for transferring data"
     category: "network"
     install:
       macos: "brew install curl"
-      ubuntu: "sudo apt install curl"
+      ubuntu: "sudo apt install -y curl"
       arch: "sudo pacman -S curl"
     verify: "curl --version"
 
@@ -157,7 +175,7 @@ tools:
     category: "terminal"
     install:
       macos: "brew install tmux"
-      ubuntu: "sudo apt install tmux"
+      ubuntu: "sudo apt install -y tmux"
       arch: "sudo pacman -S tmux"
     verify: "tmux -V"
 
@@ -167,7 +185,7 @@ tools:
     category: "shell"
     install:
       macos: "brew install starship"
-      ubuntu: "curl -sS https://starship.rs/install.sh | sh"
+      ubuntu: "curl -fsSL https://starship.rs/install.sh | sh -s -- -y"
       arch: "sudo pacman -S starship"
     verify: "starship --version"
 
@@ -176,7 +194,7 @@ tools:
     category: "navigation"
     install:
       macos: "brew install zoxide"
-      ubuntu: "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+      ubuntu: "curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
       arch: "sudo pacman -S zoxide"
     verify: "zoxide --version"
 
@@ -185,7 +203,7 @@ tools:
     category: "file"
     install:
       macos: "brew install eza"
-      ubuntu: "cargo install eza"
+      ubuntu: "sudo apt install -y eza 2>/dev/null || (command -v cargo >/dev/null && cargo install eza) || echo 'eza: Install Rust first or use Ubuntu 23.10+'"
       arch: "sudo pacman -S eza"
     verify: "eza --version"
 
@@ -194,16 +212,16 @@ tools:
     category: "file"
     install:
       macos: "brew install bat"
-      ubuntu: "sudo apt install bat"
+      ubuntu: "sudo apt install -y bat && (command -v bat >/dev/null || mkdir -p ~/.local/bin && ln -sf $(which batcat) ~/.local/bin/bat 2>/dev/null || true)"
       arch: "sudo pacman -S bat"
-    verify: "bat --version"
+    verify: "bat --version || batcat --version"
 
   ripgrep:
     description: "Line-oriented search tool that recursively searches"
     category: "search"
     install:
       macos: "brew install ripgrep"
-      ubuntu: "sudo apt install ripgrep"
+      ubuntu: "sudo apt install -y ripgrep"
       arch: "sudo pacman -S ripgrep"
     verify: "rg --version"
 
@@ -212,20 +230,17 @@ tools:
     category: "search"
     install:
       macos: "brew install fd"
-      ubuntu: "sudo apt install fd-find"
+      ubuntu: "sudo apt install -y fd-find && (command -v fd >/dev/null || mkdir -p ~/.local/bin && ln -sf $(which fdfind) ~/.local/bin/fd)"
       arch: "sudo pacman -S fd"
-    verify: "fd --version"
+    verify: "fd --version || fdfind --version"
 
   fzf:
     description: "Command-line fuzzy finder"
     category: "search"
     install:
-      macos: "brew install fzf"
-      ubuntu: "sudo apt install fzf"
+      macos: "brew install fzf && $(brew --prefix)/opt/fzf/install --all --no-update-rc"
+      ubuntu: "sudo apt install -y fzf && (test -f /usr/share/doc/fzf/examples/key-bindings.zsh && echo 'FZF keybindings available' || true)"
       arch: "sudo pacman -S fzf"
-    post_install:
-      - "$(brew --prefix)/opt/fzf/install --all"  # macOS
-      - "/usr/share/doc/fzf/examples/install --all"  # Ubuntu
     verify: "fzf --version"
 
   atuin:
@@ -243,7 +258,7 @@ tools:
     category: "development"
     install:
       macos: "brew install mise"
-      ubuntu: "curl https://mise.run | sh"
+      ubuntu: "curl -fsSL https://mise.run | sh"
       arch: "yay -S mise"
     verify: "mise --version"
 
@@ -270,7 +285,7 @@ tools:
     category: "development"
     install:
       macos: "if [[ -z \"${DOTFILES_MODE:-}\" || \"${DOTFILES_MODE}\" != \"agent\" ]]; then brew install --cask docker; else echo 'Skipping Docker Desktop in agent mode'; fi"
-      ubuntu: "sudo apt install docker.io docker-compose"
+      ubuntu: "sudo apt install -y docker.io docker-compose-v2 || sudo apt install -y docker.io docker-compose"
       arch: "sudo pacman -S docker docker-compose"
     post_install:
       - "sudo usermod -aG docker $USER"  # Linux only
@@ -290,7 +305,7 @@ tools:
     description: "Cloudflare Workers/Pages CLI for frontend deployment"
     category: "deployment"
     install:
-      all: "bun add -g wrangler"
+      all: "export PATH=\"$HOME/.bun/bin:$PATH\" && bun add -g wrangler || npm i -g wrangler"
     verify: "wrangler --version"
 
   # AI coding tools
@@ -308,9 +323,9 @@ tools:
     category: "ai"
     install:
       macos: "brew install --cask cursor"
-      ubuntu: "echo 'Download Cursor from https://cursor.com/download'; false"
-      arch: "echo 'Download Cursor from https://cursor.com/download'; false"
-    verify: "cursor --version || test -d '/Applications/Cursor.app'"
+      ubuntu: "echo 'Cursor: Download AppImage from https://cursor.com/download and install manually'; true"
+      arch: "echo 'Cursor: Download AppImage from https://cursor.com/download and install manually'; true"
+    verify: "command -v cursor >/dev/null 2>&1 || test -d '/Applications/Cursor.app' || echo 'Cursor not installed (optional)'"
 
   amp:
     description: "Amp - Sourcegraph's agentic coding CLI"
@@ -331,11 +346,11 @@ tools:
     verify: "opencode --version"
 
   codex:
-    description: "OpenAI Codex CLI - AI-powered coding assistant"
+    description: "OpenAI Codex CLI - AI-powered coding assistant (requires Node 20+)"
     category: "ai"
     install:
       macos: "brew install --cask codex"
-      ubuntu: "npm i -g @openai/codex"
+      ubuntu: "mise use -g node@20 && npm i -g @openai/codex"
       arch: "npm i -g @openai/codex"
     verify: "codex --version"
 
@@ -349,10 +364,12 @@ tools:
     verify: "aider --version"
 
   pi:
-    description: "Pi - Terminal-native AI coding agent"
+    description: "Pi - Terminal-native AI coding agent (requires Node 20+)"
     category: "ai"
     install:
-      all: "npm i -g @mariozechner/pi-coding-agent"
+      macos: "npm i -g @mariozechner/pi-coding-agent"
+      ubuntu: "mise use -g node@20 && npm i -g @mariozechner/pi-coding-agent"
+      arch: "npm i -g @mariozechner/pi-coding-agent"
     verify: "pi --version"
 
   gemini_cli:
@@ -360,7 +377,7 @@ tools:
     category: "ai"
     optional: true
     install:
-      all: "npm i -g @google/generative-ai-cli"
+      all: "npm i -g @google/gemini-cli"
     verify: "gemini --version"
 
   kimi:
@@ -376,7 +393,7 @@ tools:
     category: "file"
     install:
       macos: "brew install tree"
-      ubuntu: "sudo apt install tree"
+      ubuntu: "sudo apt install -y tree"
       arch: "sudo pacman -S tree"
     verify: "tree --version"
 
@@ -385,7 +402,7 @@ tools:
     category: "system"
     install:
       macos: "brew install htop"
-      ubuntu: "sudo apt install htop"
+      ubuntu: "sudo apt install -y htop"
       arch: "sudo pacman -S htop"
     verify: "htop --version"
 
@@ -394,7 +411,7 @@ tools:
     category: "data"
     install:
       macos: "brew install jq"
-      ubuntu: "sudo apt install jq"
+      ubuntu: "sudo apt install -y jq"
       arch: "sudo pacman -S jq"
     verify: "jq --version"
 
@@ -411,7 +428,7 @@ tools:
     category: "git"
     install:
       macos: "brew install git-delta"
-      ubuntu: "cargo install git-delta"
+      ubuntu: "sudo apt install -y git-delta 2>/dev/null || (command -v cargo >/dev/null && cargo install git-delta) || echo 'delta: Install Rust first or use Ubuntu 23.10+'"
       arch: "sudo pacman -S git-delta"
     verify: "delta --version"
 
@@ -591,7 +608,7 @@ tools:
     category: "security"
     install:
       macos: "brew install age"
-      ubuntu: "sudo apt install age"
+      ubuntu: "sudo apt install -y age"
       arch: "sudo pacman -S age"
     verify: "age --version"
 

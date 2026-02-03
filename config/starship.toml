@@ -53,6 +53,6 @@ shell = ["bash", "--noprofile", "--norc"]
 format = "[⚒ $output]($style) "
 style = "bold cyan"
 
-# Optional color palette hint used by repo tooling
-palette = "catppuccin_mocha"
+# Note: For catppuccin theme, use .config/starship.toml instead
+# which includes the full palette definition
 

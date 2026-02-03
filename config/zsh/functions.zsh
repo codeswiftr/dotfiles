@@ -3,6 +3,45 @@
 # Project management, development workflows, and utility functions
 # ============================================================================
 
+# ----------------------------------------------------------------------------
+# Terminal / SSH Helpers
+# ----------------------------------------------------------------------------
+
+# Install Ghostty terminfo on a remote server
+# Usage: ghostty-terminfo-install user@host
+function ghostty-terminfo-install() {
+    local host="$1"
+    if [[ -z "$host" ]]; then
+        echo "Usage: ghostty-terminfo-install user@host"
+        echo "Copies Ghostty's terminfo to remote server for full terminal support"
+        return 1
+    fi
+
+    if ! command -v infocmp &>/dev/null; then
+        echo "Error: infocmp not found (install ncurses-bin)"
+        return 1
+    fi
+
+    echo "Installing Ghostty terminfo on $host..."
+    infocmp -x xterm-ghostty 2>/dev/null | ssh "$host" 'tic -x -' && \
+        echo "✓ Ghostty terminfo installed on $host" || \
+        echo "✗ Failed to install terminfo (try: TERM=xterm-256color ssh $host)"
+}
+
+# Quick fix for Ghostty terminal issues on current SSH session
+function fix-term() {
+    if [[ "$TERM" == "xterm-ghostty" ]]; then
+        export TERM="xterm-256color"
+        echo "TERM set to xterm-256color"
+    else
+        echo "Current TERM: $TERM (no fix needed)"
+    fi
+}
+
+# ----------------------------------------------------------------------------
+# Project Management
+# ----------------------------------------------------------------------------
+
 # Project switching with language detection
 function proj() {
     local project=$(fd -t d -d 2 . ~/work ~/projects 2>/dev/null | fzf --preview "eza --tree --level=2 {}")

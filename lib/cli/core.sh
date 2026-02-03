@@ -124,9 +124,19 @@ dot_check() {
     # Check essential tools
     local essential_tools=("zsh" "git" "nvim" "tmux" "starship" "eza" "bat" "rg" "fd" "fzf")
     local missing_tools=()
-    
+
+    # Helper to check command with Ubuntu/Debian alternative names
+    check_tool_available() {
+        local tool="$1"
+        case "$tool" in
+            bat)  command -v bat &>/dev/null || command -v batcat &>/dev/null ;;
+            fd)   command -v fd &>/dev/null || command -v fdfind &>/dev/null ;;
+            *)    command -v "$tool" &>/dev/null ;;
+        esac
+    }
+
     for tool in "${essential_tools[@]}"; do
-        if ! command -v "$tool" &> /dev/null; then
+        if ! check_tool_available "$tool"; then
             missing_tools+=("$tool")
             exit_code=1
         fi

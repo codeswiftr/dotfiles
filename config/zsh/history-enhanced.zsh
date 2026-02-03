@@ -25,18 +25,19 @@ setopt HIST_BEEP                # Beep when accessing nonexistent history
 # ZSH Autosuggestions (Fish-like suggestions)
 # ============================================================================
 
-# Check if zsh-autosuggestions is available, if not suggest installation
-if [[ ! -d "/opt/homebrew/share/zsh-autosuggestions" ]] && [[ ! -d "/usr/share/zsh-autosuggestions" ]] && [[ ! -f "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-    # Auto-install zsh-autosuggestions if not present
-    if command -v brew >/dev/null 2>&1 && [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "🔧 Installing zsh-autosuggestions for enhanced history completion..."
-        brew install zsh-autosuggestions 2>/dev/null || {
+# Check if zsh-autosuggestions is available, if not suggest installation (once)
+_zsh_plugin_warn_file="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-plugin-warnings-shown"
+if [[ ! -d "/opt/homebrew/share/zsh-autosuggestions" ]] && \
+   [[ ! -d "/usr/share/zsh-autosuggestions" ]] && \
+   [[ ! -f "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    # Only show warning once per day
+    if [[ ! -f "$_zsh_plugin_warn_file" ]] || [[ $(find "$_zsh_plugin_warn_file" -mtime +1 2>/dev/null) ]]; then
+        if [[ -f "/etc/debian_version" ]]; then
+            echo "⚠️  To enable fish-like autosuggestions, run: sudo apt install zsh-autosuggestions"
+        elif command -v brew >/dev/null 2>&1; then
             echo "⚠️  To enable fish-like autosuggestions, run: brew install zsh-autosuggestions"
-        }
-    elif [[ -f "/etc/debian_version" ]]; then
-        echo "⚠️  To enable fish-like autosuggestions, run: sudo apt install zsh-autosuggestions"
-    else
-        echo "⚠️  To enable fish-like autosuggestions, install zsh-autosuggestions for your system"
+        fi
+        mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}" && touch "$_zsh_plugin_warn_file"
     fi
 fi
 
@@ -79,18 +80,20 @@ fi
 # History Substring Search (Up/Down arrow based on typed text)
 # ============================================================================
 
-# Check if zsh-history-substring-search is available
-if [[ ! -d "/opt/homebrew/share/zsh-history-substring-search" ]] && [[ ! -d "/usr/share/zsh-history-substring-search" ]] && [[ ! -f "$HOME/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
-    # Auto-install if not present
-    if command -v brew >/dev/null 2>&1 && [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "🔧 Installing zsh-history-substring-search for intelligent history navigation..."
-        brew install zsh-history-substring-search 2>/dev/null || {
+# Check if zsh-history-substring-search is available (use same warning flag)
+if [[ ! -d "/opt/homebrew/share/zsh-history-substring-search" ]] && \
+   [[ ! -d "/usr/share/zsh-history-substring-search" ]] && \
+   [[ ! -f "$HOME/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
+    # Only show warning once per day (reuse same flag file)
+    if [[ ! -f "$_zsh_plugin_warn_file" ]] || [[ $(find "$_zsh_plugin_warn_file" -mtime +1 2>/dev/null) ]]; then
+        if [[ -f "/etc/debian_version" ]]; then
+            echo "⚠️  To enable history substring search, run: sudo apt install zsh-history-substring-search"
+        elif command -v brew >/dev/null 2>&1; then
             echo "⚠️  To enable history substring search, run: brew install zsh-history-substring-search"
-        }
-    elif [[ -f "/etc/debian_version" ]]; then
-        echo "⚠️  To enable history substring search, run: sudo apt install zsh-history-substring-search"
+        fi
     fi
 fi
+unset _zsh_plugin_warn_file
 
 # Load zsh-history-substring-search from various possible locations
 if [[ -f "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then

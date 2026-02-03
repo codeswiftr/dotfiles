@@ -4,7 +4,7 @@
 # Uses tools.yaml configuration for declarative, reproducible installations
 # =============================================================================
 
-set -e
+set -eo pipefail
 
 # Script configuration - handle both direct execution and piped execution
 if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
@@ -54,6 +54,7 @@ VERBOSE=false
 FORCE=false
 SKIP_EXISTING=true
 HEADLESS=false
+NO_SUDO=false
 
 # Colors and emojis
 RED='\033[0;31m'
@@ -282,24 +283,30 @@ verify_tool() {
 install_tool() {
     local tool="$1"
     local os="${2:-$(detect_os)}"
-    
+
     print_step "Installing $tool..."
-    
+
     # Check if tool is already installed
     if verify_tool "$tool" && [[ "$SKIP_EXISTING" == "true" ]]; then
         print_info "$tool is already installed, skipping"
         return 0
     fi
-    
+
     # Get installation command
     local install_cmd
     install_cmd=$(get_install_command "$tool" "$os")
-    
+
     if [[ -z "$install_cmd" ]]; then
         print_warning "No installation command found for $tool on $os"
         return 1
     fi
-    
+
+    # Skip sudo commands in --no-sudo mode
+    if [[ "$NO_SUDO" == "true" ]] && [[ "$install_cmd" == *"sudo "* ]]; then
+        print_info "Skipping $tool (requires sudo)"
+        return 0
+    fi
+
     # Execute installation
     if [[ "$DRY_RUN" == "true" ]]; then
         print_info "DRY RUN: Would execute: $install_cmd"
@@ -307,15 +314,20 @@ install_tool() {
         print_info "Executing: $install_cmd"
         if eval "$install_cmd"; then
             print_success "Successfully installed $tool"
-            
+
             # Run post-install commands if they exist
             local post_install
             post_install=$(yaml_query_post_install "$tool")
-            
+
             if [[ -n "$post_install" ]]; then
                 print_step "Running post-install commands for $tool..."
                 while IFS= read -r cmd; do
                     if [[ -n "$cmd" ]]; then
+                        # Skip sudo commands in post-install too
+                        if [[ "$NO_SUDO" == "true" ]] && [[ "$cmd" == *"sudo "* ]]; then
+                            print_info "Skipping post-install (requires sudo): $cmd"
+                            continue
+                        fi
                         print_info "Executing: $cmd"
                         eval "$cmd" || print_warning "Post-install command failed: $cmd"
                     fi
@@ -475,19 +487,29 @@ setup_package_manager() {
         "ubuntu")
             if [[ "$DRY_RUN" == "true" ]]; then
                 print_info "DRY RUN: Would update apt packages"
+            elif [[ "$NO_SUDO" == "true" ]]; then
+                print_info "Skipping apt setup (--no-sudo mode)"
             else
-                print_step "Updating apt packages..."
-                sudo apt update && sudo apt upgrade -y
-                print_success "Package manager updated"
+                print_step "Updating apt package lists..."
+                # Only update, skip upgrade for faster installs (upgrade is optional)
+                $SUDO_CMD apt update -qq
+                print_success "Package lists updated"
+
+                # Install essential build tools for external installers
+                print_step "Installing essential dependencies..."
+                $SUDO_CMD apt install -y build-essential curl wget git ca-certificates || true
             fi
-            
+
             # Ensure PyYAML is available for better YAML parsing
             if ! has_pyyaml; then
                 print_step "Installing PyYAML for better configuration parsing..."
                 if [[ "$DRY_RUN" == "true" ]]; then
                     print_info "DRY RUN: Would install PyYAML"
+                elif [[ "$NO_SUDO" == "true" ]]; then
+                    # Try user install without sudo
+                    python3 -m pip install --user PyYAML 2>/dev/null || pip3 install --user PyYAML 2>/dev/null || true
                 else
-                    sudo apt install -y python3-pip python3-yaml || python3 -m pip install --user PyYAML || pip3 install PyYAML || true
+                    $SUDO_CMD apt install -y python3-pip python3-yaml || python3 -m pip install --user PyYAML || pip3 install PyYAML || true
                 fi
             fi
             ;;
@@ -757,16 +779,17 @@ OPTIONS:
     -f, --force           Force installation even if tools exist
     -s, --skip-existing   Skip tools that are already installed (default)
     --headless, --yes     Non-interactive mode; auto-accept safe actions
+    --no-sudo             Install user-space tools only (no root required)
     -h, --help            Show this help message
 
 EXAMPLES:
     $0 install standard                    # Install standard profile
     $0 --dry-run install full             # Preview full installation
     $0 --verbose --force install minimal  # Force install minimal with verbose output
+    $0 --no-sudo install standard         # Install without sudo (user tools only)
     $0 profiles                           # Show available profiles
     $0 verify                            # Check current installation status
     $0 link                              # Link dotfiles configuration only
-    $0 --dry-run link                    # Preview dotfiles linking
 
 CONFIG:
     Configuration file: config/tools.yaml
@@ -926,6 +949,69 @@ run_post_install_validations() {
     print_success "Post-installation validation complete"
 }
 
+# Ensure PATH includes common tool locations
+setup_paths() {
+    # Add common binary directories to PATH for this session
+    export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.bun/bin:$HOME/.atuin/bin:$PATH"
+
+    # Create ~/.local/bin if it doesn't exist
+    mkdir -p "$HOME/.local/bin"
+}
+
+# Setup sudo for non-interactive use
+# Sets SUDO_CMD variable to use throughout the script
+setup_sudo_cmd() {
+    local os="${1:-$(detect_os)}"
+
+    # Skip for macOS (uses different privilege model)
+    if [[ "$os" == "macos" ]]; then
+        SUDO_CMD="sudo"
+        return 0
+    fi
+
+    # Check if running as root
+    if [[ $EUID -eq 0 ]]; then
+        SUDO_CMD=""
+        return 0
+    fi
+
+    # Check if sudo exists
+    if ! command_exists sudo; then
+        print_warning "sudo not found - some tools may fail to install"
+        SUDO_CMD=""
+        return 0
+    fi
+
+    # Check if we have a TTY
+    if [[ -t 0 ]]; then
+        # Interactive mode - can prompt for password
+        SUDO_CMD="sudo"
+        if [[ "$DRY_RUN" != "true" ]]; then
+            print_info "Some operations require administrator privileges."
+            # Pre-authenticate to cache credentials
+            sudo -v || {
+                print_warning "sudo authentication failed. Some tools may not install."
+                return 1
+            }
+            # Keep sudo alive in background
+            (while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done 2>/dev/null) &
+        fi
+    else
+        # Non-interactive mode - check for passwordless sudo
+        if sudo -n true 2>/dev/null; then
+            SUDO_CMD="sudo"
+            print_info "Using passwordless sudo"
+        else
+            print_error "No TTY for sudo password prompt."
+            print_info "Run with: bash -c \"\$(curl -fsSL URL)\""
+            print_info "Or pre-authenticate: sudo -v && ./install.sh"
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
 # Main function
 main() {
     # Agent mode implies headless defaults
@@ -962,6 +1048,11 @@ main() {
             --headless|--yes)
                 HEADLESS=true
                 export DOTFILES_NONINTERACTIVE=1
+                shift
+                ;;
+            --no-sudo)
+                NO_SUDO=true
+                SUDO_CMD=""
                 shift
                 ;;
             -h|--help)
@@ -1024,11 +1115,29 @@ main() {
             print_header "Modern Dotfiles Installation - 2025 Edition"
             print_info "Profile: $PROFILE"
             print_info "OS: $(detect_os)"
-            
+
             if [[ "$DRY_RUN" == "true" ]]; then
                 print_info "DRY RUN MODE - No changes will be made"
             fi
-            
+
+            # Setup paths early
+            setup_paths
+
+            # Setup sudo (skip in dry-run mode or --no-sudo mode)
+            if [[ "$DRY_RUN" != "true" ]] && [[ "$NO_SUDO" != "true" ]]; then
+                setup_sudo_cmd "$(detect_os)" || {
+                    print_error "Cannot proceed without sudo access"
+                    print_info "Use --no-sudo to install user-space tools only"
+                    exit 1
+                }
+            elif [[ "$NO_SUDO" == "true" ]]; then
+                SUDO_CMD=""
+                print_warning "Running without sudo - only user-space tools will be installed"
+                print_info "Tools requiring apt/sudo will be skipped"
+            else
+                SUDO_CMD="sudo"  # Placeholder for dry-run display
+            fi
+
             setup_package_manager
             install_profile "$PROFILE"
             link_dotfiles

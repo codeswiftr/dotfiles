@@ -6,6 +6,16 @@
 
 set -e
 
+# Ensure npm global packages are in PATH (for pi, codex, etc.)
+if [[ -d "$HOME/.npm-global/bin" ]]; then
+    export PATH="$HOME/.npm-global/bin:$PATH"
+fi
+
+# Ensure mise shims are in PATH (for node, etc.)
+if [[ -d "$HOME/.local/share/mise/shims" ]]; then
+    export PATH="$HOME/.local/share/mise/shims:$PATH"
+fi
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -52,7 +62,7 @@ EOF
 list_agents() {
     echo -e "${CYAN}Installed AI Agents:${NC}"
     echo ""
-    
+
     local agents=(
         "claude:Claude Code:claude --version"
         "cursor:Cursor Agent:cursor --version 2>/dev/null || test -d '/Applications/Cursor.app'"
@@ -64,10 +74,11 @@ list_agents() {
         "kimi:Kimi:kimi --version"
         "codex:Codex:codex --version"
     )
-    
+
     for entry in "${agents[@]}"; do
         IFS=':' read -r cmd name check <<< "$entry"
-        if eval "$check" &>/dev/null; then
+        # Use timeout to prevent hanging on slow/interactive commands
+        if timeout 3 bash -c "$check" &>/dev/null 2>&1; then
             echo -e "  ${GREEN}✓${NC} $name ($cmd)"
         else
             echo -e "  ${RED}✗${NC} $name ($cmd) - not installed"

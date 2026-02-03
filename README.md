@@ -53,11 +53,14 @@ Built from the ground up with intelligent performance optimization, comprehensiv
 ### One-Line Installation
 
 ```bash
-# Recommended (standard profile)
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
+# Recommended - runs in subshell with TTY for sudo prompts
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)"
+
+# Alternative - pre-authenticate sudo then pipe
+sudo -v && curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 
 # With AI coding tools
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash -s -- install ai-dev
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)" -- install ai-dev
 ```
 
 ### Manual Installation
@@ -385,7 +388,7 @@ Built with love for the developer community, incorporating best practices and mo
 **Join thousands of developers who've revolutionized their workflow**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)"
 ```
 
 *Installation takes 2-5 minutes. Rollback available if needed.*

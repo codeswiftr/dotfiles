@@ -9,7 +9,7 @@
 #   ./bootstrap.sh install full
 # =============================================================================
 
-set -e
+set -eo pipefail
 
 # Configuration
 REPO_URL="https://github.com/codeswiftr/dotfiles.git"
@@ -60,6 +60,52 @@ check_user() {
     fi
 }
 
+# Ensure sudo works in non-interactive mode
+setup_sudo() {
+    # Check if we need sudo at all
+    if [[ $EUID -eq 0 ]]; then
+        # Running as root, no sudo needed
+        SUDO_CMD=""
+        return 0
+    fi
+
+    # Check if sudo is available
+    if ! command -v sudo >/dev/null 2>&1; then
+        log_error "sudo is required but not installed"
+        return 1
+    fi
+
+    # Check if we have a TTY for password prompt
+    if [[ -t 0 ]]; then
+        # Interactive mode - can prompt for password
+        SUDO_CMD="sudo"
+        log_info "Interactive mode: sudo will prompt for password if needed"
+        # Pre-authenticate sudo to cache credentials
+        sudo -v || {
+            log_error "sudo authentication failed"
+            return 1
+        }
+    else
+        # Non-interactive (piped) mode
+        # Check if sudo works without password (NOPASSWD configured)
+        if sudo -n true 2>/dev/null; then
+            SUDO_CMD="sudo"
+            log_info "Passwordless sudo available"
+        else
+            log_error "No TTY available for sudo password prompt"
+            echo "" >&2
+            echo -e "${YELLOW}To install in non-interactive mode, either:${NC}" >&2
+            echo "  1. Run with TTY: bash -c \"\$(curl -fsSL URL)\"" >&2
+            echo "  2. Pre-authenticate: sudo -v && curl -fsSL URL | bash" >&2
+            echo "  3. Configure NOPASSWD in /etc/sudoers for apt commands" >&2
+            echo "" >&2
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
 # Install prerequisites
 install_prerequisites() {
     log_step "Checking prerequisites..."
@@ -107,20 +153,24 @@ install_prerequisites() {
     elif command -v apt-get >/dev/null 2>&1; then
         # Ubuntu/Debian
         log_info "Detected Ubuntu/Debian system"
-        sudo apt-get update -qq || error_exit "Failed to update package list"
-        sudo apt-get install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        setup_sudo || error_exit "sudo setup failed"
+        $SUDO_CMD apt-get update -qq || error_exit "Failed to update package list"
+        $SUDO_CMD apt-get install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     elif command -v yum >/dev/null 2>&1; then
         # RHEL/CentOS
         log_info "Detected RHEL/CentOS system"
-        sudo yum install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        setup_sudo || error_exit "sudo setup failed"
+        $SUDO_CMD yum install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     elif command -v dnf >/dev/null 2>&1; then
         # Fedora
         log_info "Detected Fedora system"
-        sudo dnf install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        setup_sudo || error_exit "sudo setup failed"
+        $SUDO_CMD dnf install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     elif command -v pacman >/dev/null 2>&1; then
         # Arch Linux
         log_info "Detected Arch Linux system"
-        sudo pacman -Sy --noconfirm git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        setup_sudo || error_exit "sudo setup failed"
+        $SUDO_CMD pacman -Sy --noconfirm git curl wget ca-certificates || error_exit "Failed to install prerequisites"
     else
         log_warning "Unknown package manager."
         echo "" >&2

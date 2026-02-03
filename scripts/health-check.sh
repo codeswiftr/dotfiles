@@ -35,13 +35,29 @@ print_info() {
 }
 
 check_command() {
-    if command -v "$1" >/dev/null 2>&1; then
-        print_success "$1 is installed"
+    local cmd="$1"
+    local alt_cmd="$2"  # Optional alternative command name
+
+    if command -v "$cmd" >/dev/null 2>&1; then
+        print_success "$cmd is installed"
+        return 0
+    elif [[ -n "$alt_cmd" ]] && command -v "$alt_cmd" >/dev/null 2>&1; then
+        print_success "$cmd is installed (as $alt_cmd)"
         return 0
     else
-        print_error "$1 is not installed"
+        print_error "$cmd is not installed"
         return 1
     fi
+}
+
+# Check command with Ubuntu/Debian alternative names
+check_command_with_alt() {
+    local cmd="$1"
+    case "$cmd" in
+        bat)  check_command "bat" "batcat" ;;
+        fd)   check_command "fd" "fdfind" ;;
+        *)    check_command "$cmd" ;;
+    esac
 }
 
 check_optional_command() {
@@ -76,7 +92,7 @@ print_info "Shell: $SHELL"
 tools=(starship zoxide eza bat rg fd fzf mise git nvim tmux)
 declare -A TOOL_STATUS
 for t in "${tools[@]}"; do
-    if check_command "$t"; then
+    if check_command_with_alt "$t"; then
         TOOL_STATUS[$t]="ok"
     else
         TOOL_STATUS[$t]="missing"
