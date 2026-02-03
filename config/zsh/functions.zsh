@@ -30,6 +30,9 @@ function proj() {
 }
 
 # dot reload wrapper: reload all configs in the current interactive shell
+# Unset any existing alias to allow function redefinition on reload
+unalias dot-reload 2>/dev/null || true
+
 dot-reload() {
     # 1) tmux: reload server-side config
     if command -v tmux >/dev/null 2>&1; then
@@ -45,9 +48,6 @@ dot-reload() {
         echo "✅ Reloaded shell configuration (zsh)"
     fi
 }
-
-# Alias for convenience (muscle memory)
-alias dot-reload='dot-reload'
 
 # Tmux session management
 function tmux-project() {

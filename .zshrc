@@ -36,11 +36,9 @@ export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 # -----------------------------------------------------------------------------
 # 6. Optional Features (Conditional)
 # -----------------------------------------------------------------------------
-# AI tools (async loading for faster startup)
+# AI tools (loaded synchronously to ensure functions are available)
 if [[ -z "$DOTFILES_FAST_MODE" ]]; then
-    {
-        [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
-    } &
+    [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 fi
 
 # FORGE integration (only if FORGE_ROOT exists)
@@ -57,7 +55,7 @@ fi
 # 8. Welcome Message (Interactive shells only)
 # -----------------------------------------------------------------------------
 if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
-    echo "🚀 ZSH Ready - $(date +%H:%M)"
+    echo "🚀 ZSH Ready - $(/bin/date +%H:%M)"
     
     # Tool availability (compact)
     local tools=("starship" "zoxide" "eza" "bat" "rg" "fd" "fzf" "mise")

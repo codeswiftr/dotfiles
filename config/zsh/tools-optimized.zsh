@@ -25,7 +25,7 @@ init_completions_smart() {
     local completion_cache_dir="${ZDOTDIR:-$HOME}/.zsh_completion_cache"
     
     # Create completion cache directory
-    mkdir -p "$completion_cache_dir"
+    [[ -d "$completion_cache_dir" ]] || /bin/mkdir -p "$completion_cache_dir"
     
     # Check if we need to rebuild completions
     local rebuild_needed=false
@@ -323,14 +323,8 @@ init_tools_optimized() {
 }
 
 # ============================================================================
-# Export Functions and Initialize
+# Initialize
 # ============================================================================
-
-# Make functions available
-export -f mise_lazy_loader
-export -f atuin_lazy_loader
-export -f docker_lazy_loader
-export -f kubectl_lazy_loader
 
 # Initialize optimized tools
 init_tools_optimized

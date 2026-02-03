@@ -12,28 +12,19 @@
 smart_lazy_load() {
     local cmd="$1"
     local load_func="$2"
-    local cache_file="$HOME/.cache/dotfiles/lazy_${cmd}"
-    
-    # Create cache directory
-    mkdir -p "$(dirname "$cache_file")"
-    
-    # Create intelligent wrapper that tracks usage and optimizes accordingly
+    local cache_dir="$HOME/.cache/dotfiles"
+
+    # Create cache directory (use full path to mkdir to avoid PATH issues)
+    [[ -d "$cache_dir" ]] || /bin/mkdir -p "$cache_dir"
+
+    # Create intelligent wrapper that tracks usage and loads the real function
     eval "$cmd() {
-        # Track usage
-        echo \"\$(date +%s)\" >> \"$cache_file\"
-        
         # Load the real function
-        unfunction $cmd
+        unfunction $cmd 2>/dev/null
         $load_func
-        
+
         # Execute with original arguments
         $cmd \"\$@\"
-        
-        # If this command is used frequently, prioritize it for next startup
-        local usage_count=\$(wc -l < \"$cache_file\" 2>/dev/null || echo 0)
-        if [[ \$usage_count -gt 5 ]]; then
-            touch \"$HOME/.cache/dotfiles/priority_${cmd}\"
-        fi
     }"
 }
 
@@ -61,7 +52,7 @@ preload_priority_commands() {
 # Compile all completion files for maximum speed
 compile_all_completions() {
     local zsh_cache_dir="${ZDOTDIR:-$HOME}/.zsh_cache"
-    mkdir -p "$zsh_cache_dir"
+    [[ -d "$zsh_cache_dir" ]] || /bin/mkdir -p "$zsh_cache_dir"
     
     perf_time "Compiling completions for speed"
     

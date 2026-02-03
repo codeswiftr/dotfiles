@@ -6,7 +6,8 @@
 # ----------------------------------------------------------------------------
 # Core PATH (single source)
 # ----------------------------------------------------------------------------
-export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
+# Ensure essential system paths are always present
+export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 export PATH="$DOTFILES_DIR/bin:$PATH"
 
 # ----------------------------------------------------------------------------

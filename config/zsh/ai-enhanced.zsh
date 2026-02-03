@@ -21,7 +21,9 @@ alias aidocs="ai_generate_docs"
 alias aifix="ai_suggest_refactor"
 alias aiexplain="ai_explain_code"
 
-# Smart commit with AI
+# Smart commit with AI (unalias to allow function definition on reload)
+unalias gc 2>/dev/null || true
+
 gc() {
     if [[ $# -eq 0 ]]; then
         # No message provided, use AI
@@ -420,6 +422,4 @@ ai-setup() {
     echo "✅ AI integration ready!"
 }
 
-# Export functions for use in other scripts
-export -f gc pr-review project-analyze debug-ai smart-test optimize-code
-export -f deps-analyze docs-ai learn fix-error migrate-code profile-ai security-ai
+# Functions are available in current shell session

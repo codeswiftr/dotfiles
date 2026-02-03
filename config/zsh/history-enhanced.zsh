@@ -53,28 +53,26 @@ fi
 if command -v _zsh_autosuggest_start >/dev/null 2>&1; then
     # Suggestion strategy: prioritize history, then completion
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-    
+
     # Suggestion highlighting
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#666666,underline"
-    
+
     # Accept suggestion with right arrow or Ctrl+F
     bindkey '^F' autosuggest-accept
     bindkey '^[[C' autosuggest-accept  # Right arrow
-    
+
     # Accept only one word of suggestion with Ctrl+Right
     bindkey '^[[1;5C' autosuggest-accept-word
-    
+
     # Clear suggestion with Escape
     bindkey '^[' autosuggest-clear
-    
+
     # Manual trigger (if needed)
     bindkey '^T' autosuggest-execute-suggestion
-    
+
     # Performance optimization
     ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
     ZSH_AUTOSUGGEST_USE_ASYNC=true
-    
-    echo "✅ Fish-like autosuggestions enabled"
 fi
 
 # ============================================================================
@@ -108,17 +106,15 @@ if command -v history-substring-search-up >/dev/null 2>&1; then
     # Bind up and down arrows to substring search
     bindkey '^[[A' history-substring-search-up
     bindkey '^[[B' history-substring-search-down
-    
+
     # Also bind k and j in vicmd mode
     bindkey -M vicmd 'k' history-substring-search-up
     bindkey -M vicmd 'j' history-substring-search-down
-    
+
     # Configuration options
     HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=green,fg=white,bold'
     HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=red,fg=white,bold'
     HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='i'  # Case insensitive
-    
-    echo "✅ History substring search enabled"
 fi
 
 # ============================================================================
@@ -183,7 +179,6 @@ zshaddhistory() {
 if command -v atuin >/dev/null 2>&1; then
     # atuin takes precedence for Ctrl+R if available
     eval "$(atuin init zsh)"
-    echo "✅ Atuin history integration active"
 fi
 
 # Integration with zoxide for directory history
@@ -192,10 +187,5 @@ if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
 fi
 
-echo "🚀 Enhanced history and autosuggestions configured!"
-echo "💡 Usage:"
-echo "   • Type any command - see suggestions appear automatically"
-echo "   • Right arrow or Ctrl+F to accept full suggestion"
-echo "   • Up/Down arrows to search history based on what you've typed"
-echo "   • Ctrl+R for fuzzy history search"
-echo "   • hist-stats to see your most used commands"
+# History and autosuggestions configured silently
+# Use 'hist-stats' to see most used commands

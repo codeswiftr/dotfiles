@@ -1610,7 +1610,7 @@ Analyze the diff and provide ONE commit message line."
         echo ""
         
         read -p "Use this commit message? [Y/n]: " -r response
-        if [[ "$response" =~ ^[Yy]$|^$ ]]; then
+        if [[ -z "$response" || "$response" =~ ^[Yy]$ ]]; then
             if git commit -m "$commit_message"; then
                 echo "✅ Committed successfully!"
                 
@@ -2122,14 +2122,5 @@ ai_cost_optimization() {
     return 0
 }
 
-# Export all functions for use in other scripts
-export -f ai_code_review ai_generate_commit ai_generate_tests ai_generate_docs ai_suggest_refactor setup_ai_integration
-export -f ai_explain_code ai_security_scan ai_analyze_security ai_performance_analysis ai_analyze_performance
-export -f ai_analyze_dependencies ai_explain_concept ai_resolve_error ai_migrate_code ai_dependency_security_check
-export -f ai_config_security_review ai_analyze_config_security ai_generate_security_report ai_generate_project_metrics
-
-# Export Epic 5 functions
-export -f claude_provider_implementation openai_provider_implementation gemini_provider_implementation local_ai_implementation
-export -f ai_api_call ai_smart_commit ai_branch_naming ai_pr_description ai_project_analysis
-export -f ai_context_management ai_preference_learning ai_security_filtering ai_cost_optimization
-export -f ai_refactor_suggestions ai_review_file ai_detect_test_framework ai_generate_test_filename
+# Functions are available in current shell session
+# Note: export -f is bash-specific and causes output in zsh, so we skip it
