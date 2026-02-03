@@ -197,12 +197,12 @@ dot_check() {
         fi
         
         if [[ "$quiet" != "true" ]] && [[ $tmux_issues -eq 0 ]]; then
-            # Check total binding count and configuration type
-            local binding_count=$(tmux list-keys 2>/dev/null | rg -c "bind-key.*-T prefix" || echo 0)
-            if grep -q "ULTIMATE Tmux Configuration" ~/.tmux.conf 2>/dev/null; then
-                print_success "Using ultimate tmux config ($binding_count essential bindings)"
-            elif [[ $binding_count -gt 40 ]]; then
-                print_warning "Tmux has $binding_count bindings (complex config - consider 'dot update' for streamlined version)"
+            # Check configuration type by looking for markers in config
+            local tmux_conf="$HOME/dotfiles/config/tmux/tmux.conf"
+            if grep -q "STREAMLINED" "$tmux_conf" 2>/dev/null; then
+                print_success "Using streamlined tmux config (~25 essential bindings)"
+            elif grep -q "ULTIMATE Tmux Configuration" ~/.tmux.conf 2>/dev/null; then
+                print_success "Using ultimate tmux config"
             fi
         fi
     fi
