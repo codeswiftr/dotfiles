@@ -717,6 +717,81 @@ link_dotfile() {
     fi
 }
 
+# =============================================================================
+# Claude Code Configuration Linking
+# =============================================================================
+
+# Link Claude Code configuration files
+link_claude_config() {
+    print_header "Linking Claude Code Configuration"
+
+    local claude_source="$DOTFILES_DIR/config/claude"
+    local claude_target="$HOME/.claude"
+    local linked_count=0
+    local failed_links=()
+
+    # Check if Claude config exists in dotfiles
+    if [[ ! -d "$claude_source" ]]; then
+        print_info "Claude Code config not found in dotfiles, skipping"
+        return 0
+    fi
+
+    # Create ~/.claude if it doesn't exist
+    if [[ "$DRY_RUN" == "true" ]]; then
+        print_info "DRY RUN: Would create $claude_target"
+    else
+        mkdir -p "$claude_target"
+    fi
+
+    # Link directories (commands, agents, skills, output-styles)
+    local dirs=("commands" "agents" "skills" "output-styles")
+    for dir in "${dirs[@]}"; do
+        if [[ -d "$claude_source/$dir" ]]; then
+            if link_dotfile "$claude_source/$dir" "$claude_target/$dir"; then
+                ((linked_count++))
+            else
+                failed_links+=("$dir")
+            fi
+        fi
+    done
+
+    # Link individual files
+    local files=("CLAUDE.md" "WORKFLOW_GUIDE.md" "starship-statusline.sh")
+    for file in "${files[@]}"; do
+        if [[ -f "$claude_source/$file" ]]; then
+            if link_dotfile "$claude_source/$file" "$claude_target/$file"; then
+                ((linked_count++))
+            else
+                failed_links+=("$file")
+            fi
+        fi
+    done
+
+    # Handle settings.json template
+    if [[ -f "$claude_source/settings.json.template" ]]; then
+        if [[ "$DRY_RUN" == "true" ]]; then
+            print_info "DRY RUN: Would generate $claude_target/settings.json from template"
+        elif [[ ! -f "$claude_target/settings.json" ]]; then
+            print_step "Generating settings.json from template..."
+            # Expand $HOME in the template
+            sed "s|\$HOME|$HOME|g" "$claude_source/settings.json.template" > "$claude_target/settings.json"
+            print_success "Generated settings.json"
+            ((linked_count++))
+        else
+            print_info "settings.json already exists, skipping (won't overwrite)"
+        fi
+    fi
+
+    # Summary
+    print_success "Successfully linked $linked_count Claude Code configs"
+
+    if [[ ${#failed_links[@]} -gt 0 ]]; then
+        print_warning "Failed to link: ${failed_links[*]}"
+    fi
+
+    return 0
+}
+
 # Show available profiles
 show_profiles() {
     print_header "Available Installation Profiles"
@@ -1141,6 +1216,7 @@ main() {
             setup_package_manager
             install_profile "$PROFILE"
             link_dotfiles
+            link_claude_config
 
             # Run plugin validations and setup
             run_post_install_validations
@@ -1177,6 +1253,7 @@ main() {
         "link")
             print_header "Linking Dotfiles Only"
             link_dotfiles
+            link_claude_config
             print_success "Linking completed!"
             ;;
         *)
