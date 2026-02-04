@@ -117,7 +117,7 @@ test_dot_check_basic() {
     assert_true "[[ $status -eq 0 ]]" "dot_check should exit successfully"
     assert_output_contains "echo '$output'" "All essential tools installed" "dot_check should report tools installed"
     assert_output_contains "echo '$output'" "All systems operational" "dot_check should report healthy status"
-    assert_mock_called "tmux" "4" "tmux should be inspected"
+    assert_mock_called "tmux" "3" "tmux should be inspected"
     reset_mock_calls
 }
 

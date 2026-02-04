@@ -183,28 +183,28 @@ backup_create() {
     # Perform backup based on type
     case "$backup_type" in
         "$BACKUP_TYPE_FULL")
-            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            if [[ ${#include_paths[@]} -gt 0 ]]; then
                 create_full_backup "$backup_path" "${include_paths[@]}"
             else
                 create_full_backup "$backup_path"
             fi
             ;;
         "$BACKUP_TYPE_INCREMENTAL")
-            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            if [[ ${#include_paths[@]} -gt 0 ]]; then
                 create_incremental_backup "$backup_path" "${include_paths[@]}"
             else
                 create_incremental_backup "$backup_path"
             fi
             ;;
         "$BACKUP_TYPE_DIFFERENTIAL")
-            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            if [[ ${#include_paths[@]} -gt 0 ]]; then
                 backup_differential "$backup_path" "${include_paths[@]}"
             else
                 backup_differential "$backup_path"
             fi
             ;;
         "$BACKUP_TYPE_CONFIG_ONLY")
-            if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+            if [[ ${#include_paths[@]} -gt 0 ]]; then
                 create_config_backup "$backup_path" "${include_paths[@]}"
             else
                 create_config_backup "$backup_path"
@@ -284,7 +284,7 @@ create_full_backup() {
     echo "📦 Creating full backup..."
     
     # Default paths if none specified
-    if [[ ${#include_paths[@]:-0} -eq 0 ]]; then
+    if [[ ${#include_paths[@]} -eq 0 ]]; then
         include_paths=(
             "$DOTFILES_DIR"
             "$HOME/.config"
@@ -397,7 +397,7 @@ create_incremental_backup() {
     
     if [[ -z "$base_backup" ]]; then
         echo "⚠️  No base backup found, creating full backup instead"
-        if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+        if [[ ${#include_paths[@]} -gt 0 ]]; then
             create_full_backup "$backup_path" "${include_paths[@]}"
         else
             create_full_backup "$backup_path"
@@ -415,7 +415,7 @@ create_incremental_backup() {
     if [[ ! -f "$base_index_file" ]]; then
         echo "  ⚠️  Base backup index not found, using timestamp comparison"
         # Use the base index file as a stable reference for -newer
-        if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+        if [[ ${#include_paths[@]} -gt 0 ]]; then
             backup_changes_since "$backup_path" "$base_index_file" "${include_paths[@]}"
         else
             backup_changes_since "$backup_path" "$base_index_file"
@@ -424,7 +424,7 @@ create_incremental_backup() {
     fi
     
     # Perform efficient incremental backup using file index comparison
-    if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+    if [[ ${#include_paths[@]} -gt 0 ]]; then
         perform_incremental_backup "$backup_path" "$base_index_file" "${include_paths[@]}"
     else
         perform_incremental_backup "$backup_path" "$base_index_file"
@@ -1795,7 +1795,7 @@ update_manifest_contents() {
         local tmpfile
         tmpfile=$(mktemp)
         local contents_json
-        if [[ ${#include_paths[@]:-0} -gt 0 ]]; then
+        if [[ ${#include_paths[@]} -gt 0 ]]; then
             # Safely build JSON array of include paths
             contents_json=$(printf '%s\n' "${include_paths[@]}" | jq -R . | jq -s .)
         else

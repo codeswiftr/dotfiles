@@ -38,3 +38,6 @@ fi
 
 # Secret PATH additions (API keys, tokens, etc.)
 [[ -f "$HOME/.paths.local" ]] && source "$HOME/.paths.local"
+
+# Ensure script exits with success
+true

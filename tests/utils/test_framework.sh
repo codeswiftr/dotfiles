@@ -4,7 +4,8 @@
 # Provides reusable testing functions and assertions
 # =============================================================================
 
-set -euo pipefail
+set -uo pipefail
+# Note: -e is not set so tests continue running after failures
 
 # Test configuration
 TEST_FRAMEWORK_VERSION="1.0.0"

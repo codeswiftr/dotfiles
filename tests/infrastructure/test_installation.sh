@@ -128,15 +128,16 @@ test_version_management() {
 }
 
 test_minimal_profile_dry_run() {
-    timeout 30 bash -c './install.sh --dry-run install minimal >/dev/null 2>&1'
+    # Use pipe through cat to avoid stdout redirection issues with set -e scripts
+    timeout 30 bash -c './install.sh --dry-run install minimal 2>&1 | cat >/dev/null'
 }
 
 test_standard_profile_dry_run() {
-    timeout 30 bash -c './install.sh --dry-run install standard >/dev/null 2>&1'
+    timeout 30 bash -c './install.sh --dry-run install standard 2>&1 | cat >/dev/null'
 }
 
 test_full_profile_dry_run() {
-    timeout 30 bash -c './install.sh --dry-run install full >/dev/null 2>&1'
+    timeout 30 bash -c './install.sh --dry-run install full 2>&1 | cat >/dev/null'
 }
 
 test_cross_platform_detection() {

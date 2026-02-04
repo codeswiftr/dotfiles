@@ -43,9 +43,9 @@ setup_integration_test() {
     cp -r "$DOTFILES_DIR/lib" "$MOCK_DOTFILES/"
     cp -r "$DOTFILES_DIR/bin" "$MOCK_DOTFILES/"
     
-    # Make scripts executable
+    # Make scripts executable (ignore errors from dangling symlinks)
     chmod +x "$MOCK_DOTFILES/install.sh"
-    chmod +x "$MOCK_DOTFILES/bin"/*
+    find "$MOCK_DOTFILES/bin" -maxdepth 1 -type f -exec chmod +x {} \; 2>/dev/null || true
     
     # Mock system dependencies
     mock_installation_deps

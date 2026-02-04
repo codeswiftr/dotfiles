@@ -35,11 +35,12 @@ else
 fi
 
 # Tier 1 should not have ToggleTerm command (Tier 2 feature)
-if NVIM_TIER=1 nvim --headless +"silent! ToggleTerm" +qall >/dev/null 2>&1; then
-  # If no error, command existed; that's a failure for tier isolation
-  test_fail "Tier 1 unexpectedly has ToggleTerm"
-else
+# Use :command to check if the command is defined (exits non-zero if not found)
+if NVIM_TIER=1 nvim --headless +"if exists(':ToggleTerm') | cquit 1 | else | quit | endif" 2>/dev/null; then
   test_pass "Tier 1 does not expose ToggleTerm"
+else
+  # cquit 1 was triggered, meaning the command exists
+  test_fail "Tier 1 unexpectedly has ToggleTerm"
 fi
 
 # Tier 1 should still be able to run Telescope find_files mapping
