@@ -2,7 +2,10 @@
 
 # CLI Tests - Dot health command
 
-set -euo pipefail
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -15,29 +18,27 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[PASS]${NC} $1"; ((TESTS_PASSED++)); }
-log_error() { echo -e "${RED}[FAIL]${NC} $1"; ((TESTS_FAILED++)); }
+log_success() { echo -e "${GREEN}[PASS]${NC} $1"; TESTS_PASSED=$((TESTS_PASSED + 1)); }
+log_error() { echo -e "${RED}[FAIL]${NC} $1"; TESTS_FAILED=$((TESTS_FAILED + 1)); }
 
 run_test() {
   local name="$1"; shift
-  ((TESTS_RUN++))
+  TESTS_RUN=$((TESTS_RUN + 1))
   log_info "Running test: $name"
-  set +e
   if "$@"; then
     log_success "$name"
   else
     log_error "$name"
   fi
-  set -e
 }
 
 test_dot_health_human() {
-  ./bin/dot health >/dev/null 2>&1
+  "$DOTFILES_DIR/bin/dot" health >/dev/null 2>&1
 }
 
 test_dot_health_json() {
   local out
-  out=$(./bin/dot health --json 2>/dev/null)
+  out=$("$DOTFILES_DIR/bin/dot" health --json 2>/dev/null)
   [[ "$out" == *"{"* ]] && [[ "$out" == *"}"* ]]
 }
 

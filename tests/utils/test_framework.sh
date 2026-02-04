@@ -319,9 +319,85 @@ assert_output_contains() {
 # Skip a test with a message
 skip_test() {
     local message="${1:-Test skipped}"
-    
+
     ((TEST_SKIP_COUNT++))
     log_warning "$message"
+}
+
+# =============================================================================
+# Additional Assertion Functions (for security tests compatibility)
+# =============================================================================
+
+# Run a test case with description
+test_case() {
+    local description="${1:-Test case}"
+    log_info "Test case: $description"
+}
+
+# Assert that a command/value indicates success (exit code 0 or truthy)
+assert_success() {
+    local description="${1:-Operation should succeed}"
+    local exit_code="${2:-$?}"
+
+    if [[ "$exit_code" -eq 0 ]]; then
+        ((TEST_PASS_COUNT++))
+        log_success "$description"
+        return 0
+    else
+        ((TEST_FAIL_COUNT++))
+        log_error "$description (exit code: $exit_code)"
+        return 1
+    fi
+}
+
+# Assert that a value is greater than another
+assert_greater_than() {
+    local actual="$1"
+    local threshold="$2"
+    local message="${3:-Value should be greater than $threshold}"
+
+    if [[ "$actual" -gt "$threshold" ]] 2>/dev/null; then
+        ((TEST_PASS_COUNT++))
+        log_success "$message (got: $actual)"
+        return 0
+    else
+        ((TEST_FAIL_COUNT++))
+        log_error "$message (got: $actual, expected > $threshold)"
+        return 1
+    fi
+}
+
+# Assert that a value is less than another
+assert_less_than() {
+    local actual="$1"
+    local threshold="$2"
+    local message="${3:-Value should be less than $threshold}"
+
+    if [[ "$actual" -lt "$threshold" ]] 2>/dev/null; then
+        ((TEST_PASS_COUNT++))
+        log_success "$message (got: $actual)"
+        return 0
+    else
+        ((TEST_FAIL_COUNT++))
+        log_error "$message (got: $actual, expected < $threshold)"
+        return 1
+    fi
+}
+
+# Assert failure (for negative tests)
+assert_fail() {
+    local description="${1:-Operation should fail}"
+    local exit_code="${2:-$?}"
+
+    if [[ "$exit_code" -ne 0 ]]; then
+        ((TEST_PASS_COUNT++))
+        log_success "$description"
+        return 0
+    else
+        ((TEST_FAIL_COUNT++))
+        log_error "$description (expected failure, got success)"
+        return 1
+    fi
 }
 
 # =============================================================================

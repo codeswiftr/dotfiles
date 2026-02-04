@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$DOTFILES_DIR"
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
@@ -11,20 +15,18 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[PASS]${NC} $1"; ((TESTS_PASSED++)); }
-log_error() { echo -e "${RED}[FAIL]${NC} $1"; ((TESTS_FAILED++)); }
+log_success() { echo -e "${GREEN}[PASS]${NC} $1"; TESTS_PASSED=$((TESTS_PASSED + 1)); }
+log_error() { echo -e "${RED}[FAIL]${NC} $1"; TESTS_FAILED=$((TESTS_FAILED + 1)); }
 
 run_test() {
   local name="$1"; shift
-  ((TESTS_RUN++))
+  TESTS_RUN=$((TESTS_RUN + 1))
   log_info "Running test: $name"
-  set +e
   if "$@"; then
     log_success "$name"
   else
     log_error "$name"
   fi
-  set -e
 }
 
 make_fixture() {

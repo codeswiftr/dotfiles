@@ -3,11 +3,12 @@
 # Purpose: Verify critical keybindings are properly configured after migration
 # Epic 5/9: Neovim Migration Remediation
 
-set -euo pipefail
+set -uo pipefail
 
 # Get script directory and source testing framework
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$DOTFILES_ROOT"
 
 # shellcheck source=../utils/test_framework.sh
 source "$DOTFILES_ROOT/tests/utils/test_framework.sh"

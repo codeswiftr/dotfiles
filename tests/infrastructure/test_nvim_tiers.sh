@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Infrastructure Test: Neovim Tier System
-set -euo pipefail
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$DOTFILES_DIR"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,14 +21,14 @@ test_pass() { echo -e "${GREEN}[PASS]${NC} $1"; PASSED=$((PASSED+1)); TOTAL=$((T
 test_fail() { echo -e "${RED}[FAIL]${NC} $1"; FAILED=$((FAILED+1)); TOTAL=$((TOTAL+1)); }
 
 # dot nvim tier set/get
-if ./bin/dot nvim tier set 1 >/dev/null 2>&1 && [[ "$(./bin/dot nvim tier get)" == "1" ]]; then
+if "$DOTFILES_DIR/bin/dot" nvim tier set 1 >/dev/null 2>&1 && [[ "$("$DOTFILES_DIR/bin/dot" nvim tier get)" == "1" ]]; then
   test_pass "dot nvim tier set/get works (1)"
 else
   test_fail "dot nvim tier set/get failed (1)"
 fi
 
 # Bench should produce a last line with ms
-if ./bin/dot nvim tier bench 1 >/dev/null 2>&1; then
+if "$DOTFILES_DIR/bin/dot" nvim tier bench 1 >/dev/null 2>&1; then
   test_pass "dot nvim tier bench executes"
 else
   test_fail "dot nvim tier bench failed"

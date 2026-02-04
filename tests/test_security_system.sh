@@ -6,8 +6,8 @@
 
 # Test setup
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/testing.sh"
-source "$SCRIPT_DIR/../lib/security-system.sh" 2>/dev/null || echo "Security system not loaded"
+source "$SCRIPT_DIR/utils/test_framework.sh"
+source "$SCRIPT_DIR/../lib/cli/security.sh" 2>/dev/null || true
 
 # Test configuration
 TEST_SECURITY_DIR="/tmp/security_test_$$"

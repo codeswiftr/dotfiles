@@ -1,12 +1,16 @@
 #!/bin/bash
 # Release script tests (dry run)
-set -euo pipefail
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$DOTFILES_DIR"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
 TESTS_RUN=0; TESTS_PASSED=0; TESTS_FAILED=0
-pass(){ echo -e "${GREEN}[PASS]${NC} $1"; ((TESTS_PASSED++)); }
-fail(){ echo -e "${RED}[FAIL]${NC} $1"; ((TESTS_FAILED++)); }
-run(){ set +e; ((TESTS_RUN++)); "$@"; local ec=$?; set -e; return $ec; }
+pass(){ echo -e "${GREEN}[PASS]${NC} $1"; TESTS_PASSED=$((TESTS_PASSED + 1)); }
+fail(){ echo -e "${RED}[FAIL]${NC} $1"; TESTS_FAILED=$((TESTS_FAILED + 1)); }
+run(){ TESTS_RUN=$((TESTS_RUN + 1)); "$@"; }
 
 CUR=$(tr -d '\n' < VERSION)
 # dry-run minor bump should print both current and next

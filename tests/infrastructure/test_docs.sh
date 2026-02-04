@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Docs System Tests  
+# Docs System Tests
 set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$DOTFILES_DIR"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -11,21 +15,21 @@ TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
 
-pass() { 
+pass() {
     echo -e "${GREEN}[PASS]${NC} $1"
-    ((TESTS_PASSED++))
-    ((TESTS_RUN++))
+    TESTS_PASSED=$((TESTS_PASSED + 1))
+    TESTS_RUN=$((TESTS_RUN + 1))
 }
 
-fail() { 
+fail() {
     echo -e "${RED}[FAIL]${NC} $1"
-    ((TESTS_FAILED++))
-    ((TESTS_RUN++))
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+    TESTS_RUN=$((TESTS_RUN + 1))
 }
 
 # Test 1: dot docs check should pass (if command exists)
-if grep -q "docs_cli" bin/dot; then
-    if DOTFILES_DIR=$(pwd) ./bin/dot docs check >/dev/null 2>&1; then
+if grep -q "docs_cli" "$DOTFILES_DIR/bin/dot"; then
+    if DOTFILES_DIR="$DOTFILES_DIR" "$DOTFILES_DIR/bin/dot" docs check >/dev/null 2>&1; then
         pass "dot docs check passes"
     else
         fail "dot docs check failed"

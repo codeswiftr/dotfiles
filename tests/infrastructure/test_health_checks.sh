@@ -3,7 +3,11 @@
 # Dotfiles Health Check Testing Framework
 # Tests health check accuracy and system validation
 
-set -euo pipefail
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$DOTFILES_DIR"
 
 # Colors for output
 RED='\033[0;31m'
@@ -24,12 +28,12 @@ log_info() {
 
 log_success() {
     echo -e "${GREEN}[PASS]${NC} $1"
-    ((TESTS_PASSED++))
+    TESTS_PASSED=$((TESTS_PASSED + 1))
 }
 
 log_error() {
     echo -e "${RED}[FAIL]${NC} $1"
-    ((TESTS_FAILED++))
+    TESTS_FAILED=$((TESTS_FAILED + 1))
 }
 
 log_warning() {
@@ -39,19 +43,15 @@ log_warning() {
 run_test() {
     local test_name="$1"
     local test_function="$2"
-    
-    ((TESTS_RUN++))
+
+    TESTS_RUN=$((TESTS_RUN + 1))
     log_info "Running test: $test_name"
-    
-    # Disable exit on error for test execution
-    set +e
+
     if $test_function; then
         log_success "$test_name"
     else
         log_error "$test_name"
     fi
-    # Re-enable exit on error
-    set -e
 }
 
 # Test functions
