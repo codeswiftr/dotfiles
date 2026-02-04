@@ -65,3 +65,12 @@ if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
     done
     [[ ${#available[@]} -gt 0 ]] && echo "🔧 Tools: ${available[*]}"
 fi
+
+# Atuin shell history (if installed)
+if [[ -f "$HOME/.atuin/bin/env" ]]; then
+    . "$HOME/.atuin/bin/env"
+    eval "$(atuin init zsh)"
+fi
+
+# OpenCode (if installed)
+[[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"

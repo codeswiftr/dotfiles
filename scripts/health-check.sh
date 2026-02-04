@@ -133,6 +133,12 @@ echo "🤖 AI Tools:"
 check_optional_command "claude"
 check_optional_command "gemini"
 check_optional_command "aider"
+check_optional_command "pi"
+check_optional_command "codex"
+
+echo ""
+echo "📜 Shell Enhancements:"
+check_optional_command "atuin"
 
 echo ""
 echo "🔌 Neovim Providers:"
@@ -152,16 +158,22 @@ echo ""
 echo "📁 Configuration Files:"
 configs=(
     "$HOME/.zshrc"
-    "$HOME/.config/nvim/init.lua"
+    "$HOME/.config/nvim/init.lua:$HOME/.config/nvim/lua/core/init.lua"
     "$HOME/.tmux.conf"
-    "$HOME/.config/starship.toml"
+    "$HOME/.config/starship.toml:${DOTFILES_DIR:-$HOME/dotfiles}/config/starship.toml"
 )
 
 declare -A CONFIG_STATUS
-for config in "${configs[@]}"; do
-    if [[ -f "$config" ]]; then
-        print_success "$(basename "$config") exists"
-        CONFIG_STATUS["$(basename "$config")"]="ok"
+for config_entry in "${configs[@]}"; do
+    # Support alternate paths separated by colon (primary:alternate)
+    IFS=':' read -r config alt_config <<< "$config_entry"
+    config_name="$(basename "$config")"
+    if [[ -f "$config" ]] || [[ -L "$config" ]]; then
+        print_success "$config_name exists"
+        CONFIG_STATUS["$config_name"]="ok"
+    elif [[ -n "$alt_config" ]] && { [[ -f "$alt_config" ]] || [[ -L "$alt_config" ]]; }; then
+        print_success "$config_name exists (alternate location)"
+        CONFIG_STATUS["$config_name"]="ok"
     else
         print_error "$(basename "$config") is missing"
         CONFIG_STATUS["$(basename "$config")"]="missing"
