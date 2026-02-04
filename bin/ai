@@ -16,6 +16,11 @@ if [[ -d "$HOME/.local/share/mise/shims" ]]; then
     export PATH="$HOME/.local/share/mise/shims:$PATH"
 fi
 
+# Ensure Cursor Agent is in PATH
+if [[ -d "$HOME/.cursor-agent/bin" ]]; then
+    export PATH="$HOME/.cursor-agent/bin:$PATH"
+fi
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -37,7 +42,7 @@ USAGE:
 
 AGENTS:
     claude, c      Claude Code (Anthropic) - Primary agentic coding
-    cursor, cu     Cursor Agent - IDE-integrated agent
+    cursor, agent  Cursor Agent - Headless AI coding agent
     aider, a       Aider - Git-aware pair programming
     opencode, oc   OpenCode - Open source AI agent
     amp            Amp - Sourcegraph's coding agent
@@ -50,7 +55,7 @@ EXAMPLES:
     ai                     # Launch default agent (claude)
     ai claude              # Launch Claude Code
     ai aider --model gpt4  # Launch Aider with specific model
-    ai cursor agent        # Launch Cursor Agent mode
+    ai agent -p "explain"  # Cursor Agent in print mode
     ai --list              # Show installed agents
 
 ENVIRONMENT:
@@ -65,7 +70,7 @@ list_agents() {
 
     local agents=(
         "claude:Claude Code:claude --version"
-        "cursor:Cursor Agent:cursor --version 2>/dev/null || test -d '/Applications/Cursor.app'"
+        "agent:Cursor Agent:agent --version"
         "aider:Aider:aider --version"
         "opencode:OpenCode:opencode --version"
         "amp:Amp:amp --version"
@@ -127,14 +132,14 @@ case "$agent" in
         ;;
     
     # Cursor Agent
-    cursor|cu)
-        if command -v cursor &>/dev/null; then
-            exec cursor agent "$@"
+    cursor|agent|cu)
+        if command -v agent &>/dev/null; then
+            exec agent "$@"
         elif [[ -d "/Applications/Cursor.app" ]]; then
             exec open -a Cursor "$@"
         else
-            echo -e "${RED}Cursor not installed${NC}"
-            echo "Install: brew install --cask cursor"
+            echo -e "${RED}Cursor Agent not installed${NC}"
+            echo "Install: curl https://cursor.com/install -fsS | bash"
             exit 1
         fi
         ;;
