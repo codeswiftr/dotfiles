@@ -15,6 +15,11 @@ fi
 if command -v bat &> /dev/null; then
     alias cat="bat"
     alias less="bat"
+elif command -v batcat &> /dev/null; then
+    # Ubuntu/Debian installs bat as batcat
+    alias bat="batcat"
+    alias cat="batcat"
+    alias less="batcat"
 fi
 
 if command -v fd &> /dev/null; then
