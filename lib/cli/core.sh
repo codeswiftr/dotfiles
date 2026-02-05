@@ -298,8 +298,10 @@ dot_update() {
         fi
     fi
     
-    # Pull latest changes
-    if git pull origin master; then
+    # Pull latest changes (detect default branch)
+    local default_branch
+    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@') || default_branch="main"
+    if git pull origin "$default_branch"; then
         print_success "Repository updated"
     else
         print_error "Failed to update repository"
