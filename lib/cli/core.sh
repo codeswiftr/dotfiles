@@ -381,7 +381,54 @@ dot_update() {
         print_info "Updating system packages and tools..."
         df-update --auto
     fi
-    
+
+    # Update AI coding tools
+    print_info "🤖 Updating AI coding tools..."
+    local ai_updated=()
+
+    # npm-based tools (codex, gemini, pi)
+    if command -v npm &>/dev/null; then
+        local npm_tools=("@openai/codex" "@google/gemini-cli" "@anthropic/claude-code" "@mariozechner/pi-coding-agent")
+        for tool in "${npm_tools[@]}"; do
+            if npm list -g "$tool" &>/dev/null; then
+                print_info "  Updating $tool..."
+                npm update -g "$tool" 2>/dev/null && ai_updated+=("$tool")
+            fi
+        done
+    fi
+
+    # uv-based tools (aider, kimi)
+    if command -v uv &>/dev/null; then
+        if uv tool list 2>/dev/null | grep -q "aider\|kimi"; then
+            print_info "  Updating uv tools (aider, kimi)..."
+            uv tool upgrade --all 2>/dev/null && ai_updated+=("uv-tools")
+        fi
+    fi
+
+    # Cursor Agent
+    if [[ -d "$HOME/.cursor-agent" ]]; then
+        print_info "  Updating Cursor Agent..."
+        curl -fsSL https://cursor.com/install 2>/dev/null | bash &>/dev/null && ai_updated+=("cursor-agent")
+    fi
+
+    # Amp
+    if command -v amp &>/dev/null; then
+        print_info "  Updating Amp..."
+        curl -fsSL https://ampcode.com/install.sh 2>/dev/null | bash &>/dev/null && ai_updated+=("amp")
+    fi
+
+    # OpenCode
+    if command -v opencode &>/dev/null && command -v brew &>/dev/null; then
+        print_info "  Updating OpenCode..."
+        brew upgrade opencode 2>/dev/null && ai_updated+=("opencode")
+    fi
+
+    if [[ ${#ai_updated[@]} -gt 0 ]]; then
+        print_success "Updated AI tools: ${ai_updated[*]}"
+    else
+        print_info "  All AI tools already up to date"
+    fi
+
     print_success "Environment update completed!"
     
     # Show summary of what was updated/fixed
@@ -390,6 +437,9 @@ dot_update() {
     print_info "  • Configurations reloaded automatically"
     if [[ "$conflicts_found" == "true" ]]; then
         print_info "  • Tmux keybinding conflicts resolved"
+    fi
+    if [[ ${#ai_updated[@]} -gt 0 ]]; then
+        print_info "  • AI tools: ${ai_updated[*]}"
     fi
     print_info "  • All running applications updated"
     
