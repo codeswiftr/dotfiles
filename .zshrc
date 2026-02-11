@@ -74,3 +74,11 @@ fi
 
 # OpenCode (if installed)
 [[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
+
+
+alias claw-relay='OPENCLAW_GATEWAY_TOKEN="2f7ad44859ce7df051b870d3adaaaf966a7fe34054f621546d44d5c12a27098b"
+  openclaw node run --host prya.queue-great.ts.net --port 443 --tls --display-name "m3-browser"'
+
+
+# bun completions
+[ -s "/Users/bogdan/.bun/_bun" ] && source "/Users/bogdan/.bun/_bun"
