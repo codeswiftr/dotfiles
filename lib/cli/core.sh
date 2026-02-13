@@ -547,6 +547,17 @@ dot_update() {
         fi
     fi
 
+    # Factory AI (droid)
+    if command -v droid &>/dev/null; then
+        print_info "  Updating Factory AI (droid)..."
+        if command -v brew &>/dev/null && brew list --cask droid &>/dev/null 2>&1; then
+            brew upgrade --cask droid 2>/dev/null && ai_updated+=("factory-cli")
+        else
+            # Fallback to reinstall via curl
+            curl -fsSL https://app.factory.ai/cli 2>/dev/null | bash &>/dev/null && ai_updated+=("factory-cli")
+        fi
+    fi
+
     if [[ ${#ai_updated[@]} -gt 0 ]]; then
         print_success "Updated AI tools: ${ai_updated[*]}"
     else

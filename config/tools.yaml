@@ -53,6 +53,7 @@ groups:
       - claude_code
       - cursor
       - cursor_cli
+      - factory_cli
       - aider
       - opencode
       - amp
@@ -335,6 +336,15 @@ tools:
     install:
       all: "curl https://cursor.com/install -fsS | bash"
     verify: "command -v agent >/dev/null 2>&1 || test -d '$HOME/.cursor-agent' || echo 'Cursor CLI not installed (optional)'"
+
+  factory_cli:
+    description: "Factory AI (droid) - Agent-native software development"
+    category: "ai"
+    install:
+      macos: "brew install --cask droid"
+      ubuntu: "curl -fsSL https://app.factory.ai/cli | sh"
+      arch: "curl -fsSL https://app.factory.ai/cli | sh"
+    verify: "droid --version"
 
   amp:
     description: "Amp - Sourcegraph's agentic coding CLI"
