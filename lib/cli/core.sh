@@ -360,6 +360,42 @@ dot_update() {
         print_success "Tmux configuration reloaded and verified"
     fi
     
+    # Update tmux plugins via TPM
+    print_info "📦 Checking tmux plugins..."
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [[ ! -d "$tpm_dir" ]]; then
+        print_info "  Installing TPM (Tmux Plugin Manager)..."
+        if git clone https://github.com/tmux-plugins/tpm "$tpm_dir" 2>/dev/null; then
+            print_success "  TPM installed"
+            # Install plugins if tmux is not running, or source and install
+            if [[ -x "$tpm_dir/bin/install_plugins" ]]; then
+                print_info "  Installing tmux plugins..."
+                if tmux list-sessions >/dev/null 2>&1; then
+                    # tmux is running, use tmux to run the install
+                    tmux run-shell "$tpm_dir/bin/install_plugins" 2>/dev/null || true
+                else
+                    # tmux not running, source config to trigger install
+                    tmux -f ~/.tmux.conf new-session -d -s __tmp_install_session 2>/dev/null || true
+                    tmux kill-session -t __tmp_install_session 2>/dev/null || true
+                fi
+                print_success "  Tmux plugins installed"
+            fi
+        else
+            print_warning "  Failed to install TPM"
+        fi
+    else
+        # TPM exists, update plugins
+        if [[ -x "$tpm_dir/bin/update_plugins" ]]; then
+            print_info "  Updating tmux plugins..."
+            if tmux list-sessions >/dev/null 2>&1; then
+                # Update via tmux run-shell
+                tmux run-shell "$tpm_dir/bin/update_plugins all" 2>/dev/null && print_success "  Tmux plugins updated" || print_info "  No plugin updates available"
+            else
+                print_info "  Skipping plugin update (tmux not running)"
+            fi
+        fi
+    fi
+    
     # Reload Neovim configuration for all running instances
     if command -v nvim >/dev/null 2>&1; then
         print_info "Reloading Neovim configurations..."
