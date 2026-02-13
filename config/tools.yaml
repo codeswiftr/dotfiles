@@ -59,6 +59,7 @@ groups:
       - kimi
       - gemini_cli
       - codex
+      - kilo
     optional: true
 
   ios_development:
@@ -386,6 +387,13 @@ tools:
     install:
       all: "uv tool install kimi-cli"
     verify: "kimi --version"
+
+  kilo:
+    description: "Kilo CLI - AI coding agent from Kilo Code (500+ models, BYOK support)"
+    category: "ai"
+    install:
+      all: "npm install -g @kilocode/cli"
+    verify: "kilo --version"
 
   # Optional tools
   tree:
