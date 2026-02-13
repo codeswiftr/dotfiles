@@ -419,10 +419,10 @@ dot_update() {
         fi
     fi
 
-    # Cursor Agent
-    if [[ -d "$HOME/.cursor-agent" ]]; then
-        print_info "  Updating Cursor Agent..."
-        curl -fsSL https://cursor.com/install 2>/dev/null | bash &>/dev/null && ai_updated+=("cursor-agent")
+    # Cursor Agent (cursor_cli)
+    if command -v agent &>/dev/null || [[ -d "$HOME/.cursor-agent" ]]; then
+        print_info "  Updating Cursor CLI (agent)..."
+        curl -fsSL https://cursor.com/install 2>/dev/null | bash &>/dev/null && ai_updated+=("cursor-cli")
     fi
 
     # Amp

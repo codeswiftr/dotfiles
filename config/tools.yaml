@@ -52,6 +52,7 @@ groups:
     tools:
       - claude_code
       - cursor
+      - cursor_cli
       - aider
       - opencode
       - amp
@@ -327,6 +328,13 @@ tools:
       ubuntu: "echo 'Cursor: Download AppImage from https://cursor.com/download and install manually'; true"
       arch: "echo 'Cursor: Download AppImage from https://cursor.com/download and install manually'; true"
     verify: "command -v cursor >/dev/null 2>&1 || test -d '/Applications/Cursor.app' || echo 'Cursor not installed (optional)'"
+
+  cursor_cli:
+    description: "Cursor CLI (agent) - Terminal AI coding agent"
+    category: "ai"
+    install:
+      all: "curl https://cursor.com/install -fsS | bash"
+    verify: "command -v agent >/dev/null 2>&1 || test -d '$HOME/.cursor-agent' || echo 'Cursor CLI not installed (optional)'"
 
   amp:
     description: "Amp - Sourcegraph's agentic coding CLI"
