@@ -82,3 +82,6 @@ alias claw-relay='OPENCLAW_GATEWAY_TOKEN="2f7ad44859ce7df051b870d3adaaaf966a7fe3
 
 # bun completions
 [ -s "/Users/bogdan/.bun/_bun" ] && source "/Users/bogdan/.bun/_bun"
+
+# OpenClaw Completion
+source "/home/openclaw/.openclaw/completions/openclaw.zsh"

@@ -84,6 +84,7 @@
 # Include user-specific configurations
 [include]
     path = ~/.gitconfig.local
+
 [credential "https://github.com"]
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential
