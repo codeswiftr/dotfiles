@@ -400,9 +400,9 @@ dot_update() {
     print_info "🤖 Updating AI coding tools..."
     local ai_updated=()
 
-    # npm-based tools (codex, gemini, pi)
+    # npm-based tools (codex, gemini, pi, kilo)
     if command -v npm &>/dev/null; then
-        local npm_tools=("@openai/codex" "@google/gemini-cli" "@anthropic/claude-code" "@mariozechner/pi-coding-agent")
+        local npm_tools=("@openai/codex" "@google/gemini-cli" "@anthropic/claude-code" "@mariozechner/pi-coding-agent" "@kilocode/cli")
         for tool in "${npm_tools[@]}"; do
             if npm list -g "$tool" &>/dev/null; then
                 print_info "  Updating $tool..."
@@ -435,6 +435,17 @@ dot_update() {
     if command -v opencode &>/dev/null && command -v brew &>/dev/null; then
         print_info "  Updating OpenCode..."
         brew upgrade opencode 2>/dev/null && ai_updated+=("opencode")
+    fi
+
+    # Claude Code
+    if command -v claude &>/dev/null; then
+        print_info "  Updating Claude Code..."
+        if command -v brew &>/dev/null && brew list --cask claude-code &>/dev/null 2>&1; then
+            brew upgrade --cask claude-code 2>/dev/null && ai_updated+=("claude-code")
+        else
+            # Fallback to reinstall via curl
+            curl -fsSL https://claude.ai/install.sh 2>/dev/null | bash &>/dev/null && ai_updated+=("claude-code")
+        fi
     fi
 
     if [[ ${#ai_updated[@]} -gt 0 ]]; then
