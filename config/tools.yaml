@@ -51,7 +51,6 @@ groups:
     description: "AI coding agents and assistants"
     tools:
       - claude_code
-      - cursor
       - cursor_cli
       - factory_cli
       - aider
@@ -320,15 +319,6 @@ tools:
       ubuntu: "curl -fsSL https://claude.ai/install.sh | bash"
       arch: "curl -fsSL https://claude.ai/install.sh | bash"
     verify: "claude --version"
-
-  cursor:
-    description: "Cursor - AI-first code editor"
-    category: "ai"
-    install:
-      macos: "brew install --cask cursor"
-      ubuntu: "echo 'Cursor: Download AppImage from https://cursor.com/download and install manually'; true"
-      arch: "echo 'Cursor: Download AppImage from https://cursor.com/download and install manually'; true"
-    verify: "command -v cursor >/dev/null 2>&1 || test -d '/Applications/Cursor.app' || echo 'Cursor not installed (optional)'"
 
   cursor_cli:
     description: "Cursor CLI (agent) - Terminal AI coding agent"
