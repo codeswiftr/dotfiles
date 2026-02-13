@@ -81,6 +81,7 @@ dot_setup() {
 dot_check() {
     local quiet=false
     local detailed=false
+    local machine=false
     local test_mode="${DOT_TEST_MODE:-false}"
     local gear_icon="${GEAR:-"⚙️"}"
     local rocket_icon="${ROCKET:-"🚀"}"
@@ -96,6 +97,11 @@ dot_check() {
                 detailed=true
                 shift
                 ;;
+            --machine|-m)
+                machine=true
+                quiet=true
+                shift
+                ;;
             -h|--help)
                 show_check_help
                 return 0
@@ -106,6 +112,80 @@ dot_check() {
                 ;;
         esac
     done
+    
+    # Machine-readable output (JSON)
+    if [[ "$machine" == "true" ]]; then
+        local json_output='{'
+        json_output+='"status":"checking",'
+        json_output+='"tools":{},'
+        json_output+='"issues":[],'
+        json_output+='"configs":{},'
+        json_output+='"tmux":{},'
+        json_output+='"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"'
+        json_output+='}'
+        
+        # Parse and check tools
+        local tools_status='{'
+        local essential_tools=("zsh" "git" "nvim" "tmux" "starship" "eza" "bat" "rg" "fd" "fzf")
+        local first=true
+        
+        for tool in "${essential_tools[@]}"; do
+            local tool_name="$tool"
+            local tool_version="unknown"
+            local tool_ok=false
+            
+            case "$tool" in
+                bat)  command -v bat &>/dev/null || command -v batcat &>/dev/null && tool_ok=true ;;
+                fd)   command -v fd &>/dev/null || command -v fdfind &>/dev/null && tool_ok=true ;;
+                *)    command -v "$tool" &>/dev/null && tool_ok=true ;;
+            esac
+            
+            # Get version if available
+            if [[ "$tool_ok" == "true" ]]; then
+                case "$tool" in
+                    zsh) tool_version=$(zsh --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
+                    git) tool_version=$(git --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
+                    nvim) tool_version=$(nvim --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
+                    tmux) tool_version=$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo "unknown") ;;
+                    *) tool_version=$(eval "$tool" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
+                esac
+            fi
+            
+            [[ "$first" == "true" ]] || tools_status+=','
+            first=false
+            tools_status+="\"$tool\":{\"ok\":$tool_ok,\"version\":\"$tool_version\"}"
+        done
+        tools_status+='}'
+        
+        # Check configs
+        local configs_status='{'
+        configs_status+="\"zsh\":$([[ -L \"$HOME/.zshrc\" ]] && echo true || echo false),"
+        configs_status+="\"tmux\":$([[ -L \"$HOME/.tmux.conf\" ]] && echo true || echo false),"
+        configs_status+="\"nvim\":$([[ -L \"$HOME/.config/nvim\" ]] && echo true || echo false)"
+        configs_status+='}'
+        
+        # Check tmux
+        local tmux_status="{}"
+        if command -v tmux &>/dev/null; then
+            tmux_status='{'
+            tmux_status+="\"installed\":true,"
+            tmux_status+="\"version\":\"$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo unknown)\","
+            tmux_status+="\"config_valid\":$(tmux -f ~/.tmux.conf list-keys &>/dev/null && echo true || echo false)"
+            tmux_status+='}'
+        fi
+        
+        # Build final JSON
+        local final_json='{'
+        final_json+='"status":"ok",'
+        final_json+='"tools":'$tools_status','
+        final_json+='"configs":'$configs_status','
+        final_json+='"tmux":'$tmux_status','
+        final_json+='"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"'
+        final_json+='}'
+        
+        echo "$final_json"
+        return 0
+    fi
     
     if [[ "$quiet" != "true" ]]; then
         print_info "${gear_icon} Running comprehensive health check..."
@@ -259,6 +339,7 @@ dot_check() {
 # Update command - update entire system
 dot_update() {
     local auto_confirm=false
+    local machine=false
     local rocket_icon="${ROCKET:-"🚀"}"
     
     # Parse options
@@ -266,6 +347,10 @@ dot_update() {
         case $1 in
             --yes)
                 auto_confirm=true
+                shift
+                ;;
+            --machine|-m)
+                machine=true
                 shift
                 ;;
             -h|--help)
@@ -564,6 +649,20 @@ dot_update() {
         print_info "  All AI tools already up to date"
     fi
 
+    # Machine-readable output
+    if [[ "$machine" == "true" ]]; then
+        local json_output='{'
+        json_output+='"status":"completed",'
+        json_output+='"repository_updated":true,'
+        json_output+='"nvim_upgraded":'$([[ "$nvim_upgraded" == "true" ]] && echo "true" || echo "false")','
+        json_output+='"ai_tools_updated":['$(printf '"%s",' "${ai_updated[@]}" | sed 's/,$//')'],'
+        json_output+='"tmux_conflicts_fixed":'$([[ "$conflicts_found" == "true" ]] && echo "true" || echo "false")','
+        json_output+='"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"'
+        json_output+='}'
+        echo "$json_output"
+        return 0
+    fi
+
     print_success "Environment update completed!"
     
     # Show summary of what was updated/fixed
@@ -582,7 +681,7 @@ dot_update() {
     print_success "✨ Everything is ready to use immediately!"
     print_info "💡 Try these commands:"
     print_info "   tmux               # Start with fixed keybindings"
-    print_info "   nvim               # Progressive editor (press <Space>?)"
+    print_info "   nvim               # Progressive editor (press <Space>?)?"
     print_info "   dot check          # Verify everything is working"
     print_info "   perf-status        # Check shell performance"
 }
@@ -688,4 +787,169 @@ EXAMPLES:
     dot update             # Interactive update
     dot update --yes       # Automatic update
 EOF
+}
+
+# Doctor command - diagnose and fix common issues
+dot_doctor() {
+    local machine=false
+    local fix_mode=false
+    
+    # Parse options
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --fix)
+                fix_mode=true
+                shift
+                ;;
+            --machine|-m)
+                machine=true
+                shift
+                ;;
+            -h|--help)
+                echo "dot doctor - Diagnose and fix common issues"
+                echo ""
+                echo "USAGE:"
+                echo "    dot doctor [options]"
+                echo ""
+                echo "OPTIONS:"
+                echo "    --fix      Auto-fix detected issues"
+                echo "    --machine  Output JSON for scripting"
+                echo "    -h, --help Show this help"
+                echo ""
+                echo "Checks:"
+                echo "  • Shell configuration"
+                echo "  • Git configuration"
+                echo "  • SSH keys"
+                echo "  • Tool installations"
+                echo "  • Common path issues"
+                return 0
+                ;;
+            *)
+                print_error "Unknown option: $1"
+                return 1
+                ;;
+        esac
+    done
+    
+    local issues=()
+    local fixes=()
+    local critical=0
+    local warnings=0
+    
+    print_info "🔍 Running diagnostics..."
+    
+    # Check 1: Shell is zsh
+    if [[ "$SHELL" != *"zsh" ]]; then
+        issues+=("Shell is not zsh (current: $SHELL)")
+        ((critical++))
+        if [[ "$fix_mode" == "true" ]]; then
+            if chsh -s $(which zsh) 2>/dev/null; then
+                fixes+=("Changed default shell to zsh")
+            fi
+        fi
+    fi
+    
+    # Check 2: Dotfiles symlinks
+    if [[ ! -L "$HOME/.zshrc" ]]; then
+        issues+=(".zshrc not symlinked to dotfiles")
+        ((critical++))
+        if [[ "$fix_mode" == "true" ]]; then
+            if [[ -f "$DOTFILES_DIR/.zshrc" ]]; then
+                mv "$HOME/.zshrc" "$HOME/.zshrc.backup.$(date +%s)" 2>/dev/null
+                ln -s "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+                fixes+=("Linked .zshrc to dotfiles")
+            fi
+        fi
+    fi
+    
+    # Check 3: Git user config
+    if ! git config --global user.name &>/dev/null || ! git config --global user.email &>/dev/null; then
+        issues+=("Git user.name or user.email not set")
+        ((warnings++))
+    fi
+    
+    # Check 4: SSH keys
+    if [[ ! -d "$HOME/.ssh" ]] || [[ -z "$(ls -A $HOME/.ssh/id_* 2>/dev/null)" ]]; then
+        issues+=("No SSH keys found")
+        ((warnings++))
+    fi
+    
+    # Check 5: TPM installed (if tmux is used)
+    if command -v tmux &>/dev/null && [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+        issues+=("TPM (Tmux Plugin Manager) not installed")
+        ((warnings++))
+        if [[ "$fix_mode" == "true" ]]; then
+            git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" 2>/dev/null
+            fixes+=("Installed TPM")
+        fi
+    fi
+    
+    # Check 6: Neovim health
+    if command -v nvim &>/dev/null; then
+        local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1)
+        if printf '%s\n' "0.10.0" "$nvim_version" | sort -V -C; then
+            : # nvim >= 0.10.0, good
+        else
+            issues+=("Neovim $nvim_version is older than 0.10.0 (recommended)")
+            ((warnings++))
+        fi
+    fi
+    
+    # Check 7: PATH contains common bin directories
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        issues+=("~/.local/bin not in PATH")
+        ((warnings++))
+    fi
+    
+    # Machine-readable output
+    if [[ "$machine" == "true" ]]; then
+        local json_output='{'
+        json_output+='"status":"'$((${#issues[@]} == 0 ? "ok" : "issues"))'",'
+        json_output+='"critical":'$critical','
+        json_output+='"warnings":'$warnings','
+        json_output+='"issues":['
+        local first=true
+        for issue in "${issues[@]}"; do
+            [[ "$first" == "true" ]] || json_output+=','
+            first=false
+            json_output+="\"${issue//\"/\\\"}\""
+        done
+        json_output+='],'
+        json_output+='"fixes_applied":['
+        first=true
+        for fix in "${fixes[@]}"; do
+            [[ "$first" == "true" ]] || json_output+=','
+            first=false
+            json_output+="\"${fix//\"/\\\"}\""
+        done
+        json_output+=']}'
+        echo "$json_output"
+        return 0
+    fi
+    
+    # Human-readable output
+    echo ""
+    if [[ ${#issues[@]} -eq 0 ]]; then
+        print_success "All checks passed! No issues found."
+    else
+        print_warning "Found ${#issues[@]} issues ($critical critical, $warnings warnings):"
+        echo ""
+        for issue in "${issues[@]}"; do
+            echo "  • $issue"
+        done
+        echo ""
+        
+        if [[ ${#fixes[@]} -gt 0 ]]; then
+            print_success "Applied ${#fixes[@]} fixes:"
+            for fix in "${fixes[@]}"; do
+                echo "  ✓ $fix"
+            done
+        fi
+        
+        if [[ "$fix_mode" != "true" && $critical -gt 0 ]]; then
+            print_info "Run 'dot doctor --fix' to auto-fix issues"
+        fi
+        
+        return 1
+    fi
 }

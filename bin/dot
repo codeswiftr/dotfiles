@@ -53,102 +53,103 @@ print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
 # Help system
 show_help() {
     cat << 'EOF'
-🚀 DOT CLI - Ultimate Development Environment
+🚀 DOT CLI - Development Environment Manager
 
-USAGE:
-    dot <command> [options]
+USAGE: dot <command> [options]
 
-CORE COMMANDS:
-    setup              Idempotent environment setup
-    check              Comprehensive health validation
-    update             Update entire system
-    reload             Reload shell configuration
-    version            Show version information
+ESSENTIAL COMMANDS:
+  setup       Setup environment (idempotent)
+  check       Health check (-m for JSON output)
+  update      Update everything (-m for JSON)
+  doctor      Diagnose and fix common issues
+  new         Create new project (alias: project init)
 
 DEVELOPMENT:
-    project            Project management and scaffolding
-        init [type]        Create new project from template
-        list               List available templates
-        switch             Switch between projects
-    
-    run                Process management
-        dev                Start development environment
-        test               Start test environment
-        prod               Production simulation
+  run         Run dev/test/prod environments
+  test        Run tests (all-in-one: test/quick/watch)
+  ai          AI assistant (review/test/commit)
+  git         Git helpers (workflow/branch/sign)
+
+TOOLS:
+  install     Install tools (use: dot install <tool>)
+  dev         Dev containers & environments
+  db          Database management
+
+OPTIONS:
+  -h, --help      Show help
+  -v, --version   Show version
+  --machine, -m   Machine-readable JSON output
+  --yes, -y       Auto-confirm prompts
+
+EXAMPLES:
+  dot setup                 # First-time setup
+  dot check -m              # Health check (JSON)
+  dot new fastapi my-api    # Create FastAPI project
+  dot install ai_tools      # Install all AI CLIs
+  dot doctor                # Fix common issues
+
+For full help: dot --help-all
+EOF
+}
+
+# Extended help (all commands)
+show_help_all() {
+    cat << 'EOF'
+🚀 DOT CLI - Complete Command Reference
+
+CORE COMMANDS:
+  setup, check, update, reload, version, doctor
+
+DEVELOPMENT:
+  new <type> [name]         Create project (alias for project init)
+  project                   Project management
+    init [type] [name]      Create from template
+    list                    List templates
+  run                       Process management
+    dev/test/prod           Environment modes
+  test                      Testing framework
+    run/quick/watch/coverage
+
+AI:
+  ai                        AI development assistant
+    review                  Code review
+    test                    Generate tests
+    commit                  Smart commit messages
 
 SECURITY:
-    secret             Secret management
-        setup              Configure secret provider
-        get <key>          Retrieve secret
-        exec -- <cmd>      Execute with injected secrets
-    
-    security           Security operations
-        scan               Full security audit
-        deps               Check dependency vulnerabilities
-        code               Static code analysis
+  security                  Security operations
+    scan                    Security audit
+    deps                    Check dependencies
+  secret                    Secret management
 
-AI INTEGRATION:
-    ai                 AI-powered development assistance
-        review             Code review with context
-        test               Generate tests
-        commit             Smart commit messages
-        explain [file]     Explain code
-
-TESTING:
-    test               Testing framework integration
-        run [category]     Run comprehensive test suite
-        quick              Quick smoke tests
-        watch              Watch mode for continuous testing
-        init [framework]   Initialize testing for project
-        coverage           Generate test coverage report
-    
-PERFORMANCE:
-    perf               Performance management
-        profile            Performance analysis
-        optimize           Apply optimizations
-        benchmark          Benchmark startup time
-        auto-tune [mode]   Automated performance tuning
-        regression         Performance regression detection
-        resource [target]  Resource optimization
-        startup [mode]     Shell startup time optimization
-
-CONFIGURATION:
-    config             Interactive configuration
-        theme              Switch themes
-        tools              Configure tool integrations
-        security           Adjust security settings
-    
-    template           Advanced configuration templating
-        generate           Generate config from template
-        process            Process all templates
-        create             Create template from file
-        validate           Validate template syntax
-        list               List available templates
+CONFIG:
+  config                    Configuration
+    theme/tools/security
+  template                  Templates
+    generate/process/create
 
 DATABASE:
-    db                 Database management
-        setup              Setup local databases
-        seed               Load test data
-        reset              Reset to clean state
+  db                        Database management
+    setup/seed/reset
 
-DEVCONTAINER:
-    devcontainer       Development container management
-        init [template]    Initialize devcontainer config
-        build              Build container image
-        up                 Start development container
-        exec [cmd]         Execute command in container
-        optimize [type]    Optimize devcontainer performance
-        cloud [platform]   Cloud development environment setup
-        remote [action]    Remote development tools
+DEV:
+  dev                       Dev containers (short for devcontainer)
+    init/build/up/exec
 
-GIT OPERATIONS:
-    git                Enhanced git operations
-        setup-signing      Configure commit signing
-        verify             Verify commit signatures
-        workflow [type]    Automated git workflows (gitflow|github|feature)
-        branch [action]    Advanced branch management
-        commit-template    Smart commit templates and validation
-        team [action]      Team collaboration features
+GIT:
+  git                       Git operations
+    workflow/branch/sign
+
+TOOLS:
+  install <tool|group>      Install tools from config/tools.yaml
+
+GLOBAL OPTIONS:
+  -h, --help          Show help
+  --help-all          Show this full help
+  -v, --version       Show version
+  -m, --machine       Machine-readable JSON output
+  --verbose           Verbose output
+  --yes, -y           Auto-confirm
 
 DOCUMENTATION:
     docs               Documentation system
@@ -242,24 +243,46 @@ load_cli_lib() {
 
 # Main command dispatcher
 main() {
-    # Handle global options
-    case "${1:-}" in
-        -h|--help)
-            show_help
-            exit 0
-            ;;
-        -v|--version)
-            show_version
-            exit 0
-            ;;
-        "")
-            show_help
-            exit 0
-            ;;
-    esac
+    # Handle global options (before command)
+    local machine_mode=false
+    local show_help_all=false
+    
+    # Parse leading flags
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            --help-all)
+                show_help_all
+                exit 0
+                ;;
+            -v|--version)
+                show_version
+                exit 0
+                ;;
+            -m|--machine)
+                machine_mode=true
+                shift
+                ;;
+            "")
+                show_help
+                exit 0
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
 
     local command="$1"
     shift
+    
+    # Prepend --machine if machine_mode is enabled
+    if [[ "$machine_mode" == "true" ]]; then
+        set -- --machine "$@"
+    fi
 
     # Command routing
     case "$command" in
@@ -275,6 +298,10 @@ main() {
         "update")
             load_cli_lib "core"
             dot_update "$@"
+            ;;
+        "doctor")
+            load_cli_lib "core"
+            dot_doctor "$@"
             ;;
         "init")
             # One-shot initialization: link configs and run health check
@@ -340,6 +367,11 @@ main() {
             ;;
 
         # Development commands
+        "new")
+            # Shortcut: dot new <type> [name] -> dot project init <type> [name]
+            load_cli_lib "project"
+            dot_project init "$@"
+            ;;
         "project")
             load_cli_lib "project"
             dot_project "$@"
@@ -351,6 +383,15 @@ main() {
         "process"|"proc")
             load_cli_lib "process"
             dot_run "$@"
+            ;;
+        "install")
+            # Install tools: dot install <tool|group>
+            if [[ -f "$DOTFILES_DIR/install.sh" ]]; then
+                bash "$DOTFILES_DIR/install.sh" install "$@"
+            else
+                print_error "Installer not found"
+                exit 1
+            fi
             ;;
 
         # Security commands
@@ -415,39 +456,21 @@ main() {
             ;;
 
         # DevContainer commands
-        "devcontainer"|"container")
+        "dev"|"devcontainer")
             load_cli_lib "devcontainer"
             dot_devcontainer "$@"
             ;;
 
         # Documentation commands
-        "docs"|"documentation")
+        "docs")
             source "$DOTFILES_DIR/lib/documentation.sh"
             docs_cli "$@"
             ;;
 
         # Plugin commands
-        "plugin"|"plugins")
+        "plugin")
             load_cli_lib "plugin"
             dot_plugin "$@"
-            ;;
-
-        # Backup commands
-        "backup"|"restore")
-            load_cli_lib "backup"
-            dot_backup "$@"
-            ;;
-
-        # Metrics commands
-        "metrics"|"analytics"|"stats")
-            load_cli_lib "metrics"
-            dot_metrics "$@"
-            ;;
-
-        # Migration commands
-        "migrate"|"migration"|"upgrade")
-            load_cli_lib "migration"
-            dot_migration "$@"
             ;;
         
         # Platform management commands (Epic 7.1)
