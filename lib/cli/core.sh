@@ -412,6 +412,69 @@ dot_update() {
         fi
     fi
     
+    # Check and upgrade Neovim if needed
+    print_info "📝 Checking Neovim version..."
+    local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
+    if [[ -n "$nvim_version" ]]; then
+        print_info "  Current Neovim version: $nvim_version"
+        
+        # Check if nvim needs upgrade (0.10.4+ recommended)
+        if ! printf '%s\n' "0.10.4" "$nvim_version" | sort -V -C; then
+            print_warning "  Neovim $nvim_version is older than 0.10.4 (recommended)"
+            print_info "  Attempting to upgrade Neovim..."
+            
+            local nvim_upgraded=false
+            
+            # Try to upgrade via package managers
+            if command -v brew &>/dev/null; then
+                print_info "    Upgrading via Homebrew..."
+                if brew upgrade neovim 2>/dev/null; then
+                    nvim_upgraded=true
+                    print_success "    Neovim upgraded via Homebrew"
+                fi
+            elif command -v apt &>/dev/null; then
+                print_info "    Attempting upgrade via apt..."
+                if sudo apt update && sudo apt install -y neovim 2>/dev/null; then
+                    # Check if version improved
+                    local new_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
+                    if printf '%s\n' "$nvim_version" "$new_version" | sort -V -C; then
+                        nvim_upgraded=true
+                        print_success "    Neovim upgraded to $new_version via apt"
+                    fi
+                fi
+                
+                # If apt didn't work, try snap
+                if [[ "$nvim_upgraded" == "false" ]] && command -v snap &>/dev/null; then
+                    print_info "    Trying snap install..."
+                    if sudo snap install nvim --classic 2>/dev/null || sudo snap refresh nvim 2>/dev/null; then
+                        nvim_upgraded=true
+                        print_success "    Neovim installed/upgraded via snap"
+                    fi
+                fi
+            elif command -v pacman &>/dev/null; then
+                print_info "    Upgrading via pacman..."
+                if sudo pacman -Syu neovim --noconfirm 2>/dev/null; then
+                    nvim_upgraded=true
+                    print_success "    Neovim upgraded via pacman"
+                fi
+            fi
+            
+            if [[ "$nvim_upgraded" == "true" ]]; then
+                local new_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
+                print_success "  Neovim upgraded: $nvim_version → $new_version"
+            else
+                print_warning "  Could not upgrade Neovim automatically"
+                print_info "  To upgrade manually:"
+                print_info "    • macOS: brew upgrade neovim"
+                print_info "    • Ubuntu: sudo snap install nvim --classic"
+                print_info "    • Arch: sudo pacman -S neovim"
+                print_info "    • Or build from: https://github.com/neovim/neovim/releases"
+            fi
+        else
+            print_success "  Neovim is up to date ($nvim_version)"
+        fi
+    fi
+    
     # Update Neovim plugins with version compatibility check
     print_info "📦 Updating Neovim plugins..."
     local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
@@ -425,7 +488,7 @@ dot_update() {
         else
             print_warning "  Neovim $nvim_version is older than 0.10.4"
             print_info "  Some plugins may not update to latest versions"
-            print_info "  Consider upgrading Neovim for full plugin support"
+            print_info "  Run 'dot update' again after Neovim upgrade"
             
             # Still try to update plugins, lazy.nvim will handle compatibility
             nvim --headless -c 'Lazy! sync' -c 'qa' 2>/dev/null && print_success "  Compatible plugins updated" || print_warning "  Some plugins may require nvim 0.10.4+"
