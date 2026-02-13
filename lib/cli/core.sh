@@ -376,10 +376,24 @@ dot_update() {
         fi
     fi
     
-    # Update tools via existing update mechanism
-    if command -v df-update &> /dev/null; then
-        print_info "Updating system packages and tools..."
-        df-update --auto
+    # Update Neovim plugins with version compatibility check
+    print_info "📦 Updating Neovim plugins..."
+    local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
+    if [[ -n "$nvim_version" ]]; then
+        print_info "  Neovim version: $nvim_version"
+        
+        # Check if nvim meets minimum requirements for latest plugins
+        if printf '%s\n' "0.10.4" "$nvim_version" | sort -V -C; then
+            print_info "  Updating plugins via lazy.nvim..."
+            nvim --headless -c 'Lazy! sync' -c 'qa' 2>/dev/null && print_success "  Plugins updated" || print_warning "  Plugin update had issues"
+        else
+            print_warning "  Neovim $nvim_version is older than 0.10.4"
+            print_info "  Some plugins may not update to latest versions"
+            print_info "  Consider upgrading Neovim for full plugin support"
+            
+            # Still try to update plugins, lazy.nvim will handle compatibility
+            nvim --headless -c 'Lazy! sync' -c 'qa' 2>/dev/null && print_success "  Compatible plugins updated" || print_warning "  Some plugins may require nvim 0.10.4+"
+        fi
     fi
 
     # Update AI coding tools
