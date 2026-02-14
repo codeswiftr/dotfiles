@@ -7,6 +7,42 @@
 # Load AI integration framework
 source "$DOTFILES_DIR/lib/ai-integration.sh"
 
+# Load install.sh helpers for tool management (yaml queries, verify, install)
+_ai_load_install_helpers() {
+    if [[ -n "${_AI_HELPERS_LOADED:-}" ]]; then return 0; fi
+    local _install_script="$DOTFILES_DIR/install.sh"
+    [[ -f "$_install_script" ]] || return 1
+
+    # Save shell options before sourcing (install.sh sets -eo pipefail)
+    local _old_opts
+    _old_opts=$(set +o)
+    local _old_pipefail
+    _old_pipefail=$(shopt -po pipefail 2>/dev/null || true)
+    CONFIG_FILE="${CONFIG_FILE:-$DOTFILES_DIR/config/tools.yaml}"
+    source "$_install_script"
+    # Restore original shell options
+    eval "$_old_opts" 2>/dev/null || true
+    eval "$_old_pipefail" 2>/dev/null || true
+    _AI_HELPERS_LOADED=1
+}
+
+# Get tool description from tools.yaml
+_yaml_query_tool_description() {
+    local tool="$1"
+    local config_file="$DOTFILES_DIR/config/tools.yaml"
+    if command -v python3 >/dev/null 2>&1 && python3 -c 'import yaml' >/dev/null 2>&1; then
+        python3 - "$config_file" "$tool" <<'PY'
+import sys, yaml
+cfg_path, tool = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+print((data.get('tools', {}).get(tool, {}) or {}).get('description', '') or '')
+PY
+    else
+        grep -A 2 "^  $tool:" "$config_file" | grep "description:" | head -1 | sed 's/.*description: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/'
+    fi
+}
+
 # AI command dispatcher
 dot_ai() {
     local subcommand="${1:-}"
@@ -39,6 +75,9 @@ dot_ai() {
             ;;
         "setup")
             ai_setup
+            ;;
+        "install-all"|"sync")
+            ai_sync "$@"
             ;;
         "analyze")
             ai_analyze_project "$@"
@@ -422,38 +461,121 @@ generate_test_filename() {
     esac
 }
 
-# AI status and configuration
+# AI status and configuration (data-driven from config/tools.yaml)
 ai_status() {
-    echo "🤖 AI Integration Status:"
+    _ai_load_install_helpers || {
+        print_error "Could not load install helpers"
+        return 1
+    }
+
+    echo "AI Tools Status:"
     echo ""
-    
-    # Check available providers
-    echo "Available Providers:"
-    
-    if command -v claude >/dev/null 2>&1; then
-        echo "  ✅ Claude CLI"
-    else
-        echo "  ❌ Claude CLI (install: pip install claude-api)"
+
+    local tools installed_count=0 total_count=0
+    tools=$(yaml_query_group_tools "ai_tools")
+
+    if [[ -z "$tools" ]]; then
+        print_error "Could not read ai_tools group from config/tools.yaml"
+        return 1
     fi
-    
-    if command -v gemini >/dev/null 2>&1; then
-        echo "  ✅ Gemini CLI"
-    else
-        echo "  ❌ Gemini CLI (install from: https://github.com/google/generative-ai-cli)"
-    fi
-    
-    if command -v gh >/dev/null 2>&1 && gh extension list | grep -q copilot; then
-        echo "  ✅ GitHub Copilot CLI"
-    else
-        echo "  ❌ GitHub Copilot CLI (install: gh extension install github/gh-copilot)"
-    fi
-    
+
+    while IFS= read -r tool; do
+        [[ -z "$tool" ]] && continue
+        ((total_count++))
+
+        local desc
+        desc=$(_yaml_query_tool_description "$tool")
+
+        if verify_tool "$tool"; then
+            printf "  ✅ %-20s %s\n" "$tool" "$desc"
+            ((installed_count++))
+        else
+            printf "  ❌ %-20s %s\n" "$tool" "$desc"
+        fi
+    done <<< "$tools"
+
+    local missing_count=$((total_count - installed_count))
     echo ""
-    echo "Current Provider: ${AI_PROVIDER:-claude}"
+    echo "Installed: ${installed_count}/${total_count}  |  Missing: ${missing_count}"
+
+    if [[ $missing_count -gt 0 ]]; then
+        echo ""
+        echo "Run 'dot ai sync' to install missing tools."
+    fi
+}
+
+# Sync AI tools: install missing tools from config/tools.yaml
+ai_sync() {
+    _ai_load_install_helpers || {
+        print_error "Could not load install helpers"
+        return 1
+    }
+
+    local dry_run=false
+
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run|-d) dry_run=true; shift ;;
+            --help|-h)
+                echo "Usage: dot ai sync [--dry-run]"
+                echo "Install missing AI tools defined in config/tools.yaml"
+                return 0
+                ;;
+            *) shift ;;
+        esac
+    done
+
+    local tools
+    tools=$(yaml_query_group_tools "ai_tools")
+
+    if [[ -z "$tools" ]]; then
+        print_error "Could not read ai_tools group from config/tools.yaml"
+        return 1
+    fi
+
+    local os
+    os=$(detect_os)
+    local installed=0 skipped=0 failed=0 attempted=0
+    local failed_tools=()
+
+    print_info "Syncing AI tools from config/tools.yaml..."
     echo ""
-    echo "Configuration:"
-    echo "  Set provider: export AI_PROVIDER=claude|gemini|copilot"
-    echo "  API keys should be configured per provider's documentation"
+
+    while IFS= read -r tool; do
+        [[ -z "$tool" ]] && continue
+
+        if verify_tool "$tool"; then
+            printf "  ✅ %-20s already installed\n" "$tool"
+            ((skipped++))
+            continue
+        fi
+
+        ((attempted++))
+
+        if [[ "$dry_run" == "true" ]]; then
+            local install_cmd
+            install_cmd=$(get_install_command "$tool" "$os")
+            printf "  ⏳ %-20s would install: %s\n" "$tool" "${install_cmd:-<no command for $os>}"
+            continue
+        fi
+
+        if install_tool "$tool" "$os"; then
+            ((installed++))
+        else
+            ((failed++))
+            failed_tools+=("$tool")
+        fi
+    done <<< "$tools"
+
+    echo ""
+    if [[ "$dry_run" == "true" ]]; then
+        print_info "Dry run complete. ${attempted} tool(s) would be installed, ${skipped} already present."
+    else
+        print_success "Sync complete: ${installed} installed, ${skipped} already present, ${failed} failed."
+        if [[ ${#failed_tools[@]} -gt 0 ]]; then
+            print_warning "Failed: ${failed_tools[*]}"
+        fi
+    fi
 }
 
 ai_setup() {
@@ -916,7 +1038,8 @@ COMMANDS:
     debug <error>            Debug errors with AI assistance
     compare <prompt>         Compare responses from multiple AI providers
     context <prompt>         AI assistance with project context
-    status                   Show AI integration status
+    status                   Show AI tools install status (from tools.yaml)
+    sync [--dry-run]         Install missing AI tools from tools.yaml
     setup                    Install and configure AI providers
 
 OPTIONS:
@@ -947,5 +1070,7 @@ EXAMPLES:
     dot ai compare "Best Python web framework"  # Compare AI opinions
     dot ai context "How can I optimize this?"   # Context-aware help
     dot ai status                     # Check AI setup
+    dot ai sync                       # Install missing AI tools
+    dot ai sync --dry-run             # Preview what would be installed
 EOF
 }
