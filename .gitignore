@@ -1,3 +1,6 @@
+# Machine-specific config (paths differ per platform)
+.gitconfig
+
 # Binary tools (installed locally, not committed)
 bin/goose
 bin/temporal
