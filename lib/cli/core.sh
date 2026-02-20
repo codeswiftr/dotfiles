@@ -336,6 +336,76 @@ dot_check() {
     return $exit_code
 }
 
+# Show changelog after pulling new commits
+_show_update_changelog() {
+    local old_head="$1"
+    local new_head
+    new_head=$(git rev-parse HEAD)
+
+    # Nothing new
+    [[ "$old_head" == "$new_head" ]] && return 0
+
+    local commits
+    commits=$(git log --oneline "$old_head..$new_head" 2>/dev/null)
+    [[ -z "$commits" ]] && return 0
+
+    # Count by type
+    local feat_count=0 fix_count=0 chore_count=0 other_count=0
+    while IFS= read -r line; do
+        local subject="${line#* }"
+        case "$subject" in
+            feat*)  ((feat_count++)) ;;
+            fix*)   ((fix_count++)) ;;
+            chore*) ((chore_count++)) ;;
+            *)      ((other_count++)) ;;
+        esac
+    done <<< "$commits"
+
+    local total=$((feat_count + fix_count + chore_count + other_count))
+
+    echo ""
+    print_info "📋 What's new:"
+
+    # Show feat commits with usage hints
+    while IFS= read -r line; do
+        local subject="${line#* }"
+        case "$subject" in
+            feat*)
+                echo "  $subject"
+                # Extract subcommand hint from feat(cli) commits
+                if [[ "$subject" =~ feat\(cli\):.*\`dot\ ([a-z]+) ]]; then
+                    local cmd="${BASH_REMATCH[1]}"
+                    echo "    → Try: dot $cmd --help"
+                elif [[ "$subject" =~ feat\(cli\):.*\`dot\ ([a-z]+\ [a-z]+) ]]; then
+                    local cmd="${BASH_REMATCH[1]}"
+                    echo "    → Try: dot $cmd --help"
+                fi
+                ;;
+        esac
+    done <<< "$commits"
+
+    # Show fix commits
+    while IFS= read -r line; do
+        local subject="${line#* }"
+        case "$subject" in
+            fix*) echo "  $subject" ;;
+        esac
+    done <<< "$commits"
+
+    # Build summary line
+    local parts=()
+    [[ $feat_count -gt 0 ]] && parts+=("feat: $feat_count")
+    [[ $fix_count -gt 0 ]] && parts+=("fix: $fix_count")
+    [[ $chore_count -gt 0 ]] && parts+=("chore: $chore_count")
+    [[ $other_count -gt 0 ]] && parts+=("other: $other_count")
+
+    local summary
+    summary=$(IFS=', '; echo "${parts[*]}")
+
+    echo ""
+    print_info "  $total commits pulled ($summary)"
+}
+
 # Update command - update entire system
 dot_update() {
     local auto_confirm=false
@@ -386,8 +456,11 @@ dot_update() {
     # Pull latest changes (detect default branch)
     local default_branch
     default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@') || default_branch="main"
+    local old_head
+    old_head=$(git rev-parse HEAD)
     if git pull origin "$default_branch"; then
         print_success "Repository updated"
+        _show_update_changelog "$old_head"
     else
         print_error "Failed to update repository"
         return 1
