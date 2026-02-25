@@ -89,3 +89,4 @@ export PATH="$HOME/.bun/bin:$PATH"
 
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
+export PATH="$HOME/.local/bin:$PATH"
