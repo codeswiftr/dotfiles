@@ -86,7 +86,7 @@ alias claw-relay='OPENCLAW_GATEWAY_TOKEN="2f7ad44859ce7df051b870d3adaaaf966a7fe3
 # OpenClaw Completion
 source "/home/openclaw/.openclaw/completions/openclaw.zsh"
 export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
-export PATH="$HOME/.local/bin:$PATH"
