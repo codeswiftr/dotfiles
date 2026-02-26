@@ -31,3 +31,12 @@ __pycache__/
 .nvimlog
 config/nvim/.nvim-tier
 config/zsh/secrets.zsh
+
+# macOS
+.DS_Store
+
+# User-installed tool symlinks (not tracked)
+bin/aider
+bin/sgpt
+config/nvim/nvim
+bin/openclaw

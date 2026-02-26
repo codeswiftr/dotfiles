@@ -41,10 +41,10 @@ if [[ -z "$DOTFILES_FAST_MODE" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 fi
 
-# FORGE integration (only if FORGE_ROOT exists)
-if [[ -d "${FORGE_ROOT:-}" ]] && [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]]; then
-    source "$ZSH_CONFIG_DIR/forge.zsh"
-fi
+# FORGE integration (disabled - conflicts with forge CLI)
+# if [[ -d "${FORGE_ROOT:-}" ]] && [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]]; then
+#     source "$ZSH_CONFIG_DIR/forge.zsh"
+# fi
 
 # -----------------------------------------------------------------------------
 # 7. User Customizations (Load Last)
