@@ -465,7 +465,40 @@ dot_update() {
         print_error "Failed to update repository"
         return 1
     fi
-    
+
+    # Upgrade installed tools
+    print_info "📦 Upgrading installed tools..."
+
+    # Upgrade npm global packages (AI tools: pi, kimi, gemini_cli, etc.)
+    if command -v npm &>/dev/null; then
+        print_info "  Upgrading npm global packages..."
+        # List of AI tools installed via npm
+        local npm_tools=("@mariozechner/pi-coding-agent" "@anthropic-ai/claude-code" "kimi-cli" "@google/gemini-cli" "@openai/codex")
+        for tool in "${npm_tools[@]}"; do
+            if npm list -g "$tool" &>/dev/null; then
+                npm update -g "$tool" 2>/dev/null && print_success "  Updated $tool" || true
+            fi
+        done
+    fi
+
+    # Upgrade uv-managed tools
+    if command -v uv &>/dev/null; then
+        print_info "  Upgrading uv tools..."
+        uv tool upgrade --all 2>/dev/null && print_success "  uv tools upgraded" || print_info "  No uv tool updates available"
+    fi
+
+    # Upgrade Homebrew packages (macOS)
+    if command -v brew &>/dev/null; then
+        print_info "  Upgrading Homebrew packages..."
+        brew upgrade 2>/dev/null && print_success "  Homebrew packages upgraded" || print_info "  No brew updates available"
+    fi
+
+    # Upgrade mise tools
+    if command -v mise &>/dev/null; then
+        print_info "  Upgrading mise tools..."
+        mise upgrade 2>/dev/null && print_success "  mise tools upgraded" || true
+    fi
+
     # Run setup to apply changes
     print_info "Applying configuration changes..."
     dot_setup --force
