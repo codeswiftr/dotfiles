@@ -1,6 +1,7 @@
 {
-  "generated": "2026-02-25",
+  "generated": "2026-02-27",
   "rootFiles": [
+    ".gitconfig",
     ".gitignore",
     ".nvimlog",
     ".pre-commit-config.yaml",

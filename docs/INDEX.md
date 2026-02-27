@@ -1,10 +1,11 @@
 ## Repository Index (auto-generated)
 
-Generated: 2026-02-25
+Generated: 2026-02-27
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
 ### Top-level files
+- `.gitconfig`
 - `.gitignore`
 - `.nvimlog`
 - `.pre-commit-config.yaml`
