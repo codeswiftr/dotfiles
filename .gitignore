@@ -30,6 +30,7 @@ __pycache__/
 # Neovim runtime files
 .nvimlog
 config/nvim/.nvim-tier
+config/nvim/lazy-lock.json
 config/zsh/secrets.zsh
 
 # macOS
