@@ -79,6 +79,13 @@ cask "ghostty"              # Fast, native terminal emulator
 # brew "llm"                # CLI for LLMs
 
 # =============================================================================
+# FORGE Fleet Tools
+# =============================================================================
+# brew "qmd"                # Documentation search (install via npm: npm install -g @forge/qmd)
+# Note: QMD is installed via npm, not Homebrew
+# Install with: npm install -g @forge/qmd
+
+# =============================================================================
 # Productivity & Knowledge Management
 # =============================================================================
 cask "obsidian"             # Markdown-based knowledge base

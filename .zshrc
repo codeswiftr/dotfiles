@@ -41,6 +41,15 @@ if [[ -z "$DOTFILES_FAST_MODE" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 fi
 
+# FORGE tools integration (QMD, forge CLI)
+[[ -f "$ZSH_CONFIG_DIR/forge-tools.zsh" ]] && source "$ZSH_CONFIG_DIR/forge-tools.zsh"
+
+# Node-specific configuration (auto-detect)
+if [[ "$(hostname)" == "trinity" ]] || [[ "$(hostname)" == "code-trinity" ]]; then
+    [[ -f "$ZSH_CONFIG_DIR/trinity.zsh" ]] && source "$ZSH_CONFIG_DIR/trinity.zsh"
+    [[ -f "$DOTFILES_DIR/config/agents/trinity.zsh" ]] && source "$DOTFILES_DIR/config/agents/trinity.zsh"
+fi
+
 # FORGE integration (disabled - conflicts with forge CLI)
 # if [[ -d "${FORGE_ROOT:-}" ]] && [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]]; then
 #     source "$ZSH_CONFIG_DIR/forge.zsh"
