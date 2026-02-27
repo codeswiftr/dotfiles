@@ -4,6 +4,20 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# FORGE Configuration (~/.forgerc)
+# -----------------------------------------------------------------------------
+
+# Load user config if exists, otherwise use defaults
+if [[ -f "$HOME/.forgerc" ]]; then
+    source "$HOME/.forgerc"
+elif [[ -f "${DOTFILES_DIR:-$HOME/dotfiles}/config/forge/.forgerc" ]]; then
+    source "${DOTFILES_DIR:-$HOME/dotfiles}/config/forge/.forgerc"
+fi
+
+# Ensure FORGE_ROOT is set (default: ~/work/FORGE)
+export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
+
+# -----------------------------------------------------------------------------
 # PATH Additions for FORGE Tools
 # -----------------------------------------------------------------------------
 
@@ -93,6 +107,8 @@ alias fweb='forge-web'
 # Fleet operations (requires forge CLI)
 alias ff='forge fleet'
 alias fdispatch='forge dispatch'
+
+# Note: forge CLI now respects FORGE_ROOT from ~/.forgerc, so it works from anywhere
 
 # -----------------------------------------------------------------------------
 # Forge Workflow Helpers

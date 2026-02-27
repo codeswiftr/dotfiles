@@ -1,0 +1,17 @@
+# =============================================================================
+# FORGE Configuration
+# =============================================================================
+# This file is sourced by forge-tools.zsh to set FORGE environment variables.
+# Copy to ~/.forgerc to customize.
+
+# FORGE repository root (required for forge CLI)
+FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
+
+# Node identifier (optional - auto-detected from hostname)
+# FORGE_NODE="trinity"
+
+# Command Center URL (optional - for xnode operations)
+# FORGE_CC_URL="http://100.70.79.45:8080"
+
+# Webhook token (optional - set here or in secrets)
+# FORGE_WEBHOOK_TOKEN=""
