@@ -688,10 +688,15 @@ dot_update() {
         curl -fsSL https://ampcode.com/install.sh 2>/dev/null | bash &>/dev/null && ai_updated+=("amp")
     fi
 
-    # OpenCode
-    if command -v opencode &>/dev/null && command -v brew &>/dev/null; then
+    # OpenCode (macOS via brew, Linux via direct binary)
+    if command -v opencode &>/dev/null; then
         print_info "  Updating OpenCode..."
-        brew upgrade opencode 2>/dev/null && ai_updated+=("opencode")
+        if command -v brew &>/dev/null && brew list --cask opencode &>/dev/null 2>&1; then
+            brew upgrade opencode 2>/dev/null && ai_updated+=("opencode")
+        elif [[ -f "$HOME/.opencode/bin/opencode" ]] || command -v opencode &>/dev/null; then
+            # Linux/macOS via direct install - reinstall to get latest
+            curl -fsSL https://opencode.ai/install 2>/dev/null | bash &>/dev/null && ai_updated+=("opencode")
+        fi
     fi
 
     # Claude Code
