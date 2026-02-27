@@ -7,6 +7,18 @@ description: Save context and create handoff prompt for session continuity
 
 Save current state and generate a prompt for continuing in a new session.
 
+## Quick Start (CLI)
+
+```bash
+# Full clean handoff (create + save + commit)
+forge handoff clean
+
+# With options
+forge handoff clean --agent kimi --reason context --skip-commit
+```
+
+If you need more control or LLM-generated summaries, continue with the manual workflow below.
+
 Use this:
 - At end of session
 - Before context gets too large

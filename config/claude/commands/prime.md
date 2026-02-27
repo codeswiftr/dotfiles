@@ -7,6 +7,24 @@ description: Prime session with context, optionally focus on project/function
 
 Load context and prepare for focused work.
 
+## Quick Start (CLI)
+
+```bash
+# General context load
+forge context load
+
+# Project-focused
+forge context load --project voice-coach
+
+# With focus area
+forge context load --project voice-coach --focus dev
+
+# Machine-readable
+forge context load --json
+```
+
+If you need LLM-generated priorities or deeper analysis, continue with the manual workflow below.
+
 ## Usage
 
 ```

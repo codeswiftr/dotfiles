@@ -40,3 +40,7 @@ bin/aider
 bin/sgpt
 config/nvim/nvim
 bin/openclaw
+
+# Local forge experiments
+.forge/
+.config/systemd/

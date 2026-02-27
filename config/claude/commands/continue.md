@@ -11,15 +11,14 @@ Resume work from a previous session using the context in docs/PROMPT.md.
 
 ### 1. Load Context
 ```bash
-# Read handoff prompt
-cat docs/PROMPT.md
+# Load all context in one command (reads CLAUDE.md, PLAN.md, PROMPT.md, git status, handoffs)
+forge context load
 
-# Read current plan
-cat docs/PLAN.md
+# Or load with project focus
+forge context load --project voice-coach --focus dev
 
-# Check git status
-git status
-git log --oneline -5
+# Read the latest handoff if available
+forge handoff read <latest-id>
 ```
 
 ### 2. Verify Environment

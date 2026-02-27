@@ -8,6 +8,15 @@ arguments: target
 
 Review code for security, performance, and quality. Add `--deep` for principal-engineer-level review using code-reviewer agent.
 
+## Quick Start (CLI)
+
+```bash
+# Quality check via CLI (lint + type check + test)
+forge quality check --project $ARGUMENTS
+```
+
+For deeper LLM-powered review, continue with the manual workflow below.
+
 ## Modes
 
 | Mode | Depth | Time |
