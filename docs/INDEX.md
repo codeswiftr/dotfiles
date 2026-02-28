@@ -1,6 +1,6 @@
 ## Repository Index (auto-generated)
 
-Generated: 2026-02-27
+Generated: 2026-02-28
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
@@ -26,6 +26,8 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `PORTABILITY_FIXES.md`
 - `pre-commit-global.yaml`
 - `README.md`
+- `TRINITY_IMPROVEMENT_PLAN.md`
+- `TRINITY_SUMMARY.md`
 - `UPDATE_PLUGINS.md`
 - `VERSION`
 

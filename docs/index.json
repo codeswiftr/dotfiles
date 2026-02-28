@@ -1,5 +1,5 @@
 {
-  "generated": "2026-02-27",
+  "generated": "2026-02-28",
   "rootFiles": [
     ".gitconfig",
     ".gitignore",
@@ -22,6 +22,8 @@
     "PORTABILITY_FIXES.md",
     "pre-commit-global.yaml",
     "README.md",
+    "TRINITY_IMPROVEMENT_PLAN.md",
+    "TRINITY_SUMMARY.md",
     "UPDATE_PLUGINS.md",
     "VERSION"
   ],

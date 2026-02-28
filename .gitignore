@@ -48,3 +48,7 @@ bin/openclaw
 bin/forge
 bin/forge-harness
 scripts/cleanup-claude.sh
+
+# Cursor agent symlinks (local versions)
+bin/agent
+bin/cursor-agent

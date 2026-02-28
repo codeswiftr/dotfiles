@@ -93,7 +93,6 @@ EOF
 # Prefix 'f' for FORGE commands to avoid shell conflicts
 
 # Project navigation
-alias fforge='forge'
 alias fstatus='forge-status'
 
 # Environment management

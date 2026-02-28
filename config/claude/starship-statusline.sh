@@ -9,6 +9,13 @@ input=$(cat)
 # Extract data from JSON input
 current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
+ctx_pct=$(echo "$input" | jq -r '.context_window.used_percentage // 0')
+
+# Write context % to sidecar file for heartbeat hooks
+FORGE_DIR="$HOME/work/FORGE"
+if [[ "$current_dir" == "$FORGE_DIR"* ]] && [[ "$ctx_pct" =~ ^[0-9]+$ ]]; then
+    echo "$ctx_pct" > "$FORGE_DIR/.forge/heartbeat/context_percent" 2>/dev/null
+fi
 
 # Get basic system info
 username=$(whoami)
