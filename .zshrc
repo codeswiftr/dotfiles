@@ -111,6 +111,10 @@ forge-restart() {
   echo "Done. Lead orchestrator restarting in $pane."
 }
 
+# XNODE real-time activation
+export COMMAND_CENTER_URL="https://prya.queue-great.ts.net"
+export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
+
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
 
