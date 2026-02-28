@@ -45,3 +45,6 @@ bin/openclaw
 # Local forge experiments
 .forge/
 .config/systemd/
+bin/forge
+bin/forge-harness
+scripts/cleanup-claude.sh
