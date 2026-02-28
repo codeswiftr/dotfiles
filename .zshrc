@@ -101,5 +101,15 @@ source "/home/openclaw/.openclaw/completions/openclaw.zsh"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
+# FORGE lead orchestrator restart (run from any terminal/pane)
+forge-restart() {
+  local pane="${1:-forge:prya}"
+  echo "Sending /clear + /continue to $pane..."
+  tmux send-keys -t "$pane" "/clear" Enter
+  sleep 3
+  tmux send-keys -t "$pane" "/continue" Enter
+  echo "Done. Lead orchestrator restarting in $pane."
+}
+
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
