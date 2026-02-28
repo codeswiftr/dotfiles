@@ -50,6 +50,10 @@ if [[ "$(hostname)" == "trinity" ]] || [[ "$(hostname)" == "code-trinity" ]]; th
     [[ -f "$DOTFILES_DIR/config/agents/trinity.zsh" ]] && source "$DOTFILES_DIR/config/agents/trinity.zsh"
 fi
 
+if [[ "$(hostname)" == "gaea" ]] || [[ "$(hostname)" == "code-gaea" ]]; then
+    [[ -f "$ZSH_CONFIG_DIR/gaea.zsh" ]] && source "$ZSH_CONFIG_DIR/gaea.zsh"
+fi
+
 # FORGE integration (disabled - conflicts with forge CLI)
 # if [[ -d "${FORGE_ROOT:-}" ]] && [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]]; then
 #     source "$ZSH_CONFIG_DIR/forge.zsh"
