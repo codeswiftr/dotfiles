@@ -113,3 +113,6 @@ forge-restart() {
 
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
+
+# opencode
+export PATH=/Users/bogdan/.opencode/bin:$PATH
