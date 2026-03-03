@@ -11,8 +11,8 @@ current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
 ctx_pct=$(echo "$input" | jq -r '.context_window.used_percentage // 0')
 
-# Write context % to sidecar file for heartbeat hooks
-FORGE_DIR="$HOME/work/FORGE"
+# === THE KEY TRICK: export context % to sidecar file for FSM hooks ===
+FORGE_DIR="${FORGE_ROOT:-$HOME/work/FORGE}"
 if [[ "$current_dir" == "$FORGE_DIR"* ]] && [[ "$ctx_pct" =~ ^[0-9]+$ ]]; then
     echo "$ctx_pct" > "$FORGE_DIR/.forge/heartbeat/context_percent" 2>/dev/null
 fi
@@ -146,11 +146,12 @@ lang_ctx=$(lang_context)
 test_info=$(test_results)
 
 # Format similar to Starship with dimmed colors (since status line is dimmed)
-printf "%s@%s %s%s%s%s ❯ %s" \
+printf "%s@%s %s%s%s%s ctx:%s%% ❯ %s" \
     "$username" \
     "$hostname" \
     "$dir_short" \
     "$git_branch" \
     "$lang_ctx" \
     "$test_info" \
+    "$ctx_pct" \
     "$model_name"

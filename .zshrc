@@ -120,3 +120,7 @@ export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
 
 # opencode
 export PATH=/Users/bogdan/.opencode/bin:$PATH
+
+# FORGE xnode real-time activation
+export COMMAND_CENTER_URL="https://prya.queue-great.ts.net"
+export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
