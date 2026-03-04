@@ -88,7 +88,7 @@ gaea-health() {
     local free_gb=$(vm_stat | perl -ne '/page size of (\d+)/ and $ps=$1; /Pages free:\s+(\d+)/ and printf "%.1f", ($1*$ps)/1024/1024/1024')
     echo "  Free RAM: ${free_gb} GB"
 
-    if (( $(echo "$free_gb < 2" | bc -l 2>/dev/null || [[ $(echo "$free_gb < 2") == true ]) )); then
+    if (( $(echo "$free_gb < 2" | bc -l 2>/dev/null || echo 0) )); then
         echo "  ⚠️  Low memory - consider dispatching elsewhere"
         ((issues++))
     else
