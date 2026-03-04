@@ -68,15 +68,61 @@ fi
 # 8. Welcome Message (Interactive shells only)
 # -----------------------------------------------------------------------------
 if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
-    echo "🚀 ZSH Ready - $(/bin/date +%H:%M)"
-    
-    # Tool availability (compact)
-    local tools=("starship" "zoxide" "eza" "bat" "rg" "fd" "fzf" "mise")
-    local available=()
-    for tool in "${tools[@]}"; do
-        command -v "$tool" >/dev/null && available+=("$tool")
-    done
-    [[ ${#available[@]} -gt 0 ]] && echo "🔧 Tools: ${available[*]}"
+    # Pretty welcome - only show on first shell (not subshells)
+    if [[ -z "$ZSH_WELCOME_SHOWN" ]]; then
+        export ZSH_WELCOME_SHOWN=1
+
+        # System info - use print -P to interpret prompt sequences
+        print -P ""
+        print -P "%F{cyan}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%f"
+        print -P "  %F{cyan}%n@%m%f  %F{green}$(uptime -p 2>/dev/null || uptime)%f  %F{yellow}zsh ${ZSH_VERSION}%f"
+        print -P "%F{cyan}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%f"
+
+        # Tool availability (compact, only show first few)
+        local tools=("starship" "zoxide" "eza" "bat" "rg" "fd" "fzf" "mise")
+        local available=()
+        for tool in "${tools[@]}"; do
+            command -v "$tool" >/dev/null && available+=("$tool")
+        done
+        if [[ ${#available[@]} -gt 0 ]]; then
+            print -P "  %F{yellow}⚡%f ${available[1]}%f, ${available[2]}%f, ${available[3]}%f ... ${#available[@]} tools"
+        fi
+
+        # FORGE node status (if forge is available)
+        if command -v forge >/dev/null 2>&1; then
+            local forge_status=$(forge node health 2>/dev/null)
+            if [[ -n "$forge_status" ]]; then
+                print -P "  %F{magenta}🔥 FORGE%f"
+
+                # Parse using sed (more portable)
+                # Status: online/offline
+                if echo "$forge_status" | sed -n 's/.*Status: \([^ ]*\).*/\1/p' | grep -q "online"; then
+                    print -P "    %F{green}✓%f online"
+                elif echo "$forge_status" | sed -n 's/.*Status: \([^ ]*\).*/\1/p' | grep -q "offline"; then
+                    print -P "    %F{red}✗%f offline"
+                fi
+
+                # RAM: "12575 MB free / 49152 MB total"
+                local ram_info=$(echo "$forge_status" | sed -n 's/.*RAM: \([^M]*\)MB free.*/\1/p')
+                if [[ -n "$ram_info" ]]; then
+                    print -P "    %F{blue}▮%f RAM: ${ram_info}MB free"
+                fi
+
+                # CPU: "62.7%"
+                local cpu_info=$(echo "$forge_status" | sed -n 's/.*CPU: \([^%]*\)%.*/\1/p')
+                if [[ -n "$cpu_info" ]]; then
+                    print -P "    %F{yellow}▯%f CPU: ${cpu_info}%"
+                fi
+
+                # Queue: "52 pending"
+                local queue_info=$(echo "$forge_status" | sed -n 's/.*Queue: \([^ ]*\).*/\1/p')
+                if [[ -n "$queue_info" ]]; then
+                    print -P "    %F{cyan}▫%f Queue: $queue_info pending"
+                fi
+            fi
+        fi
+        print -P ""
+    fi
 fi
 
 # Atuin shell history (if installed)
@@ -96,8 +142,9 @@ alias claw-relay='OPENCLAW_GATEWAY_TOKEN="2f7ad44859ce7df051b870d3adaaaf966a7fe3
 # bun completions
 [ -s "/Users/bogdan/.bun/_bun" ] && source "/Users/bogdan/.bun/_bun"
 
-# OpenClaw Completion
-source "/home/openclaw/.openclaw/completions/openclaw.zsh"
+# OpenClaw Completion (conditional - only if exists)
+[[ -f "/home/openclaw/.openclaw/completions/openclaw.zsh" ]] && source "/home/openclaw/.openclaw/completions/openclaw.zsh"
+[[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 

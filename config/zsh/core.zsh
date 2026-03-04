@@ -14,12 +14,16 @@ export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
 # Basic shell options
-setopt AUTO_CD           # Auto cd when typing just directory name
-setopt EXTENDED_GLOB     # Extended globbing patterns
-setopt SHARE_HISTORY     # Share history between sessions
-setopt HIST_VERIFY       # Show command before executing from history
-setopt HIST_IGNORE_DUPS  # Don't record duplicates in history
-setopt CORRECT           # Correct misspelled commands
+setopt AUTO_CD              # Auto cd when typing just directory name
+setopt EXTENDED_GLOB        # Extended globbing patterns
+setopt SHARE_HISTORY        # Share history between sessions
+setopt HIST_VERIFY          # Show command before executing from history
+setopt HIST_IGNORE_DUPS     # Don't record duplicates in history
+setopt CORRECT              # Correct misspelled commands
+setopt NO_BG_NICE           # Don't nice background jobs
+setopt NO_NOTIFY            # Don't report background job status immediately
+setopt NO_HUP              # Don't kill jobs on exit
+setopt LONG_LIST_JOBS      # Show job status in format like ps
 
 # Key bindings - Emacs mode (default) with proper arrow key support
 bindkey -e  # Enable emacs key bindings (Ctrl+A, Ctrl+E, arrow keys, etc.)

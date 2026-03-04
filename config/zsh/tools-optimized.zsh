@@ -310,14 +310,14 @@ init_tools_optimized() {
     # Set up optimized aliases
     setup_optimized_aliases
     
-    # Load context-specific tools (async)
-    { load_context_tools } &
+    # Load context-specific tools (async) - fully detached, no job tracking
+    { load_context_tools } &>/dev/null & disown
 
     # Load optional Zsh plugins asynchronously (non-blocking)
     {
         fast_syntax_highlighting_loader || true
         zsh_autocomplete_loader || true
-    } &
+    } &>/dev/null & disown
     
     perf_time "Optimized tools initialization complete"
 }

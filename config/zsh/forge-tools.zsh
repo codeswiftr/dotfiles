@@ -23,11 +23,9 @@ export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
 
 # QMD - FORGE documentation search (BM25 + vector search for .md files)
 # Critical for agents to understand architecture/workflows quickly
-if [[ -f "$HOME/.npm-global/bin/qmd" ]]; then
+# Add npm-global to PATH if qmd is available (via npm, bun, or direct install)
+if command -v qmd >/dev/null 2>&1; then
     export PATH="$HOME/.npm-global/bin:$PATH"
-elif command -v npm >/dev/null 2>&1; then
-    # If npm is available but qmd isn't, hint at installation
-    [[ -z "$DOTFILES_QUIET" ]] && echo "💡 Tip: Install QMD for FORGE docs: npm install -g @forge/qmd"
 fi
 
 # Forge CLI - FORGE fleet management and orchestration
@@ -185,5 +183,5 @@ forge-ready() {
     fi
 }
 
-# Export functions
-export -f forge-docs forge-root forge-ready
+# Export functions (zsh compatible)
+autoload -z forge-docs forge-root forge-ready
