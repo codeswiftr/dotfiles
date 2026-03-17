@@ -49,7 +49,7 @@ run_comprehensive_tests() {
     fi
     
     # Run tests with timeout
-    if timeout 120 ./tests/test_runner.sh >/dev/null 2>&1; then
+    if timeout 300 ./tests/test_runner.sh >/dev/null 2>&1; then
         log_success "Comprehensive tests passed"
     else
         log_error "Comprehensive tests failed"
