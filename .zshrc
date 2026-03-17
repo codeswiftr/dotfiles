@@ -124,3 +124,16 @@ export PATH=/Users/bogdan/.opencode/bin:$PATH
 # FORGE xnode real-time activation
 export COMMAND_CENTER_URL="https://prya.queue-great.ts.net"
 export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
+export FORGE_ROOT=/Users/bogdan/work/FORGE
+export FORGE_API_URL=http://prya:8081
+export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
+
+# Auto-start Tailscale if not running
+tailscale_start() {
+    if ! tailscale status --json >/dev/null 2>&1; then
+        echo "Starting Tailscale..."
+        tailscale up --operator=bogdan
+    fi
+}
+# Auto-start on every shell:
+tailscale_start
