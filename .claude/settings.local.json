@@ -19,7 +19,8 @@
       "Bash(find:*)",
       "Bash(gh repo view:*)",
       "Bash(nvim:*)",
-      "Bash(tmux list-keys:*)"
+      "Bash(tmux list-keys:*)",
+      "Bash(git rebase:*)"
     ],
     "deny": []
   }

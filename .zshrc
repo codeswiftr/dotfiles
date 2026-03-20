@@ -184,3 +184,6 @@ tailscale_start() {
 }
 # Auto-start on every shell:
 tailscale_start
+
+# Allow plaintext WS over Tailscale
+export OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1
