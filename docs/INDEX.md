@@ -1,6 +1,6 @@
 ## Repository Index (auto-generated)
 
-Generated: 2026-03-10
+Generated: 2026-03-17
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
