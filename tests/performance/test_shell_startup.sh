@@ -38,7 +38,7 @@ setup_performance_test() {
     
     # Copy essential configuration files
     cp -r "$DOTFILES_DIR/config" "$TEST_DOTFILES_DIR/"
-    cp -r "$DOTFILES_DIR/bin" "$TEST_DOTFILES_DIR/"
+    cp -rP "$DOTFILES_DIR/bin" "$TEST_DOTFILES_DIR/"
     cp -r "$DOTFILES_DIR/lib" "$TEST_DOTFILES_DIR/"
     cp "$DOTFILES_DIR/.zshrc" "$TEST_DOTFILES_DIR/" 2>/dev/null || true
     

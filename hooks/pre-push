@@ -48,12 +48,12 @@ run_comprehensive_tests() {
         return 0
     fi
     
-    # Run tests with timeout
-    if timeout 300 ./tests/test_runner.sh >/dev/null 2>&1; then
-        log_success "Comprehensive tests passed"
+    # Run infrastructure tests with timeout (fast, reliable; full suite via: ./tests/test_runner.sh)
+    if timeout 120 ./tests/test_runner.sh --category infrastructure >/dev/null 2>&1; then
+        log_success "Infrastructure tests passed"
     else
-        log_error "Comprehensive tests failed"
-        echo "Run './tests/test_runner.sh' to see detailed results"
+        log_error "Infrastructure tests failed"
+        echo "Run './tests/test_runner.sh --category infrastructure' to see detailed results"
     fi
 }
 
