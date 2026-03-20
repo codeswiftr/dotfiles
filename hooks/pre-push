@@ -170,7 +170,7 @@ check_security_compliance() {
             local sample
             sample=$(git grep -nE "$pattern" -- \
               '*.sh' '*.zsh' '*.yaml' '*.yml' '*.json' '*.env' '*.cfg' '*.conf' '*.toml' \
-              | head -1)
+              2>/dev/null | head -1 || true)
             log_warning "Potential hardcoded credential pattern matched: $pattern"
             if [[ -n "$sample" ]]; then echo "$sample"; fi
             # Treat as warning to reduce false positives; dedicated secret scanners run elsewhere
@@ -192,7 +192,7 @@ check_cross_platform_compatibility() {
     
     local found_hardcoded=false
     for path in "${platform_paths[@]}"; do
-        if grep -r "$path" . --include="*.sh" --include="*.zsh" --exclude-dir=".git" | grep -v "# Platform specific" >/dev/null 2>&1; then
+        if command grep -r "$path" . --include="*.sh" --include="*.zsh" --exclude-dir=".git" | command grep -v "# Platform specific" >/dev/null 2>&1; then
             log_warning "Hardcoded platform path found: $path"
             found_hardcoded=true
         fi
@@ -218,7 +218,7 @@ check_version_consistency() {
         fi
         
         # Check if version is referenced in other files
-        if grep -q "$version" lib/version.sh 2>/dev/null; then
+        if command grep -q "$version" lib/version.sh 2>/dev/null; then
             log_success "Version is consistent across files"
         else
             log_warning "Version may not be consistent across all files"
