@@ -52,3 +52,4 @@ scripts/cleanup-claude.sh
 # Cursor agent symlinks (local versions)
 bin/agent
 bin/cursor-agent
+bin/forge-ios
