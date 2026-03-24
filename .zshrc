@@ -140,10 +140,9 @@ alias claw-relay='OPENCLAW_GATEWAY_TOKEN="2f7ad44859ce7df051b870d3adaaaf966a7fe3
 
 
 # bun completions
-[ -s "/Users/bogdan/.bun/_bun" ] && source "/Users/bogdan/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # OpenClaw Completion (conditional - only if exists)
-[[ -f "/home/openclaw/.openclaw/completions/openclaw.zsh" ]] && source "/home/openclaw/.openclaw/completions/openclaw.zsh"
 [[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
@@ -158,20 +157,13 @@ forge-restart() {
   echo "Done. Lead orchestrator restarting in $pane."
 }
 
-# XNODE real-time activation
-export COMMAND_CENTER_URL="https://prya.queue-great.ts.net:8443"
-export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
-
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
-
-# opencode
-export PATH=/Users/bogdan/.opencode/bin:$PATH
 
 # FORGE xnode real-time activation
 export COMMAND_CENTER_URL="https://prya.queue-great.ts.net"
 export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
-export FORGE_ROOT=/Users/bogdan/work/FORGE
+export FORGE_ROOT="$HOME/work/FORGE"
 export FORGE_API_URL=http://prya:8081
 export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
 
@@ -179,7 +171,7 @@ export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
 tailscale_start() {
     if ! tailscale status --json >/dev/null 2>&1; then
         echo "Starting Tailscale..."
-        tailscale up --operator=bogdan
+        tailscale up --operator="$USER"
     fi
 }
 # Auto-start on every shell:
