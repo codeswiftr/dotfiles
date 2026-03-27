@@ -179,6 +179,3 @@ tailscale_start
 
 # Allow plaintext WS over Tailscale
 export OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1
-
-# OpenClaw Completion
-source "/Users/bogdan/.openclaw/completions/openclaw.zsh"
