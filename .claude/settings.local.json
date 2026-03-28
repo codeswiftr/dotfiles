@@ -21,7 +21,10 @@
       "Bash(nvim:*)",
       "Bash(tmux list-keys:*)",
       "Bash(git rebase:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(forge --help)",
+      "Bash(forge status:*)",
+      "Bash(forge node:*)"
     ],
     "deny": []
   }
