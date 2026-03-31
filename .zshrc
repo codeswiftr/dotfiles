@@ -163,7 +163,7 @@ forge-restart() {
 # FORGE xnode real-time activation
 export COMMAND_CENTER_URL="https://prya.queue-great.ts.net"
 export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
-export FORGE_ROOT="$HOME/work/FORGE"
+export FORGE_ROOT="$HOME/work/forge-mono"
 export FORGE_API_URL=http://prya:8081
 export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
 

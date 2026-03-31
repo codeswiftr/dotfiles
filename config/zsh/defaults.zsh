@@ -73,7 +73,7 @@ export FZF_DEFAULT_OPTS="
     --bind='ctrl-/:toggle-preview'"
 
 # FORGE Portfolio
-export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
+export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
 
 # Performance/Debug
 export DOTFILES_PERF_TIMING="${DOTFILES_PERF_TIMING:-false}"
