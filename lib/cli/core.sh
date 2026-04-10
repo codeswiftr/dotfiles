@@ -510,45 +510,22 @@ dot_update() {
     if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
         print_info "Checking and fixing tmux configuration..."
         
-        # Check for critical keybinding conflicts
-        local conflicts_found=false
-        
-        # Check if 'c' is bound to claude instead of new-window
-        if tmux list-keys | rg -q "prefix.*c.*claude"; then
-            print_warning "Detected tmux keybinding conflicts (c→claude)"
-            conflicts_found=true
-        fi
-        
-        # Check if 'd' is bound to docker instead of detach
-        if tmux list-keys | rg -q "prefix.*d.*docker"; then
-            print_warning "Detected tmux keybinding conflicts (d→docker)"
-            conflicts_found=true
-        fi
-        
-        # Auto-fix conflicts if detected OR ensure ultimate config is active
-        if [[ "$conflicts_found" == "true" ]] || [[ ! -f ~/.tmux.conf ]] || ! grep -q "ULTIMATE Tmux Configuration" ~/.tmux.conf; then
-            print_info "Applying ultimate tmux configuration..."
-            if [[ -f "$DOTFILES_DIR/.tmux-ultimate.conf" ]]; then
-                cp "$DOTFILES_DIR/.tmux-ultimate.conf" ~/.tmux.conf
-                print_success "Applied ultimate tmux configuration with perfect copy/paste"
-            elif [[ -f "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" ]]; then
-                bash "$DOTFILES_DIR/scripts/tmux-fix-complete.sh" --yes 2>/dev/null || {
-                    print_warning "Automatic fix failed, using fixed config directly"
-                    if [[ -f "$DOTFILES_DIR/.tmux-fixed.conf" ]]; then
-                        cp "$DOTFILES_DIR/.tmux-fixed.conf" ~/.tmux.conf
-                        print_success "Applied fixed tmux configuration"
-                    fi
-                }
+        # Ensure ~/.tmux.conf is a symlink to the dotfiles config
+        local tmux_source="$DOTFILES_DIR/config/tmux/tmux.conf"
+        if [[ -f "$tmux_source" ]]; then
+            if [[ ! -L "$HOME/.tmux.conf" ]] || [[ "$(readlink "$HOME/.tmux.conf")" != "$tmux_source" ]]; then
+                print_info "Relinking ~/.tmux.conf → $tmux_source"
+                ln -sf "$tmux_source" "$HOME/.tmux.conf"
             fi
         fi
-        
+
         # Reload configuration
         print_info "Reloading tmux configuration..."
-        tmux source-file ~/.tmux.conf 2>/dev/null || {
-            print_warning "Config reload failed, restarting tmux recommended"
+        tmux source-file "$HOME/.tmux.conf" 2>/dev/null || {
+            print_warning "Config reload failed — restarting tmux recommended"
         }
-        tmux display-message "Tmux configuration reloaded and fixed!" 2>/dev/null || true
-        print_success "Tmux configuration reloaded and verified"
+        tmux display-message "Tmux config reloaded" 2>/dev/null || true
+        print_success "Tmux configuration reloaded"
     fi
     
     # Update tmux plugins via TPM

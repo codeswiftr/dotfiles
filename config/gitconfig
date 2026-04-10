@@ -2,9 +2,13 @@
 # Git Configuration - Basic Template
 # =============================================================================
 
+# IMPORTANT: Do NOT set name/email here — configure per-machine via:
+#   git config --global user.name "Your Name"
+#   git config --global user.email "you@example.com"
+# Or create ~/.gitconfig.local with a [user] block (included below).
 [user]
-    name = Bogdan Veliscu
-    email = bogdan@example.com
+    name = Your Name
+    email = you@example.com
 
 [core]
     editor = nvim

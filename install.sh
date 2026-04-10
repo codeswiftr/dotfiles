@@ -49,6 +49,7 @@ LOG_FILE="$HOME/dotfiles-install.log"
 
 # Default values
 PROFILE="standard"
+PROFILE_EXPLICIT=false
 DRY_RUN=false
 VERBOSE=false
 FORCE=false
@@ -123,8 +124,10 @@ command_exists() {
 detect_os() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "macos"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if [[ -f /etc/arch-release ]]; then
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "linux-musl"* ]]; then
+        if [[ -f /etc/alpine-release ]]; then
+            echo "alpine"
+        elif [[ -f /etc/arch-release ]]; then
             echo "arch"
         elif [[ -f /etc/debian_version ]]; then
             echo "ubuntu"
@@ -133,6 +136,15 @@ detect_os() {
         fi
     else
         echo "unknown"
+    fi
+}
+
+# Returns Ubuntu version like "22", "24" or empty string
+detect_ubuntu_version() {
+    if [[ -f /etc/os-release ]]; then
+        local ver
+        ver=$(. /etc/os-release && echo "${VERSION_ID:-}" | cut -d. -f1)
+        echo "$ver"
     fi
 }
 
@@ -206,6 +218,20 @@ PY
         sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
         sed -n "/    post_install:/,/^    [a-zA-Z]/p" | \
         grep "      -" | sed 's/      - \"//' | sed 's/\"//'
+    fi
+}
+
+yaml_query_node_profile() {
+    local hostname="$1"
+    if has_pyyaml; then
+        python3 - "$CONFIG_FILE" "$hostname" <<'PY'
+import sys, yaml
+cfg_path, hostname = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+node = (data.get('nodes', {}) or {}).get(hostname, {}) or {}
+print(node.get('profile', '') or '')
+PY
     fi
 }
 
@@ -374,6 +400,53 @@ install_group() {
     fi
 }
 
+# Install mise and activate it so mise-managed tools work during install
+install_mise_bootstrap() {
+    print_step "Bootstrapping mise (universal version manager)..."
+
+    # Set musl flag for Alpine
+    [[ -f /etc/alpine-release ]] && export MISE_LIBC=musl
+
+    if ! command -v mise >/dev/null 2>&1; then
+        if [[ "$DRY_RUN" == "true" ]]; then
+            print_info "DRY RUN: Would install mise v2025.4.0"
+            return 0
+        fi
+        if [[ "$NO_SUDO" == "true" ]] || [[ "$(detect_os)" != "macos" ]]; then
+            curl -fsSL https://mise.run | MISE_VERSION=v2025.4.0 sh
+            export PATH="$HOME/.local/bin:$PATH"
+        else
+            brew install mise 2>/dev/null || curl -fsSL https://mise.run | MISE_VERSION=v2025.4.0 sh
+        fi
+    else
+        print_info "mise already installed: $(mise --version 2>/dev/null)"
+    fi
+
+    # Activate mise in this shell so subsequent installs see the shims
+    if command -v mise >/dev/null 2>&1; then
+        eval "$(mise activate bash 2>/dev/null)" 2>/dev/null || \
+            export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+        # Sync global mise config from dotfiles and install pinned tools
+        local mise_config_src="$DOTFILES_DIR/mise.toml"
+        local mise_config_dst="$HOME/.config/mise/config.toml"
+        if [[ -f "$mise_config_src" ]]; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                print_info "DRY RUN: Would copy mise.toml → $mise_config_dst and run mise install"
+            else
+                mkdir -p "$(dirname "$mise_config_dst")"
+                cp "$mise_config_src" "$mise_config_dst"
+                print_step "Installing mise-managed tools (pinned versions)..."
+                mise install --quiet 2>/dev/null && \
+                    print_success "mise tools installed" || \
+                    print_warning "Some mise tools failed — run 'mise install' manually"
+            fi
+        fi
+    else
+        print_warning "mise install failed — user-level tools may be unavailable"
+    fi
+}
+
 # Install based on profile
 install_profile() {
     local profile="$1"
@@ -513,6 +586,15 @@ setup_package_manager() {
                 fi
             fi
             ;;
+        "alpine")
+            print_step "Setting up Alpine package manager..."
+            if [[ "$DRY_RUN" == "true" ]]; then
+                print_info "DRY RUN: Would run apk update"
+            else
+                apk update && print_success "apk updated"
+            fi
+            export MISE_LIBC=musl
+            ;;
         "arch")
             if ! command_exists yay; then
                 print_step "Installing yay AUR helper..."
@@ -526,7 +608,7 @@ setup_package_manager() {
             else
                 print_info "yay already installed"
             fi
-            
+
             # Ensure PyYAML is available for better YAML parsing
             if ! has_pyyaml; then
                 print_step "Installing PyYAML for better configuration parsing..."
@@ -1101,6 +1183,7 @@ main() {
         case $1 in
             -p|--profile)
                 PROFILE="$2"
+                PROFILE_EXPLICIT=true
                 shift 2
                 ;;
             -d|--dry-run)
@@ -1138,6 +1221,7 @@ main() {
                 COMMAND="install"
                 if [[ -n "${2:-}" ]] && [[ ! "$2" =~ ^- ]]; then
                     PROFILE="$2"
+                    PROFILE_EXPLICIT=true
                     shift 2
                 else
                     shift
@@ -1187,6 +1271,17 @@ main() {
     # Execute command
     case "$COMMAND" in
         "install")
+            # Auto-detect profile from nodes map if not explicitly provided
+            if [[ "$PROFILE_EXPLICIT" == "false" ]]; then
+                local _node_hostname _node_profile
+                _node_hostname=$(hostname -s 2>/dev/null || hostname)
+                _node_profile=$(yaml_query_node_profile "$_node_hostname")
+                if [[ -n "$_node_profile" ]]; then
+                    PROFILE="$_node_profile"
+                    print_info "Auto-detected profile '$PROFILE' for node '$_node_hostname'"
+                fi
+            fi
+
             print_header "Modern Dotfiles Installation - 2025 Edition"
             print_info "Profile: $PROFILE"
             print_info "OS: $(detect_os)"
@@ -1214,6 +1309,7 @@ main() {
             fi
 
             setup_package_manager
+            install_mise_bootstrap
             install_profile "$PROFILE"
             link_dotfiles
             link_claude_config

@@ -7,6 +7,7 @@ set -euo pipefail
 # - Fallback to pre-commit commit-msg hooks if configured
 # - Else, warn and allow
 
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
 COMMIT_MSG_FILE="$1"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
@@ -26,9 +27,9 @@ if command -v pre-commit >/dev/null 2>&1; then
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always
     exit $?
-  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+  elif [ -f "${DOTFILES_DIR}/pre-commit-global.yaml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always \
-      --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+      --config "${DOTFILES_DIR}/pre-commit-global.yaml"
     exit $?
   fi
 fi

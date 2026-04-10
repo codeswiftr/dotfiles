@@ -1,400 +1,252 @@
-# 🚀 Modern Dotfiles - Enterprise Development Environment
-
-<div align="center">
+# Modern Dotfiles — Cross-Platform Development Environment
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Shell](https://img.shields.io/badge/Shell-Zsh-1f425f.svg)](https://www.zsh.org/)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)](https://github.com/codeswiftr/dotfiles)
-[![Version](https://img.shields.io/github/v/release/codeswiftr/dotfiles?include_prereleases)](https://github.com/codeswiftr/dotfiles/releases)
-[![CI](https://img.shields.io/badge/CI-Automated-green.svg)](https://github.com/codeswiftr/dotfiles/actions)
-[![Tests](https://img.shields.io/badge/Tests-95%25%20Coverage-brightgreen.svg)](https://github.com/codeswiftr/dotfiles/actions)
-[![Performance](https://img.shields.io/badge/Startup-350ms-success.svg)](https://github.com/codeswiftr/dotfiles#performance-benchmarks)
-[![Security](https://img.shields.io/badge/Security-Enterprise%20Grade-blue.svg)](https://github.com/codeswiftr/dotfiles#security--compliance)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)](#platform-support)
 
-**Battle-tested, enterprise-grade development environment**  
-*Designed for professional developers who demand performance, reliability, and modern tooling*
+A declarative, modular dotfiles system built for developers who work across multiple machines. Installs reproducibly, degrades gracefully on SSH sessions, and scales from a minimal server setup to a full AI-assisted development environment.
 
-[🚀 **Quick Install**](#quick-start) · [📋 **Features**](#key-features) · [📚 **Documentation**](#documentation) · [🤝 **Contributing**](#contributing)
-
-</div>
+**[Quick Start](#quick-start)** · **[What's Included](#whats-included)** · **[Configuration](#configuration)** · **[Documentation](#documentation)**
 
 ---
 
-Built from the ground up with intelligent performance optimization, comprehensive security, and seamless cross-platform compatibility. Trusted by development teams worldwide for mission-critical environments.
+## Key Features
 
-## ✨ Key Features
+- **Declarative install**: all tools defined in `config/tools.yaml` — add a tool once, installs everywhere
+- **Profile-based**: `minimal` for servers, `standard` for daily use, `full` for power users
+- **SSH-aware**: heavy tools skip on SSH sessions; shell stays fast everywhere
+- **mise-powered**: all runtimes and CLI tools version-pinned in `mise.toml`
+- **Tiered Neovim**: 8 → 23 → 33 plugins, promoted with `:TierUp`
+- **Modern CLI**: starship, eza, bat, ripgrep, fzf, atuin, zoxide — all optional with fallbacks
 
-### 🎯 **Production-Ready Architecture**
-- **Universal compatibility**: macOS, Linux distributions, and WSL
-- **Intelligent detection**: Automatic platform-specific optimizations  
-- **Enterprise security**: Integrated GPG, SSH, and secret management
-- **Comprehensive testing**: 95%+ test coverage with automated CI/CD
+## Quick Start
 
-### ⚡ **Performance Excellence**
-- **3-5x faster startup**: Intelligent lazy loading and caching
-- **Resource-aware**: Adapts to system capabilities automatically
-- **Benchmark-driven**: Continuous performance monitoring and optimization
-- **Progressive complexity**: Tier-based system that scales with expertise
-
-### 🛠️ **Modern Development Stack**
-- **Next-gen CLI tools**: starship, eza, bat, ripgrep, fzf, atuin, and more
-- **AI integration**: Built-in AI development assistance and code review
-- **Version management**: mise for seamless runtime switching  
-- **Container support**: Docker and devcontainer configurations
-
-### 🏗️ **Revolutionary UX Design**
-- **Streamlined tmux**: Reduced from 66 to 10 essential keybindings
-- **Progressive Neovim**: 8→23→33 plugin tiers with visual discovery
-- **Smart autosuggestions**: Fish-like completion with context awareness
-- **Dynamic terminal titles**: Automatic session and window identification
-
-## 🔧 **Quick Start**
-
-### One-Line Installation
+### One-line install
 
 ```bash
-# Recommended - runs in subshell with TTY for sudo prompts
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)"
-
-# Alternative - pre-authenticate sudo then pipe
-sudo -v && curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
-
-# With AI coding tools
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)" -- install ai-dev
+# Fork this repo first, then:
+git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
+cd ~/dotfiles && ./install.sh install standard
 ```
 
-### Manual Installation
+Or use the bootstrap script (fetches and runs the installer):
 
 ```bash
-git clone https://github.com/codeswiftr/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./scripts/setup.sh standard    # or: minimal, full, ai-dev
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/scripts/bootstrap.sh)"
 ```
 
-### Installation Profiles
+### Installation profiles
 
-| Profile | Description | Best For |
+| Profile | Description | Good for |
 |---------|-------------|----------|
-| **`minimal`** | Symlinks only (zsh, tmux, nvim, git) | Servers, containers |
-| **`standard`** | + Modern CLI tools (starship, fzf, eza, bat, etc.) | Most developers |
-| **`ai-dev`** | + AI coding agents (claude, aider, opencode) | AI-assisted development |
-| **`full`** | Everything including optional tools | Power users |
-
-### Platform Support
-
-| Platform | Status | Notes |
-|----------|--------|-------|
-| macOS Tahoe (Apple Silicon) | ✅ Full | Primary development platform |
-| macOS Ventura (Intel) | ✅ Full | Tested on 2018 MBP |
-| Arch Linux | ✅ Full | Wayland + X11 clipboard support |
-| Debian/Ubuntu | ✅ Full | APT package list included |
-
-## 📋 **What's Included**
-
-### Core Development Tools
-```bash
-# Modern CLI replacements
-starship          # Cross-shell prompt
-zoxide            # Smarter cd command  
-eza              # Modern ls replacement
-bat              # Cat with syntax highlighting
-ripgrep          # Fast grep alternative
-fd               # Fast find alternative
-fzf              # Fuzzy finder
-atuin            # Enhanced shell history
-
-# Development environment
-mise             # Version manager for all languages
-uv               # Fast Python package manager
-bun              # Fast JavaScript runtime
-docker           # Containerization platform
-```
-
-### AI Development Tools
-```bash
-# AI assistance
-aider            # AI pair programming
-gh copilot       # GitHub Copilot CLI
-claude           # Claude Code CLI
-gemini           # Google Gemini CLI
-```
-
-### Specialized Environments
-
-#### 🍎 iOS & Swift Development
-- Complete Xcode integration and build automation
-- iOS Simulator management and device testing
-- Swift Package Manager integration
-- Specialized tmux layouts for mobile development
-
-#### 🌐 Web & API Development  
-- FastAPI project templates with modern tooling
-- LitElement/Lit framework for PWAs
-- Development server management with hot reload
-- Progressive Web App tooling and deployment
-
-## ⚙️ **Getting Started**
-
-### 1. Post-Installation Setup
+| `minimal` | Symlinks only (zsh, tmux, nvim, git) | Servers, containers |
+| `standard` | + Modern CLI tools (starship, eza, bat, fzf, atuin) | Most developers |
+| `full` | + AI tools, security scanners, optional extras | Power users |
+| `ai_focused` | + AI coding agents (claude, aider, opencode) | AI-assisted dev |
 
 ```bash
-# Initialize shell configuration
-source ~/.zshrc
-
-# Setup development environment
-dot setup
-
-# Check system health
-dot check
+./install.sh install minimal      # Bare essentials
+./install.sh install standard     # Recommended default
+./install.sh install full
+./install.sh --dry-run install standard   # Preview without changes
 ```
 
-### 2. Essential Commands
+### Platform support
+
+| Platform | Status | Package manager |
+|----------|--------|----------------|
+| macOS (Apple Silicon / Intel) | Full | Homebrew |
+| Ubuntu / Debian | Full | apt |
+| Arch Linux | Full | pacman |
+| Alpine Linux | Core tools | apk |
+| WSL2 | Full | apt |
+
+## What's Included
+
+### Shell (Zsh)
+
+- Modular config in `config/zsh/` — each file is a separate concern
+- SSH-aware: loads `tools-minimal.zsh` on remote sessions, `tools-optimized.zsh` locally
+- Per-node config auto-loaded based on hostname: `config/zsh/<hostname>.zsh`
+- Fish-like autosuggestions via `history-enhanced.zsh`
+- Background update check — notifies if dotfiles are behind `origin/main`
+
+### Modern CLI replacements
+
+```
+starship    → cross-shell prompt
+zoxide      → smarter cd (z command)
+eza         → ls with icons and git status
+bat         → cat with syntax highlighting
+ripgrep     → fast grep replacement
+fd          → fast find replacement
+fzf         → fuzzy finder
+atuin       → shell history with search
+delta       → better git diffs
+```
+
+All have fallbacks — if not installed, standard tools are used.
+
+### Tmux
+
+- Prefix: `Ctrl-a`
+- ~25 essential bindings (hjkl navigation, `|`/`-` splits, `Tab` last window)
+- Per-node status bar accent color (defined in `tmux.conf`)
+- SSH indicator: status bar moves to top with red `SSH` label on remote sessions
+- F12 to toggle key passthrough for nested sessions
+- Plugins: `tmux-resurrect` + `tmux-continuum` (auto-save every 15 min)
+
+### Neovim (tier-based)
+
+| Tier | Plugins | Startup | Features |
+|------|---------|---------|----------|
+| 1 | ~9 | <250ms | LSP, file tree, treesitter, catppuccin |
+| 2 | ~23 | <400ms | + Telescope, DAP, AI assist, git signs |
+| 3 | ~33 | <600ms | + Noice, mini suite, advanced tools |
+
+Promote with `:TierUp`, demote with `:TierDown`, check with `:TierInfo`.
+
+Auto-detects tier from `$NVIM_TIER` env var or system resources (RAM + cores).
+
+### AI development tools
 
 ```bash
-# Core operations
-dot setup              # Complete environment setup
-dot check              # System health validation  
-dot update             # Update all components
-dot reload             # Reload shell configuration
-
-# Development workflow
-dot project init       # Create new project
-dot ai review          # AI code review
-dot security scan      # Security audit
-dot test run           # Run comprehensive tests
+# Aliases defined in config/agents/agents.zsh
+c       → claude (Claude Code)
+cu      → cursor
+aa      → aider
+oc      → opencode
 ```
 
-### 3. Performance Optimization
+See `config/agents/agents.zsh` for AI workflow functions (`ai-review`, `ai-doc`, `ai-explain`).
+
+### `dot` CLI
+
+The `bin/dot` CLI is the main interface:
 
 ```bash
-# Check performance
-perf-status            # View current performance metrics
-perf-bench            # Run startup benchmarks
-perf-quick            # One-command optimization
-
-# Performance modes
-export DOTFILES_FAST_MODE=1      # Ultra-fast startup (<300ms)
-export DOTFILES_PERF_TIMING=true # Enable timing diagnostics
+dot setup          # Idempotent environment setup (safe to re-run)
+dot check          # System health check
+dot update         # Pull latest dotfiles and re-link
+dot reload         # Reload shell config
 ```
 
-## 🎯 **Advanced Features**
+## Configuration
 
-### Progressive Complexity System
-- **Neovim tiers**: Start with 8 essential plugins, unlock more with `:TierUp`
-- **Tmux streamlining**: Learn 10 essential bindings, optionally expand
-- **Shell optimization**: Auto-detects system resources for optimal performance
+### Personalize
 
-### AI-Enhanced Workflow
-```bash
-dot ai commit          # AI-powered commit messages
-dot ai explain file.py # Code explanation
-dot ai test           # Generate test cases
-dot ai review         # Comprehensive code review
+1. **Identity**: set git name/email via `~/.gitconfig.local` (not tracked):
+   ```ini
+   [user]
+       name = Your Name
+       email = you@example.com
+   ```
+
+2. **Secrets and machine-local overrides**: copy `.env.local.example` → `~/.env.local`:
+   ```bash
+   cp .env.local.example ~/.env.local
+   # then edit ~/.env.local — it's gitignored
+   ```
+
+3. **Node-specific config**: create `config/zsh/<your-hostname>.zsh` for machine-specific aliases, paths, and tools. See `config/zsh/examples/` for templates.
+
+4. **Tool versions**: edit `mise.toml` to pin your preferred versions.
+
+5. **Install profile**: edit `config/tools.yaml` or pass `--profile` to `install.sh`.
+
+### Adding tools
+
+Edit `config/tools.yaml`:
+```yaml
+tools:
+  my_group:
+    my_tool:
+      description: "My tool"
+      macos: "brew install my-tool"
+      ubuntu: "apt-get install -y my-tool"
+      verify: "my-tool --version"
 ```
 
-### Enterprise Security
-```bash
-dot security setup-gpg    # Configure GPG signing
-dot security setup-ssh    # Generate and configure SSH keys  
-dot secret setup          # Initialize secret management
-dot secret exec -- cmd    # Run commands with injected secrets
-```
+Then re-run `./install.sh install standard` (idempotent, only installs missing tools).
 
-## 📊 **Performance Benchmarks**
+### Multi-machine fleet
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Shell startup | 1.2s | 0.35s | **3.4x faster** |
-| Tool loading | Eager | Lazy | **Memory efficient** |
-| Tmux complexity | 66 bindings | 10 essential | **85% reduction** |
-| Neovim learning curve | Weeks | 30 minutes | **Dramatic improvement** |
+If you have multiple machines on a shared network (Tailscale recommended):
 
-## 🔒 **Security & Compliance**
+1. Create `config/zsh/<hostname>.zsh` for each node
+2. Optionally copy `config/zsh/examples/fleet-dashboard.zsh` and adapt
+3. Set `DOTFILES_FLEET_NODES` in `~/.env.local`
 
-- **GPG key management** with automated setup
-- **SSH key generation** and secure configuration
-- **Secret scanning** and prevention with gitleaks
-- **Global git hooks** with pre-commit validation
-- **Secure credential storage** and rotation
+See `config/zsh/examples/README.md` for the full fleet setup guide.
 
-## 📁 **Architecture**
+## Architecture
 
 ```
 dotfiles/
-├── 📁 bin/              # DOT CLI and executable utilities
-├── 📁 config/           # Configuration templates and definitions
-├── 📁 lib/              # Core libraries and shared modules
-├── 📁 plugins/          # Modular plugin system
-├── 📁 scripts/          # Installation and maintenance scripts
-├── 📁 tests/            # Comprehensive test suite
-├── 📄 install.sh        # Declarative installer
-└── 📄 CLAUDE.md         # AI assistant integration guide
+├── bin/                  # dot CLI and utilities
+├── config/
+│   ├── zsh/              # Modular zsh config (sourced by .zshrc)
+│   │   └── examples/     # Node-specific templates (not loaded automatically)
+│   ├── agents/           # AI agent aliases and per-node config
+│   ├── nvim/             # Neovim tier-based config
+│   ├── tmux/             # Tmux config
+│   ├── claude/           # Claude Code integration (commands, skills, agents)
+│   └── tools.yaml        # Declarative tool definitions
+├── lib/                  # Shell libraries used by dot CLI
+├── plugins/              # Plugin system (see plugins/local/hello-world/)
+├── scripts/              # Install, health-check, bootstrap utilities
+├── tests/                # Test suite
+├── mise.toml             # Version-pinned tool manifest
+└── install.sh            # Main installer
 ```
 
-## 🧪 **Testing & Quality Assurance**
+## Security
+
+- Secrets in `~/.env.local` (gitignored, never committed)
+- Global git hooks via `git/hooks/` — runs pre-commit/gitleaks on commit
+- GPG signing configured via `dot security setup-gpg`
+- Secret scanning with gitleaks and trufflehog (in `full` profile)
 
 ```bash
-# Run comprehensive test suite
-./tests/test_runner.sh
+# Setup GPG signing
+dot security setup-gpg
 
-# Quick validation
-dot test quick
-
-# Continuous testing
-dot test watch
-
-# Linting
-find . -name "*.sh" -exec shellcheck {} \;
-find . -name "*.yaml" | xargs yamllint
+# Setup SSH key
+dot security setup-ssh
 ```
 
-## 🔄 **Updates & Maintenance**
+## Testing
 
 ```bash
-# Check for updates
-dot migrate status
-
-# Apply updates
-dot update
-
-# Create backup before changes
-dot backup create
-
-# Rollback if needed
-dot migrate rollback
+./tests/test_runner.sh              # Full test suite
+./tests/test_runner.sh --category infrastructure
+find . -name "*.sh" | xargs shellcheck -S warning
 ```
 
-## 🌐 **Cross-Platform Support**
+## Documentation
 
-### macOS
-- Homebrew package management
-- Native app integrations
-- Optimized performance settings
+| Guide | Purpose |
+|-------|---------|
+| [Installation](docs/INSTALL-DECLARATIVE.md) | Detailed install instructions |
+| [Configuration](docs/configuration.md) | All configuration options |
+| [Neovim](docs/neovim.md) | Neovim tier system |
+| [Tmux](docs/tmux-quick-reference.md) | Tmux keybindings reference |
+| [AI Workflows](docs/ai-workflows.md) | AI tool integration |
+| [Git Hooks](docs/git-hooks.md) | Pre-commit hook setup |
+| [Security](docs/security.md) | GPG, SSH, secret management |
+| [Plugins](docs/plugins.md) | Plugin development |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues |
+| [Performance](docs/performance.md) | Shell startup optimization |
 
-### Linux (Ubuntu/Debian)
-- APT package management  
-- Systemd service integration
-- Distribution-specific optimizations
+## Contributing
 
-### Arch Linux
-- Pacman and AUR support
-- Rolling release compatibility
-- Performance-focused configurations
+1. Fork and clone
+2. Make changes (run `shellcheck` on any shell scripts you edit)
+3. Test: `./tests/test_runner.sh`
+4. Open a PR
 
-### Windows (WSL)
-- WSL2 optimizations
-- Windows Terminal integration
-- Cross-platform development workflow
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-## 🔌 **Plugin Ecosystem**
+## License
 
-```bash
-# Browse available plugins
-dot plugin list
-
-# Install community plugins
-dot plugin install productivity
-dot plugin install ai-enhanced
-
-# Create custom plugins
-dot plugin create my-plugin
-
-# Plugin development
-dot plugin template
-```
-
-## 📚 **Documentation**
-
-<div align="center">
-
-| 📖 Guide | 🎯 Purpose | 👥 Audience |
-|----------|------------|-------------|
-| **[🚀 Quick Start](#quick-start)** | Get up and running in minutes | All users |
-| **[📋 Installation Guide](docs/INSTALL-DECLARATIVE.md)** | Detailed installation instructions | Beginners |
-| **[⚙️ Configuration Reference](docs/configuration.md)** | Complete configuration options | Advanced users |
-| **[🔌 Plugin Development](docs/plugins.md)** | Create custom plugins | Developers |
-| **[🛠️ Troubleshooting](docs/troubleshooting.md)** | Common issues and solutions | All users |
-| **[⚒️ FORGE Workflow](docs/forge.md)** | Portfolio workflow commands | FORGE users |
-| **[📦 Migration Guide](docs/technical-debt.md)** | Legacy configuration migration | Existing users |
-| **[🔗 API Documentation](docs/api.md)** | Programmatic interfaces | Integrators |
-
-</div>
-
-## 🤝 **Contributing**
-
-We welcome contributions! Here's how to get started:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** with proper tests
-4. **Run the test suite**: `dot test run`
-5. **Submit a pull request**
-
-### Development Setup
-```bash
-git clone https://github.com/codeswiftr/dotfiles.git
-cd dotfiles
-./install.sh install full --dev
-```
-
-## 🏆 **Enterprise Comparison**
-
-<div align="center">
-
-| 🎯 **Capability** | 📝 **Basic Dotfiles** | 🚀 **This Repository** |
-|-------------------|------------------------|------------------------|
-| **Installation** | Manual, error-prone | ✅ **Automated, bulletproof** |
-| **Cross-Platform** | ❌ Platform-specific hacks | ✅ **Universal compatibility** |
-| **Performance** | ❌ Slow, bloated startup | ✅ **3-5x faster optimization** |
-| **AI Integration** | ❌ None | ✅ **Multi-provider AI suite** |
-| **Security** | ❌ Basic or ignored | ✅ **Enterprise-grade hardening** |
-| **Testing** | ❌ No validation | ✅ **95%+ test coverage** |
-| **Updates** | ❌ Manual, risky | ✅ **Automated with rollback** |
-| **Support** | ❌ Community luck | ✅ **Professional documentation** |
-| **Monitoring** | ❌ Flying blind | ✅ **Real-time health checks** |
-| **Backup/Recovery** | ❌ Hope and pray | ✅ **Automated backup system** |
-
-</div>
-
-## 🚀 **Performance Metrics**
-
-- **Shell startup**: < 350ms (3-5x improvement)
-- **Memory usage**: Optimized lazy loading
-- **Tool availability**: 99.9% uptime with health checks
-- **Cross-platform**: Consistent performance across all systems
-- **Test coverage**: 95%+ with automated CI/CD
-
-## 📄 **License**
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 🌟 **Community & Support**
-
-- **Issues**: [GitHub Issues](https://github.com/codeswiftr/dotfiles/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/codeswiftr/dotfiles/discussions)
-- **Documentation**: Comprehensive guides and examples
-- **Updates**: Regular maintenance and feature releases
-
-## 🙏 **Acknowledgments**
-
-Built with love for the developer community, incorporating best practices and modern tooling from industry leaders.
-
----
-
-<div align="center">
-
-## 🚀 **Ready to Transform Your Development Experience?**
-
-**Join thousands of developers who've revolutionized their workflow**
-
-```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)"
-```
-
-*Installation takes 2-5 minutes. Rollback available if needed.*
-
-[![Deploy Now](https://img.shields.io/badge/🚀%20Deploy%20Now-One%20Click%20Install-success.svg?style=for-the-badge)](https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh)
-
-**Trusted by development teams worldwide** • **Enterprise-grade security** • **24/7 reliability**
-
-</div>
+MIT — see [LICENSE](LICENSE).

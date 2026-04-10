@@ -1,0 +1,45 @@
+# =============================================================================
+# mise configuration — version-pinned tools for all machines
+# Run `mise install` after pulling changes.
+# Run `mise lock` to regenerate mise.lock after version changes.
+# =============================================================================
+
+[tools]
+# Runtimes
+node = "22"
+python = "3.12"
+
+# Modern CLI replacements (replaces curl-pipe-sh installs in tools.yaml)
+"aqua:BurntSushi/ripgrep"       = "14.1.1"    # rg
+"aqua:sharkdp/bat"              = "0.24.0"    # bat
+"aqua:eza-community/eza"        = "0.20.21"   # eza
+"aqua:sharkdp/fd"               = "10.2.0"    # fd
+"aqua:junegunn/fzf"             = "0.60.3"    # fzf
+"aqua:starship/starship"        = "1.22.1"    # starship
+"aqua:ajeetdsouza/zoxide"       = "0.9.7"     # zoxide
+"aqua:atuinsh/atuin"            = "18.4.0"    # atuin
+"aqua:dandavison/delta"         = "0.18.2"    # delta (git pager)
+
+# Data tools
+"aqua:jqlang/jq"                = "1.7.1"     # jq
+"aqua:mikefarah/yq"             = "4.45.4"    # yq
+
+# GitHub CLI
+"aqua:cli/cli"                  = "2.67.0"    # gh
+
+# Security tools
+"aqua:gitleaks/gitleaks"        = "8.25.1"
+"aqua:aquasecurity/trivy"       = "0.60.0"
+"aqua:hadolint/hadolint"        = "2.12.0"
+"aqua:anchore/grype"            = "0.90.0"
+"aqua:FiloSottile/age"          = "1.2.1"
+"aqua:trufflesecurity/trufflehog" = "3.88.1"
+
+# Load testing
+"aqua:grafana/k6"               = "0.57.0"
+
+[settings]
+# Verify checksums for all downloads
+paranoid = true
+# Don't nag about experimental features
+experimental = true

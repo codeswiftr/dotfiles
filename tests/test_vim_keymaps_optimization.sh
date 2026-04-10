@@ -9,7 +9,7 @@ source "$(dirname "$0")/utils/nvim_test_helpers.sh"
 
 # Test configuration
 TEST_NAME="Vim Keymaps Optimization"
-NVIM_CONFIG_PATH="/Users/bogdan/dotfiles/config/nvim"
+NVIM_CONFIG_PATH="${DOTFILES_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/config/nvim"
 OPTIMIZED_KEYMAPS_PATH="$NVIM_CONFIG_PATH/lua/core/keymaps-optimized.lua"
 
 # ============================================================================
@@ -368,12 +368,13 @@ test_nvim_config_integration() {
     if command -v nvim >/dev/null 2>&1; then
         # Create test init file that loads optimized keymaps
         local test_init="/tmp/test_nvim_init.lua"
-        cat > "$test_init" << 'EOF'
+        local keymaps_path="${NVIM_CONFIG_PATH}/lua/core/keymaps-optimized.lua"
+        cat > "$test_init" << EOF
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Mock telescope commands to avoid plugin dependency errors
-vim.cmd = function(cmd) 
+vim.cmd = function(cmd)
     if cmd:match("Telescope") then
         print("Mock telescope command: " .. cmd)
     else
@@ -381,7 +382,7 @@ vim.cmd = function(cmd)
     end
 end
 
-dofile("/Users/bogdan/dotfiles/config/nvim/lua/core/keymaps-optimized.lua")
+dofile("${keymaps_path}")
 EOF
         
         if nvim --headless -u "$test_init" -c "qall!" 2>/dev/null; then

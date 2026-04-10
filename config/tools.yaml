@@ -41,6 +41,11 @@ groups:
       - bun
       - docker
 
+  networking:
+    description: "Network connectivity and VPN tools"
+    tools:
+      - tailscale
+
   deployment:
     description: "Cloud deployment CLIs for Railway and Cloudflare"
     tools:
@@ -124,8 +129,9 @@ tools:
       macos: "brew install zsh zsh-autosuggestions zsh-history-substring-search"
       ubuntu: "sudo apt install -y zsh zsh-autosuggestions zsh-history-substring-search"
       arch: "sudo pacman -S zsh zsh-autosuggestions zsh-history-substring-search"
+      alpine: "apk add --no-cache zsh"
     post_install:
-      - "chsh -s $(which zsh)"
+      - "[ \"$SHELL\" = \"$(which zsh)\" ] || chsh -s $(which zsh)"
     verify: "zsh --version"
 
   git:
@@ -135,6 +141,7 @@ tools:
       macos: "brew install git"
       ubuntu: "sudo apt install -y git"
       arch: "sudo pacman -S git"
+      alpine: "apk add --no-cache git"
     verify: "git --version"
 
   gh:
@@ -161,16 +168,22 @@ tools:
       macos: "brew install curl"
       ubuntu: "sudo apt install -y curl"
       arch: "sudo pacman -S curl"
+      alpine: "apk add --no-cache curl wget"
     verify: "curl --version"
 
   nvim:
-    description: "Neovim - Modern text editor"
+    description: "Neovim - Modern text editor (0.11+ required)"
     category: "editor"
     install:
       macos: "brew install neovim"
-      ubuntu: "sudo apt install -y neovim"
+      ubuntu: |
+        curl -fLo /tmp/nvim-linux-x86_64.tar.gz \
+          "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz" \
+        && sudo tar -C /usr/local -xzf /tmp/nvim-linux-x86_64.tar.gz --strip-components=1 \
+        && rm /tmp/nvim-linux-x86_64.tar.gz
       arch: "sudo pacman -S neovim"
-    verify: "nvim --version"
+      alpine: "apk add --no-cache neovim"
+    verify: "nvim --version | head -1 | grep -qE 'NVIM v([1-9]|0\\.1[1-9])'"
 
   tmux:
     description: "Terminal multiplexer"
@@ -179,6 +192,7 @@ tools:
       macos: "brew install tmux"
       ubuntu: "sudo apt install -y tmux"
       arch: "sudo pacman -S tmux"
+      alpine: "apk add --no-cache tmux"
     verify: "tmux -V"
 
   # Modern CLI tools
@@ -289,9 +303,24 @@ tools:
       macos: "if [[ -z \"${DOTFILES_MODE:-}\" || \"${DOTFILES_MODE}\" != \"agent\" ]]; then brew install --cask docker; else echo 'Skipping Docker Desktop in agent mode'; fi"
       ubuntu: "sudo apt install -y docker.io docker-compose-v2 || sudo apt install -y docker.io docker-compose"
       arch: "sudo pacman -S docker docker-compose"
+      alpine: "apk add --no-cache docker docker-compose"
     post_install:
-      - "sudo usermod -aG docker $USER"  # Linux only
+      - "groups $USER | grep -q docker || sudo usermod -aG docker $USER"  # Linux only
     verify: "docker --version"
+
+  # Networking tools
+  tailscale:
+    description: "Tailscale VPN - secure mesh networking"
+    category: "networking"
+    install:
+      macos: "brew install tailscale"
+      ubuntu: "curl -fsSL https://tailscale.com/install.sh | sh"
+      arch: "sudo pacman -S tailscale"
+      alpine: "apk add --no-cache tailscale"
+    post_install:
+      - "command -v systemctl >/dev/null && sudo systemctl enable --now tailscaled || true"
+      - "tailscale status >/dev/null 2>&1 || sudo tailscale up --operator=$USER"
+    verify: "tailscale version"
 
   # Deployment tools
   railway:
@@ -299,8 +328,8 @@ tools:
     category: "deployment"
     install:
       macos: "brew install railway"
-      ubuntu: "curl -fsSL https://railway.app/install.sh | sh"
-      arch: "yay -S railway"
+      ubuntu: "curl -fsSL --max-time 30 https://railway.app/install.sh | sh || npm install -g @railway/cli"
+      arch: "yay -S railway || npm install -g @railway/cli"
     verify: "railway --version"
 
   wrangler:
@@ -683,6 +712,37 @@ configs:
     backup: true
     merge: true  # Merge with existing config
 
+# Node-to-profile mapping
+# install.sh reads this to auto-select the right profile per machine.
+# Override with: ./install.sh install <profile>  or  -p <profile>
+nodes:
+  # Linux servers
+  prya:
+    profile: standard
+    description: "Hub/Command Center (16GB Linux)"
+  sati:
+    profile: full
+    description: "Workhorse - heavy tasks (64GB Linux)"
+  trinity:
+    profile: standard
+    description: "Auxiliary - docs, review, light (16GB Linux)"
+  vega-1:
+    profile: standard
+    description: "VPS node (Linux)"
+  # macOS machines
+  nova:
+    profile: full
+    description: "iOS/Power - Swift, Xcode (48GB macOS)"
+  gaea:
+    profile: standard
+    description: "Education/Mobile (16GB macOS)"
+  code-mb16:
+    profile: full
+    description: "MacBook Pro 16 (macOS)"
+  vega:
+    profile: standard
+    description: "Linux node"
+
 # Installation profiles
 profiles:
   minimal:
@@ -691,11 +751,11 @@ profiles:
 
   standard:
     description: "Standard development environment"
-    groups: ["essential", "modern_cli", "development", "deployment"]
+    groups: ["essential", "modern_cli", "development", "networking", "deployment"]
 
   full:
     description: "Complete installation with all tools"
-    groups: ["essential", "modern_cli", "development", "deployment", "ai_tools", "testing_tools", "security_tools", "optional"]
+    groups: ["essential", "modern_cli", "development", "networking", "deployment", "ai_tools", "testing_tools", "security_tools", "optional"]
 
   ai_focused:
     description: "AI-enhanced development environment"

@@ -223,7 +223,7 @@ EOF
 show_version() {
     echo "🚀 DOT CLI v${DOT_VERSION}"
     echo "📍 Dotfiles: ${DOTFILES_DIR}"
-    echo "📦 Last update: $(stat -f %Sm -t %Y-%m-%d ~/.zshrc 2>/dev/null || echo 'Unknown')"
+    echo "📦 Last update: $(date -r ~/.zshrc "+%Y-%m-%d" 2>/dev/null || stat -c %y ~/.zshrc 2>/dev/null | cut -d' ' -f1 || echo 'Unknown')"
     
     if [[ -f "$DOTFILES_DIR/VERSION" ]]; then
         echo "🏷️  Environment: v$(cat "$DOTFILES_DIR/VERSION")"

@@ -3,6 +3,9 @@
 # Provides comprehensive fleet visibility and management
 # =============================================================================
 
+# Skip in SSH sessions — fleet tools require Tailscale and are local-only
+[[ -n "$DOTFILES_SSH" ]] && return 0
+
 # -----------------------------------------------------------------------------
 # Fleet Status - All nodes at a glance
 # -----------------------------------------------------------------------------

@@ -26,7 +26,7 @@ require("snippets")
 -- Load plugins based on current tier (single lazy.setup)
 local function bootstrap_lazy()
   local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-  if not vim.loop.fs_stat(lazypath) then
+  if not vim.uv.fs_stat(lazypath) then
     vim.fn.system({
       "git",
       "clone",
@@ -81,6 +81,31 @@ require("lazy").setup(
   }
 )
 
+-- Tier 2 startup message
+if current_tier == 2 then
+  vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    callback = function()
+      if vim.fn.argc() == 0 then
+        vim.defer_fn(function()
+          print("Neovim Tier 2 - Enhanced Development Environment")
+          print("23 plugins | <400ms startup | Full IDE features")
+          print("<leader>ff (files) | <leader>fp (projects) | <leader>S (search/replace)")
+          print("LSP: gd | K (hover) | <leader>cr (rename) | Debug: <leader>db/<leader>dc")
+          print("Upgrade: :TierUp | Status: :TierInfo")
+        end, 50)
+      end
+      if vim.env.NVIM_PROFILE then
+        local started = vim.uv.hrtime()
+        vim.defer_fn(function()
+          local ms = (vim.uv.hrtime() - started) / 1000000
+          print(string.format("Tier 2 startup: %.1fms (target: 400ms)", ms))
+        end, 100)
+      end
+    end,
+  })
+end
+
 -- Tier 1 success message and optional profiling
 if current_tier == 1 then
   vim.api.nvim_create_autocmd("VimEnter", {
@@ -95,10 +120,10 @@ if current_tier == 1 then
   })
 
   if vim.env.NVIM_PROFILE then
-    local started = vim.loop.hrtime()
+    local started = vim.uv.hrtime()
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
-        local ms = (vim.loop.hrtime() - started) / 1000000
+        local ms = (vim.uv.hrtime() - started) / 1000000
         local target = 250
         local status = ms <= target and "✅" or "⚠️"
         print(string.format("%s Tier 1 startup: %.1fms (target: %dms)", status, ms, target))

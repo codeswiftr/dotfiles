@@ -795,7 +795,7 @@ main() {
         echo "This tutorial requires the modern dotfiles to be installed."
         echo "Please run the installation first:"
         echo ""
-        echo "  bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/master/install.sh)\""
+        echo "  bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/scripts/bootstrap.sh)\""
         echo ""
         exit 1
     fi

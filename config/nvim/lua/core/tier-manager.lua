@@ -20,13 +20,13 @@ local function auto_detect_tier()
 
   -- 3) Heuristic based on CPU cores and total memory
   local cores = 1
-  local ok_cpu, cpu_info = pcall(vim.loop.cpu_info)
+  local ok_cpu, cpu_info = pcall(vim.uv.cpu_info)
   if ok_cpu and type(cpu_info) == "table" then
     cores = #cpu_info
   end
 
   local total_mem_bytes = 0
-  local ok_mem, total_mem = pcall(vim.loop.get_total_memory)
+  local ok_mem, total_mem = pcall(vim.uv.get_total_memory)
   if ok_mem and type(total_mem) == "number" then
     total_mem_bytes = total_mem
   end

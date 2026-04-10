@@ -2,12 +2,13 @@
 set -euo pipefail
 
 # Idempotent installer for unified global Git hooks via pre-commit
-# - Sets core.hooksPath to /Users/bogdan/dotfiles/git/hooks
+# - Sets core.hooksPath to $DOTFILES_DIR/git/hooks
 # - Verifies required tools and prints install hints (non-interactive)
 # - Safe to re-run
 
-HOOKS_PATH="/Users/bogdan/dotfiles/git/hooks"
-GLOBAL_CONFIG="/Users/bogdan/dotfiles/pre-commit-global.yaml"
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+HOOKS_PATH="${DOTFILES_DIR}/git/hooks"
+GLOBAL_CONFIG="${DOTFILES_DIR}/pre-commit-global.yaml"
 
 log() { printf "%s\n" "$*"; }
 info() { printf "[INFO] %s\n" "$*"; }
@@ -33,8 +34,8 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; cd "$REPO_ROOT"
 if command -v pre-commit >/dev/null 2>&1; then
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-commit --color always
-  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
-    PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-commit --color always --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+  elif [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-commit --color always --config "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml"
   fi
 fi
 exit 0
@@ -55,8 +56,8 @@ fi
 if command -v pre-commit >/dev/null 2>&1; then
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --color always
-  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
-    PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --color always --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+  elif [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage commit-msg --color always --config "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml"
   fi
 fi
 exit 0
@@ -72,8 +73,8 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; cd "$REPO_ROOT"
 if command -v pre-commit >/dev/null 2>&1; then
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always
-  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
-    PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+  elif [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always --config "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml"
   fi
   exit 0
 fi
@@ -92,8 +93,8 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; cd "$REPO_ROOT"
 if command -v pre-commit >/dev/null 2>&1; then
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always
-  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
-    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+  elif [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml" ]; then
+    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" --color always --config "${DOTFILES_DIR:-$HOME/dotfiles}/pre-commit-global.yaml"
   fi
 fi
 exit 0

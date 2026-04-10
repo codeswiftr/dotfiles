@@ -12,7 +12,7 @@ description: Stage changes, craft conventional commits, and push to the default 
 ## Workflow
 1. Run `git status` and review staged/unstaged files. Clean up any unwanted artifacts (use `.gitignore` if needed).
 2. Stage relevant files (`git add <paths>`).
-3. Craft a conventional commit message: `type(scope?): summary` (e.g., `feat(codeswiftr): add manual review API`). Types: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `chore`.
+3. Craft a conventional commit message: `type(scope?): summary` (e.g., `feat(auth): add login API`). Types: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `chore`.
 4. Execute `git commit -m "message"`.
 5. Pull latest main: `git pull --rebase origin main` (resolve conflicts if any).
 6. Push: `git push origin HEAD`.

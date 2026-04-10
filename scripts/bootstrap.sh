@@ -11,8 +11,14 @@
 
 set -eo pipefail
 
+# Alpine/musl detection for mise
+if [ -f /etc/alpine-release ]; then
+    export MISE_LIBC=musl
+fi
+
 # Configuration
-REPO_URL="https://github.com/codeswiftr/dotfiles.git"
+# Set DOTFILES_REPO_URL to override — defaults to prompt if not set
+REPO_URL="${DOTFILES_REPO_URL:-https://github.com/YOUR_USERNAME/dotfiles.git}"
 REPO_BRANCH="main"
 DOTFILES_DIR="$HOME/dotfiles"
 TEMP_DIR="/tmp/dotfiles-install-$$"
@@ -166,6 +172,10 @@ install_prerequisites() {
         log_info "Detected Fedora system"
         setup_sudo || error_exit "sudo setup failed"
         $SUDO_CMD dnf install -y git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+    elif command -v apk >/dev/null 2>&1; then
+        # Alpine Linux
+        log_info "Detected Alpine Linux system"
+        apk add --no-cache bash curl git wget ca-certificates sudo python3 py3-yaml
     elif command -v pacman >/dev/null 2>&1; then
         # Arch Linux
         log_info "Detected Arch Linux system"

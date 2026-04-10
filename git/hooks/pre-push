@@ -7,6 +7,7 @@ set -euo pipefail
 # - Pass remote and URL args to pre-commit via environment for tools needing context
 # - Else, run a minimal safety net: large file and conflict marker guard on pushed changes
 
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
@@ -16,9 +17,9 @@ if command -v pre-commit >/dev/null 2>&1; then
   if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always
     exit $?
-  elif [ -f "/Users/bogdan/dotfiles/pre-commit-global.yaml" ]; then
+  elif [ -f "${DOTFILES_DIR}/pre-commit-global.yaml" ]; then
     PRE_COMMIT_COLOR=always pre-commit run --hook-stage pre-push --color always \
-      --config "/Users/bogdan/dotfiles/pre-commit-global.yaml"
+      --config "${DOTFILES_DIR}/pre-commit-global.yaml"
     exit $?
   fi
 fi

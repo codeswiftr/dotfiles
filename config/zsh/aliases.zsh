@@ -136,7 +136,7 @@ alias jbook="jupyter notebook"
 # System aliases
 alias src="source ~/.zshrc"
 alias reload="dot-reload"
-alias man="~/dotfiles/viman"
+alias man="${DOTFILES_DIR}/viman"
 alias vim="nvim"
 alias vi="nvim"
 
@@ -209,10 +209,10 @@ alias tk="tmux kill-session -t"     # Kill session by name
 alias tn="tmux new-session -s"      # Create new named session
 
 # Tmux clipboard aliases
-alias tcopy="~/dotfiles/scripts/tmux-clipboard.sh copy"
-alias tpaste="~/dotfiles/scripts/tmux-clipboard.sh paste"
-alias tclip-status="~/dotfiles/scripts/tmux-clipboard.sh status"
-alias tclip-test="~/dotfiles/scripts/tmux-clipboard.sh test"
+alias tcopy="${DOTFILES_DIR}/scripts/tmux-clipboard.sh copy"
+alias tpaste="${DOTFILES_DIR}/scripts/tmux-clipboard.sh paste"
+alias tclip-status="${DOTFILES_DIR}/scripts/tmux-clipboard.sh status"
+alias tclip-test="${DOTFILES_DIR}/scripts/tmux-clipboard.sh test"
 
 # Health check convenience
 alias dot-health="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/health-check.sh"

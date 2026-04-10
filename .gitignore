@@ -1,3 +1,9 @@
+# Machine-local secrets (never commit)
+.env.local
+.env.*.local
+*.local.toml
+mise.lock
+
 # Machine-specific config (paths differ per platform)
 .gitconfig
 
@@ -35,6 +41,28 @@ config/zsh/secrets.zsh
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor and IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# Build outputs
+node_modules/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Environment files
+.env
+.envrc
 
 # User-installed tool symlinks (not tracked)
 bin/aider

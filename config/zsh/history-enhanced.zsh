@@ -178,17 +178,8 @@ zshaddhistory() {
 # Integration with Existing Tools
 # ============================================================================
 
-# Ensure compatibility with atuin if installed
-if command -v atuin >/dev/null 2>&1; then
-    # atuin takes precedence for Ctrl+R if available
-    eval "$(atuin init zsh)"
-fi
-
-# Integration with zoxide for directory history
-if command -v zoxide >/dev/null 2>&1; then
-    # z command for directory jumping
-    eval "$(zoxide init zsh)"
-fi
+# Note: atuin and zoxide are initialized in tools-optimized.zsh / tools-minimal.zsh
+# to avoid double-initialization. No redundant eval here.
 
 # History and autosuggestions configured silently
 # Use 'hist-stats' to see most used commands

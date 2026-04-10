@@ -8,6 +8,9 @@
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 
+# SSH session detection (used throughout to skip heavy/local-only features)
+[[ -n "$SSH_CONNECTION" ]] && export DOTFILES_SSH=1
+
 # -----------------------------------------------------------------------------
 # 2. Defaults (Cross-Platform, Single Source)
 # -----------------------------------------------------------------------------
@@ -22,9 +25,14 @@ export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 [[ -f "$ZSH_CONFIG_DIR/environment.zsh" ]] && source "$ZSH_CONFIG_DIR/environment.zsh"
 
 # -----------------------------------------------------------------------------
-# 4. Tool Initialization (Optimized)
+# 4. Tool Initialization (SSH-aware: skip heavy tools in remote sessions)
 # -----------------------------------------------------------------------------
-[[ -f "$ZSH_CONFIG_DIR/tools-optimized.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-optimized.zsh"
+if [[ -z "$DOTFILES_SSH" ]]; then
+    [[ -f "$ZSH_CONFIG_DIR/tools-optimized.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-optimized.zsh"
+else
+    # Minimal tool init for SSH sessions
+    [[ -f "$ZSH_CONFIG_DIR/tools-minimal.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-minimal.zsh"
+fi
 
 # -----------------------------------------------------------------------------
 # 5. User Experience
@@ -44,15 +52,11 @@ fi
 # FORGE tools integration (QMD, forge CLI)
 [[ -f "$ZSH_CONFIG_DIR/forge-tools.zsh" ]] && source "$ZSH_CONFIG_DIR/forge-tools.zsh"
 
-# Node-specific configuration (auto-detect)
-if [[ "$(hostname)" == "trinity" ]] || [[ "$(hostname)" == "code-trinity" ]]; then
-    [[ -f "$ZSH_CONFIG_DIR/trinity.zsh" ]] && source "$ZSH_CONFIG_DIR/trinity.zsh"
-    [[ -f "$DOTFILES_DIR/config/agents/trinity.zsh" ]] && source "$DOTFILES_DIR/config/agents/trinity.zsh"
-fi
-
-if [[ "$(hostname)" == "gaea" ]] || [[ "$(hostname)" == "code-gaea" ]]; then
-    [[ -f "$ZSH_CONFIG_DIR/gaea.zsh" ]] && source "$ZSH_CONFIG_DIR/gaea.zsh"
-fi
+# Node-specific configuration (auto-detected — add config/zsh/<hostname>.zsh for any new machine)
+_DOTFILES_NODE="${$(hostname -s 2>/dev/null || hostname)#code-}"
+[[ -f "$ZSH_CONFIG_DIR/${_DOTFILES_NODE}.zsh" ]] && source "$ZSH_CONFIG_DIR/${_DOTFILES_NODE}.zsh"
+[[ -f "$DOTFILES_DIR/config/agents/${_DOTFILES_NODE}.zsh" ]] && source "$DOTFILES_DIR/config/agents/${_DOTFILES_NODE}.zsh"
+unset _DOTFILES_NODE
 
 # FORGE integration (disabled - conflicts with forge CLI)
 # if [[ -d "${FORGE_ROOT:-}" ]] && [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]]; then
@@ -125,6 +129,21 @@ if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
     fi
 fi
 
+# Background dotfiles update check — notifies when behind origin (non-blocking)
+if [[ $- == *i* ]]; then
+    _dotfiles_check_updates() {
+        local dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [[ -d "$dir/.git" ]] || return 0
+        git -C "$dir" fetch --quiet origin 2>/dev/null || return 0
+        local branch behind
+        branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null) || return 0
+        behind=$(git -C "$dir" rev-list "HEAD..origin/$branch" --count 2>/dev/null) || return 0
+        [[ "${behind:-0}" -gt 0 ]] && \
+            print -P "\n  %F{yellow}dotfiles:%f ${behind} commit(s) behind — run %F{cyan}dot update%f\n"
+    }
+    _dotfiles_check_updates &!
+fi
+
 # Atuin shell history (if installed)
 if [[ -f "$HOME/.atuin/bin/env" ]]; then
     . "$HOME/.atuin/bin/env"
@@ -135,8 +154,9 @@ fi
 [[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
 
 
-alias claw-relay='OPENCLAW_GATEWAY_TOKEN="2f7ad44859ce7df051b870d3adaaaf966a7fe34054f621546d44d5c12a27098b"
-  openclaw node run --host prya.queue-great.ts.net --port 443 --tls --display-name "m3-browser"'
+# claw-relay: set OPENCLAW_GATEWAY_TOKEN and OPENCLAW_RELAY_HOST in ~/.env.local
+# Example: alias claw-relay='openclaw node run --host "$OPENCLAW_RELAY_HOST" --port 443 --tls --display-name "my-node"'
+alias claw-relay='OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:?Set OPENCLAW_GATEWAY_TOKEN in ~/.env.local}" openclaw node run --host "${OPENCLAW_RELAY_HOST:?Set OPENCLAW_RELAY_HOST in ~/.env.local}" --port 443 --tls --display-name "${OPENCLAW_DISPLAY_NAME:-my-node}"'
 
 
 # bun completions
@@ -160,22 +180,23 @@ forge-restart() {
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
 
-# FORGE xnode real-time activation
-export COMMAND_CENTER_URL="https://prya.queue-great.ts.net"
-export FORGE_WEBHOOK_TOKEN="a4xduoCkGQhTTQcEOQXPMvDAXG_7rzl7_CIs0ofTkiA"
-export FORGE_ROOT="$HOME/work/forge-mono"
-export FORGE_API_URL=http://prya:8081
-export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
+# Local machine secrets and overrides (gitignored, never committed)
+[[ -f "$HOME/.env.local" ]] && source "$HOME/.env.local"
 
-# Auto-start Tailscale if not running
-tailscale_start() {
-    if ! tailscale status --json >/dev/null 2>&1; then
+# FORGE integration (only on non-SSH sessions — servers don't need this)
+if [[ -z "$SSH_CONNECTION" ]]; then
+    export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
+    export FORGE_API_URL="${FORGE_API_URL:-http://prya:8081}"
+    [[ -n "$FORGE_ROOT" ]] && export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
+
+    # Auto-start Tailscale if not running (background, non-blocking)
+    tailscale_start() {
+        command -v tailscale >/dev/null 2>&1 || return 0
+        tailscale status --json >/dev/null 2>&1 && return 0
         echo "Starting Tailscale..."
         tailscale up --operator="$USER"
-    fi
-}
-# Auto-start on every shell:
-tailscale_start
+    }
+    tailscale_start &!
 
-# Allow plaintext WS over Tailscale
-export OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1
+    export OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1
+fi

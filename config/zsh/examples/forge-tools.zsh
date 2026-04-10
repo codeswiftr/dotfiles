@@ -3,6 +3,9 @@
 # Critical tooling for FORGE portfolio development and fleet operations
 # =============================================================================
 
+# Skip in SSH sessions — FORGE is a local dev tool, not needed on remote nodes
+[[ -n "$DOTFILES_SSH" ]] && return 0
+
 # -----------------------------------------------------------------------------
 # FORGE Configuration (~/.forgerc)
 # -----------------------------------------------------------------------------

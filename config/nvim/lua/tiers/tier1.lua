@@ -152,16 +152,14 @@ return {
       })
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
+      local lspconfig = require("lspconfig")
 
-      -- Essential servers only - using vim.lsp.config (nvim 0.11+)
-      vim.lsp.config("lua_ls", {
+      lspconfig.lua_ls.setup({
         capabilities = capabilities,
         settings = { Lua = { diagnostics = { globals = { "vim" } } } },
       })
-      vim.lsp.config("pyright", { capabilities = capabilities })
-      vim.lsp.config("ts_ls", { capabilities = capabilities })
-
-      vim.lsp.enable({ "lua_ls", "pyright", "ts_ls" })
+      lspconfig.pyright.setup({ capabilities = capabilities })
+      lspconfig.ts_ls.setup({ capabilities = capabilities })
 
       -- Essential LSP keymaps
       vim.api.nvim_create_autocmd("LspAttach", {

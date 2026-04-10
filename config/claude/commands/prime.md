@@ -107,7 +107,7 @@ Next: /plan [priority] or ask about specific task
 → General portfolio overview, suggests top priorities across all projects
 
 /prime interview-simulator
-→ Focuses on Interview Simulator, loads codeswiftr-com context
+→ Focuses on Interview Simulator, loads project context
 
 /prime interview-simulator --focus testing
 → Interview Simulator testing: coverage gaps, failing tests, test backlog
