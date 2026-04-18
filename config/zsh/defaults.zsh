@@ -119,4 +119,3 @@ fi
 # Cache Directories
 # ----------------------------------------------------------------------------
 export UV_CACHE_DIR="$HOME/.cache/uv"
-export BUN_INSTALL_CACHE_DIR="$HOME/.bun/cache"

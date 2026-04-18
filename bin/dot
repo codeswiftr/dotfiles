@@ -158,20 +158,6 @@ DOCUMENTATION:
         serve [port]       Serve documentation locally
         interactive        Interactive help system
 
-BACKUP & RESTORE:
-    backup             Backup and restore system
-        create [type]      Create backup (full/incremental/config)
-        restore [name]     Restore from backup
-        list [filter]      List available backups
-        schedule           Manage automated backups
-
-MIGRATION & UPGRADE:
-    migrate            Migration and upgrade system
-        status             Check migration status
-        migrate [version]  Run migration to target version
-        rollback [backup]  Rollback to previous state
-        backup [version]   Create manual backup
-
 PLATFORM MANAGEMENT:
     platform           Cross-platform configuration and optimization
         config [level]     Platform-specific optimizations (auto|balanced|performance)

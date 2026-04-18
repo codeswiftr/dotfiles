@@ -33,8 +33,7 @@ fi
 # ----------------------------------------------------------------------------
 # Local PATH (highest priority, loaded last)
 # ----------------------------------------------------------------------------
-# User-specific local binaries (not tracked in dotfiles)
-[[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
+# Note: $HOME/.local/bin is already set in defaults.zsh (single source)
 
 # Secret PATH additions (API keys, tokens, etc.)
 [[ -f "$HOME/.paths.local" ]] && source "$HOME/.paths.local"

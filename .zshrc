@@ -49,9 +49,6 @@ if [[ -z "$DOTFILES_FAST_MODE" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 fi
 
-# FORGE tools integration (QMD, forge CLI)
-[[ -f "$ZSH_CONFIG_DIR/forge-tools.zsh" ]] && source "$ZSH_CONFIG_DIR/forge-tools.zsh"
-
 # Node-specific configuration (auto-detected — add config/zsh/<hostname>.zsh for any new machine)
 _DOTFILES_NODE="${$(hostname -s 2>/dev/null || hostname)#code-}"
 [[ -f "$ZSH_CONFIG_DIR/${_DOTFILES_NODE}.zsh" ]] && source "$ZSH_CONFIG_DIR/${_DOTFILES_NODE}.zsh"
