@@ -39,8 +39,6 @@ dot ai review          # AI code review
 dot security scan      # Security audit
 
 # System management
-dot metrics dashboard  # View system metrics
-dot plugin list        # Manage plugins
 dot migrate status     # Check for updates
 ```
 
@@ -79,7 +77,6 @@ perf-quick                   # One-command optimization
 - **`bin/`** - DOT CLI and utilities (main interface)
 - **`config/`** - Configuration templates and core configs
 - **`lib/`** - Core libraries organized by functionality
-- **`plugins/`** - Modular plugin system
 - **`scripts/`** - Installation and utility scripts
 - **`tests/`** - Comprehensive testing framework
 
@@ -98,12 +95,6 @@ The main interface is the `dot` command located in `bin/dot`. It orchestrates al
 - **Profile-based installation**: minimal, standard, full, ai_focused
 - **Platform detection**: Automatic OS/distro detection with appropriate package managers
 - **Tier-based complexity**: Progressive feature unlocking for shell, tmux, and Neovim
-
-#### Plugin Architecture
-- **Core plugins**: `plugins/core/` - Essential functionality
-- **Community plugins**: `plugins/community/` - External contributions  
-- **Local plugins**: `plugins/local/` - User customizations
-- **Plugin template**: Use `plugins/local/hello-world/` as reference
 
 ### Neovim Configuration
 Tier-based system with progressive complexity:
@@ -137,12 +128,6 @@ Optimized Zsh configuration with performance tiers:
 2. Add to appropriate group (essential, development, optional)
 3. Test with `./install.sh --dry-run install standard`
 4. Run tests: `./tests/test_runner.sh`
-
-### Creating Plugins
-1. Copy `plugins/local/hello-world/` as template
-2. Implement required functions in `lib/core.sh`
-3. Define plugin metadata in `plugin.yaml`
-4. Test with `dot plugin install <plugin-name>`
 
 ### Testing Changes
 1. Always run the full test suite: `./tests/test_runner.sh`

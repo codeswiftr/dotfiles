@@ -89,8 +89,6 @@ See [AGENTS.md](../AGENTS.md) for full style guidelines and commit conventions.
 - **[Configuration Reference](configuration.md)** - Where to change things
 - **[Advanced Configuration](advanced.md)** - Expert customization
 - **[CLI API](api.md)** - `dot` command structure
-- **[Plugin Development](plugins.md)** - Extend the system
-
 ### 🧭 Index and Agent Help
 - **[Repository Index](INDEX.md)** — Navigable file map (auto-generated)
 - **CLI Help Snapshots** — See `src/--help/` for captured `dot` help (for agents/offline)

@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Dotfiles Pre-push Hook
-# Comprehensive validation before pushing to remote
+# Dotfiles Pre-push Hook — fast checks only (<15s)
+#
+# Heavy validation (full test suite, installation profiles, documentation,
+# cross-platform compatibility, version consistency, docs index freshness)
+# is handled by CI and `dot verify`. This hook runs only quick, critical
+# gatekeeping: security compliance, commit hygiene, and repo size warnings.
 
 set -euo pipefail
 
@@ -38,68 +42,9 @@ log_warning() {
     echo -e "${YELLOW}[WARN]${NC} $1"
 }
 
-# Validation functions
-run_comprehensive_tests() {
-    log_info "Running comprehensive test suite..."
-    
-    # Check if test runner exists
-    if [[ ! -f "tests/test_runner.sh" ]]; then
-        log_warning "Test runner not found, skipping tests"
-        return 0
-    fi
-    
-    # Run infrastructure tests with timeout (fast, reliable; full suite via: ./tests/test_runner.sh)
-    if timeout 120 ./tests/test_runner.sh --category infrastructure >/dev/null 2>&1; then
-        log_success "Infrastructure tests passed"
-    else
-        log_error "Infrastructure tests failed"
-        echo "Run './tests/test_runner.sh --category infrastructure' to see detailed results"
-    fi
-}
-
-check_installation_integrity() {
-    log_info "Checking installation integrity..."
-    
-    # Test all installation profiles
-    local profiles=("minimal" "standard" "full")
-    
-    for profile in "${profiles[@]}"; do
-        if timeout 60 ./install.sh --dry-run install "$profile" >/dev/null 2>&1; then
-            log_success "Installation profile '$profile' is valid"
-        else
-            log_warning "Installation profile '$profile' validation skipped (timeout or minor issue)"
-        fi
-    done
-}
-
-validate_documentation() {
-    log_info "Validating documentation..."
-    
-    # Check if README exists and is not empty
-    if [[ -f "README.md" ]] && [[ -s "README.md" ]]; then
-        log_success "README.md exists and is not empty"
-    else
-        log_warning "README.md should exist and not be empty"
-    fi
-    
-    # Check for installation instructions
-    if [[ -f "README.md" ]] && grep -q "install" README.md; then
-        log_success "README.md contains installation instructions"
-    else
-        log_warning "README.md should contain installation instructions"
-    fi
-    
-    # Check for proper documentation structure
-    if [[ -f "README.md" ]] && grep -q "^#" README.md; then
-        log_success "README.md has proper heading structure"
-    else
-        log_warning "README.md should have proper heading structure"
-    fi
-}
-
 check_security_compliance() {
     log_info "Checking security compliance..."
-    
+
     # Only scan tracked files to avoid false positives from local artifacts
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         log_warning "Not inside a git repo; skipping security checks"
@@ -143,8 +88,8 @@ check_security_compliance() {
     if [[ "$found_sensitive" == "false" ]]; then
         log_success "No sensitive tracked files detected"
     fi
-    
-    # Check for hardcoded credentials
+
+    # Check for hardcoded credentials (warning only — dedicated scanners run in CI)
     local credential_patterns=(
         # Only flag likely hardcoded assignments (exclude comments)
         "^[^#]*password\s*=\s*['\"][^'\"]+['\"]"
@@ -152,7 +97,7 @@ check_security_compliance() {
         "^[^#]*token\s*=\s*['\"][^'\"]+['\"]"
         "^[^#]*api[_-]?key\s*=\s*['\"][^'\"]+['\"]"
     )
-    
+
     local found_credentials=false
     # Use git grep to search only tracked files and limit to common config/code types
     for pattern in "${credential_patterns[@]}"; do
@@ -176,102 +121,53 @@ check_security_compliance() {
             # Treat as warning to reduce false positives; dedicated secret scanners run elsewhere
         fi
     done
-    
+
     log_success "Secret pattern scan completed"
-}
-
-check_cross_platform_compatibility() {
-    log_info "Checking cross-platform compatibility..."
-    
-    # Check for platform-specific paths
-    local platform_paths=(
-        "/usr/local/bin"
-        "/opt/homebrew"
-        "/home/"
-    )
-    
-    local found_hardcoded=false
-    for path in "${platform_paths[@]}"; do
-        if command grep -r "$path" . --include="*.sh" --include="*.zsh" --exclude-dir=".git" | command grep -v "# Platform specific" >/dev/null 2>&1; then
-            log_warning "Hardcoded platform path found: $path"
-            found_hardcoded=true
-        fi
-    done
-    
-    if [[ "$found_hardcoded" == "false" ]]; then
-        log_success "No hardcoded platform paths detected"
-    fi
-}
-
-check_version_consistency() {
-    log_info "Checking version consistency..."
-    
-    if [[ -f "VERSION" ]]; then
-        local version
-        version=$(cat VERSION)
-        
-        # Check if version is in semantic versioning format
-        if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
-            log_success "Version format is valid: $version"
-        else
-            log_error "Version format is invalid: $version (expected: x.y.z or x.y.z-label)"
-        fi
-        
-        # Check if version is referenced in other files
-        if command grep -q "$version" lib/version.sh 2>/dev/null; then
-            log_success "Version is consistent across files"
-        else
-            log_warning "Version may not be consistent across all files"
-        fi
-    else
-        log_warning "VERSION file not found"
-    fi
 }
 
 check_commit_history() {
     log_info "Checking commit history..."
-    
+
     # Check for commits that might indicate issues
     local recent_commits
     recent_commits=$(git log --oneline -10)
-    
+
     # Check for fixup commits
     if echo "$recent_commits" | grep -q "fixup!"; then
         log_warning "Fixup commits detected - consider squashing"
     fi
-    
+
     # Check for WIP commits
     if echo "$recent_commits" | grep -qi "wip\|work in progress"; then
         log_warning "WIP commits detected - ensure they're ready for push"
     fi
-    
+
     # Check for merge commits on feature branches
     local current_branch
     current_branch=$(git rev-parse --abbrev-ref HEAD)
-    
+
     if [[ "$current_branch" != "master" ]] && [[ "$current_branch" != "main" ]]; then
         if echo "$recent_commits" | grep -q "Merge branch"; then
             log_warning "Merge commits on feature branch - consider rebasing"
         fi
     fi
-    
+
     log_success "Commit history check completed"
 }
 
-# Performance checks
 check_repository_size() {
     log_info "Checking repository size..."
-    
+
     # Check repository size
     local repo_size
     repo_size=$(du -sh . 2>/dev/null | cut -f1)
-    
+
     log_info "Repository size: $repo_size"
-    
-    # Check for large files
+
+    # Check for large files (warning only — does not block push)
     local large_files
     large_files=$(find . -type f -size +10M -not -path "./.git/*" 2>/dev/null)
-    
+
     if [[ -n "$large_files" ]]; then
         log_warning "Large files detected:"
         echo "$large_files"
@@ -285,72 +181,33 @@ check_repository_size() {
 main() {
     log_info "Starting pre-push validation for remote: $remote"
     echo
-    
+
     # Change to repository root
     cd "$REPO_ROOT"
-    
-    # Run comprehensive tests
-    run_comprehensive_tests
-    echo
-    
-    # Check installation integrity
-    check_installation_integrity
-    echo
-    
-    # Validate documentation
-    validate_documentation
-    echo
-    
-    # Security checks
+
+    # Security checks (blocks push on sensitive files)
     check_security_compliance
     echo
 
-    # Docs index freshness gate (fast)
-    if [[ -x ./scripts/generate-index.sh ]]; then
-        BEFORE_MD=$(sha1sum docs/INDEX.md 2>/dev/null | awk '{print $1}' || true)
-        BEFORE_JSON=$(sha1sum docs/index.json 2>/dev/null | awk '{print $1}' || true)
-        ./scripts/generate-index.sh >/dev/null 2>&1 || true
-        AFTER_MD=$(sha1sum docs/INDEX.md 2>/dev/null | awk '{print $1}' || true)
-        AFTER_JSON=$(sha1sum docs/index.json 2>/dev/null | awk '{print $1}' || true)
-        if [[ "$BEFORE_MD" != "$AFTER_MD" || "$BEFORE_JSON" != "$AFTER_JSON" ]]; then
-            log_error "Docs index is stale. Run ./scripts/generate-index.sh and commit."
-        else
-            log_success "Docs index is up to date"
-        fi
-        echo
-    fi
-    
-    # Cross-platform compatibility
-    check_cross_platform_compatibility
-    echo
-    
-    # Version consistency
-    check_version_consistency
-    echo
-    
     # Commit history
     check_commit_history
     echo
-    
-    # Performance checks
+
+    # Repository size warnings
     check_repository_size
     echo
-    
+
     # Summary
     if [[ $EXIT_CODE -eq 0 ]]; then
-        log_success "All pre-push validations passed! ✅"
+        log_success "All pre-push validations passed!"
         echo "Ready to push to $remote"
     else
-        log_error "Some pre-push validations failed! ❌"
+        log_error "Pre-push validation failed!"
         echo ""
         echo "Please fix the issues above before pushing."
-        echo "You can run individual checks manually:"
-        echo "  - Tests: ./tests/test_runner.sh"
-        echo "  - Installation: ./install.sh --dry-run install standard"
-        echo "  - Security: hooks/pre-commit"
-        echo "  - Health: ./scripts/health-check.sh"
+        echo "For full validation run: dot verify"
     fi
-    
+
     exit $EXIT_CODE
 }
 

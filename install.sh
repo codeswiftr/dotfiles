@@ -642,6 +642,8 @@ link_dotfiles() {
     # Desired logical sources and resolved targets
     local desired_sources=(
         ".zshrc"
+        "config/zsh/.zshenv"
+        "config/zsh/.zprofile"
         ".tmux.conf"
         ".gitconfig"
         "config/nvim"
@@ -652,6 +654,8 @@ link_dotfiles() {
 
     local targets=(
         "$HOME/.zshrc"
+        "$HOME/.zshenv"
+        "$HOME/.zprofile"
         "$HOME/.tmux.conf"
         "$HOME/.gitconfig"
         "$HOME/.config/nvim"
@@ -1290,6 +1294,16 @@ main() {
                 print_info "DRY RUN MODE - No changes will be made"
             fi
 
+            # Validate profile name early — reject unknown profiles before doing any work
+            local _valid_profiles
+            _valid_profiles=$(yaml_query_profile_groups "$PROFILE" 2>/dev/null)
+            if [[ -z "$_valid_profiles" ]]; then
+                print_error "Unknown profile: '$PROFILE'"
+                print_info "Valid profiles: minimal, standard, full, ai_focused"
+                print_info "Run './install.sh profiles' to see details"
+                exit 1
+            fi
+
             # Setup paths early
             setup_paths
 
@@ -1308,10 +1322,34 @@ main() {
                 SUDO_CMD="sudo"  # Placeholder for dry-run display
             fi
 
-            setup_package_manager
-            install_mise_bootstrap
-            install_profile "$PROFILE"
-            link_dotfiles
+            # Track whether any step had failures
+            local _install_warnings=false
+
+            # Package manager is required — abort if it fails
+            if ! setup_package_manager; then
+                print_error "Package manager setup failed — cannot continue"
+                print_info "Fix the package manager issue above and re-run the installer"
+                exit 1
+            fi
+
+            # mise is nice-to-have; warn but continue on failure
+            if ! install_mise_bootstrap; then
+                print_warning "mise bootstrap failed — version-managed tools may be unavailable"
+                _install_warnings=true
+            fi
+
+            # Profile install: partial success is acceptable
+            if ! install_profile "$PROFILE"; then
+                print_warning "Some tools in profile '$PROFILE' failed to install"
+                _install_warnings=true
+            fi
+
+            # Dotfile linking: warn but continue
+            if ! link_dotfiles; then
+                print_warning "Some dotfiles failed to link — run './install.sh link' to retry"
+                _install_warnings=true
+            fi
+
             link_claude_config
 
             # Run plugin validations and setup
@@ -1326,7 +1364,12 @@ main() {
                     print_warning "Some checks may need attention. Run 'dot check' for details."
                 fi
                 echo ""
-                print_success "Installation complete!"
+                if [[ "$_install_warnings" == "true" ]]; then
+                    print_warning "Installation completed with warnings. Some tools failed to install."
+                    print_info "Review the log and re-run to retry failed steps."
+                else
+                    print_success "Installation complete!"
+                fi
                 print_info "Please restart your shell or run 'source ~/.zshrc' to apply changes."
                 print_info "For a full reload, it's recommended to restart your terminal."
                 echo ""

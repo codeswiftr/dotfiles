@@ -1,10 +1,11 @@
 ## Repository Index (auto-generated)
 
-Generated: 2026-03-24
+Generated: 2026-04-18
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
 ### Top-level files
+- `.env.local.example`
 - `.gitconfig`
 - `.gitignore`
 - `.nvimlog`
@@ -15,20 +16,16 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `.zshrc`
 - `AGENTS.md`
 - `BREAKING_CHANGES.md`
-- `CHANGELOG-2025.1.7.md`
 - `CLAUDE.md`
 - `CONTRIBUTING.md`
 - `dotfiles-tutor`
 - `gitleaks.toml`
 - `install.sh`
 - `Makefile`
-- `PLAN.md`
-- `PORTABILITY_FIXES.md`
+- `mise.toml`
+- `PERSONALIZATION.md`
 - `pre-commit-global.yaml`
 - `README.md`
-- `TRINITY_IMPROVEMENT_PLAN.md`
-- `TRINITY_SUMMARY.md`
-- `UPDATE_PLUGINS.md`
 - `VERSION`
 
 ### Directories
@@ -55,9 +52,6 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - (empty)
 
 #### `lib` (0)
-- (empty)
-
-#### `plugins` (0)
 - (empty)
 
 #### `scripts` (0)

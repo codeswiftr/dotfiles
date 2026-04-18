@@ -71,8 +71,8 @@ unset _DOTFILES_NODE
 # -----------------------------------------------------------------------------
 # 8. Welcome Message (Interactive shells only)
 # -----------------------------------------------------------------------------
-if [[ $- == *i* ]] && [[ -z "$DOTFILES_QUIET" ]]; then
-    # Pretty welcome - only show on first shell (not subshells)
+if [[ $- == *i* ]] && [[ "${DOTFILES_BANNER:-0}" == "1" ]] && [[ -z "$SSH_CONNECTION" ]]; then
+    # Pretty welcome - opt-in via DOTFILES_BANNER=1, only show on first shell (not subshells)
     if [[ -z "$ZSH_WELCOME_SHOWN" ]]; then
         export ZSH_WELCOME_SHOWN=1
 
@@ -144,11 +144,9 @@ if [[ $- == *i* ]]; then
     _dotfiles_check_updates &!
 fi
 
-# Atuin shell history (if installed)
-if [[ -f "$HOME/.atuin/bin/env" ]]; then
-    . "$HOME/.atuin/bin/env"
-    eval "$(atuin init zsh)"
-fi
+# Atuin: initialized via tools-optimized.zsh (lazy loader)
+# Only source the env file here for PATH setup; init is handled by atuin_lazy_loader
+[[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
 
 # OpenCode (if installed)
 [[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
@@ -164,8 +162,7 @@ alias claw-relay='OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:?Set OPENCLAW
 
 # OpenClaw Completion (conditional - only if exists)
 [[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
-export PATH="$HOME/.bun/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
+# PATH: .bun/bin and .local/bin are set in config/zsh/defaults.zsh (single source)
 
 # FORGE lead orchestrator restart (run from any terminal/pane)
 forge-restart() {

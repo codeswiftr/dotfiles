@@ -158,27 +158,12 @@ DOCUMENTATION:
         serve [port]       Serve documentation locally
         interactive        Interactive help system
 
-PLUGINS:
-    plugin             Plugin management system
-        install [name]     Install plugin from registry
-        list [filter]      List installed/available plugins
-        enable [name]      Enable installed plugin
-        create [name]      Create new plugin template
-
 BACKUP & RESTORE:
     backup             Backup and restore system
         create [type]      Create backup (full/incremental/config)
         restore [name]     Restore from backup
         list [filter]      List available backups
         schedule           Manage automated backups
-
-METRICS & ANALYTICS:
-    metrics            Metrics collection and analytics
-        init               Initialize metrics system
-        collect            Collect system metrics
-        daemon [action]    Manage collection daemon
-        dashboard          Show metrics dashboard
-        report [type]      Generate analytics reports
 
 MIGRATION & UPGRADE:
     migrate            Migration and upgrade system
@@ -467,12 +452,6 @@ main() {
             docs_cli "$@"
             ;;
 
-        # Plugin commands
-        "plugin")
-            load_cli_lib "plugin"
-            dot_plugin "$@"
-            ;;
-        
         # Platform management commands (Epic 7.1)
         "platform")
             source "$DOTFILES_DIR/lib/platform.sh"
@@ -526,24 +505,11 @@ main() {
             esac
             ;;
 
-        # Unknown command - check for plugin commands
+        # Unknown command
         *)
-            # Try to load plugin system and check for plugin commands
-            if [[ -f "$DOTFILES_DIR/lib/plugin-system.sh" ]]; then
-                source "$DOTFILES_DIR/lib/plugin-system.sh" 2>/dev/null || true
-                
-                # Check if command matches a plugin command
-                if plugin_command_exists "$command"; then
-                    execute_plugin_command "$command" "$@"
-                    exit $?
-                fi
-            fi
-            
-            # No plugin found, show error
             print_error "Unknown command: $command"
             echo ""
             echo "Run 'dot --help' for available commands."
-            echo "Or run 'dot plugin list' to see available plugin commands."
             exit 1
             ;;
     esac

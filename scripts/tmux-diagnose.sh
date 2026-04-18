@@ -92,17 +92,17 @@ if [[ -f ~/.tmux.conf ]]; then
         echo "   💡 If you're still having issues, try: tmux kill-server && tmux"
     elif grep -q "development.conf\|ai-integration" ~/.tmux.conf; then
         echo "   🔧 You're using the complex configuration"
-        echo "   💡 Run: ~/dotfiles/scripts/tmux-fix.sh"
+        echo "   💡 Run: ~/dotfiles/scripts/tmux-fix-complete.sh"
         echo "   💡 This will switch to streamlined config with only 10 essential bindings"
     else
         echo "   ❓ Unknown configuration type"
-        echo "   💡 Consider running: ~/dotfiles/scripts/tmux-fix.sh"
+        echo "   💡 Consider running: ~/dotfiles/scripts/tmux-fix-complete.sh"
     fi
 else
     echo "   📝 No tmux configuration found"
-    echo "   💡 Run: ~/dotfiles/scripts/tmux-fix.sh"
+    echo "   💡 Run: ~/dotfiles/scripts/tmux-fix-complete.sh"
 fi
 
 echo ""
 echo "🎯 Quick Fix:"
-echo "   ~/dotfiles/scripts/tmux-fix.sh"
+echo "   ~/dotfiles/scripts/tmux-fix-complete.sh"

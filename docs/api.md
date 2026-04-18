@@ -17,8 +17,6 @@ dot <category> <command> --help
 - `security`: scans and status
 - `test`: run and report tests
 - `performance`: benchmarking and status
-- `plugin`: plugin lifecycle
-
 ## File Map
 - CLI entry: `bin/dot`
 - Commands: `lib/cli/*.sh`
@@ -39,9 +37,6 @@ dot security scan
 
 # Testing
 dot test run
-
-# Plugins
-dot plugin list
 ```
 
 Refer to inline `--help` for live, authoritative usage.

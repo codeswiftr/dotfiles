@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `bin/` ships the `dot` CLI and bundled helper scripts; keep entrypoints self-contained.
-- `config/`, `lib/`, `plugins/`, `scripts/` host runtime modules, installer assets, and automation hooks; update docs whenever you add a new plugin.
+- `config/`, `lib/`, `scripts/` host runtime modules, installer assets, and automation hooks.
 - `src/`, `templates/`, `themes/` cover user-facing assets for shell, web, and theming experiments.
 - `tests/` holds shell harnesses under `unit`, `integration`, `infrastructure`, `performance`; artifacts land in `tests/results/`.
 - `docs/` stores planning notes; long-form prompts belong here, not in root.

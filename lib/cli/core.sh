@@ -877,6 +877,73 @@ EXAMPLES:
 EOF
 }
 
+# Check managed file drift - detect symlinks that have been replaced or removed
+check_managed_file_drift() {
+    local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+    local drift_count=0
+
+    # Build the list of managed symlinks.
+    # Each entry is "target|expected_source_relative" where the source is
+    # relative to $dotfiles_dir.  For .tmux.conf and .gitconfig the installer
+    # supports fallback paths, so we check both.
+    local -a targets=()
+    local -a expected_sources=()
+
+    targets+=("$HOME/.zshrc");              expected_sources+=(".zshrc")
+    targets+=("$HOME/.zshenv");             expected_sources+=("config/zsh/.zshenv")
+    targets+=("$HOME/.zprofile");           expected_sources+=("config/zsh/.zprofile")
+    targets+=("$HOME/.tmux.conf");          expected_sources+=(".tmux.conf|config/tmux/tmux.conf")
+    targets+=("$HOME/.gitconfig");          expected_sources+=(".gitconfig|config/gitconfig")
+    targets+=("$HOME/.config/nvim");        expected_sources+=("config/nvim")
+    targets+=("$HOME/.config/git/hooks");   expected_sources+=("hooks")
+
+    echo ""
+    print_info "Managed file drift check:"
+
+    for i in "${!targets[@]}"; do
+        local target="${targets[$i]}"
+        local expected="${expected_sources[$i]}"
+        local display_target="${target/#$HOME/~}"
+
+        if [[ ! -e "$target" && ! -L "$target" ]]; then
+            # File/directory does not exist at all
+            echo "  ✗ $display_target missing"
+            ((drift_count++))
+            continue
+        fi
+
+        if [[ -L "$target" ]]; then
+            # It is a symlink - resolve where it points
+            local actual_target
+            actual_target=$(readlink "$target")
+
+            # Check against each acceptable source (pipe-separated)
+            local matched=false
+            IFS='|' read -ra candidates <<< "$expected"
+            for candidate in "${candidates[@]}"; do
+                local full_candidate="$dotfiles_dir/$candidate"
+                if [[ "$actual_target" == "$full_candidate" ]]; then
+                    matched=true
+                    local display_source="dotfiles/$candidate"
+                    echo "  ✓ $display_target → $display_source"
+                    break
+                fi
+            done
+
+            if [[ "$matched" == "false" ]]; then
+                echo "  ✗ $display_target → $actual_target (expected dotfiles)"
+                ((drift_count++))
+            fi
+        else
+            # It exists but is a regular file/directory, not a symlink
+            echo "  ✗ $display_target is a regular file (not managed symlink) — drift risk"
+            ((drift_count++))
+        fi
+    done
+
+    return $drift_count
+}
+
 # Doctor command - diagnose and fix common issues
 dot_doctor() {
     local machine=false
@@ -910,6 +977,7 @@ dot_doctor() {
                 echo "  • SSH keys"
                 echo "  • Tool installations"
                 echo "  • Common path issues"
+                echo "  • Managed file drift (symlinks vs repo)"
                 return 0
                 ;;
             *)
@@ -988,7 +1056,15 @@ dot_doctor() {
         issues+=("~/.local/bin not in PATH")
         ((warnings++))
     fi
-    
+
+    # Check 8: Managed file drift
+    check_managed_file_drift
+    local drift_count=$?
+    if [[ $drift_count -gt 0 ]]; then
+        issues+=("$drift_count managed file(s) have drifted from dotfiles")
+        ((warnings += drift_count))
+    fi
+
     # Machine-readable output
     if [[ "$machine" == "true" ]]; then
         local json_output='{'

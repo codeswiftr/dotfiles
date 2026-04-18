@@ -193,7 +193,6 @@ dotfiles/
 │   ├── claude/           # Claude Code integration (commands, skills, agents)
 │   └── tools.yaml        # Declarative tool definitions
 ├── lib/                  # Shell libraries used by dot CLI
-├── plugins/              # Plugin system (see plugins/local/hello-world/)
 ├── scripts/              # Install, health-check, bootstrap utilities
 ├── tests/                # Test suite
 ├── mise.toml             # Version-pinned tool manifest
@@ -234,7 +233,6 @@ find . -name "*.sh" | xargs shellcheck -S warning
 | [AI Workflows](docs/ai-workflows.md) | AI tool integration |
 | [Git Hooks](docs/git-hooks.md) | Pre-commit hook setup |
 | [Security](docs/security.md) | GPG, SSH, secret management |
-| [Plugins](docs/plugins.md) | Plugin development |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues |
 | [Performance](docs/performance.md) | Shell startup optimization |
 
