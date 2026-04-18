@@ -81,3 +81,8 @@ scripts/cleanup-claude.sh
 bin/agent
 bin/cursor-agent
 bin/forge-ios
+bin/forged
+bin/bandit
+bin/bandit-baseline
+bin/bandit-config-generator
+bin/safety

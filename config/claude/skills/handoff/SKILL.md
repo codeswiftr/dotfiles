@@ -65,6 +65,34 @@ Create a handoff document at `.forge_sessions/handoff_YYYY-MM-DD_HH-MM.md`:
 2. [Follow-up action]
 3. [Verification/testing needed]
 
+## Production Verification (MANDATORY — Council S204 P4)
+
+Run `curl` against all active product URLs and record results. Do NOT skip this section.
+
+\`\`\`bash
+curl -sI https://mirrably.com | head -1
+curl -s https://mirrably-api-production.up.railway.app/v1/health
+curl -sI https://api.codeswiftr.com/health | head -1
+curl -sI https://app.codeswiftr.com | head -1
+curl -sI https://app.brandfocus.ai | head -1
+curl -sI https://septica-web-production.up.railway.app | head -1
+curl -sI https://thebrightharbor.com | head -1
+curl -sI https://calmconnect.io | head -1
+\`\`\`
+
+| Product | URL | Status | Verified |
+|---------|-----|--------|----------|
+| Mirrably landing | mirrably.com | [200/404/timeout] | [timestamp] |
+| Mirrably API | .../v1/health | [200/404/timeout] | [timestamp] |
+| IS backend | api.codeswiftr.com | [200/404/timeout] | [timestamp] |
+| IS frontend | app.codeswiftr.com | [200/404/timeout] | [timestamp] |
+| Voice Coach | app.brandfocus.ai | [200/404/timeout] | [timestamp] |
+| Septica | septica-web-... | [200/404/timeout] | [timestamp] |
+| DynaStory | thebrightharbor.com | [200/404/timeout] | [timestamp] |
+| CalmConnect | calmconnect.io | [200/404/timeout] | [timestamp] |
+
+**Flag any mismatches** between PLAN.md status and actual HTTP response.
+
 ## Context for Resume
 **Files Modified:**
 - `/path/to/file1.py` - Purpose of changes
