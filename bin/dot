@@ -59,9 +59,9 @@ USAGE: dot <command> [options]
 
 ESSENTIAL COMMANDS:
   setup       Setup environment (idempotent)
-  check       Health check (-m for JSON output)
-  update      Update everything (-m for JSON)
-  doctor      Diagnose and fix common issues
+  check       Health check (--fix to auto-repair, -m for JSON)
+  update      Update everything (--self | --tools for partial)
+  reload      Reload tmux/mise configs
   new         Create new project (alias: project init)
 
 DEVELOPMENT:
@@ -72,21 +72,20 @@ DEVELOPMENT:
 
 TOOLS:
   install     Install tools (use: dot install <tool>)
-  dev         Dev containers & environments
-  db          Database management
+  docs        Documentation (check/search/list/open)
+  perf        Performance tools (benchmark/optimize)
 
 OPTIONS:
   -h, --help      Show help
   -v, --version   Show version
   --machine, -m   Machine-readable JSON output
-  --yes, -y       Auto-confirm prompts
 
 EXAMPLES:
   dot setup                 # First-time setup
   dot check -m              # Health check (JSON)
+  dot update --self         # Pull dotfiles only (fast)
+  dot update --tools        # Upgrade brew/npm/uv/mise
   dot new fastapi my-api    # Create FastAPI project
-  dot install ai_tools      # Install all AI CLIs
-  dot doctor                # Fix common issues
 
 For full help: dot --help-all
 EOF
