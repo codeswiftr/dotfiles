@@ -1,6 +1,6 @@
 ## Repository Index (auto-generated)
 
-Generated: 2026-04-18
+Generated: 2026-04-22
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
@@ -18,15 +18,16 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `BREAKING_CHANGES.md`
 - `CLAUDE.md`
 - `CONTRIBUTING.md`
+- `Makefile`
+- `PERSONALIZATION.md`
+- `README.md`
+- `VERSION`
 - `dotfiles-tutor`
 - `gitleaks.toml`
 - `install.sh`
-- `Makefile`
 - `mise.toml`
-- `PERSONALIZATION.md`
+- `plan.md`
 - `pre-commit-global.yaml`
-- `README.md`
-- `VERSION`
 
 ### Directories
 
@@ -52,6 +53,9 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - (empty)
 
 #### `lib` (0)
+- (empty)
+
+#### `reviews` (0)
 - (empty)
 
 #### `scripts` (0)

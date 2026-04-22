@@ -253,7 +253,7 @@ Uses native Vim commands instead of plugin:
 
 - Original migration commit: `f463a1d` (July 6, 2025)
 - Remediation commits: `e194d5c`+ (September 30, 2025)
-- Migration guide: `NEOVIM_MIGRATION_GUIDE.md`
+- Migration guide: `docs/neovim.md`
 - Legacy .vimrc backup: `.vimrc.backup`
 - Plan documentation: `PLAN.md` (Epic 9), `docs/PLAN.md` (Epic 5)
 

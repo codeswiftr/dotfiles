@@ -7,29 +7,27 @@ mise.lock
 # Machine-specific config (paths differ per platform)
 .gitconfig
 
-# Binary tools (installed locally, not committed)
-bin/goose
-bin/temporal
-bin/temporal-service
-bin/uv
-bin/uvx
-bin/checksums
-bin/installing
-bin/no
-bin/to
-bin/verify
-bin/specify
-bin/droid
+# Legacy path (canonical is config/starship.toml)
+.config/
+
+# bin/ policy: only repo-owned scripts are tracked (dot, ai, cursor, viman,
+# dotfiles-tutor, tmux-versions). Everything else is machine-local.
+bin/*
+!bin/dot
+!bin/ai
+!bin/cursor
+!bin/viman
+!bin/dotfiles-tutor
+!bin/tmux-versions
+
+# Test results (ephemeral artifacts, never commit)
+tests/results/
 
 # Generated artifacts
-tests/results/*.log
-tests/results/*.md
-tests/results/*.tmp
 .pytest_cache/
 *.pyc
 __pycache__/
 .venv/
-.pytest_cache/
 .coverage
 .mypy_cache/
 
@@ -64,25 +62,16 @@ build/
 .env
 .envrc
 
-# User-installed tool symlinks (not tracked)
-bin/aider
-bin/sgpt
+# Neovim generated
 config/nvim/nvim
-bin/openclaw
 
 # Local forge experiments
 .forge/
 .config/systemd/
-bin/forge
-bin/forge-harness
 scripts/cleanup-claude.sh
 
-# Cursor agent symlinks (local versions)
-bin/agent
-bin/cursor-agent
-bin/forge-ios
-bin/forged
-bin/bandit
-bin/bandit-baseline
-bin/bandit-config-generator
-bin/safety
+# Review artifacts (working files, not committed)
+reviews/
+
+# Plan (working document)
+plan.md

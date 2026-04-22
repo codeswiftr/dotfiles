@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-18",
+  "generated": "2026-04-22",
   "rootFiles": [
     ".env.local.example",
     ".gitconfig",
@@ -14,15 +14,16 @@
     "BREAKING_CHANGES.md",
     "CLAUDE.md",
     "CONTRIBUTING.md",
+    "Makefile",
+    "PERSONALIZATION.md",
+    "README.md",
+    "VERSION",
     "dotfiles-tutor",
     "gitleaks.toml",
     "install.sh",
-    "Makefile",
     "mise.toml",
-    "PERSONALIZATION.md",
-    "pre-commit-global.yaml",
-    "README.md",
-    "VERSION"
+    "plan.md",
+    "pre-commit-global.yaml"
   ],
   "dirs": {
     ".github": [
@@ -35,6 +36,7 @@
     "git": [],
     "hooks": [],
     "lib": [],
+    "reviews": [],
     "scripts": [],
     "src": [],
     "templates": [],

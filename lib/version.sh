@@ -237,21 +237,13 @@ perform_update() {
         }
     fi
     
-    # Re-link configurations (in case new files were added)
+    # Re-link configurations via install.sh (single source of truth)
     print_update "Updating configurations..."
-    
-    # Link main configs
-    ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-    ln -sf "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
-    
-    # Update Neovim config
-    mkdir -p "$HOME/.config/nvim"
-    ln -sf "$DOTFILES_DIR/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-    
-    # Update tmux scripts
-    mkdir -p "$HOME/.config/tmux/scripts"
-    ln -sf "$DOTFILES_DIR/.config/tmux/scripts/tmux-sessionizer" "$HOME/.config/tmux/scripts/tmux-sessionizer"
-    chmod +x "$HOME/.config/tmux/scripts/tmux-sessionizer"
+    if [[ -x "$DOTFILES_DIR/install.sh" ]]; then
+        bash "$DOTFILES_DIR/install.sh" link 2>/dev/null || {
+            print_warning "Re-linking via install.sh failed, continuing..."
+        }
+    fi
     
     # Update timestamp
     set_last_update_check

@@ -75,29 +75,6 @@ perf_log() {
     echo "[$timestamp] [$level] $operation: ${duration}ms ${details:-}" >> "$PERF_LOG_FILE"
 }
 
-# Measure command execution time
-measure_command() {
-    local command="$1"
-    shift
-    local args=("$@")
-    
-    local start_time=$(date +%s%N)
-    "$command" "${args[@]}"
-    local exit_code=$?
-    local end_time=$(date +%s%N)
-    
-    local duration=$(( (end_time - start_time) / 1000000 ))
-    
-    perf_log "INFO" "command:$command" "$duration" "exit_code:$exit_code"
-    
-    # Check against threshold
-    if [[ $duration -gt $COMMAND_RESPONSE_THRESHOLD ]]; then
-        perf_log "WARN" "slow_command:$command" "$duration" "threshold_exceeded"
-    fi
-    
-    return $exit_code
-}
-
 # Shell startup time measurement
 measure_shell_startup() {
     local shell="${1:-zsh}"
@@ -713,5 +690,5 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
 fi
 
 # Export functions
-export -f measure_command measure_shell_startup analyze_system_performance
+export -f measure_shell_startup analyze_system_performance
 export -f optimize_performance performance_cli init_performance_monitoring
