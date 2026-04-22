@@ -65,7 +65,6 @@ ESSENTIAL COMMANDS:
   new         Create new project (alias: project init)
 
 DEVELOPMENT:
-  run         Run dev/test/prod environments
   test        Run tests (all-in-one: test/quick/watch)
   ai          AI assistant (review/test/commit)
   git         Git helpers (workflow/branch/sign)
@@ -74,6 +73,7 @@ TOOLS:
   install     Install tools (use: dot install <tool>)
   docs        Documentation (check/search/list/open)
   perf        Performance tools (benchmark/optimize)
+  security    Security scanning (scan/deps/secrets)
 
 OPTIONS:
   -h, --help      Show help
@@ -96,96 +96,48 @@ show_help_all() {
     cat << 'EOF'
 🚀 DOT CLI - Complete Command Reference
 
-CORE COMMANDS:
-  setup, check, update, reload, version, doctor
+CORE:
+  setup, check (--fix), update (--self|--tools), reload, version
 
 DEVELOPMENT:
-  new <type> [name]         Create project (alias for project init)
-  project                   Project management
-    init [type] [name]      Create from template
-    list                    List templates
-  run                       Process management
-    dev/test/prod           Environment modes
-  test                      Testing framework
-    run/quick/watch/coverage
+  new <type> [name]      Create project (fastapi, fullstack, etc.)
+  project                Project management (init/list)
+  test                   Testing (run/quick/watch/coverage)
 
 AI:
-  ai                        AI development assistant
-    review                  Code review
-    test                    Generate tests
-    commit                  Smart commit messages
+  ai                     AI assistant (review/test/commit/explain)
 
 SECURITY:
-  security                  Security operations
-    scan                    Security audit
-    deps                    Check dependencies
-  secret                    Secret management
+  security               Security scanning (scan/deps/secrets/code)
 
 CONFIG:
-  config                    Configuration
-    theme/tools/security
-  template                  Templates
-    generate/process/create
-
-DATABASE:
-  db                        Database management
-    setup/seed/reset
-
-DEV:
-  dev                       Dev containers (short for devcontainer)
-    init/build/up/exec
+  config                 Configuration (theme/tools/edit/validate)
+  template               Template management
 
 GIT:
-  git                       Git operations
-    workflow/branch/sign
+  git                    Git helpers (workflow/branch/sign)
 
 TOOLS:
-  install <tool|group>      Install tools from config/tools.yaml
+  install <tool|group>   Install tools from config/tools.yaml
+  docs                   Documentation (check/search/list/open)
+  perf                   Performance (benchmark/optimize/cache)
 
 GLOBAL OPTIONS:
-  -h, --help          Show help
-  --help-all          Show this full help
-  -v, --version       Show version
-  -m, --machine       Machine-readable JSON output
-  --verbose           Verbose output
-  --yes, -y           Auto-confirm
-
-DOCUMENTATION:
-    docs               Documentation system
-        generate           Generate documentation
-        build [format]     Build documentation site
-        serve [port]       Serve documentation locally
-        interactive        Interactive help system
-
-PLATFORM MANAGEMENT:
-    platform           Cross-platform configuration and optimization
-        config [level]     Platform-specific optimizations (auto|balanced|performance)
-        tools [action]     Platform tool management (install|update|list|sync)
-        performance [prof] Performance tuning (auto|high|balanced|development)
-        migrate [action]   Cross-platform migration (export|import|migrate|compare)
-        status             Platform compatibility check
-
-OPTIONS:
-    -h, --help         Show this help message
-    -v, --version      Show version information
-    --verbose          Enable verbose output
-    --dry-run          Show what would be done
+  -h, --help             Show help
+  --help-all             Show this full help
+  -v, --version          Show version
+  -m, --machine          JSON output
 
 EXAMPLES:
-    dot setup                     # Setup development environment
-    dot project init fastapi my-api  # Create new FastAPI project
-    dot project init fullstack app   # Create full-stack project
-    dot ai commit --auto          # AI-powered commit with auto-approval
-    dot ai analyze security       # AI security analysis
-    dot ai debug "import error"   # Debug errors with AI
-    dot secret exec -- npm start # Run with injected secrets
-    dot security scan            # Security audit
-    dot perf optimize            # Optimize performance
+  dot setup                      # First-time setup
+  dot check --fix                # Health check with auto-repair
+  dot update --tools             # Upgrade brew/npm/uv/mise
+  dot new fastapi my-api         # Create FastAPI project
+  dot ai review                  # AI code review
+  dot security scan              # Security audit
+  dot perf optimize              # Optimize performance
 
-For detailed help on any command:
-    dot <command> --help
-
-Documentation: https://github.com/user/dotfiles/docs/cli.md
+For command-specific help: dot <command> --help
 EOF
 }
 
@@ -308,14 +260,6 @@ main() {
             load_cli_lib "project"
             dot_project "$@"
             ;;
-        "run")
-            load_cli_lib "process"
-            dot_run "$@"
-            ;;
-        "process"|"proc")
-            load_cli_lib "process"
-            dot_run "$@"
-            ;;
         "install")
             # Install tools: dot install <tool|group>
             if [[ -f "$DOTFILES_DIR/install.sh" ]]; then
@@ -327,10 +271,6 @@ main() {
             ;;
 
         # Security commands
-        "secret")
-            load_cli_lib "secret"
-            dot_secret "$@"
-            ;;
         "security")
             load_cli_lib "security"
             dot_security "$@"
@@ -375,22 +315,10 @@ main() {
             template_cli "$@"
             ;;
 
-        # Database commands
-        "db")
-            load_cli_lib "database"
-            dot_db "$@"
-            ;;
-
         # Git commands
         "git")
             load_cli_lib "git"
             dot_git "$@"
-            ;;
-
-        # DevContainer commands
-        "dev"|"devcontainer")
-            load_cli_lib "devcontainer"
-            dot_devcontainer "$@"
             ;;
 
         # Documentation commands
