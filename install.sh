@@ -676,30 +676,10 @@ link_dotfiles() {
         "$HOME/.config/git/hooks"
     )
 
-    # Resolve actual sources with fallbacks and auto-generation
+    # Resolve actual sources (canonical paths, no fallbacks)
     local sources=()
     for src in "${desired_sources[@]}"; do
         case "$src" in
-            ".tmux.conf")
-                if [[ -f "$DOTFILES_DIR/.tmux.conf" ]]; then
-                    sources+=(".tmux.conf")
-                elif [[ -f "$DOTFILES_DIR/config/tmux/tmux.conf" ]]; then
-                    sources+=("config/tmux/tmux.conf")
-                else
-                    print_warning "Tmux config not found in repo"
-                    sources+=(".tmux.conf")
-                fi
-                ;;
-            ".gitconfig")
-                if [[ -f "$DOTFILES_DIR/.gitconfig" ]]; then
-                    sources+=(".gitconfig")
-                elif [[ -f "$DOTFILES_DIR/config/gitconfig" ]]; then
-                    sources+=("config/gitconfig")
-                else
-                    print_warning "Git config not found in repo"
-                    sources+=(".gitconfig")
-                fi
-                ;;
             ".zshrc")
                 if [[ -f "$DOTFILES_DIR/.zshrc" ]]; then
                     sources+=(".zshrc")

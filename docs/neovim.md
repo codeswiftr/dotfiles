@@ -26,8 +26,8 @@ Your Neovim setup has been completely modernized with native LSP, AI integration
 └── (installed via dotfiles)
 ```
 
-**Installation Location**: `dotfiles/.config/nvim/init.lua`  
-**Symlinked to**: `~/.config/nvim/init.lua`  
+**Source**: `dotfiles/config/nvim/init.lua`  
+**Symlinked to**: `~/.config/nvim` (directory symlink)  
 **Auto-installed**: Via dotfiles installer (`./install.sh`)  
 
 ## 🔧 **Core Features**

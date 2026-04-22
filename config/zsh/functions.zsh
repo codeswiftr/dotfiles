@@ -102,7 +102,7 @@ function tmux-project() {
 
 # Smart tmux sessionizer (enhanced project switching)
 function tmux-sessionizer() {
-    ~/.config/tmux/scripts/tmux-sessionizer
+    "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux/tmux-sessionizer"
 }
 
 # Quick tmux session launcher

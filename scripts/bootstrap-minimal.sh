@@ -90,7 +90,7 @@ link_if_missing() {
     fi
 }
 
-link_if_missing "$DOTFILES_DIR/config/tmux/tmux.conf"    "$HOME/.tmux.conf"
+link_if_missing "$DOTFILES_DIR/.tmux.conf"               "$HOME/.tmux.conf"
 link_if_missing "$DOTFILES_DIR/config/nvim"              "$HOME/.config/nvim"
 
 # .zshrc: only link if zsh is available

@@ -319,7 +319,7 @@ config_edit_files() {
         case "$choice" in
             1) file=".zshrc" ;;
             2) file=".tmux.conf" ;;
-            3) file=".config/nvim/init.lua" ;;
+            3) file="config/nvim/init.lua" ;;
             4) file="config/starship.toml" ;;
             5) file=".gitconfig" ;;
             *) print_error "Invalid choice" && return 1 ;;
@@ -412,7 +412,7 @@ config_validate() {
     local essential_files=(
         ".zshrc"
         ".tmux.conf" 
-        ".config/nvim/init.lua"
+        "config/nvim/init.lua"
         "config/starship.toml"
     )
     
@@ -436,7 +436,7 @@ config_validate() {
     fi
     
     if command -v nvim >/dev/null 2>&1; then
-        if nvim --headless -c "luafile $DOTFILES_DIR/.config/nvim/init.lua" -c "qall" 2>/dev/null; then
+        if nvim --headless -c "luafile $DOTFILES_DIR/config/nvim/init.lua" -c "qall" 2>/dev/null; then
             print_success "Neovim config valid"
         else
             print_error "Neovim config has errors"
@@ -448,7 +448,7 @@ config_validate() {
     local symlinks=(
         "$HOME/.zshrc:$DOTFILES_DIR/.zshrc"
         "$HOME/.tmux.conf:$DOTFILES_DIR/.tmux.conf"
-        "$HOME/.config/nvim/init.lua:$DOTFILES_DIR/.config/nvim/init.lua"
+        "$HOME/.config/nvim:$DOTFILES_DIR/config/nvim"
     )
     
     for link_info in "${symlinks[@]}"; do
@@ -496,7 +496,7 @@ config_reset() {
         "nvim")
             print_info "Resetting Neovim configuration..."
             cd "$DOTFILES_DIR"
-            git checkout HEAD -- .config/nvim/
+            git checkout HEAD -- config/nvim/
             ;;
         *)
             print_error "Unknown component: $component"

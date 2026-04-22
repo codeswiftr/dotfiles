@@ -158,7 +158,7 @@ echo ""
 echo "📁 Configuration Files:"
 configs=(
     "$HOME/.zshrc"
-    "$HOME/.config/nvim/init.lua:$HOME/.config/nvim/lua/core/init.lua"
+    "$HOME/.config/nvim/init.lua"
     "$HOME/.tmux.conf"
     "$HOME/.config/starship.toml:${DOTFILES_DIR:-$HOME/dotfiles}/config/starship.toml"
 )

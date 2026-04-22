@@ -348,8 +348,8 @@ devcontainer_sync_dotfiles() {
         ".zshrc"
         ".tmux.conf"
         ".gitconfig"
-        ".config/nvim"
-        ".config/starship.toml"
+        "config/nvim"
+        "config/starship.toml"
     )
     
     for dotfile in "${dotfiles_to_sync[@]}"; do

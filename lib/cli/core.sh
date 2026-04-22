@@ -892,8 +892,8 @@ check_managed_file_drift() {
     targets+=("$HOME/.zshrc");              expected_sources+=(".zshrc")
     targets+=("$HOME/.zshenv");             expected_sources+=("config/zsh/.zshenv")
     targets+=("$HOME/.zprofile");           expected_sources+=("config/zsh/.zprofile")
-    targets+=("$HOME/.tmux.conf");          expected_sources+=(".tmux.conf|config/tmux/tmux.conf")
-    targets+=("$HOME/.gitconfig");          expected_sources+=(".gitconfig|config/gitconfig")
+    targets+=("$HOME/.tmux.conf");          expected_sources+=(".tmux.conf")
+    targets+=("$HOME/.gitconfig");          expected_sources+=(".gitconfig")
     targets+=("$HOME/.config/nvim");        expected_sources+=("config/nvim")
     targets+=("$HOME/.config/git/hooks");   expected_sources+=("hooks")
 
