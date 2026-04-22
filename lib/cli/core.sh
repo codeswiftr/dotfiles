@@ -410,54 +410,76 @@ _show_update_changelog() {
 dot_update() {
     local auto_confirm=false
     local machine=false
-    local rocket_icon="${ROCKET:-"🚀"}"
-    
+    local update_scope="all"  # all | self | tools
+
     # Parse options
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --yes)
-                auto_confirm=true
-                shift
-                ;;
-            --machine|-m)
-                machine=true
-                shift
-                ;;
-            -h|--help)
-                show_update_help
-                return 0
-                ;;
-            *)
-                print_error "Unknown option: $1"
-                return 1
-                ;;
+            --yes) auto_confirm=true; shift ;;
+            --machine|-m) machine=true; shift ;;
+            --self) update_scope="self"; shift ;;
+            --tools) update_scope="tools"; shift ;;
+            -h|--help) show_update_help; return 0 ;;
+            *) print_error "Unknown option: $1"; return 1 ;;
         esac
     done
-    
-    print_info "${rocket_icon} Updating development environment..."
-    
-    # Update git repository
+
+    print_info "Updating development environment..."
+    local ai_updated=()
+
+    # --- Step 1: Pull dotfiles repo (unless --tools only) ---
+    if [[ "$update_scope" != "tools" ]]; then
+        _update_repo "$auto_confirm" || return 1
+    fi
+
+    # --- Step 2: Relink dotfiles (unless --tools only) ---
+    if [[ "$update_scope" != "tools" ]]; then
+        print_info "Relinking configurations..."
+        if [[ -x "$DOTFILES_DIR/install.sh" ]]; then
+            bash "$DOTFILES_DIR/install.sh" link 2>/dev/null || print_warning "Relinking had issues"
+        fi
+    fi
+
+    # --- Step 3: Upgrade tools (unless --self only) ---
+    if [[ "$update_scope" != "self" ]]; then
+        _update_package_managers
+        _update_nvim_plugins
+        _update_tpm_plugins
+    fi
+
+    # --- Step 4: Reload running services ---
+    _reload_running_services
+
+    # Machine-readable output
+    if [[ "$machine" == "true" ]]; then
+        echo '{"status":"completed","timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}'
+        return 0
+    fi
+
+    print_success "Update completed!"
+    print_info "Run 'exec zsh' to reload shell environment"
+}
+
+# Pull dotfiles repository
+_update_repo() {
+    local auto_confirm="${1:-false}"
+
     print_info "Updating dotfiles repository..."
     cd "$DOTFILES_DIR"
-    
-    # Check for uncommitted changes
+
     if ! git diff --quiet || ! git diff --cached --quiet; then
         print_warning "Uncommitted changes detected in dotfiles"
         if [[ "$auto_confirm" != "true" ]]; then
             echo -n "Continue with update? [y/N]: "
             read -r response
-            if [[ ! "$response" =~ ^[Yy]$ ]]; then
-                print_info "Update cancelled"
-                return 0
-            fi
+            [[ "$response" =~ ^[Yy]$ ]] || { print_info "Update cancelled"; return 1; }
         fi
     fi
-    
-    # Pull latest changes (detect default branch)
+
     local default_branch
     default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@') || default_branch="main"
-    local old_head
-    old_head=$(git rev-parse HEAD)
+    local old_head=$(git rev-parse HEAD)
+
     if git pull origin "$default_branch"; then
         print_success "Repository updated"
         _show_update_changelog "$old_head"
@@ -465,313 +487,78 @@ dot_update() {
         print_error "Failed to update repository"
         return 1
     fi
+}
 
-    # Upgrade installed tools
-    print_info "📦 Upgrading installed tools..."
+# Upgrade all package managers (one unified pass, no duplicates)
+_update_package_managers() {
+    print_info "Upgrading installed tools..."
 
-    # Upgrade npm global packages (AI tools: pi, kimi, gemini_cli, etc.)
-    if command -v npm &>/dev/null; then
-        print_info "  Upgrading npm global packages..."
-        # List of AI tools installed via npm
-        local npm_tools=("@mariozechner/pi-coding-agent" "@anthropic-ai/claude-code" "kimi-cli" "@google/gemini-cli" "@openai/codex")
-        for tool in "${npm_tools[@]}"; do
-            if npm list -g "$tool" &>/dev/null; then
-                npm update -g "$tool" 2>/dev/null && print_success "  Updated $tool" || true
-            fi
-        done
-    fi
-
-    # Upgrade uv-managed tools
-    if command -v uv &>/dev/null; then
-        print_info "  Upgrading uv tools..."
-        uv tool upgrade --all 2>/dev/null && print_success "  uv tools upgraded" || print_info "  No uv tool updates available"
-    fi
-
-    # Upgrade Homebrew packages (macOS)
+    # Homebrew (handles brew-installed tools including neovim, opencode, etc.)
     if command -v brew &>/dev/null; then
-        print_info "  Upgrading Homebrew packages..."
-        brew upgrade 2>/dev/null && print_success "  Homebrew packages upgraded" || print_info "  No brew updates available"
+        print_info "  Homebrew..."
+        brew upgrade 2>/dev/null && print_success "  Homebrew upgraded" || true
     fi
 
-    # Upgrade mise tools
-    if command -v mise &>/dev/null; then
-        print_info "  Upgrading mise tools..."
-        mise upgrade 2>/dev/null && print_success "  mise tools upgraded" || true
-    fi
-
-    # Run setup to apply changes
-    print_info "Applying configuration changes..."
-    dot_setup --force
-    
-    # Reload configurations
-    print_info "Reloading configurations..."
-    
-    # Reload tmux configuration if tmux is running
-    if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
-        print_info "Checking and fixing tmux configuration..."
-        
-        # Ensure ~/.tmux.conf is a symlink to the dotfiles config
-        local tmux_source="$DOTFILES_DIR/config/tmux/tmux.conf"
-        if [[ -f "$tmux_source" ]]; then
-            if [[ ! -L "$HOME/.tmux.conf" ]] || [[ "$(readlink "$HOME/.tmux.conf")" != "$tmux_source" ]]; then
-                print_info "Relinking ~/.tmux.conf → $tmux_source"
-                ln -sf "$tmux_source" "$HOME/.tmux.conf"
-            fi
-        fi
-
-        # Reload configuration
-        print_info "Reloading tmux configuration..."
-        tmux source-file "$HOME/.tmux.conf" 2>/dev/null || {
-            print_warning "Config reload failed — restarting tmux recommended"
-        }
-        tmux display-message "Tmux config reloaded" 2>/dev/null || true
-        print_success "Tmux configuration reloaded"
-    fi
-    
-    # Update tmux plugins via TPM
-    print_info "📦 Checking tmux plugins..."
-    local tpm_dir="$HOME/.tmux/plugins/tpm"
-    if [[ ! -d "$tpm_dir" ]]; then
-        print_info "  Installing TPM (Tmux Plugin Manager)..."
-        if git clone https://github.com/tmux-plugins/tpm "$tpm_dir" 2>/dev/null; then
-            print_success "  TPM installed"
-            # Install plugins if tmux is not running, or source and install
-            if [[ -x "$tpm_dir/bin/install_plugins" ]]; then
-                print_info "  Installing tmux plugins..."
-                if tmux list-sessions >/dev/null 2>&1; then
-                    # tmux is running, use tmux to run the install
-                    tmux run-shell "$tpm_dir/bin/install_plugins" 2>/dev/null || true
-                else
-                    # tmux not running, source config to trigger install
-                    tmux -f ~/.tmux.conf new-session -d -s __tmp_install_session 2>/dev/null || true
-                    tmux kill-session -t __tmp_install_session 2>/dev/null || true
-                fi
-                print_success "  Tmux plugins installed"
-            fi
-        else
-            print_warning "  Failed to install TPM"
-        fi
-    else
-        # TPM exists, update plugins
-        if [[ -x "$tpm_dir/bin/update_plugins" ]]; then
-            print_info "  Updating tmux plugins..."
-            if tmux list-sessions >/dev/null 2>&1; then
-                # Update via tmux run-shell
-                tmux run-shell "$tpm_dir/bin/update_plugins all" 2>/dev/null && print_success "  Tmux plugins updated" || print_info "  No plugin updates available"
-            else
-                print_info "  Skipping plugin update (tmux not running)"
-            fi
-        fi
-    fi
-    
-    # Reload Neovim configuration for all running instances
-    if command -v nvim >/dev/null 2>&1; then
-        print_info "Reloading Neovim configurations..."
-        # Send reload command to all nvim instances via nvr if available
-        if command -v nvr >/dev/null 2>&1; then
-            for server in /tmp/nvim*/0; do
-                if [[ -S "$server" ]]; then
-                    nvr --servername "$server" --remote-send ':source $MYVIMRC<CR>' 2>/dev/null || true
-                fi
-            done
-            print_success "Neovim configurations reloaded"
-        else
-            print_info "Install 'neovim-remote' (nvr) for automatic Neovim config reload"
-        fi
-    fi
-    
-    # Check and upgrade Neovim if needed
-    print_info "📝 Checking Neovim version..."
-    local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
-    if [[ -n "$nvim_version" ]]; then
-        print_info "  Current Neovim version: $nvim_version"
-        
-        # Check if nvim needs upgrade (0.10.4+ recommended)
-        if ! printf '%s\n' "0.10.4" "$nvim_version" | sort -V -C; then
-            print_warning "  Neovim $nvim_version is older than 0.10.4 (recommended)"
-            print_info "  Attempting to upgrade Neovim..."
-            
-            local nvim_upgraded=false
-            
-            # Try to upgrade via package managers
-            if command -v brew &>/dev/null; then
-                print_info "    Upgrading via Homebrew..."
-                if brew upgrade neovim 2>/dev/null; then
-                    nvim_upgraded=true
-                    print_success "    Neovim upgraded via Homebrew"
-                fi
-            elif command -v apt &>/dev/null; then
-                print_info "    Attempting upgrade via apt..."
-                if sudo apt update && sudo apt install -y neovim 2>/dev/null; then
-                    # Check if version improved
-                    local new_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
-                    if printf '%s\n' "$nvim_version" "$new_version" | sort -V -C; then
-                        nvim_upgraded=true
-                        print_success "    Neovim upgraded to $new_version via apt"
-                    fi
-                fi
-                
-                # If apt didn't work, try snap
-                if [[ "$nvim_upgraded" == "false" ]] && command -v snap &>/dev/null; then
-                    print_info "    Trying snap install..."
-                    if sudo snap install nvim --classic 2>/dev/null || sudo snap refresh nvim 2>/dev/null; then
-                        nvim_upgraded=true
-                        print_success "    Neovim installed/upgraded via snap"
-                    fi
-                fi
-            elif command -v pacman &>/dev/null; then
-                print_info "    Upgrading via pacman..."
-                if sudo pacman -Syu neovim --noconfirm 2>/dev/null; then
-                    nvim_upgraded=true
-                    print_success "    Neovim upgraded via pacman"
-                fi
-            fi
-            
-            if [[ "$nvim_upgraded" == "true" ]]; then
-                local new_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
-                print_success "  Neovim upgraded: $nvim_version → $new_version"
-            else
-                print_warning "  Could not upgrade Neovim automatically"
-                print_info "  To upgrade manually:"
-                print_info "    • macOS: brew upgrade neovim"
-                print_info "    • Ubuntu: sudo snap install nvim --classic"
-                print_info "    • Arch: sudo pacman -S neovim"
-                print_info "    • Or build from: https://github.com/neovim/neovim/releases"
-            fi
-        else
-            print_success "  Neovim is up to date ($nvim_version)"
-        fi
-    fi
-    
-    # Update Neovim plugins with version compatibility check
-    print_info "📦 Updating Neovim plugins..."
-    local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
-    if [[ -n "$nvim_version" ]]; then
-        print_info "  Neovim version: $nvim_version"
-        
-        # Check if nvim meets minimum requirements for latest plugins
-        if printf '%s\n' "0.10.4" "$nvim_version" | sort -V -C; then
-            print_info "  Updating plugins via lazy.nvim..."
-            nvim --headless -c 'Lazy! sync' -c 'qa' 2>/dev/null && print_success "  Plugins updated" || print_warning "  Plugin update had issues"
-        else
-            print_warning "  Neovim $nvim_version is older than 0.10.4"
-            print_info "  Some plugins may not update to latest versions"
-            print_info "  Run 'dot update' again after Neovim upgrade"
-            
-            # Still try to update plugins, lazy.nvim will handle compatibility
-            nvim --headless -c 'Lazy! sync' -c 'qa' 2>/dev/null && print_success "  Compatible plugins updated" || print_warning "  Some plugins may require nvim 0.10.4+"
-        fi
-    fi
-
-    # Update AI coding tools
-    print_info "🤖 Updating AI coding tools..."
-    local ai_updated=()
-
-    # npm-based tools (codex, gemini, pi, kilo)
+    # npm global packages (all npm-managed tools in one pass)
     if command -v npm &>/dev/null; then
-        local npm_tools=("@openai/codex" "@google/gemini-cli" "@anthropic/claude-code" "@mariozechner/pi-coding-agent" "@kilocode/cli")
-        for tool in "${npm_tools[@]}"; do
-            if npm list -g "$tool" &>/dev/null; then
-                print_info "  Updating $tool..."
-                npm update -g "$tool" 2>/dev/null && ai_updated+=("$tool")
-            fi
+        print_info "  npm globals..."
+        npm update -g 2>/dev/null && print_success "  npm globals upgraded" || true
+    fi
+
+    # uv-managed tools (aider, kimi, repomix, etc.)
+    if command -v uv &>/dev/null; then
+        print_info "  uv tools..."
+        uv tool upgrade --all 2>/dev/null && print_success "  uv tools upgraded" || true
+    fi
+
+    # mise-managed runtimes
+    if command -v mise &>/dev/null; then
+        print_info "  mise runtimes..."
+        mise upgrade 2>/dev/null && print_success "  mise upgraded" || true
+    fi
+}
+
+# Update Neovim plugins
+_update_nvim_plugins() {
+    if command -v nvim >/dev/null 2>&1; then
+        print_info "Updating Neovim plugins..."
+        nvim --headless -c 'Lazy! sync' -c 'qa' 2>/dev/null \
+            && print_success "  Plugins updated" \
+            || print_warning "  Plugin update had issues"
+    fi
+}
+
+# Update tmux plugins via TPM
+_update_tpm_plugins() {
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [[ -d "$tpm_dir" ]] && [[ -x "$tpm_dir/bin/update_plugins" ]]; then
+        if tmux list-sessions >/dev/null 2>&1; then
+            print_info "Updating tmux plugins..."
+            tmux run-shell "$tpm_dir/bin/update_plugins all" 2>/dev/null \
+                && print_success "  Tmux plugins updated" || true
+        fi
+    elif [[ ! -d "$tpm_dir" ]]; then
+        print_info "Installing TPM..."
+        git clone https://github.com/tmux-plugins/tpm "$tpm_dir" 2>/dev/null \
+            && print_success "  TPM installed" \
+            || print_warning "  Failed to install TPM"
+    fi
+}
+
+# Reload running tmux and nvim
+_reload_running_services() {
+    # Tmux
+    if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
+        tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
+        print_success "Tmux config reloaded"
+    fi
+
+    # Neovim (via nvr if available)
+    if command -v nvr >/dev/null 2>&1; then
+        for server in /tmp/nvim*/0; do
+            [[ -S "$server" ]] && nvr --servername "$server" --remote-send ':source $MYVIMRC<CR>' 2>/dev/null || true
         done
     fi
-
-    # uv-based tools (aider, kimi)
-    if command -v uv &>/dev/null; then
-        if uv tool list 2>/dev/null | grep -q "aider\|kimi"; then
-            print_info "  Updating uv tools (aider, kimi)..."
-            uv tool upgrade --all 2>/dev/null && ai_updated+=("uv-tools")
-        fi
-    fi
-
-    # Cursor Agent (cursor_cli)
-    if command -v agent &>/dev/null || [[ -d "$HOME/.cursor-agent" ]]; then
-        print_info "  Updating Cursor CLI (agent)..."
-        curl -fsSL https://cursor.com/install 2>/dev/null | bash &>/dev/null && ai_updated+=("cursor-cli")
-    fi
-
-    # Amp
-    if command -v amp &>/dev/null; then
-        print_info "  Updating Amp..."
-        curl -fsSL https://ampcode.com/install.sh 2>/dev/null | bash &>/dev/null && ai_updated+=("amp")
-    fi
-
-    # OpenCode (macOS via brew, Linux via direct binary)
-    if command -v opencode &>/dev/null; then
-        print_info "  Updating OpenCode..."
-        if command -v brew &>/dev/null && brew list --cask opencode &>/dev/null 2>&1; then
-            brew upgrade opencode 2>/dev/null && ai_updated+=("opencode")
-        elif [[ -f "$HOME/.opencode/bin/opencode" ]] || command -v opencode &>/dev/null; then
-            # Linux/macOS via direct install - reinstall to get latest
-            curl -fsSL https://opencode.ai/install 2>/dev/null | bash &>/dev/null && ai_updated+=("opencode")
-        fi
-    fi
-
-    # Claude Code
-    if command -v claude &>/dev/null; then
-        print_info "  Updating Claude Code..."
-        if command -v brew &>/dev/null && brew list --cask claude-code &>/dev/null 2>&1; then
-            brew upgrade --cask claude-code 2>/dev/null && ai_updated+=("claude-code")
-        else
-            # Fallback to reinstall via curl
-            curl -fsSL https://claude.ai/install.sh 2>/dev/null | bash &>/dev/null && ai_updated+=("claude-code")
-        fi
-    fi
-
-    # Factory AI (droid)
-    if command -v droid &>/dev/null; then
-        print_info "  Updating Factory AI (droid)..."
-        if command -v brew &>/dev/null && brew list --cask droid &>/dev/null 2>&1; then
-            brew upgrade --cask droid 2>/dev/null && ai_updated+=("factory-cli")
-        else
-            # Fallback to reinstall via curl
-            curl -fsSL https://app.factory.ai/cli 2>/dev/null | bash &>/dev/null && ai_updated+=("factory-cli")
-        fi
-    fi
-
-    if [[ ${#ai_updated[@]} -gt 0 ]]; then
-        print_success "Updated AI tools: ${ai_updated[*]}"
-    else
-        print_info "  All AI tools already up to date"
-    fi
-
-    # Machine-readable output
-    if [[ "$machine" == "true" ]]; then
-        local json_output='{'
-        json_output+='"status":"completed",'
-        json_output+='"repository_updated":true,'
-        json_output+='"nvim_upgraded":'$([[ "$nvim_upgraded" == "true" ]] && echo "true" || echo "false")','
-        json_output+='"ai_tools_updated":['$(printf '"%s",' "${ai_updated[@]}" | sed 's/,$//')'],'
-        json_output+='"tmux_conflicts_fixed":'$([[ "$conflicts_found" == "true" ]] && echo "true" || echo "false")','
-        json_output+='"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"'
-        json_output+='}'
-        echo "$json_output"
-        return 0
-    fi
-
-    print_success "Environment update completed!"
-    
-    # Show summary of what was updated/fixed
-    print_info "🎯 What was updated:"
-    print_info "  • Repository pulled from remote"
-    print_info "  • Configurations reloaded automatically"
-    if [[ "$conflicts_found" == "true" ]]; then
-        print_info "  • Tmux keybinding conflicts resolved"
-    fi
-    if [[ ${#ai_updated[@]} -gt 0 ]]; then
-        print_info "  • AI tools: ${ai_updated[*]}"
-    fi
-    print_info "  • All running applications updated"
-    
-    print_info ""
-    print_success "✨ Everything is ready to use immediately!"
-    print_info "💡 Try these commands:"
-    print_info "   tmux               # Start with fixed keybindings"
-    print_info "   nvim               # Progressive editor (press <Space>?)?"
-    print_info "   dot check          # Verify everything is working"
-    print_info "   perf-status        # Check shell performance"
 }
 
 # Reload command - refresh key configurations without restarting shell
@@ -858,22 +645,23 @@ EOF
 
 show_update_help() {
     cat << 'EOF'
-dot update - Update entire system
+dot update - Update development environment
 
 USAGE:
     dot update [options]
 
 OPTIONS:
+    --self       Pull dotfiles + relink only (no tool upgrades)
+    --tools      Upgrade tools only (no git pull)
     --yes        Auto-confirm all prompts
+    -m, --machine  JSON output
     -h, --help   Show this help message
 
-DESCRIPTION:
-    Updates the dotfiles repository, applies configuration changes,
-    and updates all system packages and tools.
-
 EXAMPLES:
-    dot update             # Interactive update
-    dot update --yes       # Automatic update
+    dot update             # Full update (pull + tools + reload)
+    dot update --self      # Just pull dotfiles and relink
+    dot update --tools     # Just upgrade brew/npm/uv/mise
+    dot update --yes       # Non-interactive full update
 EOF
 }
 
