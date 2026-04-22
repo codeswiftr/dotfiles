@@ -8,8 +8,11 @@
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 
-# SSH session detection (used throughout to skip heavy/local-only features)
+# Shell mode: full (default) or minimal (SSH, CI, low-power)
+# Set DOTFILES_MODE=minimal in ~/.zshrc.local to override
 [[ -n "$SSH_CONNECTION" ]] && export DOTFILES_SSH=1
+: "${DOTFILES_MODE:=${DOTFILES_SSH:+minimal}}"
+: "${DOTFILES_MODE:=full}"
 
 # -----------------------------------------------------------------------------
 # 2. Defaults (Cross-Platform, Single Source)
@@ -45,7 +48,7 @@ fi
 # 6. Optional Features (Conditional)
 # -----------------------------------------------------------------------------
 # AI tools (loaded synchronously to ensure functions are available)
-if [[ -z "$DOTFILES_FAST_MODE" ]]; then
+if [[ "$DOTFILES_MODE" == "full" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 fi
 

@@ -122,8 +122,8 @@ init_tools_prioritized() {
     fi
     
     # PRIORITY 2: Frequently used tools (load in fast mode, lazy in full mode)
-    if [[ -n "$DOTFILES_FAST_MODE" ]]; then
-        # Fast mode - load essential mise functionality only
+    if [[ "$DOTFILES_MODE" == "minimal" ]]; then
+        # Minimal mode - load essential mise functionality only
         if command -v mise >/dev/null 2>&1; then
             eval "$(mise activate zsh --quiet)"
         fi

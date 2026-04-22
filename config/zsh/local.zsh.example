@@ -10,9 +10,9 @@
 # export DOTFILES_QUIET=1
 
 # -----------------------------------------------------------------------------
-# Fast Mode (skip async loading, faster startup)
+# Shell Mode: full (default) or minimal (skip plugins, AI features)
 # -----------------------------------------------------------------------------
-# export DOTFILES_FAST_MODE=1
+# export DOTFILES_MODE=minimal
 
 # -----------------------------------------------------------------------------
 # Default AI Agent (for 'ai' command)
