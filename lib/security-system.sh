@@ -1072,6 +1072,31 @@ security_dashboard_vulnerability_summary() { echo "Vulnerability summary placeho
 security_dashboard_compliance_status() { echo "Compliance status placeholder"; }
 security_dashboard_active_threats() { echo "Active threats placeholder"; }
 
+# Missing functions called from lib/cli/security.sh
+security_full_scan() {
+    print_info "Running full security scan..."
+    security_dependency_scan "${1:-.}"
+    security_code_analysis "${1:-.}"
+    security_secret_detection "${1:-.}"
+}
+
+security_status() {
+    print_info "Security system status:"
+    echo "  Dependency scanning: $(command -v npm >/dev/null && echo 'available' || echo 'unavailable')"
+    echo "  Secret detection:    $(command -v gitleaks >/dev/null && echo 'available' || echo 'unavailable')"
+    echo "  Container scanning:  $(command -v docker >/dev/null && echo 'available' || echo 'unavailable')"
+}
+
+security_setup_tools() {
+    print_info "Installing security tools..."
+    command -v gitleaks >/dev/null || { command -v brew >/dev/null && brew install gitleaks; } || echo "  Install gitleaks manually"
+    command -v bandit >/dev/null || { command -v uv >/dev/null && uv tool install bandit; } || echo "  Install bandit manually"
+    print_success "Security tools setup complete"
+}
+
+security_audit_system() { security_full_scan "$@"; }
+security_compliance_command() { compliance_soc2_audit "$@"; }
+
 # Export main functions
 export -f security_dependency_scan
 export -f security_code_analysis  
