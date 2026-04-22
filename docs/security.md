@@ -217,7 +217,7 @@ ai-call-approved claude "review this code" app.py
 The built-in `dot security scan` performs three checks: dependencies, static analysis, and secret scanning. To reduce noise, the basic secret scanner skips fixtures and docs by default:
 
 - Ignored paths: `tests/**`, `templates/testing/**`, `docs/**`, `hooks/**`, `.git`, `node_modules`
-- Known example placeholders allowed in: `config/zsh/web-pwa.zsh`, `lib/cli/database.sh`
+- Known example placeholders allowed in: `config/zsh/examples/`
 
 Notes:
 - This does not relax third-party tools like gitleaks/truffleHog if installed; those take precedence.

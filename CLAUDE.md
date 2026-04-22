@@ -39,7 +39,7 @@ dot ai review          # AI code review
 dot security scan      # Security audit
 
 # System management
-dot migrate status     # Check for updates
+dot perf optimize      # Performance tuning
 ```
 
 ### Testing and Quality Assurance
@@ -84,11 +84,14 @@ perf-quick                   # One-command optimization
 
 #### DOT CLI System
 The main interface is the `dot` command located in `bin/dot`. It orchestrates all operations through modular CLI libraries in `lib/cli/`:
-- `core.sh` - Setup, check, update commands
-- `ai.sh` - AI integration and code assistance
+- `core.sh` - Setup, check, update, reload
+- `ai.sh` - AI integration (review, test, commit, explain)
 - `security.sh` - Security scanning and hardening
 - `project.sh` - Project initialization and management
 - `testing.sh` - Test execution and reporting
+- `config.sh` - Configuration management
+- `git.sh` - Git workflow helpers
+- `performance.sh` - Performance profiling and optimization
 
 #### Configuration Management
 - **Declarative approach**: All tools defined in `config/tools.yaml`
@@ -136,10 +139,9 @@ Optimized Zsh configuration with performance tiers:
 4. Check cross-platform compatibility
 
 ### Security Considerations
-- All secrets handled through `dot secret` commands
-- GPG and SSH key management automated
 - Secret scanning with gitleaks integration
-- Global git hooks with pre-commit validation
+- Security audits via `dot security scan`
+- Global git hooks with pre-commit validation (core.hooksPath)
 
 ## Important File Locations
 
