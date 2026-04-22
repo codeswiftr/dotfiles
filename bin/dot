@@ -271,52 +271,14 @@ main() {
             dot_update "$@"
             ;;
         "doctor")
+            # Alias: dot doctor → dot check --fix
             load_cli_lib "core"
-            dot_doctor "$@"
+            dot_check --fix "$@"
             ;;
         "init")
-            # One-shot initialization: link configs and run health check
-            # Options:
-            #   --json    Output health as JSON (skip linking noise)
-            local init_json=false
-            while [[ $# -gt 0 ]]; do
-                case "$1" in
-                    --json)
-                        init_json=true
-                        shift
-                        ;;
-                    *)
-                        break
-                        ;;
-                esac
-            done
-
-            if [[ "$init_json" == "true" ]]; then
-                # Pure JSON health (no extra output)
-                if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
-                    "$DOTFILES_DIR/scripts/health-check.sh" --json
-                    exit 0
-                else
-                    # Fallback: minimal JSON stub
-                    echo '{"error":"health-check script not found"}'
-                    exit 1
-                fi
-            fi
-
+            # Alias: dot init → dot setup
             load_cli_lib "core"
-            if [[ -f "$DOTFILES_DIR/install.sh" ]]; then
-                print_info "${GEAR} Linking dotfiles configuration..."
-                bash "$DOTFILES_DIR/install.sh" --dry-run link >/dev/null 2>&1 || true
-                bash "$DOTFILES_DIR/install.sh" link || print_warning "Linking reported warnings"
-            else
-                print_warning "Installer not found; proceeding to health check"
-            fi
-            if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
-                print_info "${GEAR} Running health check..."
-                "$DOTFILES_DIR/scripts/health-check.sh"
-            else
-                dot_check
-            fi
+            dot_setup "$@"
             ;;
         "reload")
             # Best-effort reload of runtime-managed configs.
@@ -468,27 +430,10 @@ main() {
             esac
             ;;
 
-        # Health command
         "health")
-            # Options: --json to output JSON via health-check script
-            case "${1:-}" in
-                --json)
-                    if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
-                        "$DOTFILES_DIR/scripts/health-check.sh" --json
-                    else
-                        echo '{"error":"health-check script not found"}'
-                        exit 1
-                    fi
-                    ;;
-                *)
-                    if [[ -f "$DOTFILES_DIR/scripts/health-check.sh" ]]; then
-                        "$DOTFILES_DIR/scripts/health-check.sh"
-                    else
-                        load_cli_lib "core"
-                        dot_check
-                    fi
-                    ;;
-            esac
+            # Alias: dot health → dot check
+            load_cli_lib "core"
+            dot_check "$@"
             ;;
 
         # Unknown command

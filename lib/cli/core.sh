@@ -86,30 +86,17 @@ dot_check() {
     local gear_icon="${GEAR:-"⚙️"}"
     local rocket_icon="${ROCKET:-"🚀"}"
 
+    local fix=false
+
     # Parse options
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --quiet)
-                quiet=true
-                shift
-                ;;
-            --detailed)
-                detailed=true
-                shift
-                ;;
-            --machine|-m)
-                machine=true
-                quiet=true
-                shift
-                ;;
-            -h|--help)
-                show_check_help
-                return 0
-                ;;
-            *)
-                print_error "Unknown option: $1"
-                return 1
-                ;;
+            --quiet) quiet=true; shift ;;
+            --detailed) detailed=true; shift ;;
+            --machine|-m|--json) machine=true; quiet=true; shift ;;
+            --fix) fix=true; shift ;;
+            -h|--help) show_check_help; return 0 ;;
+            *) print_error "Unknown option: $1"; return 1 ;;
         esac
     done
     
