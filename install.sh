@@ -754,17 +754,25 @@ RC
         fi
     done
     
+    # Configure git to use our hooks directory
+    if [[ "$DRY_RUN" == "true" ]]; then
+        print_info "DRY RUN: Would set git core.hooksPath"
+    else
+        git config --global core.hooksPath "$HOME/.config/git/hooks" 2>/dev/null \
+            && print_success "Git hooks path configured" \
+            || print_warning "Could not configure git hooks path"
+    fi
+
     # Summary
     print_success "Successfully linked $linked_count dotfiles"
-    
+
     if [[ ${#failed_links[@]} -gt 0 ]]; then
         print_warning "Failed to link: ${failed_links[*]}"
-        # Do not fail the overall process in dry-run mode
         if [[ "$DRY_RUN" != "true" ]]; then
             return 1
         fi
     fi
-    
+
     return 0
 }
 
