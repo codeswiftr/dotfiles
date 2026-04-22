@@ -645,8 +645,23 @@ setup_package_manager() {
 # Dotfiles Linking Functions
 # =============================================================================
 
-# Link dotfiles configuration
+# Link dotfiles configuration (chezmoi preferred, fallback to manual)
 link_dotfiles() {
+    # Use chezmoi if available (manages templates, symlinks, and run_onchange)
+    if command -v chezmoi >/dev/null 2>&1; then
+        print_header "Applying Dotfiles via chezmoi"
+        if [[ "$DRY_RUN" == "true" ]]; then
+            chezmoi --source "$DOTFILES_DIR" apply --dry-run --verbose 2>&1 | head -20
+            print_info "DRY RUN: Would apply dotfiles via chezmoi"
+        else
+            chezmoi --source "$DOTFILES_DIR" apply 2>/dev/null && \
+                print_success "Dotfiles applied via chezmoi" || \
+                print_warning "chezmoi apply had issues, falling back to manual linking"
+        fi
+        return 0
+    fi
+
+    # Fallback: manual symlink-based linking (for machines without chezmoi)
     print_header "Linking Dotfiles Configuration"
     
     local linked_count=0

@@ -1,0 +1,5 @@
+#!/bin/bash
+# Configure git settings that can't be in .gitconfig template
+# hash: {{ include "dot_gitconfig.tmpl" | sha256sum }}
+
+git config --global core.hooksPath ~/.config/git/hooks

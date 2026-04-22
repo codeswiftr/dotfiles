@@ -43,14 +43,16 @@ All other executables (tool symlinks, binaries) are managed by their respective 
 
 ## Linking Strategy
 
-**Current:** Hand-rolled `link_dotfiles()` in `install.sh` (one authoritative function).
+**Primary:** chezmoi (`home/` directory with `.chezmoiroot`).
 
-**Future:** Migrate to chezmoi after layout normalization is complete. Chezmoi handles templates (gitconfig, claude settings), machine-specific config, and removes the need for fallback path logic.
+chezmoi manages:
+- Symlinks: .zshrc, .tmux.conf, .zshenv, .zprofile, nvim, starship.toml, hooks, completions
+- Templates: .gitconfig (with machine-specific name/email/credential helper)
+- Scripts: run_onchange for git hooksPath configuration
 
-**Migration path:**
-1. Normalize layout (remove all fallback paths) — Phase 2
-2. Delete duplicate linking in `lib/version.sh` and `lib/cli/core.sh`
-3. Evaluate chezmoi migration once layout is clean
+**Fallback:** If chezmoi is not installed, `install.sh` falls back to hand-rolled `link_dotfiles()`.
+
+**Machine-specific config:** `~/.config/chezmoi/chezmoi.toml` stores name, email (set on first init via prompts or pre-created).
 
 ## Tool Management
 

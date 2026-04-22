@@ -20,6 +20,7 @@ groups:
       - curl
       - nvim
       - tmux
+      - chezmoi
 
   modern_cli:
     description: "Modern CLI replacements and enhancements"
@@ -194,6 +195,14 @@ tools:
       arch: "sudo pacman -S tmux"
       alpine: "apk add --no-cache tmux"
     verify: "tmux -V"
+
+  chezmoi:
+    description: "Dotfiles manager with templates and machine-specific config"
+    category: "system"
+    install:
+      macos: "brew install chezmoi"
+      all: "sh -c \"$(curl -fsLS get.chezmoi.io)\""
+    verify: "chezmoi --version"
 
   # Modern CLI tools
   starship:
