@@ -652,6 +652,8 @@ link_dotfiles() {
     mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/zsh/completions" "$HOME/.config/git"
 
     # Desired logical sources and resolved targets
+    # Managed file manifest (see ARCHITECTURE.md)
+    # Note: bin/ is NOT linked -- it's on $PATH via defaults.zsh
     local desired_sources=(
         ".zshrc"
         "config/zsh/.zshenv"
@@ -659,7 +661,7 @@ link_dotfiles() {
         ".tmux.conf"
         ".gitconfig"
         "config/nvim"
-        "bin"
+        "config/starship.toml"
         "completions/_dot"
         "hooks"
     )
@@ -671,7 +673,7 @@ link_dotfiles() {
         "$HOME/.tmux.conf"
         "$HOME/.gitconfig"
         "$HOME/.config/nvim"
-        "$HOME/.local/bin"
+        "$HOME/.config/starship.toml"
         "$HOME/.local/share/zsh/completions/_dot"
         "$HOME/.config/git/hooks"
     )
