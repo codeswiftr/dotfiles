@@ -1,58 +1,107 @@
-# Starship prompt configuration (repo-managed)
+# Starship prompt — Catppuccin Mocha theme with Nerd Font icons
 
-format = "\n$directory$custom$git_branch$git_status$cmd_duration$line_break$python$nodejs$swift$character"
+palette = "catppuccin_mocha"
+
+format = """
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$python\
+$nodejs\
+$rust\
+$golang\
+$swift\
+$docker_context\
+$character"""
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
 
 [directory]
-style = "blue"
-truncate_to_repo = true
+style = "bold sapphire"
 truncation_length = 3
+truncate_to_repo = true
 
 [character]
-success_symbol = "[❯](purple)"
-error_symbol = "[❯](red)"
-vicmd_symbol = "[❮](green)"
+success_symbol = "[❯](bold mauve)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[❮](bold green)"
 
 [git_branch]
 format = "[$branch]($style) "
-style = "bright-black"
+style = "bold lavender"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bold peach"
 
 [git_status]
-style = "cyan"
-format = "([$all_status$ahead_behind]($style) )"
+format = '([$all_status$ahead_behind]($style) )'
+style = "bold yellow"
 
 [cmd_duration]
 min_time = 500
-format = "[⏱ $duration]($style) "
-style = "yellow"
+format = "[󰔛 $duration]($style) "
+style = "bold yellow"
 
 [python]
-symbol = "🐍 "
-format = "[$symbol$version]($style) "
-style = "green"
+symbol = "󰌠 "
+format = '[$symbol$version]($style) '
+style = "bold green"
 
 [nodejs]
-symbol = "📦 "
-format = "[$symbol$version]($style) "
-style = "green"
+symbol = "󰎙 "
+format = '[$symbol$version]($style) '
+style = "bold green"
+
+[rust]
+symbol = "󱘗 "
+format = '[$symbol$version]($style) '
+style = "bold peach"
+
+[golang]
+symbol = "󰟓 "
+format = '[$symbol$version]($style) '
+style = "bold sky"
 
 [swift]
-symbol = "🕊  "
-format = "[$symbol$version]($style) "
-style = "green"
+symbol = "󰛥 "
+format = '[$symbol$version]($style) '
+style = "bold peach"
 
-# FORGE portfolio indicator - shows project name in prompt when inside FORGE
-[custom.forge]
-command = """
-if [[ "$PWD" == *"/FORGE/"* ]]; then
-  # Extract domain-project from path
-  echo "$PWD" | sed -n 's|.*/FORGE/[^/]*/\\([^/]*\\).*|\\1|p' | head -1
-fi
-"""
-when = '[[ "$PWD" == *"/FORGE/"* ]]'
-shell = ["bash", "--noprofile", "--norc"]
-format = "[⚒ $output]($style) "
-style = "bold cyan"
+[docker_context]
+symbol = "󰡨 "
+format = '[$symbol$context]($style) '
+style = "bold blue"
 
-# Note: For catppuccin theme, use .config/starship.toml instead
-# which includes the full palette definition
-
+[jobs]
+disabled = false
+symbol = "󰜎 "
+format = '[$symbol$number]($style) '
+style = "bold blue"
