@@ -1388,7 +1388,10 @@ main() {
                 _install_warnings=true
             fi
 
-            link_claude_config
+            # Link Claude config (only needed if chezmoi wasn't used above)
+            if ! command -v chezmoi >/dev/null 2>&1; then
+                link_claude_config
+            fi
 
             # Run plugin validations and setup
             run_post_install_validations
@@ -1430,7 +1433,10 @@ main() {
         "link")
             print_header "Linking Dotfiles Only"
             link_dotfiles
-            link_claude_config
+            # Link Claude config (only needed if chezmoi wasn't used)
+            if ! command -v chezmoi >/dev/null 2>&1; then
+                link_claude_config
+            fi
             print_success "Linking completed!"
             ;;
         *)
