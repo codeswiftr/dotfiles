@@ -132,7 +132,9 @@ generate_documentation() {
             generate_examples_documentation "$format"
             ;;
         *)
-            generate_category_documentation "$category" "$format"
+            echo "Unknown documentation category: $category"
+            echo "Available: getting-started, installation, configuration, cli, troubleshooting, development, api, examples"
+            return 1
             ;;
     esac
     
@@ -152,7 +154,7 @@ generate_all_documentation() {
     generate_development_docs
     generate_api_documentation "$format"
     generate_examples_documentation "$format"
-    generate_changelog_docs
+    # Changelog generated from git log, not a static function
     
     # Generate index/README
     generate_main_readme
@@ -2057,8 +2059,6 @@ EOF
 
     # Generate individual API docs
     generate_core_api_docs
-    generate_platform_api_docs
-    generate_performance_api_docs
 }
 
 # Generate core API documentation
@@ -2569,9 +2569,9 @@ build_html_documentation() {
     
     # Check if we have a static site generator available
     if command -v mkdocs >/dev/null 2>&1; then
-        build_mkdocs_site
+        mkdocs build 2>/dev/null || echo "mkdocs build failed"
     elif command -v hugo >/dev/null 2>&1; then
-        build_hugo_site
+        hugo 2>/dev/null || echo "hugo build failed"
     else
         echo "No static site generator found, HTML build skipped"
         echo "Install mkdocs or hugo for HTML documentation"
@@ -2616,14 +2616,12 @@ docs_cli() {
             generate_documentation "$format" "all"
             ;;
         "serve")
-            serve_documentation "$@"
+            echo "Not implemented. Use: python3 -m http.server 8080 --directory $DOCS_BUILD_DIR"
             ;;
         "search")
-            search_documentation "$@"
-            ;;
-        "interactive"|"help")
-            source "$DOCS_DIR/interactive-help.sh"
-            show_interactive_help "$@"
+            local query="${1:-}"
+            if [[ -z "$query" ]]; then echo "Usage: dot docs search <query>"; return 1; fi
+            grep -ri "$query" "$DOCS_DIR"/*.md 2>/dev/null || echo "No results for: $query"
             ;;
         "init")
             init_documentation
