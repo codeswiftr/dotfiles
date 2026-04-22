@@ -44,14 +44,14 @@ dot perf optimize      # Performance tuning
 
 ### Testing and Quality Assurance
 ```bash
-# Run comprehensive test suite
-./tests/test_runner.sh
+# Run all tests (bats-core)
+bats tests/bats/*.bats
 
-# Quick validation
-dot test quick
+# Run smoke tests only
+bats tests/bats/smoke.bats
 
-# Run specific test categories
-./tests/test_runner.sh --category infrastructure
+# Run infrastructure tests
+bats tests/bats/infrastructure.bats
 
 # Linting
 find . -name "*.sh" -exec shellcheck {} \;
@@ -130,10 +130,10 @@ Optimized Zsh configuration with performance tiers:
 1. Edit `config/tools.yaml` to define the tool
 2. Add to appropriate group (essential, development, optional)
 3. Test with `./install.sh --dry-run install standard`
-4. Run tests: `./tests/test_runner.sh`
+4. Run tests: `bats tests/bats/*.bats`
 
 ### Testing Changes
-1. Always run the full test suite: `./tests/test_runner.sh`
+1. Always run the full test suite: `bats tests/bats/*.bats`
 2. Test specific components: `dot test <component>`
 3. Validate linting: shellcheck and yamllint
 4. Check cross-platform compatibility
@@ -154,7 +154,7 @@ Optimized Zsh configuration with performance tiers:
 ### Key Scripts
 - `install.sh` - Main installer (declarative, idempotent)
 - `scripts/bootstrap.sh` - One-line installation entry point
-- `tests/test_runner.sh` - Comprehensive testing framework
+- `tests/bats/` - bats-core test suites (smoke.bats, infrastructure.bats)
 - `bin/dot` - Main CLI interface
 
 ### Documentation

@@ -4,12 +4,12 @@
 - `bin/` ships the `dot` CLI and bundled helper scripts; keep entrypoints self-contained.
 - `config/`, `lib/`, `scripts/` host runtime modules, installer assets, and automation hooks.
 - `src/`, `templates/`, `themes/` cover user-facing assets for shell, web, and theming experiments.
-- `tests/` holds shell harnesses under `unit`, `integration`, `infrastructure`, `performance`; artifacts land in `tests/results/`.
+- `tests/bats/` holds bats-core test suites (smoke.bats, infrastructure.bats).
 - `docs/` stores planning notes; long-form prompts belong here, not in root.
 
 ## Build, Test, and Development Commands
-- `./tests/test_runner.sh` runs the full shell suite and writes logs to `tests/results/`.
-- `./tests/enhanced_test_runner.sh --quick` gives a fast smoke pass before commits.
+- `bats tests/bats/*.bats` runs the full test suite (36 tests).
+- `bats tests/bats/smoke.bats` gives a fast smoke pass before commits.
 - `make api-run` boots the FastAPI/Uvicorn dev server via `scripts/dev-api.sh`.
 - `make dev-web` launches the web harness; `make build-ios` wraps `scripts/dev-ios.sh build`.
 - `find . -name "*.sh" -exec shellcheck {} \;` and `shfmt -w` keep shell scripts consistent; pair with `find . -name "*.yml" -o -name "*.yaml" | xargs yamllint`.

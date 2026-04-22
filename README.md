@@ -217,8 +217,8 @@ dot security setup-ssh
 ## Testing
 
 ```bash
-./tests/test_runner.sh              # Full test suite
-./tests/test_runner.sh --category infrastructure
+bats tests/bats/*.bats              # Full test suite (36 tests)
+bats tests/bats/smoke.bats          # Smoke tests only
 find . -name "*.sh" | xargs shellcheck -S warning
 ```
 
@@ -240,7 +240,7 @@ find . -name "*.sh" | xargs shellcheck -S warning
 
 1. Fork and clone
 2. Make changes (run `shellcheck` on any shell scripts you edit)
-3. Test: `./tests/test_runner.sh`
+3. Test: `bats tests/bats/*.bats`
 4. Open a PR
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.

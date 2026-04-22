@@ -73,10 +73,11 @@ No custom `versions.json`. Package managers already know what's installed.
 
 ## Testing
 
-**Direction:** Adopt bats-core incrementally.
-- New smoke/integration tests written in bats-core
-- Existing tests stabilized, then migrated gradually
-- Custom test framework (`test_runner.sh`, `enhanced_test_runner.sh`) retired once bats covers critical paths
+**Framework:** bats-core (36 tests, 100% passing).
+- `tests/bats/smoke.bats` — CLI, install, shell syntax, symlinks (19 tests)
+- `tests/bats/infrastructure.bats` — paths, contracts, bindings, tiers, performance (17 tests)
+- Run: `bats tests/bats/*.bats`
+- Legacy custom framework fully retired
 
 ## Neovim Tiers
 
