@@ -51,29 +51,6 @@
 
 ---
 
-## ⚡ Advanced Commands (Tier 3) - Power User Features
-
-### Project Workflows
-| Command | Action |
-|---------|--------|
-| `Ctrl-a p` | Project sessionizer (fuzzy find) |
-| `Ctrl-a L` | Development layout |
-| `Ctrl-a A` | AI development layout |
-
-### Development Tools
-| Command | Action |
-|---------|--------|
-| `Ctrl-a g` | Git status pane |
-| `Ctrl-a t` | Terminal pane |
-| `Ctrl-a M` | System monitor |
-
-### AI Integration
-| Command | Action |
-|---------|--------|
-| `Ctrl-a Ctrl-a` | Aider AI session |
-| `Ctrl-a Ctrl-c` | Claude AI session |
-| `Ctrl-a Ctrl-g` | Gemini AI session |
-
 ---
 
 ## 🖱️ Mouse Support
@@ -90,25 +67,11 @@
 
 ## 🎓 Learning Path
 
-### Week 1: Foundation
-- ✅ Master Tier 1 commands (9 essential shortcuts)
-- ✅ Practice pane navigation with `h/j/k/l`
-- ✅ Use mouse for quick tasks
-
-### Week 2: Productivity
-- ✅ Enable Tier 2 bindings
-- ✅ Learn copy/paste workflow
-- ✅ Practice window management
-
-### Week 3: Power User
-- ✅ Enable Tier 3 bindings
-- ✅ Set up project workflows
-- ✅ Customize layouts
-
-### Week 4: Mastery
-- ✅ Create custom bindings in `~/.tmux.local.conf`
-- ✅ Optimize for your specific workflow
-- ✅ Share knowledge with team
+### Getting Started
+- Master the 25 keybindings in `config/tmux/tmux.conf`
+- Practice pane navigation with `h/j/k/l`
+- Use mouse for quick tasks
+- Learn copy/paste workflow
 
 ---
 
@@ -123,24 +86,6 @@
 | **Forgot shortcuts** | `Ctrl-a ?` for help |
 
 ---
-
-## 🔧 Enabling More Features
-
-### Activate Tier 2 (Intermediate):
-```bash
-# Edit tmux config
-echo '# Enable intermediate features' >> ~/.tmux.conf
-echo 'source-file "$TMUX_CONFIG_DIR/bindings-tier2.conf"' >> ~/.tmux.conf
-tmux source-file ~/.tmux.conf
-```
-
-### Activate Tier 3 (Advanced):
-```bash
-# Edit tmux config  
-echo '# Enable advanced features' >> ~/.tmux.conf
-echo 'source-file "$TMUX_CONFIG_DIR/bindings-tier3.conf"' >> ~/.tmux.conf
-tmux source-file ~/.tmux.conf
-```
 
 ---
 

@@ -75,7 +75,7 @@ Handy commands:
 perf-status              # Current performance status
 perf-quick               # One-command optimization
 perf-profile-startup     # Detailed timing
-export DOTFILES_FAST_MODE=1  # Ultra-fast mode for short sessions/CI
+export DOTFILES_MODE=minimal  # Ultra-fast mode for short sessions/CI
 ```
 
 ### **Performance Modes**
@@ -95,9 +95,8 @@ perf-status
 
 The Neovim tier system guarantees fast startup by constraining features per tier.
 
-- Tier 1 (Essential): <200ms target, ~8 plugins
-- Tier 2 (Enhanced): <400ms target, ~23 plugins
-- Tier 3 (Advanced): <1200ms target, AI features
+- Tier 1 (Essential): <300ms target, ~12 plugins (core + UI essentials)
+- Tier 2 (Full): <600ms target, ~39 plugins (complete IDE + AI)
 
 How to switch tiers quickly:
 
@@ -136,7 +135,7 @@ df-health --performance
 **Configuration**:
 ```bash
 # Default settings
-unset DOTFILES_FAST_MODE
+export DOTFILES_MODE=full
 ```
 
 ### **Fast Mode** (Ultra Performance)
@@ -148,7 +147,7 @@ unset DOTFILES_FAST_MODE
 **Configuration**:
 ```bash
 # Enable fast mode
-export DOTFILES_FAST_MODE=1
+export DOTFILES_MODE=minimal
 enable-fast-mode
 ```
 
@@ -392,7 +391,7 @@ For CI/CD, containers, or minimal environments:
 
 ```bash
 # Ultra-minimal shell configuration
-export DOTFILES_FAST_MODE=1
+export DOTFILES_MODE=minimal
 export SKIP_ALL_INIT=1
 export MINIMAL_SHELL=1
 

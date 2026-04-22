@@ -204,7 +204,7 @@ echo 'set -g status-position bottom' > ~/.tmux.local.conf
 ### **Disabling Modules**
 ```bash
 # Skip AI module loading
-export DOTFILES_FAST_MODE=1
+export DOTFILES_MODE=minimal
 
 # Comment out specific modules in .zshrc or .tmux.conf
 # [[ -f "$ZSH_CONFIG_DIR/ai.zsh" ]] && source "$ZSH_CONFIG_DIR/ai.zsh"

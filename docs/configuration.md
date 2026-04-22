@@ -36,7 +36,7 @@ Overview of configurable areas and where to change them.
 - macOS/Linux: `config/platform/*.zsh`
 
 ## Environment Variables (selected)
-- `DOTFILES_FAST_MODE=1` — ultra-fast shell
+- `DOTFILES_MODE=minimal` — ultra-fast shell
 - `DOTFILES_PERF_TIMING=true` — startup timing
 - `AI_SECURITY_*` — see `docs/security.md`
 

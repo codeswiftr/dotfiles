@@ -211,7 +211,7 @@ export AI_ALLOW_GIT_DATA=false
 export AI_WARN_ON_SENSITIVE=true
 
 # Performance
-export DOTFILES_FAST_MODE=1  # Skip AI init for speed
+export DOTFILES_MODE=minimal  # Skip AI init for speed
 ```
 
 ### **Custom AI Prompts in Neovim**

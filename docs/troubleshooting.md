@@ -28,7 +28,7 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 - Always run `gemini review --diff` before committing for best results.
 
 **Q: Shell/terminal is slow or laggy?**
-- Enable fast mode: `export DOTFILES_FAST_MODE=true; exec zsh`
+- Enable fast mode: `export DOTFILES_MODE=minimal; exec zsh`
 - Profile startup: `perf-benchmark-startup`
 - See "Slow Shell Startup" below.
 
