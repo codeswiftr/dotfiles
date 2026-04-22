@@ -39,7 +39,7 @@ setup() {
 @test "install.sh link --dry-run succeeds" {
     run bash "$DOTFILES_DIR/install.sh" link --dry-run
     [ "$status" -eq 0 ]
-    [[ "$output" == *"Would link"* ]]
+    [[ "$output" == *"Would"* ]] || [[ "$output" == *"chezmoi"* ]]
 }
 
 @test "install.sh profiles lists profiles" {

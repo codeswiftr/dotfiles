@@ -651,10 +651,12 @@ link_dotfiles() {
     if command -v chezmoi >/dev/null 2>&1; then
         print_header "Applying Dotfiles via chezmoi"
         if [[ "$DRY_RUN" == "true" ]]; then
-            chezmoi --source "$DOTFILES_DIR" apply --dry-run --verbose 2>&1 | head -20
             print_info "DRY RUN: Would apply dotfiles via chezmoi"
+            chezmoi --source "$DOTFILES_DIR" managed 2>/dev/null | while read -r f; do
+                print_info "  Would manage: ~/$f"
+            done
         else
-            chezmoi --source "$DOTFILES_DIR" apply 2>/dev/null && \
+            chezmoi --source "$DOTFILES_DIR" apply --force 2>/dev/null && \
                 print_success "Dotfiles applied via chezmoi" || \
                 print_warning "chezmoi apply had issues, falling back to manual linking"
         fi
