@@ -15,19 +15,21 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - `.yamllint`
 - `.zshrc`
 - `AGENTS.md`
+- `ARCHITECTURE.md`
 - `BREAKING_CHANGES.md`
 - `CLAUDE.md`
 - `CONTRIBUTING.md`
-- `Makefile`
-- `PERSONALIZATION.md`
-- `README.md`
-- `VERSION`
 - `dotfiles-tutor`
 - `gitleaks.toml`
 - `install.sh`
+- `Makefile`
 - `mise.toml`
+- `nvim.log`
+- `PERSONALIZATION.md`
 - `plan.md`
 - `pre-commit-global.yaml`
+- `README.md`
+- `VERSION`
 
 ### Directories
 
