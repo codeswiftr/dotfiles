@@ -9,7 +9,7 @@ local M = {}
 local function auto_detect_tier()
   -- 1) Explicit override via env
   local env_tier = tonumber(vim.env.NVIM_TIER or "")
-  if env_tier and env_tier >= 1 and env_tier <= 3 then
+  if env_tier and env_tier >= 1 and env_tier <= 2 then
     return env_tier
   end
 
@@ -34,10 +34,8 @@ local function auto_detect_tier()
   local total_mem_gb = total_mem_bytes > 0 and (total_mem_bytes / (1024 * 1024 * 1024)) or 0
 
   -- Conservative defaults
-  if cores <= 2 or total_mem_gb > 0 and total_mem_gb < 4 then
+  if cores <= 2 or (total_mem_gb > 0 and total_mem_gb < 4) then
     return 1
-  elseif cores >= 4 and total_mem_gb >= 8 then
-    return 2
   else
     return 2
   end
@@ -47,27 +45,19 @@ end
 local TIERS = {
   [1] = {
     name = "Essential",
-    description = "8 plugins, core editing functionality",
-    target_startup = 200,
-    plugins = 8,
+    description = "12 plugins, core editing + UI essentials",
+    target_startup = 250,
+    plugins = 12,
     keybindings = 15,
-    features = { "LSP", "Completion", "Fuzzy Find", "Git", "Comments", "Syntax Highlighting" }
+    features = { "LSP", "Completion", "Fuzzy Find", "Git", "Comments", "Syntax Highlighting", "Git Signs", "Status Line", "Buffer Line" }
   },
   [2] = {
-    name = "Enhanced",
-    description = "23 plugins, full development environment",
-    target_startup = 400,
-    plugins = 23,
-    keybindings = 35,
-    features = { "All Tier 1", "File Explorer", "Status Line", "Git Signs", "Formatting", "Auto-pairs", "Terminal" }
-  },
-  [3] = {
-    name = "Advanced",
-    description = "37+ plugins, AI-powered workflows",
+    name = "Full",
+    description = "~39 plugins, complete IDE with AI workflows",
     target_startup = 600,
-    plugins = 37,
+    plugins = 39,
     keybindings = 55,
-    features = { "All Tier 2", "GitHub Copilot", "AI Assistants", "Advanced Git", "Debugging", "Complex Workflows" }
+    features = { "All Tier 1", "Terminal", "Debugging", "Harpoon", "Copilot", "ChatGPT", "Diffview", "Trouble", "Aerial", "Formatting" }
   }
 }
 
@@ -120,8 +110,8 @@ end
 -- Tier up command
 function M.tier_up()
   local current = M.get_current_tier()
-  if current >= 3 then
-    vim.notify("Already at maximum tier (3)", vim.log.levels.WARN)
+  if current >= 2 then
+    vim.notify("Already at maximum tier (2)", vim.log.levels.WARN)
     return
   end
   M.set_tier(current + 1)
@@ -188,13 +178,12 @@ function M.show_tier_help()
   print("│                                                               │")
   print("│ WORKFLOW:                                                     │")
   print("│ 1. Master Tier 1 (essential editing)                        │")
-  print("│ 2. Upgrade to Tier 2 when ready for IDE features           │")
-  print("│ 3. Add Tier 3 for AI and advanced workflows                 │")
+  print("│ 2. Upgrade to Tier 2 for full IDE + AI features            │")
   print("│                                                               │")
   print("│ COMMANDS:                                                     │")
   print("│ :TierUp      - Upgrade to next tier                         │")
   print("│ :TierDown    - Downgrade to previous tier                   │")
-  print("│ :TierSet N   - Jump to specific tier (1-3)                  │")
+  print("│ :TierSet N   - Jump to specific tier (1-2)                  │")
   print("│ :TierInfo    - Show current tier status                     │")
   print("│ :TierBench   - Benchmark startup performance                │")
   print("│                                                               │")
@@ -233,12 +222,12 @@ function M.setup_commands()
     if tier then
       M.set_tier(tier)
     else
-      vim.notify("Usage: :TierSet <1-3>", vim.log.levels.ERROR)
+      vim.notify("Usage: :TierSet <1-2>", vim.log.levels.ERROR)
     end
-  end, { 
-    nargs = 1, 
+  end, {
+    nargs = 1,
     desc = "Set specific tier",
-    complete = function() return {"1", "2", "3"} end
+    complete = function() return {"1", "2"} end
   })
 end
 

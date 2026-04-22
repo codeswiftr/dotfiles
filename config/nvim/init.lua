@@ -49,10 +49,6 @@ local function compose_specs_for_tier(tier)
     local tier2_specs = require("tiers.tier2")
     for _, s in ipairs(tier2_specs) do table.insert(specs, s) end
   end
-  if tier >= 3 then
-    local tier3_specs = require("tiers.tier3")
-    for _, s in ipairs(tier3_specs) do table.insert(specs, s) end
-  end
 
   return specs
 end
@@ -88,18 +84,18 @@ if current_tier == 2 then
     callback = function()
       if vim.fn.argc() == 0 then
         vim.defer_fn(function()
-          print("Neovim Tier 2 - Enhanced Development Environment")
-          print("23 plugins | <400ms startup | Full IDE features")
+          print("Neovim Tier 2 - Full Development Environment")
+          print("~39 plugins | <600ms startup | Complete IDE + AI features")
           print("<leader>ff (files) | <leader>fp (projects) | <leader>S (search/replace)")
           print("LSP: gd | K (hover) | <leader>cr (rename) | Debug: <leader>db/<leader>dc")
-          print("Upgrade: :TierUp | Status: :TierInfo")
+          print("AI: <leader>cc (ChatGPT) | Copilot: Ctrl+J | Status: :TierInfo")
         end, 50)
       end
       if vim.env.NVIM_PROFILE then
         local started = vim.uv.hrtime()
         vim.defer_fn(function()
           local ms = (vim.uv.hrtime() - started) / 1000000
-          print(string.format("Tier 2 startup: %.1fms (target: 400ms)", ms))
+          print(string.format("Tier 2 startup: %.1fms (target: 600ms)", ms))
         end, 100)
       end
     end,
@@ -112,7 +108,7 @@ if current_tier == 1 then
     callback = function()
       if vim.fn.argc() == 0 then
         print("🚀 Neovim Tier 1 - Ultra-Fast Essential Editor")
-        print("📦 ~9 plugins | ⚡ <250ms startup | 🎯 Essentials + Tree")
+        print("📦 ~12 plugins | ⚡ <250ms startup | 🎯 Essentials + UI")
         print("📁 <leader>e (tree) | <leader>t (reveal) | 🔍 <leader>ff (files)")
         print("🚀 LSP: gd (def) | K (hover) | <leader>ca (actions)")
       end

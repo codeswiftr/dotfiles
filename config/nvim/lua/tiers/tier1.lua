@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Neovim Tier 1 Configuration - Essential Plugins Only
--- 9 carefully chosen plugins for maximum productivity with minimal complexity
+-- 12 carefully chosen plugins for maximum productivity with minimal complexity
 -- Target: Professional editor ready in 30 minutes, <250ms startup
 -- Performance optimized: lazy loading, minimal config, essential only
 -- ============================================================================
@@ -8,7 +8,7 @@
 -- NOTE: lazy.nvim bootstrap and setup are handled centrally in init.lua
 
 -- ============================================================================
--- Plugin Specifications - Tier 1 (9 Essential Plugins)
+-- Plugin Specifications - Tier 1 (12 Essential Plugins)
 -- ============================================================================
 
 return {
@@ -248,6 +248,149 @@ return {
     },
     config = function()
       require("Comment").setup()
+    end,
+  },
+
+  -- ============================================================================
+  -- 10. GIT SIGNS - Essential git integration in the gutter
+  -- ============================================================================
+  {
+    "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" }, -- Lazy load on file open
+    config = function()
+      require("gitsigns").setup({
+        signs = {
+          add = { text = "▎" },
+          change = { text = "▎" },
+          delete = { text = "" },
+          topdelete = { text = "" },
+          changedelete = { text = "▎" },
+          untracked = { text = "▎" },
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+
+          -- Navigation
+          map("n", "]c", function()
+            if vim.wo.diff then return "]c" end
+            vim.schedule(function() gs.next_hunk() end)
+            return "<Ignore>"
+          end, { expr = true, desc = "Next git hunk" })
+
+          map("n", "[c", function()
+            if vim.wo.diff then return "[c" end
+            vim.schedule(function() gs.prev_hunk() end)
+            return "<Ignore>"
+          end, { expr = true, desc = "Previous git hunk" })
+
+          -- Actions
+          map({ "n", "v" }, "<leader>gs", ":Gitsigns stage_hunk<CR>", { desc = "Stage hunk" })
+          map({ "n", "v" }, "<leader>gr", ":Gitsigns reset_hunk<CR>", { desc = "Reset hunk" })
+          map("n", "<leader>gS", gs.stage_buffer, { desc = "Stage buffer" })
+          map("n", "<leader>gu", gs.undo_stage_hunk, { desc = "Undo stage hunk" })
+          map("n", "<leader>gR", gs.reset_buffer, { desc = "Reset buffer" })
+          map("n", "<leader>gp", gs.preview_hunk, { desc = "Preview hunk" })
+          map("n", "<leader>gb", function() gs.blame_line{ full = true } end, { desc = "Blame line" })
+          map("n", "<leader>gd", gs.diffthis, { desc = "Diff this" })
+        end,
+      })
+    end,
+  },
+
+  -- ============================================================================
+  -- 11. STATUS LINE - Enhanced UI feedback
+  -- ============================================================================
+  {
+    "nvim-lualine/lualine.nvim",
+    event = "VeryLazy", -- Load after startup for performance
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("lualine").setup({
+        options = {
+          theme = "catppuccin",
+          section_separators = { left = "", right = "" },
+          component_separators = { left = "", right = "" },
+        },
+        sections = {
+          lualine_a = { "mode" },
+          lualine_b = { "branch", "diff", "diagnostics" },
+          lualine_c = { "filename" },
+          lualine_x = { "encoding", "fileformat", "filetype" },
+          lualine_y = { "progress" },
+          lualine_z = { "location" },
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = { "filename" },
+          lualine_x = { "location" },
+          lualine_y = {},
+          lualine_z = {},
+        },
+      })
+    end,
+  },
+
+  -- ============================================================================
+  -- 12. BUFFER LINE (TAB-LIKE INTERFACE) - lazy loaded
+  -- ============================================================================
+  {
+    "akinsho/bufferline.nvim",
+    event = "VeryLazy", -- Load after startup for performance
+    version = "*",
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("bufferline").setup({
+        options = {
+          mode = "buffers",
+          numbers = "none",
+          close_command = "bdelete! %d",
+          right_mouse_command = "bdelete! %d",
+          left_mouse_command = "buffer %d",
+          middle_mouse_command = nil,
+          indicator = {
+            icon = "▎",
+            style = "icon",
+          },
+          buffer_close_icon = "",
+          modified_icon = "●",
+          close_icon = "",
+          left_trunc_marker = "",
+          right_trunc_marker = "",
+          max_name_length = 30,
+          max_prefix_length = 30,
+          tab_size = 21,
+          diagnostics = "nvim_lsp",
+          diagnostics_update_in_insert = false,
+          offsets = {
+            {
+              filetype = "NvimTree",
+              text = "File Explorer",
+              text_align = "left",
+              separator = true,
+            },
+          },
+          show_buffer_icons = true,
+          show_buffer_close_icons = true,
+          show_close_icon = true,
+          show_tab_indicators = true,
+          persist_buffer_sort = true,
+          separator_style = "slant",
+          enforce_regular_tabs = true,
+          always_show_bufferline = true,
+        },
+      })
+
+      -- Key mappings
+      vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineTogglePin<cr>", { desc = "Toggle pin" })
+      vim.keymap.set("n", "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<cr>", { desc = "Delete non-pinned buffers" })
+      vim.keymap.set("n", "[b", "<cmd>BufferLineCyclePrev<cr>", { desc = "Prev buffer" })
+      vim.keymap.set("n", "]b", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
     end,
   },
 

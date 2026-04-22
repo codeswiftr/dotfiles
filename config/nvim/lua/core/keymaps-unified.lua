@@ -18,7 +18,7 @@ local function get_tier()
 end
 
 -- ============================================================================
--- TIER 1: ESSENTIAL KEY BINDINGS (8 plugins, <200ms startup)
+-- TIER 1: ESSENTIAL KEY BINDINGS (12 plugins, <250ms startup)
 -- ============================================================================
 
 M.tier1_keymaps = function()
@@ -107,11 +107,11 @@ M.tier1_keymaps = function()
 end
 
 -- ============================================================================
--- TIER 2: ENHANCED KEY BINDINGS (23 plugins, <400ms startup)
+-- TIER 2: FULL DEVELOPMENT KEY BINDINGS (~39 plugins, <600ms startup)
 -- ============================================================================
 
 M.tier2_keymaps = function()
-  -- Git integration (Tier 2 feature)
+  -- Git integration
   keymap("n", "<leader>g", "<cmd>Git<cr>", { desc = "Git status" })
   keymap("n", "<leader>gs", "<cmd>Git<cr>", { desc = "Git status (legacy)" })
 
@@ -134,11 +134,16 @@ M.tier2_keymaps = function()
       vim.cmd("Git branch -a")
     end
   end, { desc = "Git branches (legacy)" })
-  
-  -- Terminal integration (Tier 2 feature)
-  keymap("n", "<leader>tt", function() 
+
+  -- Advanced Git Features
+  keymap("n", "<leader>gv", "<cmd>DiffviewOpen<cr>", { desc = "Git diffview" })
+  keymap("n", "<leader>gV", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" })
+  keymap("n", "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", { desc = "Current file history" })
+
+  -- Terminal integration
+  keymap("n", "<leader>tt", function()
     if pcall(require, "toggleterm") then
-      require("toggleterm").toggle() 
+      require("toggleterm").toggle()
     else
       vim.cmd("terminal")
     end
@@ -164,39 +169,23 @@ M.tier2_keymaps = function()
       vim.cmd("terminal")
     end
   end, { desc = "Terminal vertical" })
-  
+
   -- Enhanced code actions
   keymap("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Code rename" })
   keymap("n", "<leader>cd", vim.lsp.buf.hover, { desc = "Code documentation" })
   keymap("n", "gr", "<cmd>Telescope lsp_references<cr>", { desc = "Go to references" })
   keymap("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
   keymap("n", "gt", vim.lsp.buf.type_definition, { desc = "Go to type definition" })
-  
-  -- Debugging (Tier 2 feature)
+
+  -- Debugging
   keymap("n", "<leader>db", function() require("dap").toggle_breakpoint() end, { desc = "Toggle breakpoint" })
   keymap("n", "<leader>dc", function() require("dap").continue() end, { desc = "Debug continue" })
   keymap("n", "<leader>do", function() require("dap").step_over() end, { desc = "Debug step over" })
   keymap("n", "<leader>di", function() require("dap").step_into() end, { desc = "Debug step into" })
   keymap("n", "<leader>dr", function() require("dap").repl.open() end, { desc = "Debug REPL" })
   keymap("n", "<leader>du", function() require("dapui").toggle() end, { desc = "Debug UI toggle" })
-  
-  -- Enhanced help
-  keymap("n", "<leader>h", function()
-    print("🚀 Neovim Tier 2 - Enhanced Commands:")
-    print("GIT: <leader>g (status), <leader>ga (add), <leader>gc (commit)")
-    print("TERMINAL: <leader>tt (toggle), <leader>tf (float)")
-    print("DEBUG: <leader>db (breakpoint), <leader>dc (continue)")
-    print("CODE: gr (references), gi (implementation), <leader>cr (rename)")
-    print("HELP: <leader>? (all shortcuts) | Ready for AI? Enable Tier 3!")
-  end, { desc = "Show enhanced commands" })
-end
 
--- ============================================================================
--- TIER 3: AI-POWERED KEY BINDINGS (33+ plugins, <1200ms startup)
--- ============================================================================
-
-M.tier3_keymaps = function()
-  -- AI Code Completion (Tier 3 feature)
+  -- AI Code Completion
   keymap("i", "<C-J>", 'copilot#Accept("\\<CR>")', {
     expr = true,
     replace_keycodes = false,
@@ -206,8 +195,8 @@ M.tier3_keymaps = function()
   keymap("i", "<C-L>", "<Plug>(copilot-next)", { desc = "Next Copilot suggestion" })
   keymap("i", "<C-K>", "<Plug>(copilot-previous)", { desc = "Previous Copilot suggestion" })
   keymap("n", "<leader>ct", "<cmd>Copilot toggle<cr>", { desc = "Toggle Copilot" })
-  
-  -- AI Chat Integration (Tier 3 feature)
+
+  -- AI Chat Integration
   keymap("n", "<leader>cc", "<cmd>ChatGPT<cr>", { desc = "ChatGPT" })
   keymap("n", "<leader>ce", "<cmd>ChatGPTEditWithInstruction<cr>", { desc = "Edit with instruction" })
   keymap("v", "<leader>ce", "<cmd>ChatGPTEditWithInstruction<cr>", { desc = "Edit with instruction" })
@@ -217,46 +206,42 @@ M.tier3_keymaps = function()
   keymap("n", "<leader>cs", "<cmd>ChatGPTRun summarize<cr>", { desc = "Summarize" })
   keymap("n", "<leader>cf", "<cmd>ChatGPTRun fix_bugs<cr>", { desc = "Fix bugs" })
   keymap("n", "<leader>cx", "<cmd>ChatGPTRun explain_code<cr>", { desc = "Explain code" })
-  
-  -- Advanced Git Features (Tier 3)
-  keymap("n", "<leader>gv", "<cmd>DiffviewOpen<cr>", { desc = "Git diffview" })
-  keymap("n", "<leader>gV", "<cmd>DiffviewClose<cr>", { desc = "Close diffview" })
-  keymap("n", "<leader>gh", "<cmd>DiffviewFileHistory<cr>", { desc = "File history" })
-  keymap("n", "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", { desc = "Current file history" })
-  
-  -- Advanced Telescope Features (Tier 3)
+
+  -- Advanced Telescope Features
   keymap("n", "<leader>fb", "<cmd>Telescope file_browser<cr>", { desc = "File browser" })
-  
-  -- Code Outline (Tier 3)
+
+  -- Code Outline
   keymap("n", "<leader>a", "<cmd>AerialToggle!<cr>", { desc = "Aerial (symbols)" })
-  
-  -- Sessions (Tier 3)
+
+  -- Sessions
   keymap("n", "<leader>qs", function() require("persistence").load() end, { desc = "Restore session" })
   keymap("n", "<leader>ql", function() require("persistence").load({ last = true }) end, { desc = "Restore last session" })
   keymap("n", "<leader>qd", function() require("persistence").stop() end, { desc = "Don't save current session" })
-  
-  -- Troubleshooting (Tier 3)
+
+  -- Troubleshooting
   keymap("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { desc = "Toggle trouble" })
   keymap("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { desc = "Workspace diagnostics" })
   keymap("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { desc = "Document diagnostics" })
   keymap("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", { desc = "Location list" })
   keymap("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", { desc = "Quickfix" })
   keymap("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", { desc = "LSP references" })
-  
-  -- REST Client (Tier 3)
+
+  -- REST Client
   keymap("n", "<leader>rr", "<Plug>RestNvim", { desc = "Run REST request" })
   keymap("n", "<leader>rp", "<Plug>RestNvimPreview", { desc = "Preview REST request" })
   keymap("n", "<leader>rl", "<Plug>RestNvimLast", { desc = "Re-run last request" })
-  
+
   -- Enhanced help
   keymap("n", "<leader>h", function()
-    print("🚀 Neovim Tier 3 - AI-Powered Commands:")
+    print("Neovim Tier 2 - Full Development Commands:")
+    print("GIT: <leader>g (status), <leader>gc (commit), <leader>gv (diffview)")
+    print("TERMINAL: <leader>tt (toggle), <leader>tf (float)")
+    print("DEBUG: <leader>db (breakpoint), <leader>dc (continue)")
     print("AI: <leader>cc (ChatGPT), <leader>ct (Copilot toggle)")
-    print("ADVANCED GIT: <leader>gv (diffview), <leader>gh (history)")
-    print("DEBUGGING: <leader>xx (trouble), <leader>a (aerial)")
+    print("CODE: gr (references), <leader>a (aerial), <leader>xx (trouble)")
     print("SESSIONS: <leader>qs (restore), <leader>ql (last)")
-    print("HELP: <leader>? (all shortcuts) | Full AI-powered development!")
-  end, { desc = "Show AI commands" })
+    print("HELP: <leader>? (all shortcuts)")
+  end, { desc = "Show full commands" })
 end
 
 -- ============================================================================
@@ -360,13 +345,9 @@ M.setup = function()
   if tier >= 1 then
     M.tier1_keymaps()
   end
-  
+
   if tier >= 2 then
     M.tier2_keymaps()
-  end
-  
-  if tier >= 3 then
-    M.tier3_keymaps()
   end
   
   -- Show tier-specific startup message
@@ -374,11 +355,11 @@ M.setup = function()
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
         if vim.fn.argc() == 0 then
-          print("🚀 Neovim Tier 1 - Ultra-Fast Essential Editor")
-          print("📦 ~8 plugins | ⚡ <200ms startup | 🎯 Essentials only")
-          print("🔍 <leader>ff (files) | 📄 <leader>fb (buffers) | 💬 gcc (comment)")
-          print("🚀 LSP: gd (def) | K (hover) | <leader>ca (actions)")
-          print("💡 Use <leader>h for help | Enable Tier 2 for more features!")
+          print("Neovim Tier 1 - Ultra-Fast Essential Editor")
+          print("~12 plugins | <250ms startup | Essentials + UI")
+          print("<leader>ff (files) | <leader>fb (buffers) | gcc (comment)")
+          print("LSP: gd (def) | K (hover) | <leader>ca (actions)")
+          print("Use <leader>h for help | :TierUp for full IDE + AI features!")
         end
       end,
     })
@@ -386,23 +367,11 @@ M.setup = function()
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
         if vim.fn.argc() == 0 then
-          print("🚀 Neovim Tier 2 - Enhanced Development Environment")
-          print("📦 ~23 plugins | ⚡ <400ms startup | 🛠️ Full IDE features")
-          print("🔧 Git: <leader>g (status) | 🐛 Debug: <leader>db (breakpoint)")
-          print("💻 Terminal: <leader>tt (toggle) | 📁 Explorer: <leader>e")
-          print("💡 Use <leader>h for help | Enable Tier 3 for AI features!")
-        end
-      end,
-    })
-  elseif tier == 3 then
-    vim.api.nvim_create_autocmd("VimEnter", {
-      callback = function()
-        if vim.fn.argc() == 0 then
-          print("🚀 Neovim Tier 3 - AI-Powered Development Environment")
-          print("📦 ~33+ plugins | ⚡ <1200ms startup | 🤖 AI-enhanced workflows")
-          print("🤖 AI: <leader>cc (ChatGPT) | ✨ Copilot: Ctrl+J (accept)")
-          print("🔍 Advanced: <leader>a (aerial) | 🐛 Debug: <leader>xx (trouble)")
-          print("💡 Use <leader>h for help | Full AI-powered development!")
+          print("Neovim Tier 2 - Full Development Environment")
+          print("~39 plugins | <600ms startup | Complete IDE + AI")
+          print("Git: <leader>g (status) | Debug: <leader>db (breakpoint)")
+          print("AI: <leader>cc (ChatGPT) | Copilot: Ctrl+J (accept)")
+          print("Use <leader>h for help | Full AI-powered development!")
         end
       end,
     })
