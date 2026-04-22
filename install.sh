@@ -447,11 +447,15 @@ install_mise_bootstrap() {
                 print_info "DRY RUN: Would copy mise.toml → $mise_config_dst and run mise install"
             else
                 mkdir -p "$(dirname "$mise_config_dst")"
-                cp "$mise_config_src" "$mise_config_dst"
-                print_step "Installing mise-managed tools (pinned versions)..."
-                mise install --quiet 2>/dev/null && \
-                    print_success "mise tools installed" || \
-                    print_warning "Some mise tools failed — run 'mise install' manually"
+                if ! diff -q "$mise_config_src" "$mise_config_dst" >/dev/null 2>&1; then
+                    cp "$mise_config_src" "$mise_config_dst"
+                    print_step "Installing mise-managed tools (pinned versions)..."
+                    mise install --quiet 2>/dev/null && \
+                        print_success "mise tools installed" || \
+                        print_warning "Some mise tools failed — run 'mise install' manually"
+                else
+                    print_info "mise config unchanged, skipping install"
+                fi
             fi
         fi
     else
@@ -1041,8 +1045,8 @@ validate_nvim_plugins() {
         return 1
     fi
 
-    # Check for lazy.nvim bootstrap
-    if [[ -d "$lazy_dir/lazy.nvim" ]]; then
+    # Check for lazy.nvim bootstrap (verify lua/ exists to detect partial clones)
+    if [[ -d "$lazy_dir/lazy.nvim/lua" ]]; then
         print_success "lazy.nvim plugin manager installed"
     else
         print_info "Bootstrapping lazy.nvim (first-time setup)..."
@@ -1082,8 +1086,8 @@ validate_tmux_plugins() {
 
     local tpm_dir="$HOME/.tmux/plugins/tpm"
 
-    # Check for TPM (Tmux Plugin Manager)
-    if [[ -d "$tpm_dir" ]]; then
+    # Check for TPM (verify bin/ exists to detect partial clones)
+    if [[ -d "$tpm_dir" ]] && [[ -f "$tpm_dir/bin/install_plugins" ]]; then
         print_success "TPM (Tmux Plugin Manager) installed"
     else
         print_info "Installing TPM (Tmux Plugin Manager)..."
