@@ -397,7 +397,9 @@ _show_update_changelog() {
 dot_update() {
     local auto_confirm=false
     local machine=false
-    local update_scope="all"  # all | self | tools
+    local reload_shell=false
+    local update_scope="all"  # all | self | tools | per-tool
+    local -a tool_targets=()
 
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -406,13 +408,24 @@ dot_update() {
             --machine|-m) machine=true; shift ;;
             --self) update_scope="self"; shift ;;
             --tools) update_scope="tools"; shift ;;
+            --reload) reload_shell=true; shift ;;
             -h|--help) show_update_help; return 0 ;;
-            *) print_error "Unknown option: $1"; return 1 ;;
+            -*) print_error "Unknown option: $1"; return 1 ;;
+            *) tool_targets+=("$1"); shift ;;
         esac
     done
 
+    # Per-tool update (fast path): dot update claude codex gemini
+    if [[ ${#tool_targets[@]} -gt 0 ]]; then
+        local failed=0
+        for tool in "${tool_targets[@]}"; do
+            _update_tool "$tool" || ((failed++))
+        done
+        [[ "$reload_shell" == "true" ]] && exec zsh
+        return $failed
+    fi
+
     print_info "Updating development environment..."
-    local ai_updated=()
 
     # --- Step 1: Pull dotfiles repo (unless --tools only) ---
     if [[ "$update_scope" != "tools" ]]; then
@@ -444,7 +457,11 @@ dot_update() {
     fi
 
     print_success "Update completed!"
-    print_info "Run 'exec zsh' to reload shell environment"
+    if [[ "$reload_shell" == "true" ]]; then
+        exec zsh
+    else
+        print_info "Run 'exec zsh' or 'dot update --reload' to reload shell"
+    fi
 }
 
 # Pull dotfiles repository
@@ -531,6 +548,62 @@ _update_tpm_plugins() {
             || print_warning "  Failed to install TPM"
     fi
 }
+
+# Per-tool update: dot update claude / dot update codex / etc.
+_update_tool() {
+    local tool="$1"
+    print_info "Updating $tool..."
+    case "$tool" in
+        claude|claude_code|claude-code)
+            _try_brew_cask "claude-code" || _try_npm "@anthropic-ai/claude-code" ;;
+        codex)
+            _try_brew_cask "codex" || _try_npm "@openai/codex" ;;
+        gemini|gemini_cli|gemini-cli)
+            _try_npm "@google/gemini-cli" ;;
+        amp)
+            _try_brew "amp" || { print_warning "Reinstall: curl -fsSL https://ampcode.com/install.sh | bash"; return 1; } ;;
+        aider)
+            _try_uv "aider-chat" ;;
+        kimi)
+            _try_uv "kimi-cli" ;;
+        opencode)
+            _try_brew "opencode" ;;
+        cursor|cursor_cli)
+            print_info "Cursor updates via its own auto-updater" ;;
+        pi)
+            _try_npm "@mariozechner/pi-coding-agent" ;;
+        kilo)
+            _try_npm "@nicepkg/kilo" ;;
+        factory|droid)
+            _try_brew_cask "droid" ;;
+        # Package manager bulk upgrades
+        brew|homebrew)
+            command -v brew &>/dev/null && brew upgrade 2>/dev/null || return 1 ;;
+        npm)
+            command -v npm &>/dev/null && npm update -g 2>/dev/null || return 1 ;;
+        uv)
+            command -v uv &>/dev/null && uv tool upgrade --all 2>/dev/null || return 1 ;;
+        mise)
+            command -v mise &>/dev/null && mise upgrade 2>/dev/null || return 1 ;;
+        nvim|neovim)
+            _update_nvim_plugins ;;
+        tmux)
+            _update_tpm_plugins ;;
+        *)
+            print_error "Unknown tool: $tool"
+            echo "Tools: claude, codex, gemini, amp, aider, kimi, opencode, cursor, pi, kilo, factory"
+            echo "Managers: brew, npm, uv, mise, nvim, tmux"
+            return 1 ;;
+    esac
+    local rc=$?
+    [[ $rc -eq 0 ]] && print_success "$tool updated" || print_warning "$tool update had issues"
+    return $rc
+}
+
+_try_brew_cask() { command -v brew &>/dev/null && brew upgrade --cask "$1" 2>/dev/null; }
+_try_brew()      { command -v brew &>/dev/null && brew upgrade "$1" 2>/dev/null; }
+_try_npm()       { command -v npm &>/dev/null && npm update -g "$1" 2>/dev/null; }
+_try_uv()        { command -v uv &>/dev/null && uv tool upgrade "$1" 2>/dev/null; }
 
 # Reload running tmux and nvim
 _reload_running_services() {
@@ -635,20 +708,27 @@ show_update_help() {
 dot update - Update development environment
 
 USAGE:
-    dot update [options]
+    dot update [options] [tool...]
 
 OPTIONS:
     --self       Pull dotfiles + relink only (no tool upgrades)
     --tools      Upgrade tools only (no git pull)
+    --reload     Auto-reload shell after update (exec zsh)
     --yes        Auto-confirm all prompts
     -m, --machine  JSON output
     -h, --help   Show this help message
 
+TOOLS (per-tool fast update):
+    claude, codex, gemini, amp, aider, kimi, opencode, cursor, pi, kilo, factory
+    brew, npm, uv, mise, nvim, tmux
+
 EXAMPLES:
     dot update             # Full update (pull + tools + reload)
+    dot update claude      # Update only Claude Code (~2s)
+    dot update claude codex gemini  # Update multiple tools
     dot update --self      # Just pull dotfiles and relink
     dot update --tools     # Just upgrade brew/npm/uv/mise
-    dot update --yes       # Non-interactive full update
+    dot update --reload    # Full update + auto-reload shell
 EOF
 }
 

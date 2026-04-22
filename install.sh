@@ -273,17 +273,6 @@ PY
     fi
 }
 
-# Get tool information from config
-get_tool_info() {
-    local tool="$1"
-    local field="$2"
-    local os="${3:-$(detect_os)}"
-    
-    # Read the YAML config and extract tool information
-    # This is a simplified implementation - in a real system you'd use yq
-    grep -A 20 "^  $tool:" "$CONFIG_FILE" | grep "    $field:" | head -1 | cut -d'"' -f2
-}
-
 # Get installation command for a tool
 get_install_command() {
     local tool="$1"
