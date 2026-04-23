@@ -1,6 +1,7 @@
 {
-  "generated": "2026-04-22",
+  "generated": "2026-04-23",
   "rootFiles": [
+    ".chezmoiroot",
     ".env.local.example",
     ".gitconfig",
     ".gitignore",
@@ -36,6 +37,7 @@
     "config": [],
     "docs": [],
     "git": [],
+    "home": [],
     "hooks": [],
     "lib": [],
     "reviews": [],

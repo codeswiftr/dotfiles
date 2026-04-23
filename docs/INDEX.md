@@ -1,10 +1,11 @@
 ## Repository Index (auto-generated)
 
-Generated: 2026-04-22
+Generated: 2026-04-23
 
 This index lists files for quick navigation. Excludes `.git/`, `tests/results/`, and `.pytest_cache/`.
 
 ### Top-level files
+- `.chezmoiroot`
 - `.env.local.example`
 - `.gitconfig`
 - `.gitignore`
@@ -49,6 +50,9 @@ This index lists files for quick navigation. Excludes `.git/`, `tests/results/`,
 - (empty)
 
 #### `git` (0)
+- (empty)
+
+#### `home` (0)
 - (empty)
 
 #### `hooks` (0)
