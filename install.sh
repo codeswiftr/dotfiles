@@ -149,18 +149,27 @@ detect_ubuntu_version() {
 }
 
 # YAML helpers (prefer Python PyYAML; fallback to legacy parsing)
+# Resolve the first python3 that can actually import yaml. Probes absolute
+# system paths before $PATH so a broken user shim (pyenv leftover, alias) can't
+# silently force the regex fallback, which can't parse YAML block scalars.
+PYYAML_PYTHON=""
 has_pyyaml() {
-    if command -v python3 >/dev/null 2>&1; then
-        python3 -c 'import yaml' >/dev/null 2>&1
-    else
-        return 1
-    fi
+    [[ -n "$PYYAML_PYTHON" ]] && return 0
+    local candidate
+    for candidate in /usr/bin/python3 /usr/local/bin/python3 /opt/homebrew/bin/python3 python3; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        if "$candidate" -c 'import yaml' >/dev/null 2>&1; then
+            PYYAML_PYTHON="$candidate"
+            return 0
+        fi
+    done
+    return 1
 }
 
 yaml_query_install_cmd() {
     local tool="$1" os="$2"
     if has_pyyaml; then
-        python3 - "$CONFIG_FILE" "$tool" "$os" <<'PY'
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$tool" "$os" <<'PY'
 import sys, yaml
 cfg_path, tool, os_name = sys.argv[1:4]
 with open(cfg_path, 'r') as f:
@@ -189,7 +198,7 @@ PY
 yaml_query_verify_cmd() {
     local tool="$1"
     if has_pyyaml; then
-        python3 - "$CONFIG_FILE" "$tool" <<'PY'
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$tool" <<'PY'
 import sys, yaml
 cfg_path, tool = sys.argv[1:3]
 with open(cfg_path, 'r') as f:
@@ -205,7 +214,7 @@ PY
 yaml_query_post_install() {
     local tool="$1"
     if has_pyyaml; then
-        python3 - "$CONFIG_FILE" "$tool" <<'PY'
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$tool" <<'PY'
 import sys, yaml
 cfg_path, tool = sys.argv[1:3]
 with open(cfg_path, 'r') as f:
@@ -224,7 +233,7 @@ PY
 yaml_query_node_profile() {
     local hostname="$1"
     if has_pyyaml; then
-        python3 - "$CONFIG_FILE" "$hostname" <<'PY'
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$hostname" <<'PY'
 import sys, yaml
 cfg_path, hostname = sys.argv[1:3]
 with open(cfg_path, 'r') as f:
@@ -232,13 +241,17 @@ with open(cfg_path, 'r') as f:
 node = (data.get('nodes', {}) or {}).get(hostname, {}) or {}
 print(node.get('profile', '') or '')
 PY
+    else
+        sed -n "/^  ${hostname}:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+            grep "^    profile:" | head -1 | \
+            sed 's/^    profile:[[:space:]]*//;s/[[:space:]]*$//'
     fi
 }
 
 yaml_query_group_tools() {
     local group="$1"
     if has_pyyaml; then
-        python3 - "$CONFIG_FILE" "$group" <<'PY'
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$group" <<'PY'
 import sys, yaml
 cfg_path, group = sys.argv[1:3]
 with open(cfg_path, 'r') as f:
@@ -257,7 +270,7 @@ PY
 yaml_query_profile_groups() {
     local profile="$1"
     if has_pyyaml; then
-        python3 - "$CONFIG_FILE" "$profile" <<'PY'
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$profile" <<'PY'
 import sys, yaml
 cfg_path, profile = sys.argv[1:3]
 with open(cfg_path, 'r') as f:
@@ -760,7 +773,7 @@ RC
         fi
         
         if link_dotfile "$source_full" "$target_path"; then
-            ((linked_count++))
+            ((++linked_count))
         else
             failed_links+=("$source_path")
         fi
@@ -861,7 +874,7 @@ link_claude_config() {
     for dir in "${dirs[@]}"; do
         if [[ -d "$claude_source/$dir" ]]; then
             if link_dotfile "$claude_source/$dir" "$claude_target/$dir"; then
-                ((linked_count++))
+                ((++linked_count))
             else
                 failed_links+=("$dir")
             fi
@@ -873,7 +886,7 @@ link_claude_config() {
     for file in "${files[@]}"; do
         if [[ -f "$claude_source/$file" ]]; then
             if link_dotfile "$claude_source/$file" "$claude_target/$file"; then
-                ((linked_count++))
+                ((++linked_count))
             else
                 failed_links+=("$file")
             fi
@@ -889,7 +902,7 @@ link_claude_config() {
             # Expand $HOME in the template
             sed "s|\$HOME|$HOME|g" "$claude_source/settings.json.template" > "$claude_target/settings.json"
             print_success "Generated settings.json"
-            ((linked_count++))
+            ((++linked_count))
         else
             print_info "settings.json already exists, skipping (won't overwrite)"
         fi

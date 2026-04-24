@@ -436,7 +436,7 @@ dot_update() {
     if [[ "$update_scope" != "tools" ]]; then
         print_info "Relinking configurations..."
         if [[ -x "$DOTFILES_DIR/install.sh" ]]; then
-            bash "$DOTFILES_DIR/install.sh" link 2>/dev/null || print_warning "Relinking had issues"
+            bash "$DOTFILES_DIR/install.sh" link || print_warning "Relinking had issues"
         fi
     fi
 
