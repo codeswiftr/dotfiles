@@ -16,7 +16,7 @@ A declarative, modular dotfiles system built for developers who work across mult
 - **Profile-based**: `minimal` for servers, `standard` for daily use, `full` for power users
 - **SSH-aware**: heavy tools skip on SSH sessions; shell stays fast everywhere
 - **mise-powered**: all runtimes and CLI tools version-pinned in `mise.toml`
-- **Tiered Neovim**: 8 → 23 → 33 plugins, promoted with `:TierUp`
+- **Tiered Neovim**: ~17 → ~30 plugins, promoted with `:TierUp`
 - **Modern CLI**: starship, eza, bat, ripgrep, fzf, atuin, zoxide — all optional with fallbacks
 
 ## Quick Start
@@ -100,9 +100,8 @@ All have fallbacks — if not installed, standard tools are used.
 
 | Tier | Plugins | Startup | Features |
 |------|---------|---------|----------|
-| 1 | ~9 | <250ms | LSP, file tree, treesitter, catppuccin |
-| 2 | ~23 | <400ms | + Telescope, DAP, AI assist, git signs |
-| 3 | ~33 | <600ms | + Noice, mini suite, advanced tools |
+| 1 | ~17 | <250ms | LSP, file tree, treesitter, catppuccin |
+| 2 | ~30 | <600ms | + Telescope, DAP, AI assist, git signs, Noice, mini suite |
 
 Promote with `:TierUp`, demote with `:TierDown`, check with `:TierInfo`.
 

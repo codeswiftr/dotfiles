@@ -66,9 +66,9 @@ dot doctor                   # Diagnose issues
 dot test run                 # Run all tests
 
 # Performance monitoring
-perf-status                  # Check performance
-perf-bench                   # Run benchmarks
-perf-quick                   # One-command optimization
+dot perf status              # Check performance
+dot perf benchmark           # Run benchmarks
+dot perf optimize            # One-command optimization
 ```
 
 ## Architecture Overview
@@ -101,9 +101,8 @@ The main interface is the `dot` command located in `bin/dot`. It orchestrates al
 
 ### Neovim Configuration
 Tier-based system with progressive complexity:
-- **Tier 1**: 8 essential plugins for basic functionality
-- **Tier 2**: 23 plugins for enhanced development
-- **Tier 3**: 33+ plugins for advanced features
+- **Tier 1**: ~17 essential plugins for basic functionality
+- **Tier 2**: ~30 plugins for enhanced development (current maximum)
 
 Configuration structure:
 - `config/nvim/init.lua` - Main entry point

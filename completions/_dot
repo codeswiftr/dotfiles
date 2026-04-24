@@ -85,17 +85,12 @@ _dot_commands() {
         'reload:Reload shell configuration'
         'version:Show version information'
         'project:Project management and scaffolding'
-        'run:Process management'
-        'secret:Secret management'
         'security:Security operations'
         'ai:AI-powered development assistance'
         'test:Testing framework integration'
         'perf:Performance management'
         'config:Interactive configuration'
-        'db:Database management'
         'git:Enhanced git operations'
-        'devcontainer:Development container management'
-        'container:Development container management'
     )
     _describe 'commands' commands
 }
