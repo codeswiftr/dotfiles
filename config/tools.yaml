@@ -187,10 +187,11 @@ tools:
     install:
       macos: "brew install neovim"
       ubuntu: |
-        curl -fLo /tmp/nvim-linux-x86_64.tar.gz \
-          "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz" \
-        && sudo tar -C /usr/local -xzf /tmp/nvim-linux-x86_64.tar.gz --strip-components=1 \
-        && rm /tmp/nvim-linux-x86_64.tar.gz
+        _nvim_arch=$(uname -m) && \
+        curl -fLo /tmp/nvim-linux-${_nvim_arch}.tar.gz \
+          "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-${_nvim_arch}.tar.gz" \
+        && sudo tar -C /usr/local -xzf /tmp/nvim-linux-${_nvim_arch}.tar.gz --strip-components=1 \
+        && rm /tmp/nvim-linux-${_nvim_arch}.tar.gz
       arch: "sudo pacman -S neovim"
       alpine: "apk add --no-cache neovim"
     verify: "nvim --version | head -1 | grep -qE 'NVIM v([1-9]|0\\.1[1-9])'"
@@ -372,7 +373,7 @@ tools:
     category: "ai"
     install:
       all: "curl https://cursor.com/install -fsS | bash"
-    verify: "command -v agent >/dev/null 2>&1 || test -d '$HOME/.cursor-agent' || echo 'Cursor CLI not installed (optional)'"
+    verify: "command -v agent >/dev/null 2>&1 || test -d \"$HOME/.cursor-agent\" || echo 'Cursor CLI not installed (optional)'"
 
   factory_cli:
     description: "Factory AI (droid) - Agent-native software development"
@@ -398,7 +399,7 @@ tools:
     install:
       macos: "brew install anomalyco/tap/opencode"
       ubuntu: "curl -fsSL https://opencode.ai/install | bash"
-      arch: "paru -S opencode-bin"
+      arch: "yay -S opencode-bin"
     verify: "opencode --version"
 
   codex:
@@ -484,6 +485,7 @@ tools:
     install:
       macos: "brew install yq"
       ubuntu: "sudo apt install -y yq || sudo snap install yq"
+      arch: "sudo pacman -S go-yq"
     verify: "yq --version"
 
   delta:
@@ -653,7 +655,7 @@ tools:
     category: "security"
     install:
       macos: "brew install trivy"
-      ubuntu: "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin"
+      ubuntu: "mkdir -p \"$HOME/.local/bin\" && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b \"$HOME/.local/bin\""
       arch: "sudo pacman -S trivy"
     verify: "trivy version"
 
@@ -662,7 +664,7 @@ tools:
     category: "security"
     install:
       macos: "brew install hadolint"
-      ubuntu: "wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint"
+      ubuntu: "_hadolint_arch=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x86_64/') && sudo wget -O /usr/local/bin/hadolint \"https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-${_hadolint_arch}\" && sudo chmod +x /usr/local/bin/hadolint"
       arch: "sudo pacman -S hadolint"
     verify: "hadolint --version"
 
@@ -689,7 +691,7 @@ tools:
     category: "security"
     install:
       macos: "brew install grype"
-      ubuntu: "curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin"
+      ubuntu: "mkdir -p \"$HOME/.local/bin\" && curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b \"$HOME/.local/bin\""
       arch: "yay -S grype"
     verify: "grype version"
 
@@ -716,7 +718,7 @@ tools:
     category: "security"
     install:
       macos: "brew install trufflehog"
-      ubuntu: "curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin"
+      ubuntu: "mkdir -p \"$HOME/.local/bin\" && curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b \"$HOME/.local/bin\""
       arch: "yay -S trufflehog"
     verify: "trufflehog --version"
 

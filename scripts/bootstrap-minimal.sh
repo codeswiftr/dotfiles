@@ -6,7 +6,13 @@
 # =============================================================================
 set -e
 
-DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/$(git config --global user.name 2>/dev/null || echo 'bogdanmosescu')/dotfiles}"
+DOTFILES_REPO="${DOTFILES_REPO:-}"
+if [ -z "$DOTFILES_REPO" ]; then
+    printf '\033[0;31m[fail]\033[0m  DOTFILES_REPO is not set.\n' >&2
+    printf '        Set it before running:\n' >&2
+    printf '          export DOTFILES_REPO=https://github.com/<your-username>/dotfiles\n' >&2
+    exit 1
+fi
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 MISE_VERSION="${MISE_VERSION:-v2025.4.0}"  # pin for reproducibility
 

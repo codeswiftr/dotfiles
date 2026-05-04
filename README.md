@@ -21,6 +21,10 @@ A declarative, modular dotfiles system built for developers who work across mult
 
 ## Quick Start
 
+> **Step 0 — Fork first.** Click **Fork** on GitHub, then replace `YOUR_USERNAME` below with your GitHub handle.
+> After cloning, copy `.env.local.example` → `~/.env.local` and fill in your API keys.
+> See [PERSONALIZATION.md](PERSONALIZATION.md) for the full checklist.
+
 ### One-line install
 
 ```bash
@@ -32,6 +36,7 @@ cd ~/dotfiles && ./install.sh install standard
 Or use the bootstrap script (fetches and runs the installer):
 
 ```bash
+export DOTFILES_REPO_URL="https://github.com/YOUR_USERNAME/dotfiles.git"
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/scripts/bootstrap.sh)"
 ```
 
@@ -225,6 +230,7 @@ find . -name "*.sh" | xargs shellcheck -S warning
 
 | Guide | Purpose |
 |-------|---------|
+| [Personalization](PERSONALIZATION.md) | **Start here** — fork setup, API keys, profiles |
 | [Installation](docs/INSTALL-DECLARATIVE.md) | Detailed install instructions |
 | [Configuration](docs/configuration.md) | All configuration options |
 | [Neovim](docs/neovim.md) | Neovim tier system |

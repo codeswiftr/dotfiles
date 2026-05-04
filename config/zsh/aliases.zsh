@@ -136,9 +136,8 @@ alias jbook="jupyter notebook"
 # System aliases
 alias src="source ~/.zshrc"
 alias reload="dot-reload"
-alias man="${DOTFILES_DIR}/viman"
-alias vim="nvim"
-alias vi="nvim"
+alias man="${DOTFILES_DIR}/bin/viman"
+command -v nvim >/dev/null 2>&1 && alias vim="nvim" && alias vi="nvim"
 
 # ============================================================================
 # AI Agent Aliases

@@ -622,8 +622,11 @@ setup_package_manager() {
                 if [[ "$DRY_RUN" == "true" ]]; then
                     print_info "DRY RUN: Would install yay"
                 else
-                    git clone https://aur.archlinux.org/yay.git /tmp/yay
-                    cd /tmp/yay && makepkg -si --noconfirm
+                    local _yay_tmp
+                    _yay_tmp=$(mktemp -d)
+                    git clone https://aur.archlinux.org/yay.git "$_yay_tmp/yay" || { print_warning "Failed to clone yay"; rm -rf "$_yay_tmp"; return 1; }
+                    (cd "$_yay_tmp/yay" && makepkg -si --noconfirm)
+                    rm -rf "$_yay_tmp"
                     print_success "yay installed"
                 fi
             else
@@ -655,13 +658,16 @@ link_dotfiles() {
     # Use chezmoi if available (manages templates, symlinks, and run_onchange)
     if command -v chezmoi >/dev/null 2>&1; then
         print_header "Applying Dotfiles via chezmoi"
+        # Use home/ as source dir — .chezmoiroot points there but --source overrides it.
+        # Passing home/ explicitly keeps behaviour correct regardless of .chezmoiroot.
+        local chezmoi_src="$DOTFILES_DIR/home"
         if [[ "$DRY_RUN" == "true" ]]; then
             print_info "DRY RUN: Would apply dotfiles via chezmoi"
-            chezmoi --source "$DOTFILES_DIR" managed 2>/dev/null | while read -r f; do
+            chezmoi --source "$chezmoi_src" managed 2>/dev/null | while read -r f; do
                 print_info "  Would manage: ~/$f"
             done
         else
-            chezmoi --source "$DOTFILES_DIR" apply --force 2>/dev/null && \
+            chezmoi --source "$chezmoi_src" apply --force 2>/dev/null && \
                 print_success "Dotfiles applied via chezmoi" || \
                 print_warning "chezmoi apply had issues, falling back to manual linking"
         fi

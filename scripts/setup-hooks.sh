@@ -130,13 +130,12 @@ test_hooks() {
 configure_git_hooks() {
     log_info "Configuring Git hooks directory..."
     
-    # Set Git hooks directory (Git 2.9+)
-    if git config core.hooksPath >/dev/null 2>&1; then
-        git config core.hooksPath "$HOOKS_DIR"
-        log_success "Set Git hooks directory to: $HOOKS_DIR"
-    else
-        log_info "Using traditional .git/hooks directory"
-    fi
+    # Set Git hooks directory (Git 2.9+).
+    # Always set core.hooksPath so Git uses the repo's hooks/ dir directly,
+    # which makes the .git/hooks symlinks created by install_all_hooks redundant
+    # but harmless. When core.hooksPath is set, Git ignores .git/hooks/.
+    git config core.hooksPath "$HOOKS_DIR"
+    log_success "Set Git hooks directory to: $HOOKS_DIR"
 }
 
 # Display hook information

@@ -17,8 +17,19 @@ if [ -f /etc/alpine-release ]; then
 fi
 
 # Configuration
-# Set DOTFILES_REPO_URL to override — defaults to prompt if not set
+# Set DOTFILES_REPO_URL to override — required on first run for forks
 REPO_URL="${DOTFILES_REPO_URL:-https://github.com/YOUR_USERNAME/dotfiles.git}"
+
+# Validate that the placeholder URL has been replaced
+if [[ "$REPO_URL" == *"YOUR_USERNAME"* ]]; then
+    echo -e "\033[0;31m❌ DOTFILES_REPO_URL contains the placeholder 'YOUR_USERNAME'.\033[0m" >&2
+    echo -e "\033[1;33m   Fork this repo first, then set the URL before running:\033[0m" >&2
+    echo -e "\033[0;36m   export DOTFILES_REPO_URL=https://github.com/<your-username>/dotfiles.git\033[0m" >&2
+    echo -e "\033[0;36m   bash -c \"\$(curl -fsSL <raw-url>/bootstrap.sh)\"\033[0m" >&2
+    echo "" >&2
+    echo -e "   See PERSONALIZATION.md §5 for details." >&2
+    exit 1
+fi
 REPO_BRANCH="main"
 DOTFILES_DIR="$HOME/dotfiles"
 TEMP_DIR="/tmp/dotfiles-install-$$"
@@ -180,7 +191,8 @@ install_prerequisites() {
         # Arch Linux
         log_info "Detected Arch Linux system"
         setup_sudo || error_exit "sudo setup failed"
-        $SUDO_CMD pacman -Sy --noconfirm git curl wget ca-certificates || error_exit "Failed to install prerequisites"
+        # base-devel is required for makepkg (used to build yay AUR helper)
+        $SUDO_CMD pacman -S --noconfirm --needed base-devel git curl wget || error_exit "Failed to install prerequisites"
     else
         log_warning "Unknown package manager."
         echo "" >&2
@@ -199,18 +211,26 @@ install_prerequisites() {
 clone_repository() {
     log_step "Cloning dotfiles repository..."
 
-    # Remove existing directory if it exists
-    if [[ -d "$DOTFILES_DIR" ]]; then
-        log_warning "Existing dotfiles directory found at $DOTFILES_DIR"
-
-        if [[ "$PIPED_EXECUTION" == "true" ]]; then
-            # In pipe mode, auto-backup and continue
-            local backup_dir="$HOME/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-            log_info "Pipe mode: backing up existing directory to $backup_dir"
-            mv "$DOTFILES_DIR" "$backup_dir"
-            log_success "Existing dotfiles backed up"
+    # If already cloned, update in-place rather than silently replacing
+    if [[ -d "$DOTFILES_DIR/.git" ]]; then
+        log_info "Existing dotfiles repo found at $DOTFILES_DIR — pulling latest..."
+        if git -C "$DOTFILES_DIR" pull --ff-only origin "$REPO_BRANCH" 2>&1; then
+            log_success "Dotfiles updated via git pull"
         else
-            # Interactive mode: ask user
+            log_warning "git pull failed (diverged history?). Continuing with existing checkout."
+        fi
+        return 0
+    fi
+
+    # Non-git directory exists — ask before clobbering
+    if [[ -d "$DOTFILES_DIR" ]]; then
+        log_warning "Directory $DOTFILES_DIR exists but is not a git repo."
+        if [[ "$PIPED_EXECUTION" == "true" ]]; then
+            local backup_dir="$HOME/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+            log_info "Pipe mode: backing up to $backup_dir"
+            mv "$DOTFILES_DIR" "$backup_dir"
+            log_success "Backed up to $backup_dir"
+        else
             read -p "Remove existing directory and continue? (y/N): " -r </dev/tty
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 rm -rf "$DOTFILES_DIR"
@@ -224,7 +244,7 @@ clone_repository() {
     log_info "Downloading from $REPO_URL..."
     mkdir -p "$TEMP_DIR"
     if ! git clone --branch "$REPO_BRANCH" "$REPO_URL" "$TEMP_DIR" 2>&1; then
-        error_exit "Failed to clone repository. Check your internet connection."
+        error_exit "Failed to clone repository. Check your internet connection and verify DOTFILES_REPO_URL."
     fi
 
     # Move to final location
