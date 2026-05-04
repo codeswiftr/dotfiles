@@ -449,8 +449,11 @@ install_mise_bootstrap() {
                 print_info "DRY RUN: Would copy mise.toml → $mise_config_dst and run mise install"
             else
                 mkdir -p "$(dirname "$mise_config_dst")"
+                # Trust the source config so mise doesn't block on untrusted files
+                mise trust "$mise_config_src" >/dev/null 2>&1 || true
                 if ! diff -q "$mise_config_src" "$mise_config_dst" >/dev/null 2>&1; then
                     cp "$mise_config_src" "$mise_config_dst"
+                    mise trust "$mise_config_dst" >/dev/null 2>&1 || true
                     print_step "Installing mise-managed tools (pinned versions)..."
                     mise install --quiet 2>/dev/null && \
                         print_success "mise tools installed" || \

@@ -110,6 +110,15 @@ groups:
       - truffleHog
     optional: true
 
+  dev_tools:
+    description: "Shell linting and testing tools required for dotfiles development"
+    tools:
+      - bats_core
+      - shellcheck
+      - shfmt
+      - yamllint
+    optional: true
+
   optional:
     description: "Nice-to-have tools for enhanced experience"
     tools:
@@ -533,6 +542,42 @@ tools:
       all: "echo 'pytest_enhanced is project-specific - use uv add in your project'; true"
     verify: "python -m pytest --version || true"
 
+  bats_core:
+    description: "Bash Automated Testing System (bats-core) for shell script tests"
+    category: "testing"
+    install:
+      macos: "brew install bats-core"
+      ubuntu: "sudo apt install -y bats"
+      arch: "sudo pacman -S bash-bats"
+    verify: "bats --version"
+
+  shellcheck:
+    description: "Static analysis tool for shell scripts"
+    category: "linting"
+    install:
+      macos: "brew install shellcheck"
+      ubuntu: "sudo apt install -y shellcheck"
+      arch: "sudo pacman -S shellcheck"
+    verify: "shellcheck --version"
+
+  shfmt:
+    description: "Shell script formatter"
+    category: "linting"
+    install:
+      macos: "brew install shfmt"
+      ubuntu: "sudo apt install -y shfmt 2>/dev/null || (command -v go >/dev/null && go install mvdan.cc/sh/v3/cmd/shfmt@latest)"
+      arch: "sudo pacman -S shfmt"
+    verify: "shfmt --version"
+
+  yamllint:
+    description: "YAML linter"
+    category: "linting"
+    install:
+      macos: "brew install yamllint"
+      ubuntu: "sudo apt install -y yamllint || pip3 install yamllint"
+      arch: "sudo pacman -S yamllint"
+    verify: "yamllint --version"
+
   # iOS Development Tools
   xcode_command_line_tools:
     description: "Xcode Command Line Tools for iOS development"
@@ -764,7 +809,7 @@ profiles:
 
   full:
     description: "Complete installation with all tools"
-    groups: ["essential", "modern_cli", "development", "networking", "deployment", "ai_tools", "testing_tools", "security_tools", "optional"]
+    groups: ["essential", "modern_cli", "development", "networking", "deployment", "ai_tools", "testing_tools", "security_tools", "dev_tools", "optional"]
 
   ai_focused:
     description: "AI-enhanced development environment"

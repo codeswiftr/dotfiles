@@ -10,9 +10,9 @@ node = "22"
 python = "3.12"
 
 # Modern CLI replacements (replaces curl-pipe-sh installs in tools.yaml)
+# Note: eza has no macOS ARM64 GitHub release assets — install via Homebrew instead
 "aqua:BurntSushi/ripgrep"       = "14.1.1"    # rg
 "aqua:sharkdp/bat"              = "0.24.0"    # bat
-"aqua:eza-community/eza"        = "0.20.21"   # eza
 "aqua:sharkdp/fd"               = "10.2.0"    # fd
 "aqua:junegunn/fzf"             = "0.60.3"    # fzf
 "aqua:starship/starship"        = "1.22.1"    # starship
@@ -29,7 +29,7 @@ python = "3.12"
 
 # Security tools
 "aqua:gitleaks/gitleaks"        = "8.25.1"
-"aqua:aquasecurity/trivy"       = "0.60.0"
+"aqua:aquasecurity/trivy"       = "0.70.0"
 "aqua:hadolint/hadolint"        = "2.12.0"
 "aqua:anchore/grype"            = "0.90.0"
 "aqua:FiloSottile/age"          = "1.2.1"
