@@ -41,28 +41,21 @@ return {
 
   -- ============================================================================
   -- 2. SYNTAX HIGHLIGHTING - Minimal treesitter config
+  -- nvim-treesitter v1.x removed configs.setup(). Highlighting is activated
+  -- automatically via vim.treesitter.start() when parsers are present.
+  -- Run :TSInstall lua python javascript typescript bash markdown to add parsers.
+  -- The build = ":TSUpdate" step keeps installed parsers up to date.
   -- ============================================================================
   {
     "nvim-treesitter/nvim-treesitter",
     event = { "BufReadPost", "BufNewFile" }, -- Lazy load on file open
     build = ":TSUpdate",
     config = function()
-      local ok, configs = pcall(require, "nvim-treesitter.configs")
-      if not ok then
-        vim.notify("nvim-treesitter not available. Run :Lazy sync", vim.log.levels.WARN)
-        return
-      end
-      configs.setup({
-        ensure_installed = { "lua", "python", "javascript", "typescript" }, -- Minimal set
-        auto_install = false, -- Manual install to avoid startup delay
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-        indent = {
-          enable = false, -- Disable for performance
-        },
-      })
+      -- v1 has no setup() call — treesitter activates automatically per-buffer.
+      -- Just set folding options here so they are applied once TS loads.
+      vim.opt.foldmethod = "expr"
+      vim.opt.foldexpr  = "v:lua.vim.treesitter.foldexpr()"
+      vim.opt.foldenable = false -- start with all folds open
     end,
   },
 
@@ -152,14 +145,17 @@ return {
       })
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      local lspconfig = require("lspconfig")
 
-      lspconfig.lua_ls.setup({
+      -- Use vim.lsp.config (Nvim 0.11+ native API; avoids lspconfig deprecation)
+      vim.lsp.config("lua_ls", {
         capabilities = capabilities,
         settings = { Lua = { diagnostics = { globals = { "vim" } } } },
       })
-      lspconfig.pyright.setup({ capabilities = capabilities })
-      lspconfig.ts_ls.setup({ capabilities = capabilities })
+      vim.lsp.config("pyright", { capabilities = capabilities })
+      vim.lsp.config("ts_ls",   { capabilities = capabilities })
+
+      -- Enable the configured servers
+      vim.lsp.enable({ "lua_ls", "pyright", "ts_ls" })
 
       -- Essential LSP keymaps
       vim.api.nvim_create_autocmd("LspAttach", {

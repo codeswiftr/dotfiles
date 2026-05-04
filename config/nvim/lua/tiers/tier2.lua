@@ -121,42 +121,39 @@ return {
 
   -- ============================================================================
   -- ENHANCED TEXT OBJECTS (lazy loaded)
+  -- Uses nvim-treesitter-textobjects v1.x API (no longer goes through
+  -- nvim-treesitter.configs — that module was removed in TS v1).
   -- ============================================================================
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     event = { "BufReadPost", "BufNewFile" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      local ok, configs = pcall(require, "nvim-treesitter.configs")
-      if not ok then
-        vim.notify("nvim-treesitter not available. Run :Lazy sync", vim.log.levels.WARN)
-        return
-      end
-      configs.setup({
-        textobjects = {
-          select = {
-            enable = true,
-            lookahead = true,
-            keymaps = {
-              ["af"] = "@function.outer",
-              ["if"] = "@function.inner",
-              ["ac"] = "@class.outer",
-              ["ic"] = "@class.inner",
-              ["aa"] = "@parameter.outer",
-              ["ia"] = "@parameter.inner",
-            },
+      local ok, tso = pcall(require, "nvim-treesitter-textobjects")
+      if not ok then return end
+      tso.setup({
+        select = {
+          enable = true,
+          lookahead = true,
+          keymaps = {
+            ["af"] = "@function.outer",
+            ["if"] = "@function.inner",
+            ["ac"] = "@class.outer",
+            ["ic"] = "@class.inner",
+            ["aa"] = "@parameter.outer",
+            ["ia"] = "@parameter.inner",
           },
-          move = {
-            enable = true,
-            set_jumps = true,
-            goto_next_start = {
-              ["]f"] = "@function.outer",
-              ["]c"] = "@class.outer",
-            },
-            goto_previous_start = {
-              ["[f"] = "@function.outer",
-              ["[c"] = "@class.outer",
-            },
+        },
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            ["]f"] = "@function.outer",
+            ["]c"] = "@class.outer",
+          },
+          goto_previous_start = {
+            ["[f"] = "@function.outer",
+            ["[c"] = "@class.outer",
           },
         },
       })
@@ -682,36 +679,84 @@ return {
 
   -- ============================================================================
   -- ADVANCED FORMATTING AND LINTING
+  -- none-ls.nvim: maintained fork of null-ls.nvim (Nvim 0.12+ compatible).
+  -- none-ls-extras.nvim: provides eslint_d, flake8, shellcheck which were
+  --   removed from the main none-ls.nvim repo.
+  -- Sources are registered conditionally: if the binary is absent, the source
+  -- is silently skipped — no startup errors on machines without all tools.
   -- ============================================================================
   {
-    "jose-elias-alvarez/null-ls.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    "nvimtools/none-ls.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvimtools/none-ls-extras.nvim",
+    },
     config = function()
       local null_ls = require("null-ls")
 
+      -- Helper: return source only when its binary is on PATH
+      local function guarded(source, cmd)
+        if type(source) == "function" then
+          -- extras sources are returned by a factory function
+          if vim.fn.executable(cmd or "") == 1 then
+            return source()
+          end
+        else
+          if vim.fn.executable(cmd or "") == 1 then
+            return source
+          end
+        end
+      end
+
+      local sources = {}
+
+      -- Formatting (all in core none-ls.nvim)
+      if vim.fn.executable("prettier") == 1 then
+        table.insert(sources, null_ls.builtins.formatting.prettier.with({
+          extra_filetypes = { "toml" },
+        }))
+      end
+      for _, s in ipairs({
+        guarded(null_ls.builtins.formatting.black,   "black"),
+        guarded(null_ls.builtins.formatting.isort,   "isort"),
+        guarded(null_ls.builtins.formatting.shfmt,   "shfmt"),
+        guarded(null_ls.builtins.formatting.stylua,  "stylua"),
+        -- Diagnostics available in core none-ls
+        guarded(null_ls.builtins.diagnostics.markdownlint, "markdownlint"),
+        guarded(null_ls.builtins.diagnostics.hadolint,     "hadolint"),
+        guarded(null_ls.builtins.diagnostics.yamllint,     "yamllint"),
+      }) do
+        if s then table.insert(sources, s) end
+      end
+
+      -- Diagnostics from none-ls-extras (eslint_d, flake8, shellcheck)
+      local ok_extras, none_extras = pcall(require, "none-ls.diagnostics.eslint_d")
+      if ok_extras and vim.fn.executable("eslint_d") == 1 then
+        table.insert(sources, none_extras)
+      end
+      local ok_flake, flake_src = pcall(require, "none-ls.diagnostics.flake8")
+      if ok_flake and vim.fn.executable("flake8") == 1 then
+        table.insert(sources, flake_src)
+      end
+      local ok_shell_diag, shell_diag = pcall(require, "none-ls.diagnostics.shellcheck")
+      if ok_shell_diag and vim.fn.executable("shellcheck") == 1 then
+        table.insert(sources, shell_diag)
+      end
+
+      -- Code actions from none-ls-extras
+      local ok_eslint_ca, eslint_ca = pcall(require, "none-ls.code_actions.eslint_d")
+      if ok_eslint_ca and vim.fn.executable("eslint_d") == 1 then
+        table.insert(sources, eslint_ca)
+      end
+
       null_ls.setup({
-        sources = {
-          -- Formatting
-          null_ls.builtins.formatting.prettier.with({
-            extra_filetypes = { "toml" },
-          }),
-          null_ls.builtins.formatting.black,
-          null_ls.builtins.formatting.isort,
-          null_ls.builtins.formatting.shfmt,
-          null_ls.builtins.formatting.stylua,
-
-          -- Diagnostics
-          null_ls.builtins.diagnostics.eslint_d,
-          null_ls.builtins.diagnostics.flake8,
-          null_ls.builtins.diagnostics.shellcheck,
-          null_ls.builtins.diagnostics.markdownlint,
-
-          -- Code actions
-          null_ls.builtins.code_actions.eslint_d,
-          null_ls.builtins.code_actions.shellcheck,
-        },
+        sources = sources,
         on_attach = function(client, bufnr)
-          if client.supports_method("textDocument/formatting") then
+          -- vim.lsp.buf_get_clients()[].supports_method was deprecated in Nvim 0.11;
+          -- use vim.lsp.client.supports_method or check server_capabilities directly.
+          local fmt_supported = vim.tbl_get(client, "server_capabilities", "documentFormattingProvider")
+            or vim.tbl_get(client, "server_capabilities", "documentRangeFormattingProvider")
+          if fmt_supported then
             vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
             vim.api.nvim_create_autocmd("BufWritePre", {
               group = augroup,
