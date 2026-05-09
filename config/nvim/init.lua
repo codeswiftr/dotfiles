@@ -59,6 +59,7 @@ bootstrap_lazy()
 require("lazy").setup(
   compose_specs_for_tier(current_tier),
   {
+    rocks = { enabled = false },
     install = { colorscheme = { "catppuccin" } },
     checker = { enabled = false },
     change_detection = { enabled = false },

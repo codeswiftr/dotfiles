@@ -405,47 +405,6 @@ return {
   },
 
   -- ============================================================================
-  -- REST CLIENT - API Testing
-  -- ============================================================================
-  {
-    "rest-nvim/rest.nvim",
-    ft = "http",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("rest-nvim").setup({
-        result_split_horizontal = false,
-        result_split_in_place = false,
-        skip_ssl_verification = false,
-        encode_url = true,
-        highlight = {
-          enabled = true,
-          timeout = 150,
-        },
-        result = {
-          show_url = true,
-          show_curl_command = false,
-          show_http_info = true,
-          show_headers = true,
-          formatters = {
-            json = "jq",
-            html = function(body)
-              return vim.fn.system({"tidy", "-i", "-q", "-"}, body)
-            end
-          },
-        },
-        jump_to_request = false,
-        env_file = '.env',
-        custom_dynamic_variables = {},
-        yank_dry_run = true,
-      })
-
-      vim.keymap.set("n", "<leader>rr", "<Plug>RestNvim", { desc = "Run REST request" })
-      vim.keymap.set("n", "<leader>rp", "<Plug>RestNvimPreview", { desc = "Preview REST request" })
-      vim.keymap.set("n", "<leader>rl", "<Plug>RestNvimLast", { desc = "Re-run last request" })
-    end,
-  },
-
-  -- ============================================================================
   -- ADVANCED GIT FEATURES
   -- ============================================================================
   {
@@ -617,64 +576,21 @@ return {
   },
 
   -- ============================================================================
-  -- TROUBLE - BETTER DIAGNOSTICS
+  -- TROUBLE - BETTER DIAGNOSTICS (v3.x API)
   -- ============================================================================
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("trouble").setup({
-        position = "bottom",
-        height = 10,
-        width = 50,
-        icons = true,
-        mode = "workspace_diagnostics",
-        fold_open = "",
-        fold_closed = "",
-        group = true,
-        padding = true,
-        action_keys = {
-          close = "q",
-          cancel = "<esc>",
-          refresh = "r",
-          jump = { "<cr>", "<tab>" },
-          open_split = { "<c-x>" },
-          open_vsplit = { "<c-v>" },
-          open_tab = { "<c-t>" },
-          jump_close = { "o" },
-          toggle_mode = "m",
-          toggle_preview = "P",
-          hover = "K",
-          preview = "p",
-          close_folds = { "zM", "zm" },
-          open_folds = { "zR", "zr" },
-          toggle_fold = { "zA", "za" },
-          previous = "k",
-          next = "j"
-        },
-        indent_lines = true,
-        auto_open = false,
-        auto_close = false,
-        auto_preview = true,
-        auto_fold = false,
-        auto_jump = { "lsp_definitions" },
-        signs = {
-          error = "",
-          warning = "",
-          hint = "",
-          information = "",
-          other = "﫠"
-        },
-        use_diagnostic_signs = false
-      })
-
-      vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { desc = "Toggle trouble" })
-      vim.keymap.set("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { desc = "Workspace diagnostics" })
-      vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { desc = "Document diagnostics" })
-      vim.keymap.set("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", { desc = "Location list" })
-      vim.keymap.set("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", { desc = "Quickfix" })
-      vim.keymap.set("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", { desc = "LSP references" })
-    end,
+    cmd = "Trouble",
+    keys = {
+      { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
+      { "<leader>xd", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer diagnostics (Trouble)" },
+      { "<leader>xw", "<cmd>Trouble diagnostics toggle<cr>", desc = "Workspace diagnostics (Trouble)" },
+      { "<leader>xl", "<cmd>Trouble loclist toggle<cr>", desc = "Location list (Trouble)" },
+      { "<leader>xq", "<cmd>Trouble qflist toggle<cr>", desc = "Quickfix (Trouble)" },
+      { "gR", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP references (Trouble)" },
+    },
+    opts = {},
   },
 
   -- ============================================================================
@@ -749,6 +665,7 @@ return {
         table.insert(sources, eslint_ca)
       end
 
+      local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
       null_ls.setup({
         sources = sources,
         on_attach = function(client, bufnr)
