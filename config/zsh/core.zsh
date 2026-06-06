@@ -19,7 +19,7 @@ setopt EXTENDED_GLOB        # Extended globbing patterns
 setopt SHARE_HISTORY        # Share history between sessions
 setopt HIST_VERIFY          # Show command before executing from history
 setopt HIST_IGNORE_DUPS     # Don't record duplicates in history
-setopt CORRECT              # Correct misspelled commands
+[[ -z "$DOTFILES_AGENT_SAFE" ]] && setopt CORRECT  # Correct misspelled commands
 setopt NO_BG_NICE           # Don't nice background jobs
 setopt NO_NOTIFY            # Don't report background job status immediately
 setopt NO_HUP              # Don't kill jobs on exit

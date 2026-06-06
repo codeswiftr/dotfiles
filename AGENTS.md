@@ -38,3 +38,6 @@
 - Follow the minimal-diff principle: change only what is required and mirror existing style.
 - Reach for `rg` to explore the repo; avoid `git reset` or reverting user-owned changes.
 - When unsure, run the quick test suite before proposing large edits.
+- Prefer `DOTFILES_MODE=agent` for agent shells. This preserves standard command
+  behavior for `cat`, `grep`, `find`, `ls`, `less`, `man`, `vim`, `vi`, and
+  `tmux`; use explicit modern tools (`bat`, `rg`, `fd`, `eza`) when desired.

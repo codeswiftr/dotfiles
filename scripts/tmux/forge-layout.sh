@@ -9,7 +9,7 @@ set -e
 
 PROJECT="${1:-interview-simulator}"
 DOMAIN="${2:-my-domain}"
-FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
+FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
 SESSION="forge-${PROJECT}"
 
 # Resolve project path

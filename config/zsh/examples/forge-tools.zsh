@@ -1,13 +1,13 @@
 # =============================================================================
-# FORGE-specific Tools Integration
-# Critical tooling for FORGE portfolio development and fleet operations
+# FORGE-specific tools integration
+# Current operator tooling for FORGE portfolio development and fleet operations.
 # =============================================================================
 
 # Skip in SSH sessions — FORGE is a local dev tool, not needed on remote nodes
 [[ -n "$DOTFILES_SSH" ]] && return 0
 
 # -----------------------------------------------------------------------------
-# FORGE Configuration (~/.forgerc)
+# FORGE configuration (~/.forgerc)
 # -----------------------------------------------------------------------------
 
 # Load user config if exists, otherwise use defaults
@@ -17,8 +17,9 @@ elif [[ -f "${DOTFILES_DIR:-$HOME/dotfiles}/config/forge/.forgerc" ]]; then
     source "${DOTFILES_DIR:-$HOME/dotfiles}/config/forge/.forgerc"
 fi
 
-# Ensure FORGE_ROOT is set (default: ~/work/FORGE)
-export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
+# Ensure FORGE_ROOT is set.
+export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
+export FORGE_LOCAL_API_URL="${FORGE_LOCAL_API_URL:-http://localhost:8081}"
 
 # -----------------------------------------------------------------------------
 # PATH Additions for FORGE Tools
@@ -108,7 +109,8 @@ alias fweb='forge-web'
 alias ff='forge fleet'
 alias fdispatch='forge dispatch'
 
-# Note: forge CLI now respects FORGE_ROOT from ~/.forgerc, so it works from anywhere
+# Note: forge CLI reads repo config; use explicit FORGE_API_URL only when you
+# intentionally need to target localhost or a remote hub for a command.
 
 # -----------------------------------------------------------------------------
 # Forge Workflow Helpers
@@ -125,9 +127,13 @@ forge-docs() {
     qmd search "$query"
 }
 
+forge-local() {
+    FORGE_API_URL="$FORGE_LOCAL_API_URL" forge "$@"
+}
+
 # Navigate to FORGE root quickly
 forge-root() {
-    local root="${FORGE_ROOT:-$HOME/work/FORGE}"
+    local root="${FORGE_ROOT:-$HOME/work/forge-mono}"
     if [[ -d "$root" ]]; then
         cd "$root"
         echo "🏗️  FORGE Root: $root"
@@ -139,7 +145,7 @@ forge-root() {
 
 # Check FORGE environment readiness
 forge-ready() {
-    local root="${FORGE_ROOT:-$HOME/work/FORGE}"
+    local root="${FORGE_ROOT:-$HOME/work/forge-mono}"
     local ready=true
 
     echo "🔧 FORGE Environment Check"
@@ -169,6 +175,13 @@ forge-ready() {
         echo "⚠️  Forge CLI not found (optional)"
     fi
 
+    # Check local operator readiness
+    if command -v forge >/dev/null 2>&1; then
+        echo ""
+        echo "Local operator status:"
+        forge-local operator status || ready=false
+    fi
+
     # Check Node identification
     if [[ -n "$FORGE_NODE" ]]; then
         echo "✅ FORGE_NODE: $FORGE_NODE"
@@ -186,5 +199,4 @@ forge-ready() {
     fi
 }
 
-# Export functions (zsh compatible)
-autoload -z forge-docs forge-root forge-ready
+# Functions are available after this file is sourced.

@@ -3,30 +3,52 @@
 # Enhanced aliases for modern CLI tools and development workflows
 # ============================================================================
 
+# Native command escape hatches. These stay available even when human shells
+# alias standard names to modern replacements.
+alias _cat='command cat'
+alias _less='command less'
+alias _grep='command grep'
+alias _find='command find'
+alias _ls='command ls'
+alias _man='command man'
+alias _vim='command vim'
+alias _vi='command vi'
+alias _tmux='command tmux'
+alias _python='command python'
+alias _python3='command python3'
+alias _pip='command pip'
+alias _pip3='command pip3'
+alias _node='command node'
+alias _npm='command npm'
+alias _npx='command npx'
+
 # File operations (modern replacements with dependency checks)
-if command -v eza &> /dev/null; then
+if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v eza &> /dev/null; then
     alias ls="eza --icons --git"
     alias ll="eza --icons --git -l"
     alias la="eza --icons --git -la"
     alias lt="eza --icons --git --tree"
     alias lg="eza --icons --git -la --git"
+elif command -v ls >/dev/null 2>&1; then
+    alias ll="ls -lhF"
+    alias la="ls -lhAF"
 fi
 
-if command -v bat &> /dev/null; then
+if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v bat &> /dev/null; then
     alias cat="bat"
     alias less="bat"
-elif command -v batcat &> /dev/null; then
+elif [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v batcat &> /dev/null; then
     # Ubuntu/Debian installs bat as batcat
     alias bat="batcat"
     alias cat="batcat"
     alias less="batcat"
 fi
 
-if command -v fd &> /dev/null; then
+if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v fd &> /dev/null; then
     alias find="fd"
 fi
 
-if command -v rg &> /dev/null; then
+if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v rg &> /dev/null; then
     alias grep="rg"
 fi
 
@@ -136,8 +158,10 @@ alias jbook="jupyter notebook"
 # System aliases
 alias src="source ~/.zshrc"
 alias reload="dot-reload"
-alias man="${DOTFILES_DIR}/bin/viman"
-command -v nvim >/dev/null 2>&1 && alias vim="nvim" && alias vi="nvim"
+if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
+    alias man="${DOTFILES_DIR}/bin/viman"
+    command -v nvim >/dev/null 2>&1 && alias vim="nvim" && alias vi="nvim"
+fi
 
 # ============================================================================
 # AI Agent Aliases
@@ -164,33 +188,35 @@ alias mise-opt="mise-optimize"
 alias ts="tmux list-sessions"       # List tmux sessions
 alias tl="tmux list-sessions"       # Common muscle memory: tl -> list
 
-# Auto-resume tmux: attach to existing session or create new one
-tmux() {
-    if [[ $# -eq 0 ]]; then
-        # No arguments: auto-attach or create
-        if command tmux has-session 2>/dev/null; then
-            command tmux attach-session
+if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
+    # Auto-resume tmux: attach to existing session or create new one
+    tmux() {
+        if [[ $# -eq 0 ]]; then
+            # No arguments: auto-attach or create
+            if command tmux has-session 2>/dev/null; then
+                command tmux attach-session
+            else
+                command tmux new-session
+            fi
         else
-            command tmux new-session
+            # Pass through any arguments to real tmux
+            command tmux "$@"
         fi
-    else
-        # Pass through any arguments to real tmux
-        command tmux "$@"
-    fi
-}
+    }
+fi
 # Attach to session by name; if no param, open interactive picker
 ta() {
     if [[ -n "$1" ]]; then
-        tmux attach-session -t "$1"
+        command tmux attach-session -t "$1"
         return
     fi
     # Interactive session picker
     local choice=""
     if command -v fzf >/dev/null 2>&1; then
         # fzf picker with window preview
-        choice=$(tmux list-sessions -F "#S" 2>/dev/null | fzf --prompt='ta > ' --height 40% --reverse --preview 'tmux list-windows -t {}' --preview-window=down,50% || true)
+        choice=$(command tmux list-sessions -F "#S" 2>/dev/null | fzf --prompt='ta > ' --height 40% --reverse --preview 'tmux list-windows -t {}' --preview-window=down,50% || true)
     else
-        local sessions=($(tmux list-sessions -F "#S" 2>/dev/null))
+        local sessions=($(command tmux list-sessions -F "#S" 2>/dev/null))
         if [[ ${#sessions[@]} -eq 0 ]]; then
             echo "No tmux sessions found. Create one with: tn <name>"
             return 1
@@ -199,7 +225,7 @@ ta() {
         read -r "choice?Attach to session: "
     fi
     if [[ -n "$choice" ]]; then
-        tmux attach-session -t "$choice"
+        command tmux attach-session -t "$choice"
     else
         echo "Cancelled"
     fi
@@ -215,6 +241,7 @@ alias tclip-test="${DOTFILES_DIR}/scripts/tmux-clipboard.sh test"
 
 # Health check convenience
 alias dot-health="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/health-check.sh"
+alias agent-doctor="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/agent-shell-doctor.sh"
 
 # Development helpers
 alias api="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-api.sh"

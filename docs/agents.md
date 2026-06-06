@@ -14,6 +14,75 @@ ai --list       # Show installed agents
 ai --help       # Full help
 ```
 
+## Agent-Safe Shell Mode
+
+Coding agents should use predictable POSIX command names. Start agent shells with
+agent-safe mode when possible:
+
+```bash
+DOTFILES_MODE=agent zsh
+```
+
+FORGE fleet agents also enable this automatically when `FORGE_AGENT_TYPE` is set.
+In agent-safe mode:
+
+- `cat`, `less`, `grep`, `find`, `ls`, `man`, `vim`, `vi`, `tmux`, and common
+  runtime commands such as `python3`, `pip`, `node`, `npm`, and `npx` keep their
+  standard command behavior.
+- pagers default to `cat` for command capture (`PAGER`, `GIT_PAGER`,
+  `MANPAGER`, `BAT_PAGER`).
+- zsh spelling correction prompts are disabled.
+
+Humans can still use explicit modern tools and shortcuts:
+
+```bash
+bat file.txt
+rg "pattern"
+fd "*.py"
+ll
+```
+
+Human shells may alias standard names such as `cat` to modern tools such as
+`bat`. Use underscore-prefixed aliases when you need the native system command:
+
+```bash
+_cat file.txt
+_grep "pattern" file.txt
+_find . -name "*.py"
+_ls -la
+_tmux list-sessions
+```
+
+Use `agent-safe-status` to inspect the active mode and any remaining aliases.
+
+## Agent Launch Wrappers
+
+Use underscore-prefixed wrappers for manual launches. They force `DOTFILES_MODE=agent`,
+plain pagers, and predictable command names before starting the agent:
+
+```bash
+_claude
+_codex
+_kimi
+_gemini
+_pi
+_opencode
+_cursor
+_agent <command> [args...]
+```
+
+The unified `ai` launcher also exports agent-safe mode before it executes an
+agent.
+
+Run the shell doctor when aliases or inherited profile state look suspicious:
+
+```bash
+agent-doctor
+```
+
+It reports watched aliases and `FORGE_API_URL` definitions by file and line
+without printing secret values.
+
 ## Supported Agents
 
 ### Claude Code (Primary)

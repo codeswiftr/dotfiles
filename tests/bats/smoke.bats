@@ -66,6 +66,45 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+@test "agent mode preserves standard command names" {
+    run zsh -fc 'DOTFILES_DIR="$1" DOTFILES_MODE=agent source "$1/.zshrc" >/dev/null 2>&1; alias cat less grep find ls man vim vi tmux python python3 pip pip3 node npm npx 2>/dev/null || true; echo "PAGER=$PAGER GIT_PAGER=$GIT_PAGER MANPAGER=$MANPAGER CORRECT=$options[correct]"' _ "$DOTFILES_DIR"
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"cat="* ]]
+    [[ "$output" != *"less="* ]]
+    [[ "$output" != *"grep="* ]]
+    [[ "$output" != *"find="* ]]
+    [[ "$output" != *"ls="* ]]
+    [[ "$output" != *"tmux="* ]]
+    [[ "$output" != *"python3="* ]]
+    [[ "$output" != *"pip="* ]]
+    [[ "$output" != *"node="* ]]
+    [[ "$output" != *"npm="* ]]
+    [[ "$output" == *"PAGER=cat"* ]]
+    [[ "$output" == *"GIT_PAGER=cat"* ]]
+    [[ "$output" == *"MANPAGER=cat"* ]]
+    [[ "$output" == *"CORRECT=off"* ]]
+}
+
+@test "native escape aliases are available" {
+    run zsh -fc 'DOTFILES_DIR="$1" source "$1/.zshrc" >/dev/null 2>&1; alias _cat _grep _find _ls _tmux _python3 2>/dev/null' _ "$DOTFILES_DIR"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"_cat='command cat'"* ]]
+    [[ "$output" == *"_grep='command grep'"* ]]
+    [[ "$output" == *"_find='command find'"* ]]
+    [[ "$output" == *"_ls='command ls'"* ]]
+    [[ "$output" == *"_tmux='command tmux'"* ]]
+    [[ "$output" == *"_python3='command python3'"* ]]
+}
+
+@test "underscore agent wrappers are executable" {
+    for wrapper in _agent _claude _codex _kimi _gemini _pi _opencode _cursor; do
+        [ -x "$DOTFILES_DIR/bin/$wrapper" ]
+    done
+    run "$DOTFILES_DIR/bin/_agent" --help
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Usage: _agent"* ]]
+}
+
 # --- Shell startup performance ---
 
 @test "shell startup under 500ms" {

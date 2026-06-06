@@ -5,7 +5,12 @@
 # Copy to ~/.forgerc to customize.
 
 # FORGE repository root (required for forge CLI)
-FORGE_ROOT="${FORGE_ROOT:-$HOME/work/FORGE}"
+FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
+
+# API targets. Do not export FORGE_API_URL globally unless you intentionally want
+# every forge command in this shell to target one control plane.
+FORGE_LOCAL_API_URL="${FORGE_LOCAL_API_URL:-http://localhost:8081}"
+FORGE_HUB_API_URL="${FORGE_HUB_API_URL:-http://prya:8081}"
 
 # Node identifier (optional - auto-detected from hostname)
 # FORGE_NODE="trinity"

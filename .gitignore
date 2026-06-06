@@ -19,6 +19,17 @@ bin/*
 !bin/viman
 !bin/dotfiles-tutor
 !bin/tmux-versions
+!bin/_agent
+!bin/_claude
+!bin/_codex
+!bin/_kimi
+!bin/_gemini
+!bin/_pi
+!bin/_opencode
+!bin/_cursor
+!bin/_amp
+!bin/_minimax
+!bin/_glm
 
 # Test results (ephemeral artifacts, never commit)
 tests/results/

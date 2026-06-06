@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Launch coding agents with a predictable shell environment.
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: _agent <command> [args...]
+
+Runs a coding-agent command with DOTFILES_MODE=agent and DOTFILES_AGENT_SAFE=1.
+
+Examples:
+  _agent claude --dangerously-skip-permissions
+  _agent codex --dangerously-bypass-approvals-and-sandbox
+  _claude
+  _codex
+EOF
+}
+
+if [[ $# -eq 0 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+export DOTFILES_MODE=agent
+export DOTFILES_AGENT_SAFE=1
+export PAGER=cat
+export GIT_PAGER=cat
+export MANPAGER=cat
+export BAT_PAGER=cat
+export BAT_STYLE=plain
+export LESS="-F -X"
+
+exec "$@"

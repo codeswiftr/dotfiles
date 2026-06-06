@@ -103,8 +103,9 @@ task-route-suggest() {
 }
 
 # -----------------------------------------------------------------------------
-# Dispatch — send task to a specific node
-# Requires forge CLI or adapt to your own mechanism
+# Dispatch — create a queue task with an advisory target node.
+# For named-agent overrides, write a brief and run:
+#   forge dispatch send <agent> --file .forge/dispatches/<brief>.md
 # -----------------------------------------------------------------------------
 
 task-dispatch() {
@@ -113,20 +114,13 @@ task-dispatch() {
 
     [[ -z "$node" || -z "$task" ]] && { echo "Usage: task-dispatch <node> <task>"; return 1; }
 
-    echo "Dispatching to $node: $task"
+    echo "Creating queued task for $node: $task"
 
     if command -v forge >/dev/null 2>&1; then
-        forge dispatch send "$node" "$task"
+        forge task create --node "$node" --title "$task" --description "$task"
     else
-        # Fallback: send via tmux if there's a session named after the node
-        if tmux has-session -t "$node" 2>/dev/null; then
-            tmux send-keys -t "$node" "# Task: $task" Enter
-            echo "Sent to tmux session: $node"
-        else
-            echo "forge CLI not available and no tmux session '$node' found"
-            echo "Manually SSH to $node and run the task"
-            return 1
-        fi
+        echo "forge CLI not available"
+        return 1
     fi
 }
 

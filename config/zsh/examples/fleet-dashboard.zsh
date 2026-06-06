@@ -58,7 +58,7 @@ fleet-status() {
     echo "📋 Pending Work"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     if command -v forge >/dev/null 2>&1; then
-        forge queue 2>/dev/null | head -15 || echo "  Queue empty"
+        forge task list 2>/dev/null | head -15 || echo "  No active tasks"
     fi
     echo ""
 }
@@ -188,8 +188,8 @@ fleet-agents() {
 # Alias for fleet-status
 alias fs='fleet-status'
 
-# Quick queue check
-alias fq='forge queue 2>/dev/null'
+# Quick task check
+alias fq='forge task list 2>/dev/null'
 
 # Quick task list
 alias ftl='forge task list 2>/dev/null'
@@ -201,7 +201,7 @@ alias fd='forge dispatch'
 # Node Quick Switch - Send command to another node
 # -----------------------------------------------------------------------------
 
-# Execute command on remote node via tmux
+# Send an orchestrator message to another node.
 node-exec() {
     local node="$1"
     local cmd="$2"
@@ -213,7 +213,7 @@ node-exec() {
     fi
 
     echo "📤 Sending to $node: $cmd"
-    tmux send-keys -t "$node" "$cmd" Enter 2>/dev/null || echo "❌ Failed to send to $node"
+    forge message send "$node" "$cmd"
 }
 
 # -----------------------------------------------------------------------------

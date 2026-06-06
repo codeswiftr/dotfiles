@@ -31,15 +31,21 @@ if _has fzf; then
 fi
 
 # Core aliases (no external tool deps)
-_has eza  && alias ls='eza --group-directories-first' \
-           && alias ll='eza -lhF --group-directories-first --git' \
-           && alias la='eza -lhAF --group-directories-first --git' \
-           || { alias ll='ls -lhF'; alias la='ls -lhAF'; }
+if [[ -z "$DOTFILES_AGENT_SAFE" ]] && _has eza; then
+    alias ls='eza --group-directories-first'
+    alias ll='eza -lhF --group-directories-first --git'
+    alias la='eza -lhAF --group-directories-first --git'
+else
+    alias ll='ls -lhF'
+    alias la='ls -lhAF'
+fi
 
-_has bat  && alias cat='bat --paging=never'
-_has rg   && alias grep='rg'
-_has fd   && alias find='fd'
-_has nvim && alias vim='nvim' && alias vi='nvim'
+if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
+    _has bat  && alias cat='bat --paging=never'
+    _has rg   && alias grep='rg'
+    _has fd   && alias find='fd'
+    _has nvim && alias vim='nvim' && alias vi='nvim'
+fi
 
 # History (essential everywhere)
 HISTSIZE=50000

@@ -33,8 +33,8 @@ trinity-spawn() {
 
     # Check memory
     if ! trinity-can-spawn; then
-        echo "💡 Suggestion: Dispatch to sati (more RAM available)"
-        echo "   Command: forge dispatch send sati \"$task\""
+        echo "💡 Suggestion: queue for sati (more RAM available)"
+        echo "   Command: forge task create --node sati --title \"$task\" --description \"$task\""
         return 1
     fi
 
@@ -159,12 +159,11 @@ t-dispatch() {
         fi
     fi
 
-    echo "📤 Dispatching to $target_node: $task"
-    # Actual dispatch via forge CLI
+    echo "📤 Queueing for $target_node: $task"
     if command -v forge >/dev/null 2>&1; then
-        forge dispatch send "$target_node" "$task"
+        forge task create --node "$target_node" --title "$task" --description "$task"
     else
-        echo "❌ forge CLI not available for dispatch"
+        echo "❌ forge CLI not available"
         return 1
     fi
 }

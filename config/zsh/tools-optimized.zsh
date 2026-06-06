@@ -264,24 +264,24 @@ load_context_tools() {
 
 setup_optimized_aliases() {
     # Use fastest available tools
-    if command -v eza >/dev/null 2>&1; then
+    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v eza >/dev/null 2>&1; then
         alias ls='eza --group-directories-first'
         alias ll='eza -l --group-directories-first --git'
         alias la='eza -la --group-directories-first --git'
         alias tree='eza --tree'
     fi
     
-    if command -v bat >/dev/null 2>&1; then
+    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v bat >/dev/null 2>&1; then
         alias cat='bat --style=plain'
         alias less='bat'
         export MANPAGER="sh -c 'col -bx | bat -l man -p'"
     fi
     
-    if command -v rg >/dev/null 2>&1; then
+    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v rg >/dev/null 2>&1; then
         alias grep='rg'
     fi
     
-    if command -v fd >/dev/null 2>&1; then
+    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v fd >/dev/null 2>&1; then
         alias find='fd'
     fi
     

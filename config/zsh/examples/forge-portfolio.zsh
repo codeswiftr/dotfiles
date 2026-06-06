@@ -16,7 +16,7 @@ _forge_require() {
 
 # Quick domain jump
 function fdom() {
-    local forge_root="${FORGE_ROOT:-$HOME/work/FORGE}"
+    local forge_root="${FORGE_ROOT:-$HOME/work/forge-mono}"
     local domain="$1"
 
     if [[ ! -d "$forge_root" ]]; then
@@ -98,7 +98,7 @@ function forge-check-env() {
     echo "  DATABASE_URL:           ${DATABASE_URL:+✅ set}${DATABASE_URL:-⚠️  project-specific}"
     echo ""
     echo "FORGE:"
-    echo "  FORGE_ROOT:             ${FORGE_ROOT:-$HOME/work/FORGE}"
+    echo "  FORGE_ROOT:             ${FORGE_ROOT:-$HOME/work/forge-mono}"
     echo "═══════════════════════════════════════"
 }
 
@@ -134,7 +134,7 @@ function forge-web() {
 
 # Quick FORGE status
 function forge-status() {
-    local forge_root="${FORGE_ROOT:-$HOME/work/FORGE}"
+    local forge_root="${FORGE_ROOT:-$HOME/work/forge-mono}"
 
     if [[ ! -d "$forge_root" ]]; then
         echo "❌ FORGE_ROOT not found: $forge_root"

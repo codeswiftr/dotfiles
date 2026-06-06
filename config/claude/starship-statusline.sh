@@ -12,7 +12,7 @@ model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
 ctx_pct=$(echo "$input" | jq -r '.context_window.used_percentage // 0')
 
 # === THE KEY TRICK: export context % to sidecar file for FSM hooks ===
-FORGE_DIR="${FORGE_ROOT:-$HOME/work/FORGE}"
+FORGE_DIR="${FORGE_ROOT:-$HOME/work/forge-mono}"
 if [[ "$current_dir" == "$FORGE_DIR"* ]] && [[ "$ctx_pct" =~ ^[0-9]+$ ]]; then
     echo "$ctx_pct" > "$FORGE_DIR/.forge/heartbeat/context_percent" 2>/dev/null
 fi

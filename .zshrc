@@ -13,6 +13,9 @@ export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 [[ -n "$SSH_CONNECTION" ]] && export DOTFILES_SSH=1
 : "${DOTFILES_MODE:=${DOTFILES_SSH:+minimal}}"
 : "${DOTFILES_MODE:=full}"
+if [[ "$DOTFILES_MODE" == "agent" || -n "${FORGE_AGENT_TYPE:-}" || -n "${CI:-}" ]]; then
+    export DOTFILES_AGENT_SAFE=1
+fi
 
 # -----------------------------------------------------------------------------
 # 2. Defaults (Cross-Platform, Single Source)
@@ -30,10 +33,10 @@ export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 # -----------------------------------------------------------------------------
 # 4. Tool Initialization (SSH-aware: skip heavy tools in remote sessions)
 # -----------------------------------------------------------------------------
-if [[ -z "$DOTFILES_SSH" ]]; then
+if [[ -z "$DOTFILES_SSH" && -z "$DOTFILES_AGENT_SAFE" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/tools-optimized.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-optimized.zsh"
 else
-    # Minimal tool init for SSH sessions
+    # Minimal tool init for SSH, CI, and agent-safe sessions
     [[ -f "$ZSH_CONFIG_DIR/tools-minimal.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-minimal.zsh"
 fi
 
@@ -43,6 +46,7 @@ fi
 [[ -f "$ZSH_CONFIG_DIR/history-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/history-enhanced.zsh"
 [[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/aliases.zsh"
 [[ -f "$ZSH_CONFIG_DIR/functions.zsh" ]] && source "$ZSH_CONFIG_DIR/functions.zsh"
+[[ -n "$DOTFILES_AGENT_SAFE" && -f "$ZSH_CONFIG_DIR/agent-safe.zsh" ]] && source "$ZSH_CONFIG_DIR/agent-safe.zsh"
 
 # -----------------------------------------------------------------------------
 # 6. Optional Features (Conditional)
@@ -52,16 +56,14 @@ if [[ "$DOTFILES_MODE" == "full" ]]; then
     [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 fi
 
+# FORGE operator helpers (current workflow, no global FORGE_API_URL override)
+[[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]] && source "$ZSH_CONFIG_DIR/forge.zsh"
+
 # Node-specific configuration (auto-detected — add config/zsh/<hostname>.zsh for any new machine)
 _DOTFILES_NODE="${$(hostname -s 2>/dev/null || hostname)#code-}"
 [[ -f "$ZSH_CONFIG_DIR/${_DOTFILES_NODE}.zsh" ]] && source "$ZSH_CONFIG_DIR/${_DOTFILES_NODE}.zsh"
 [[ -f "$DOTFILES_DIR/config/agents/${_DOTFILES_NODE}.zsh" ]] && source "$DOTFILES_DIR/config/agents/${_DOTFILES_NODE}.zsh"
 unset _DOTFILES_NODE
-
-# FORGE integration (disabled - conflicts with forge CLI)
-# if [[ -d "${FORGE_ROOT:-}" ]] && [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]]; then
-#     source "$ZSH_CONFIG_DIR/forge.zsh"
-# fi
 
 # -----------------------------------------------------------------------------
 # 7. User Customizations (Load Last)
@@ -164,36 +166,19 @@ alias claw-relay='OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:?Set OPENCLAW
 [[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
 # PATH: .bun/bin and .local/bin are set in config/zsh/defaults.zsh (single source)
 
-# FORGE lead orchestrator restart (run from any terminal/pane)
-forge-restart() {
-  local pane="${1:-forge:prya}"
-  echo "Sending /clear + /continue to $pane..."
-  tmux send-keys -t "$pane" "/clear" Enter
-  sleep 3
-  tmux send-keys -t "$pane" "/continue" Enter
-  echo "Done. Lead orchestrator restarting in $pane."
-}
-
 # Load ~/.profile if available
 [[ -f ~/.profile ]] && source ~/.profile
 
 # Local machine secrets and overrides (gitignored, never committed)
 [[ -f "$HOME/.env.local" ]] && source "$HOME/.env.local"
 
-# FORGE integration (only on non-SSH sessions — servers don't need this)
-if [[ -z "$SSH_CONNECTION" ]]; then
-    export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
-    export FORGE_API_URL="${FORGE_API_URL:-http://prya:8081}"
-    [[ -n "$FORGE_ROOT" ]] && export PATH="${FORGE_ROOT}/cmd/forge:${PATH}"
-
-    # Auto-start Tailscale if not running (background, non-blocking)
-    tailscale_start() {
-        command -v tailscale >/dev/null 2>&1 || return 0
-        tailscale status --json >/dev/null 2>&1 && return 0
-        echo "Starting Tailscale..."
-        tailscale up --operator="$USER"
-    }
-    tailscale_start &!
-
-    export OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1
+# Avoid stale FORGE_API_URL leaking from ~/.profile or ~/.env.local into every
+# shell. Use forge-local/flocal or set DOTFILES_FORGE_KEEP_GLOBAL_API=1 when a
+# global target is intentional.
+if [[ -n "${FORGE_API_URL:-}" && "${DOTFILES_FORGE_KEEP_GLOBAL_API:-0}" != "1" ]]; then
+    export FORGE_PROFILE_API_URL="$FORGE_API_URL"
+    unset FORGE_API_URL
 fi
+
+[[ -n "$DOTFILES_AGENT_SAFE" && -f "$ZSH_CONFIG_DIR/agent-safe.zsh" ]] && source "$ZSH_CONFIG_DIR/agent-safe.zsh"
+

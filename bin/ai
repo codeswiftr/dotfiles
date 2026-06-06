@@ -6,6 +6,9 @@
 
 set -e
 
+export DOTFILES_MODE="${DOTFILES_MODE:-agent}"
+export DOTFILES_AGENT_SAFE="${DOTFILES_AGENT_SAFE:-1}"
+
 # Ensure npm global packages are in PATH (for pi, codex, etc.)
 if [[ -d "$HOME/.npm-global/bin" ]]; then
     export PATH="$HOME/.npm-global/bin:$PATH"
