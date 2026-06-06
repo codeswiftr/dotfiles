@@ -27,7 +27,8 @@ This guide covers expert customization, modular setup, team deployment, and ente
 - Keep heavy tools in higher tiers; test Tier 1 startup stays <200ms.
 
 ## 🧪 Testing at Scale
-- Prefer headless runs in CI: `DOTFILES_MODE=agent`.
+- Prefer headless runs in CI: `DOTFILES_MODE=agent`. See
+  [Agent Guide](agents.md) for alias and pager behavior.
 - Aggregate reports with `test-report` (see `docs/testing.md`).
 
 ## 📦 Distribution

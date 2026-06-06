@@ -407,11 +407,17 @@ z proj && nvim  # Jump and edit
 
 **Efficient File Operations**:
 ```bash
-# Use modern tools:
-eza instead of ls
-fd instead of find
-rg instead of grep
-bat instead of cat
+# Use modern tools explicitly:
+eza --git
+fd "*.py"
+rg "TODO"
+bat README.md
+
+# Native escape hatches remain available in human shells:
+_ls -la
+_find . -name "*.py"
+_grep "TODO" README.md
+_cat README.md
 
 # Combine tools:
 fd . | fzf | xargs nvim    # Find, select, edit

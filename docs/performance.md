@@ -118,10 +118,10 @@ nvim +Lazy profile
 
 ```bash
 # Comprehensive system check
-df-health
+dot-health
 
 # Check specific performance metrics
-df-health --performance
+dot-health --performance
 ```
 
 ## 🎯 **Performance Modes**
@@ -321,7 +321,7 @@ diff ~/.perf-baseline ~/.perf-current
 4. **Profile Plugin Impact** with `:Lazy profile`
 
 ### **System Maintenance**
-1. **Regular Health Checks** with `df-health`
+1. **Regular Health Checks** with `dot-health`
 2. **Update Tools** for performance improvements
 3. **Clean Temporary Files** regularly
 4. **Monitor Resource Usage** in long-running sessions

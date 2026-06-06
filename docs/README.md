@@ -73,6 +73,7 @@ See [AGENTS.md](../AGENTS.md) for full style guidelines and commit conventions.
 - **[Theme Guide](themes.md)** - Catppuccin setup and customization
 
 ### 🤖 AI Integration
+- **[Agent Guide](agents.md)** - Agent-safe shell mode, `_command` escape aliases, and `_claude`/`_codex` wrappers
 - **[AI Workflow Guide](ai-workflows.md)** - Complete AI development setup
 - **[Security Guide](security.md)** - Protect your code from AI exposure
 
@@ -109,11 +110,12 @@ dot docs generate
 | Feature | Quick Reference | Detailed Guide |
 |---------|----------------|----------------|
 | **AI Coding** | `<leader>aa` | [AI Workflows](ai-workflows.md) |
+| **Agent Shells** | `_claude`, `_codex` | [Agent Guide](agents.md) |
 | **Project Switching** | `proj` | [Navigation](navigation.md) |
 | **Smart Sessions** | `tm` | Navigation & Tmux |
 | **Security Controls** | `ai-security-status` | [Security](security.md) |
 | **Performance** | `perf-status` | [Performance](performance.md) |
-| **Health Check** | `df-health` | System Health |
+| **Health Check** | `dot-health` | System Health |
 
 ## 📋 **Quick Reference**
 
@@ -124,14 +126,14 @@ proj                    # Switch projects with fzf
 tm <session-name>      # Smart tmux sessions
 ta <session-name>      # Attach to session
 
-# AI Integration
-cc "question"          # Quick Claude query
-gg "question"          # Quick Gemini query
-ai-analyze overview    # Project analysis
+# AI / agent integration
+_claude                # Claude Code in agent-safe mode
+_codex                 # Codex in agent-safe mode
+agent-doctor           # Check alias and profile hazards
 claude-context "help"  # Context-aware AI
 
 # Performance & Health
-df-health             # System health check
+dot-health             # System health check
 perf-benchmark-startup # Measure shell performance
 df-update             # Update dotfiles
 
@@ -168,7 +170,7 @@ Prefix + W           # Web development layout
 4. **Plugin errors?** → [Neovim Guide](neovim.md#troubleshooting)
 
 ### **Getting Support**
-- **Health Check**: Run `df-health` for system diagnostics
+- **Health Check**: Run `dot-health` for system diagnostics
 - **Interactive Tutorial**: Use `dotfiles-tutor` for guided learning
 - **Documentation**: All guides are in the `docs/` directory
 - **Troubleshooting**: See [Troubleshooting Guide](troubleshooting.md) for common issues and diagnostics

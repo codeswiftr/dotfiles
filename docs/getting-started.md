@@ -11,7 +11,7 @@ First, verify your installation was successful:
 which zsh starship nvim tmux
 
 # Run health check
-df-health
+dot-health
 
 # Test AI integration (optional)
 ai-security-status
@@ -45,9 +45,12 @@ DOTFILES_MODE=agent ./install.sh --dry-run install standard
 # Health in JSON for machines
 ./scripts/health-check.sh --json
 
-# Ensure scripts skip prompts
-DOTFILES_MODE=agent DOTFILES_NONINTERACTIVE=1 ./scripts/tmux-migrate.sh --preview
+# Check for shell state that can confuse coding agents
+agent-doctor
 ```
+
+See [Agent Guide](agents.md) for predictable command names, underscore escape
+aliases such as `_cat`, and wrappers such as `_claude` and `_codex`.
 
 ### **1. Learn the Basics (5 minutes)**
 
@@ -56,7 +59,7 @@ DOTFILES_MODE=agent DOTFILES_NONINTERACTIVE=1 ./scripts/tmux-migrate.sh --previe
 dotfiles-tutor
 
 # 📊 Check system status
-df-health
+dot-health
 perf-status
 
 # 🎨 Verify theme is working
@@ -114,7 +117,7 @@ ai-commit             # Generate commit messages (secure)
 
 ### **⚡ Performance & Maintenance**
 ```bash
-df-health             # System health check
+dot-health             # System health check
 df-update             # Update dotfiles
 perf-benchmark-startup # Check shell performance
 src                   # Reload shell config
@@ -369,8 +372,7 @@ You now have access to a **world-class development environment** with:
 ---
 
 **Need help?** 
-- 🆘 Run `df-health` for diagnostics
+- 🆘 Run `dot-health` for diagnostics
 - 📚 Check other guides in `docs/`
 - 🎓 Use `dotfiles-tutor` for interactive learning
 - 🛠️ See [Troubleshooting Guide](troubleshooting.md) and [Technical Debt & Migration](technical-debt.md) for migration help and ways to contribute
-

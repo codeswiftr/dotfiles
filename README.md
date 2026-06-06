@@ -90,7 +90,10 @@ atuin       → shell history with search
 delta       → better git diffs
 ```
 
-All have fallbacks — if not installed, standard tools are used.
+Human shells may alias common names like `cat` to these tools. Native escape
+hatches such as `_cat`, `_grep`, `_find`, `_ls`, and `_tmux` are always
+available. Agent shells should use `DOTFILES_MODE=agent`; see
+[docs/agents.md](docs/agents.md).
 
 ### Tmux
 
