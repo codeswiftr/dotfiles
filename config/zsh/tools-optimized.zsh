@@ -113,7 +113,7 @@ init_tools_prioritized() {
     perf_time "Starting prioritized tool init"
     
     # PRIORITY 1: Essential tools (always load immediately)
-    if command -v starship >/dev/null 2>&1; then
+    if [[ "${TERM:-}" != "dumb" ]] && command -v starship >/dev/null 2>&1; then
         eval "$(starship init zsh)"
     fi
     

@@ -46,7 +46,11 @@ fi
 [[ -f "$ZSH_CONFIG_DIR/history-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/history-enhanced.zsh"
 [[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/aliases.zsh"
 [[ -f "$ZSH_CONFIG_DIR/functions.zsh" ]] && source "$ZSH_CONFIG_DIR/functions.zsh"
-[[ -n "$DOTFILES_AGENT_SAFE" && -f "$ZSH_CONFIG_DIR/agent-safe.zsh" ]] && source "$ZSH_CONFIG_DIR/agent-safe.zsh"
+if [[ -n "$DOTFILES_AGENT_SAFE" && -f "$ZSH_CONFIG_DIR/agent-safe.zsh" ]]; then
+    source "$ZSH_CONFIG_DIR/agent-safe.zsh"
+fi
+
+true
 
 # -----------------------------------------------------------------------------
 # 6. Optional Features (Conditional)
@@ -179,6 +183,4 @@ if [[ -n "${FORGE_API_URL:-}" && "${DOTFILES_FORGE_KEEP_GLOBAL_API:-0}" != "1" ]
     export FORGE_PROFILE_API_URL="$FORGE_API_URL"
     unset FORGE_API_URL
 fi
-
-[[ -n "$DOTFILES_AGENT_SAFE" && -f "$ZSH_CONFIG_DIR/agent-safe.zsh" ]] && source "$ZSH_CONFIG_DIR/agent-safe.zsh"
-
+true

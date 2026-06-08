@@ -11,8 +11,9 @@ if _has mise; then
     eval "$(mise activate zsh --quiet 2>/dev/null)"
 fi
 
-# Prompt: starship if available, minimal fallback otherwise
-if _has starship; then
+# Prompt: starship if available, minimal fallback otherwise. Starship exits
+# non-zero under TERM=dumb, which breaks headless test and agent shells.
+if [[ "${TERM:-}" != "dumb" ]] && _has starship; then
     eval "$(starship init zsh)"
 else
     PS1='%n@%m %~%# '

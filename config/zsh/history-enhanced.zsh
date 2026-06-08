@@ -25,9 +25,13 @@ setopt HIST_BEEP                # Beep when accessing nonexistent history
 # ZSH Autosuggestions (Fish-like suggestions)
 # ============================================================================
 
+_dotfiles_interactive_tty=0
+[[ -t 0 && -t 1 && -z "$DOTFILES_AGENT_SAFE" ]] && _dotfiles_interactive_tty=1
+
 # Check if zsh-autosuggestions is available, if not suggest installation (once)
 _zsh_plugin_warn_file="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-plugin-warnings-shown"
-if [[ ! -d "/opt/homebrew/share/zsh-autosuggestions" ]] && \
+if [[ "$_dotfiles_interactive_tty" == "1" ]] && \
+   [[ ! -d "/opt/homebrew/share/zsh-autosuggestions" ]] && \
    [[ ! -d "/usr/share/zsh-autosuggestions" ]] && \
    [[ ! -f "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     # Only show warning once per day
@@ -42,11 +46,11 @@ if [[ ! -d "/opt/homebrew/share/zsh-autosuggestions" ]] && \
 fi
 
 # Load zsh-autosuggestions from various possible locations
-if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+if [[ "$_dotfiles_interactive_tty" == "1" && -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-elif [[ -f "/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+elif [[ "$_dotfiles_interactive_tty" == "1" && -f "/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     source "/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-elif [[ -f "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+elif [[ "$_dotfiles_interactive_tty" == "1" && -f "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
 
@@ -81,7 +85,8 @@ fi
 # ============================================================================
 
 # Check if zsh-history-substring-search is available (use same warning flag)
-if [[ ! -d "/opt/homebrew/share/zsh-history-substring-search" ]] && \
+if [[ "$_dotfiles_interactive_tty" == "1" ]] && \
+   [[ ! -d "/opt/homebrew/share/zsh-history-substring-search" ]] && \
    [[ ! -d "/usr/share/zsh-history-substring-search" ]] && \
    [[ ! -f "$HOME/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
     # Only show warning once per day (reuse same flag file)
@@ -96,11 +101,11 @@ fi
 unset _zsh_plugin_warn_file
 
 # Load zsh-history-substring-search from various possible locations
-if [[ -f "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
+if [[ "$_dotfiles_interactive_tty" == "1" && -f "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
     source "/opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-elif [[ -f "/usr/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
+elif [[ "$_dotfiles_interactive_tty" == "1" && -f "/usr/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
     source "/usr/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-elif [[ -f "$HOME/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
+elif [[ "$_dotfiles_interactive_tty" == "1" && -f "$HOME/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
     source "$HOME/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh"
 fi
 
@@ -125,7 +130,7 @@ fi
 # ============================================================================
 
 # Better history navigation with Ctrl+R (integrates with fzf if available)
-if command -v fzf >/dev/null 2>&1; then
+if [[ "$_dotfiles_interactive_tty" == "1" ]] && command -v fzf >/dev/null 2>&1; then
     # fzf history search (Ctrl+R)
     bindkey '^R' fzf-history-widget
     
@@ -138,6 +143,7 @@ else
     # Fallback to standard history search
     bindkey '^R' history-incremental-search-backward
 fi
+unset _dotfiles_interactive_tty
 
 # Quick history functions
 alias h='history'
