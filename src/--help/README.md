@@ -1,14 +1,14 @@
-# CLI Help Snapshots
+# CLI help snapshots (retired)
 
-This directory holds captured help output for CLI agents and offline docs.
+**Do not use these files as documentation.** They drift from the live CLI.
 
-- `dot--help.txt`: Top-level DOT CLI help
-- `dot-project--help.txt`: Project commands
-- `dot-ai--help.txt`: AI commands
-- `dot-test--help.txt`: Testing commands
-- `dot-security--help.txt`: Security commands
+```bash
+./bin/dot --help
+./bin/dot --help-all   # if available
+./bin/ai --help
+```
 
-Regenerate with:
+Optional regenerate (not required for agents):
 
 ```bash
 ./scripts/capture-cli-help.sh

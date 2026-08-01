@@ -18,11 +18,17 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 - Modern aliases SSOT in `aliases.zsh`; tools modules are init-only
 - `dot test` / docs / hooks point at bats (no `test_runner.sh`)
 
-## Next (Phase 2c+)
+## ✅ Phase 2c + Phase 3 (2026-08-01)
 
-- Split `tools.yaml` vs `mise.toml` duplicate CLI installs
-- Prune stale `docs/modular-architecture.md`, broken INDEX, `src/--help` snapshots
-- Delete disk clutter: `reviews/`, empty docs scaffolds, legacy backups
+- `mise.toml` owns pinned CLIs; `tools.yaml` uses `provided_by: mise` + platform packages only
+- Docs hub rewritten; empty docs scaffolds / INDEX / help snapshots / reviews pruned
+- `docs/configuration.md` aligned with real tree
+
+## Next (optional)
+
+- PATH dedupe (mise vs brew vs `~/.local/bin` duplicates)
+- Slim `install.sh` / large `lib/cli/*` modules
+- Age encryption for secrets (optional)
 
 ## 🚨 Legacy Scripts & Configs
 

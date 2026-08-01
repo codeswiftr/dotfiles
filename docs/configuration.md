@@ -1,44 +1,59 @@
-# ⚙️ Configuration Reference
+# Configuration Reference
 
-Overview of configurable areas and where to change them.
+Where to change things. Prefer editing files under the repo; chezmoi / install links them into `$HOME`.
 
 ## Shell (Zsh)
-- Files: `config/zsh/*.zsh`
-- Entry points: `config/zsh/core.zsh`, `config/zsh/environment.zsh`
-- Performance: `config/zsh/performance.zsh`, `config/zsh/tools-optimized.zsh`
-- AI/Agent: `config/zsh/ai*.zsh`
+
+| Path | Role |
+|------|------|
+| `.zshrc` | Thin loader only |
+| `config/zsh/defaults.zsh` | PATH, core env |
+| `config/zsh/core.zsh` | setopts, editor |
+| `config/zsh/tools-optimized.zsh` | full-mode tool init |
+| `config/zsh/tools-minimal.zsh` | minimal/agent tool init |
+| `config/zsh/aliases.zsh` | Human aliases (SSOT) |
+| `config/zsh/agent-safe.zsh` | Agent-safe unaliases + pagers |
+| `config/zsh/<hostname>.zsh` | Host-specific (e.g. `nova.zsh`) |
+| `config/profiles/fleet/` | Optional fleet profile |
+| `~/.zshrc.local`, `~/.env.local` | Secrets / machine overrides (not in git) |
+
+**Modes:** `DOTFILES_MODE=full|minimal|agent` — see [agents.md](agents.md) and [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ## Tmux
-- Files: `config/tmux/*.conf`
-- Main: `config/tmux/core.conf` (or `core-simple.conf`)
-- Theme: `config/tmux/theme.conf`
-- Plugins: `config/tmux/plugins.conf`
 
-## Neovim (Lua)
-- Entrypoints: `config/nvim/init.lua` or `init-streamlined.lua`
-- Tiers: `config/nvim/lua/tiers/tier{1,2,3}.lua`
-- Core: `config/nvim/lua/core/*.lua`
-- Languages: `config/nvim/lua/languages/*.lua`
+- Single config: `config/tmux/tmux.conf` (prefix `Ctrl-a`)
+- Loader: root `.tmux.conf` → sources the above
 
-## Tools and Profiles
-- Declarative tools config: `config/tools.yaml`
-- Templates: `config/templates.yaml` and `templates/**`
-- Install: `./install.sh install <profile>`
+## Neovim
 
-## Git Hooks
-- Scripts: `hooks/*`, installer: `scripts/setup-hooks.sh`
-- Docs: `docs/git-hooks.md`
+- Entry: `config/nvim/init.lua`
+- Tiers: `config/nvim/lua/tiers/tier1.lua`, `tier2.lua`
+- Core: `config/nvim/lua/core/*`
+- Promote/demote: `:TierUp` / `:TierDown`
+
+## Tools and install
+
+| File | Role |
+|------|------|
+| `mise.toml` | Pinned CLIs + runtimes |
+| `config/tools.yaml` | Platform packages + profiles (`minimal` / `standard` / `full` / `ai_focused`) |
+| `./install.sh install <profile>` | Orchestrates mise + packages + chezmoi apply |
+
+## Linking
+
+- Chezmoi source: `home/` (`sourceDir` in `~/.config/chezmoi/chezmoi.toml`)
+- Apply: `chezmoi apply` or `./install.sh link`
+
+## Git hooks
+
+- Repo: `hooks/*` → linked to `~/.config/git/hooks`
+- Docs: [git-hooks.md](git-hooks.md)
+
+## Claude Code
+
+- `config/claude/{commands,agents,skills}/` → `~/.claude/` via chezmoi
 
 ## Themes
-- Zsh prompt via Starship (user-level config), tmux themes under `config/tmux/`, Neovim theme in `init.lua`.
 
-## Platform Overrides
-- macOS/Linux: `config/platform/*.zsh`
-
-## Environment Variables (selected)
-- `DOTFILES_MODE=minimal` — ultra-fast shell
-- `DOTFILES_PERF_TIMING=true` — startup timing
-- `AI_SECURITY_*` — see `docs/security.md`
-
-## FAQ
-- Prefer editing files under `config/**` over dotfiles in `$HOME`; installer symlinks appropriately.
+- Prompt: `config/starship.toml`
+- Neovim / tmux: Catppuccin-oriented defaults in their configs

@@ -1,5 +1,6 @@
 # =============================================================================
-# mise configuration — version-pinned tools for all machines
+# mise configuration — version-pinned CLIs + runtimes (SSOT for these tools)
+# Platform packages (zsh, nvim, eza, docker, …) live in config/tools.yaml.
 # Run `mise install` after pulling changes.
 # Run `mise lock` to regenerate mise.lock after version changes.
 # =============================================================================

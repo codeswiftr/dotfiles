@@ -142,6 +142,15 @@ setup() {
     [ -f "$DOTFILES_DIR/config/tools.yaml" ]
 }
 
+@test "tools.yaml marks mise-owned CLIs with provided_by" {
+    grep -q 'provided_by: mise' "$DOTFILES_DIR/config/tools.yaml"
+    # starship must not still brew-install in tools.yaml when mise-owned
+    ! awk '/^  starship:/{p=1} p&&/^  [a-z]/{if(!/^  starship:/)exit} p' "$DOTFILES_DIR/config/tools.yaml" \
+        | grep -q 'brew install starship'
+    [ -f "$DOTFILES_DIR/mise.toml" ]
+    grep -q 'starship' "$DOTFILES_DIR/mise.toml"
+}
+
 @test "config/nvim/init.lua exists" {
     [ -f "$DOTFILES_DIR/config/nvim/init.lua" ]
 }

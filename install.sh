@@ -211,6 +211,23 @@ PY
     fi
 }
 
+# Returns provider name (e.g. "mise") when tools.yaml should not package-install the tool
+yaml_query_provided_by() {
+    local tool="$1"
+    if has_pyyaml; then
+        "$PYYAML_PYTHON" - "$CONFIG_FILE" "$tool" <<'PY'
+import sys, yaml
+cfg_path, tool = sys.argv[1:3]
+with open(cfg_path, 'r') as f:
+    data = yaml.safe_load(f)
+print((data.get('tools', {}).get(tool, {}) or {}).get('provided_by', '') or '')
+PY
+    else
+        sed -n "/^  $tool:/,/^  [a-zA-Z]/p" "$CONFIG_FILE" | \
+        grep "    provided_by:" | head -1 | sed 's/.*: *"\?\([^"]*\)"\?.*/\1/' | tr -d ' '
+    fi
+}
+
 yaml_query_post_install() {
     local tool="$1"
     if has_pyyaml; then
@@ -313,6 +330,19 @@ install_tool() {
     local os="${2:-$(detect_os)}"
 
     print_step "Installing $tool..."
+
+    # mise-owned tools: version pins live in mise.toml (bootstrapped earlier)
+    local provided_by
+    provided_by=$(yaml_query_provided_by "$tool" 2>/dev/null || true)
+    if [[ "$provided_by" == "mise" ]]; then
+        if verify_tool "$tool"; then
+            print_info "$tool provided by mise (already available)"
+            return 0
+        fi
+        print_info "$tool is mise-managed — run: mise install  (see mise.toml)"
+        # Not a hard failure: install may continue offline or with partial mise
+        return 0
+    fi
 
     # Check if tool is already installed
     if verify_tool "$tool" && [[ "$SKIP_EXISTING" == "true" ]]; then

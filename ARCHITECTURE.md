@@ -59,7 +59,11 @@ chezmoi manages:
 
 ## Tool Management
 
-**Version ownership:** mise.toml for runtime versions. brew/uv/npm for packages. `tools.yaml` defines what to install per profile but does NOT track versions.
+| Source | Owns |
+|--------|------|
+| **`mise.toml`** | Version-pinned CLIs + runtimes (rg, bat, fd, fzf, starship, zoxide, atuin, delta, jq, yq, gh, security scanners, node, python, …). Install via `mise install` / installer bootstrap. |
+| **`config/tools.yaml`** | Platform packages (zsh, git, nvim, tmux, eza, uv, bun, docker, AI casks) and profile groups. Tools with `provided_by: mise` are never brew/apt-installed. |
+| **uv / npm / brew** | Language tools and casks not covered by mise |
 
 **State tracking:** `~/.dotfiles-state/` tracks only:
 - Which post-install hooks have run (avoid re-running chsh, usermod, etc.)

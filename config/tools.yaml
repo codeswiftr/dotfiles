@@ -1,38 +1,43 @@
 ---
 # =============================================================================
-# Dotfiles Tools Configuration
-# Declarative configuration for all development tools and dependencies
+# Dotfiles Tools Configuration (platform packages + optional extras)
+# =============================================================================
+#
+# Ownership split:
+#   mise.toml  → version-pinned CLIs (rg, bat, fd, fzf, starship, zoxide,
+#                atuin, delta, jq, yq, gh, gitleaks, trivy, hadolint, grype,
+#                age, trufflehog, k6, node, python). Installed by
+#                install_mise_bootstrap / `mise install`.
+#   tools.yaml → OS package managers (brew/apt/pacman) for platform packages
+#                (zsh, git, nvim, tmux, eza, uv, bun, docker, casks, …).
+#
+# Tools with `provided_by: mise` are never brew/apt-installed by install.sh;
+# they remain listed for verify/docs when referenced by groups.
 # =============================================================================
 
 # Metadata
-version: "2025.1.6"
-description: "Modern development environment tools configuration"
-updated: "2025-07-06"
+version: "2026.8.1"
+description: "Platform package install config (mise owns pinned CLIs)"
+updated: "2026-08-01"
 
 # Installation groups - allows selective installation
 groups:
   essential:
-    description: "Core tools required for basic functionality"
+    description: "Core tools required for basic functionality (platform packages)"
     tools:
       - zsh
       - git
-      - gh
       - curl
       - nvim
       - tmux
       - chezmoi
+      # gh via mise.toml (provided_by: mise)
 
   modern_cli:
-    description: "Modern CLI replacements and enhancements"
+    description: "Platform-only modern CLIs; pinned CLIs come from mise.toml"
     tools:
-      - starship
-      - zoxide
       - eza
-      - bat
-      - ripgrep
-      - fd
-      - fzf
-      - atuin
+      # starship, zoxide, bat, ripgrep, fd, fzf, atuin → mise
 
   development:
     description: "Development tools and version managers"
@@ -91,23 +96,18 @@ groups:
     tools:
       - bruno
       - playwright
-      - k6
+      # k6 via mise.toml
       - pytest_enhanced
     optional: true
 
   security_tools:
-    description: "Enterprise security and compliance tools (Epic 6)"
+    description: "Security tools not covered by mise (language scanners)"
     tools:
-      - gitleaks
+      # gitleaks, trivy, hadolint, grype, age, truffleHog → mise
       - semgrep
-      - trivy
-      - hadolint
       - bandit
       - safety
-      - grype
       - osv_scanner
-      - age
-      - truffleHog
     optional: true
 
   dev_tools:
@@ -124,9 +124,7 @@ groups:
     tools:
       - tree
       - htop
-      - jq
-      - yq
-      - delta
+      # jq, yq, delta → mise
     optional: true
 
 # Tool definitions
@@ -157,18 +155,7 @@ tools:
   gh:
     description: "GitHub CLI - GitHub from the command line"
     category: "vcs"
-    install:
-      macos: "brew install gh"
-      ubuntu: |
-        (type -p wget >/dev/null || sudo apt install -y wget) \
-        && sudo mkdir -p -m 755 /etc/apt/keyrings \
-        && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-        && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-        && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-        && sudo apt update \
-        && sudo apt install -y gh
-      arch: "sudo pacman -S github-cli"
+    provided_by: mise
     verify: "gh --version"
 
   curl:
@@ -215,26 +202,21 @@ tools:
     verify: "chezmoi --version"
 
   # Modern CLI tools
+  # Pinned CLIs (starship, zoxide, bat, ripgrep, fd, fzf, atuin, …) → mise.toml
   starship:
-    description: "Cross-shell prompt for astronauts"
+    description: "Cross-shell prompt (mise-managed)"
     category: "shell"
-    install:
-      macos: "brew install starship"
-      ubuntu: "curl -fsSL https://starship.rs/install.sh | sh -s -- -y"
-      arch: "sudo pacman -S starship"
+    provided_by: mise
     verify: "starship --version"
 
   zoxide:
-    description: "Smarter cd command, inspired by z and autojump"
+    description: "Smarter cd (mise-managed)"
     category: "navigation"
-    install:
-      macos: "brew install zoxide"
-      ubuntu: "curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
-      arch: "sudo pacman -S zoxide"
+    provided_by: mise
     verify: "zoxide --version"
 
   eza:
-    description: "Modern replacement for ls"
+    description: "Modern replacement for ls (Homebrew/apt — no reliable aqua arm64)"
     category: "file"
     install:
       macos: "brew install eza"
@@ -243,48 +225,33 @@ tools:
     verify: "eza --version"
 
   bat:
-    description: "Cat clone with syntax highlighting and Git integration"
+    description: "Cat clone with syntax highlighting (mise-managed)"
     category: "file"
-    install:
-      macos: "brew install bat"
-      ubuntu: "sudo apt install -y bat && (command -v bat >/dev/null || mkdir -p ~/.local/bin && ln -sf $(which batcat) ~/.local/bin/bat 2>/dev/null || true)"
-      arch: "sudo pacman -S bat"
+    provided_by: mise
     verify: "bat --version || batcat --version"
 
   ripgrep:
-    description: "Line-oriented search tool that recursively searches"
+    description: "Fast recursive search (mise-managed)"
     category: "search"
-    install:
-      macos: "brew install ripgrep"
-      ubuntu: "sudo apt install -y ripgrep"
-      arch: "sudo pacman -S ripgrep"
+    provided_by: mise
     verify: "rg --version"
 
   fd:
-    description: "Simple, fast and user-friendly alternative to find"
+    description: "Fast find alternative (mise-managed)"
     category: "search"
-    install:
-      macos: "brew install fd"
-      ubuntu: "sudo apt install -y fd-find && (command -v fd >/dev/null || mkdir -p ~/.local/bin && ln -sf $(which fdfind) ~/.local/bin/fd)"
-      arch: "sudo pacman -S fd"
+    provided_by: mise
     verify: "fd --version || fdfind --version"
 
   fzf:
-    description: "Command-line fuzzy finder"
+    description: "Fuzzy finder (mise-managed)"
     category: "search"
-    install:
-      macos: "brew install fzf && $(brew --prefix)/opt/fzf/install --all --no-update-rc"
-      ubuntu: "sudo apt install -y fzf && (test -f /usr/share/doc/fzf/examples/key-bindings.zsh && echo 'FZF keybindings available' || true)"
-      arch: "sudo pacman -S fzf"
+    provided_by: mise
     verify: "fzf --version"
 
   atuin:
-    description: "Magical shell history"
+    description: "Shell history (mise-managed)"
     category: "shell"
-    install:
-      macos: "brew install atuin"
-      ubuntu: "curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh"
-      arch: "sudo pacman -S atuin"
+    provided_by: mise
     verify: "atuin --version"
 
   # Development tools
@@ -471,30 +438,21 @@ tools:
     verify: "htop --version"
 
   jq:
-    description: "Command-line JSON processor"
+    description: "Command-line JSON processor (mise-managed)"
     category: "data"
-    install:
-      macos: "brew install jq"
-      ubuntu: "sudo apt install -y jq"
-      arch: "sudo pacman -S jq"
+    provided_by: mise
     verify: "jq --version"
 
   yq:
-    description: "Command-line YAML processor"
+    description: "Command-line YAML processor (mise-managed)"
     category: "data"
-    install:
-      macos: "brew install yq"
-      ubuntu: "sudo apt install -y yq || sudo snap install yq"
-      arch: "sudo pacman -S go-yq"
+    provided_by: mise
     verify: "yq --version"
 
   delta:
-    description: "Syntax-highlighting pager for git"
+    description: "Syntax-highlighting pager for git (mise-managed)"
     category: "git"
-    install:
-      macos: "brew install git-delta"
-      ubuntu: "sudo apt install -y git-delta 2>/dev/null || (command -v cargo >/dev/null && cargo install git-delta) || echo 'delta: Install Rust first or use Ubuntu 23.10+'"
-      arch: "sudo pacman -S git-delta"
+    provided_by: mise
     verify: "delta --version"
 
   # Testing tools
@@ -517,24 +475,9 @@ tools:
     verify: "bunx playwright --version"
 
   k6:
-    description: "Modern load testing tool for developers"
+    description: "Modern load testing tool (mise-managed)"
     category: "testing"
-    install:
-      macos: "brew install k6"
-      ubuntu: |
-        bash -lc '
-          set -euo pipefail
-          sudo gpg -k || true
-          sudo gpg --no-default-keyring \
-            --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
-            --keyserver hkp://keyserver.ubuntu.com:80 \
-            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
-            | sudo tee /etc/apt/sources.list.d/k6.list
-          sudo apt-get update
-          sudo apt-get install -y k6
-        '
-      arch: "yay -S k6-bin"
+    provided_by: mise
     verify: "k6 version"
 
   pytest_enhanced:
@@ -633,12 +576,9 @@ tools:
 
   # Security Tools
   gitleaks:
-    description: "Git secret scanning tool"
+    description: "Git secret scanning tool (mise-managed)"
     category: "security"
-    install:
-      macos: "brew install gitleaks"
-      ubuntu: "wget -qO- https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh"
-      arch: "sudo pacman -S gitleaks"
+    provided_by: mise
     verify: "gitleaks version"
 
   semgrep:
@@ -651,21 +591,15 @@ tools:
     verify: "semgrep --version"
 
   trivy:
-    description: "Container and dependency vulnerability scanner"
+    description: "Container and dependency vulnerability scanner (mise-managed)"
     category: "security"
-    install:
-      macos: "brew install trivy"
-      ubuntu: "mkdir -p \"$HOME/.local/bin\" && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b \"$HOME/.local/bin\""
-      arch: "sudo pacman -S trivy"
+    provided_by: mise
     verify: "trivy version"
 
   hadolint:
-    description: "Dockerfile linter for security best practices"
+    description: "Dockerfile linter (mise-managed)"
     category: "security"
-    install:
-      macos: "brew install hadolint"
-      ubuntu: "_hadolint_arch=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x86_64/') && sudo wget -O /usr/local/bin/hadolint \"https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-${_hadolint_arch}\" && sudo chmod +x /usr/local/bin/hadolint"
-      arch: "sudo pacman -S hadolint"
+    provided_by: mise
     verify: "hadolint --version"
 
   bandit:
@@ -687,12 +621,9 @@ tools:
     verify: "safety --version"
 
   grype:
-    description: "Universal vulnerability scanner"
+    description: "Universal vulnerability scanner (mise-managed)"
     category: "security"
-    install:
-      macos: "brew install grype"
-      ubuntu: "mkdir -p \"$HOME/.local/bin\" && curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b \"$HOME/.local/bin\""
-      arch: "yay -S grype"
+    provided_by: mise
     verify: "grype version"
 
   osv_scanner:
@@ -705,21 +636,15 @@ tools:
     verify: "osv-scanner --version"
 
   age:
-    description: "Modern encryption tool for secrets at rest"
+    description: "Modern encryption tool (mise-managed)"
     category: "security"
-    install:
-      macos: "brew install age"
-      ubuntu: "sudo apt install -y age"
-      arch: "sudo pacman -S age"
+    provided_by: mise
     verify: "age --version"
 
   truffleHog:
-    description: "Git secret scanner with high accuracy"
+    description: "Git secret scanner (mise-managed)"
     category: "security"
-    install:
-      macos: "brew install trufflehog"
-      ubuntu: "mkdir -p \"$HOME/.local/bin\" && curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b \"$HOME/.local/bin\""
-      arch: "yay -S trufflehog"
+    provided_by: mise
     verify: "trufflehog --version"
 
 # Platform-specific package managers
