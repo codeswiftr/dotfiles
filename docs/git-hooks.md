@@ -167,7 +167,7 @@ git config --unset core.hooksPath
 3. **Test failures**
    ```bash
    # Run tests manually
-   ./tests/test_runner.sh
+   bats tests/bats/*.bats
    ```
 
 4. **Security warnings**
@@ -214,7 +214,7 @@ type(scope): description
 ### Development Workflow
 
 1. Make changes
-2. Run tests locally: `./tests/test_runner.sh`
+2. Run tests locally: `bats tests/bats/*.bats`
 3. Stage changes: `git add .`
 4. Commit with descriptive message: `git commit -m "feat: add feature"`
 5. Push changes: `git push`

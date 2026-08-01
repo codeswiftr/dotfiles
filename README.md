@@ -224,7 +224,7 @@ dot security setup-ssh
 ## Testing
 
 ```bash
-bats tests/bats/*.bats              # Full test suite (36 tests)
+bats tests/bats/*.bats              # Full test suite
 bats tests/bats/smoke.bats          # Smoke tests only
 find . -name "*.sh" | xargs shellcheck -S warning
 ```

@@ -19,7 +19,7 @@ See [AGENTS.md](../AGENTS.md) for full style guidelines and commit conventions.
   Use conventional commit messages and always reference Gemini review in your PRs.
 - **Test/Lint Hooks:**  
   All commits are validated by automated hooks (security, syntax, structure, commit message, and testing).  
-  Run `./tests/test_runner.sh`, `shellcheck`, and `yamllint` before committing.
+  Run `bats tests/bats/*.bats`, `shellcheck`, and `yamllint` before committing.
   - **Install shellcheck and yamllint first:**
     ```bash
     brew install shellcheck yamllint   # macOS

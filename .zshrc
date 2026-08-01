@@ -9,15 +9,20 @@
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 export ZSH_CONFIG_DIR="$DOTFILES_DIR/config/zsh"
 
-# Modes: full (default) | minimal (SSH) | agent (coding agents / CI)
-# Override with DOTFILES_MODE=... in the environment or ~/.zshrc.local
+# Primary knob: DOTFILES_MODE=full|minimal|agent
+# Auto-defaults when unset; CI / FORGE agents always force agent.
 [[ -n "$SSH_CONNECTION" ]] && export DOTFILES_SSH=1
-: "${DOTFILES_MODE:=${DOTFILES_SSH:+minimal}}"
-: "${DOTFILES_MODE:=full}"
-if [[ "$DOTFILES_MODE" == "agent" || -n "${FORGE_AGENT_TYPE:-}" || -n "${CI:-}" ]]; then
+if [[ -n "${FORGE_AGENT_TYPE:-}" || -n "${CI:-}" ]]; then
     export DOTFILES_MODE=agent
-    export DOTFILES_AGENT_SAFE=1
+elif [[ -z "${DOTFILES_MODE:-}" ]]; then
+    if [[ -n "$DOTFILES_SSH" ]]; then
+        export DOTFILES_MODE=minimal
+    else
+        export DOTFILES_MODE=full
+    fi
 fi
+export DOTFILES_MODE
+[[ "$DOTFILES_MODE" == "agent" ]] && export DOTFILES_AGENT_SAFE=1
 
 # -----------------------------------------------------------------------------
 # 2. Defaults + core (PATH, env, setopts)
@@ -28,16 +33,20 @@ fi
 [[ -f "$ZSH_CONFIG_DIR/environment.zsh" ]] && source "$ZSH_CONFIG_DIR/environment.zsh"
 
 # -----------------------------------------------------------------------------
-# 3. Tools (SSH / agent → minimal; interactive human → optimized)
+# 3. Tools — driven only by DOTFILES_MODE
+#    full → optimized; minimal|agent → minimal
 # -----------------------------------------------------------------------------
-if [[ -z "$DOTFILES_SSH" && -z "$DOTFILES_AGENT_SAFE" ]]; then
-    [[ -f "$ZSH_CONFIG_DIR/tools-optimized.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-optimized.zsh"
-else
-    [[ -f "$ZSH_CONFIG_DIR/tools-minimal.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-minimal.zsh"
-fi
+case "$DOTFILES_MODE" in
+    full)
+        [[ -f "$ZSH_CONFIG_DIR/tools-optimized.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-optimized.zsh"
+        ;;
+    *)
+        [[ -f "$ZSH_CONFIG_DIR/tools-minimal.zsh" ]] && source "$ZSH_CONFIG_DIR/tools-minimal.zsh"
+        ;;
+esac
 
 # -----------------------------------------------------------------------------
-# 4. UX modules
+# 4. UX modules (aliases are SSOT for human modern-tool aliases)
 # -----------------------------------------------------------------------------
 [[ -f "$ZSH_CONFIG_DIR/history-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/history-enhanced.zsh"
 [[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]] && source "$ZSH_CONFIG_DIR/aliases.zsh"

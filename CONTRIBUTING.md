@@ -62,7 +62,7 @@ See [AGENTS.md](AGENTS.md) for full style guidelines.
 
 ## 🧪 Testing, Linting & Security
 
-- Run all tests: `./tests/test_runner.sh`
+- Run all tests: `bats tests/bats/*.bats` (or `make test`)
 - Shell lint: `find . -name "*.sh" -exec shellcheck {} \;`
 - YAML lint: `find . -name "*.yaml" -o -name "*.yml" | xargs yamllint`
 - See [AGENTS.md](AGENTS.md) for more.

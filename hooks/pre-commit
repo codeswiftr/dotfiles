@@ -450,7 +450,7 @@ main() {
         echo "Please fix the issues above before committing."
         echo "You can run individual checks manually:"
         echo "  - Security: hooks/pre-commit"
-        echo "  - Tests: tests/test_runner.sh"
+        echo "  - Tests: bats tests/bats/*.bats"
         echo "  - Health: scripts/health-check.sh"
     fi
     

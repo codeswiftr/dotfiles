@@ -85,6 +85,21 @@ setup() {
     [[ "$output" == *"CORRECT=off"* ]]
 }
 
+@test "DOTFILES_MODE=minimal is respected without forcing agent-safe" {
+    # Use export (not VAR=value source) so the mode survives into the shell
+    run zsh -fc 'export DOTFILES_DIR="$1" DOTFILES_MODE=minimal; unset DOTFILES_AGENT_SAFE; source "$1/.zshrc" >/dev/null 2>&1; echo "MODE=$DOTFILES_MODE SAFE=${DOTFILES_AGENT_SAFE:-0}"' _ "$DOTFILES_DIR"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"MODE=minimal"* ]]
+    [[ "$output" == *"SAFE=0"* ]]
+}
+
+@test "DOTFILES_MODE defaults to full when unset" {
+    run zsh -fc 'export DOTFILES_DIR="$1"; unset DOTFILES_MODE DOTFILES_AGENT_SAFE DOTFILES_SSH SSH_CONNECTION FORGE_AGENT_TYPE CI; source "$1/.zshrc" >/dev/null 2>&1; echo "MODE=$DOTFILES_MODE SAFE=${DOTFILES_AGENT_SAFE:-0}"' _ "$DOTFILES_DIR"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"MODE=full"* ]]
+    [[ "$output" == *"SAFE=0"* ]]
+}
+
 @test "native escape aliases are available" {
     run zsh -fc 'DOTFILES_DIR="$1" source "$1/.zshrc" >/dev/null 2>&1; alias _cat _grep _find _ls _tmux _python3 2>/dev/null' _ "$DOTFILES_DIR"
     [ "$status" -eq 0 ]

@@ -12,9 +12,14 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 - Tracked `.zshrc` is a thin loader; host bits in `config/zsh/nova.zsh`; fleet in `config/profiles/fleet/`
 - AGENTS.md / CLAUDE.md / ARCHITECTURE.md / Makefile aligned with bats
 
-## Next (Phase 2+)
+## ✅ Phase 2a/2b (2026-08-01)
 
-- Unify tools branch on `DOTFILES_MODE` alone (not separate SSH/agent flags for tools file choice)
+- Tools branch driven only by `DOTFILES_MODE` (`full` → optimized; `minimal`/`agent` → minimal)
+- Modern aliases SSOT in `aliases.zsh`; tools modules are init-only
+- `dot test` / docs / hooks point at bats (no `test_runner.sh`)
+
+## Next (Phase 2c+)
+
 - Split `tools.yaml` vs `mise.toml` duplicate CLI installs
 - Prune stale `docs/modular-architecture.md`, broken INDEX, `src/--help` snapshots
 - Delete disk clutter: `reviews/`, empty docs scaffolds, legacy backups
@@ -59,7 +64,7 @@ If you find outdated guides, legacy configs, or documentation debt, please open 
 ## 🧪 Testing & Linting Coverage
 
 - Not all scripts/configs are covered by tests or linting.
-- Migration plan: Expand test_runner.sh, add shellcheck/yamllint to CI, and document how contributors can run these locally.
+- Migration plan: Keep bats (`make test`) as SSOT; expand coverage; keep shellcheck/yamllint in CI/local docs.
 
 ## 🤖 Agentic Workflow Automation
 

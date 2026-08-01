@@ -23,24 +23,27 @@ alias _npm='command npm'
 alias _npx='command npx'
 
 # File operations (modern replacements with dependency checks)
+# Modern tool aliases — humans only (agent-safe.zsh unaliases after this).
 if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v eza &> /dev/null; then
     alias ls="eza --icons --git"
     alias ll="eza --icons --git -l"
     alias la="eza --icons --git -la"
     alias lt="eza --icons --git --tree"
     alias lg="eza --icons --git -la --git"
+    alias tree="eza --tree"
 elif command -v ls >/dev/null 2>&1; then
     alias ll="ls -lhF"
     alias la="ls -lhAF"
 fi
 
 if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v bat &> /dev/null; then
-    alias cat="bat"
+    alias cat="bat --style=plain"
     alias less="bat"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 elif [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v batcat &> /dev/null; then
     # Ubuntu/Debian installs bat as batcat
     alias bat="batcat"
-    alias cat="batcat"
+    alias cat="batcat --style=plain"
     alias less="batcat"
 fi
 
@@ -50,6 +53,17 @@ fi
 
 if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v rg &> /dev/null; then
     alias grep="rg"
+fi
+
+if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v nvim &> /dev/null; then
+    alias vim="nvim"
+    alias vi="nvim"
+fi
+
+# Introspection helpers
+alias tools='command -v starship zoxide eza bat rg fd fzf mise atuin'
+if typeset -f perf_benchmark_startup >/dev/null 2>&1; then
+    alias perf='perf_benchmark_startup'
 fi
 
 # Directory navigation

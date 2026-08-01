@@ -210,10 +210,12 @@ run_tests() {
 run_all_tests() {
     print_info "Running comprehensive test suite..."
     
-    # Run dotfiles infrastructure tests
-    if [[ -f "$DOTFILES_DIR/tests/test_runner.sh" ]]; then
-        print_info "Running dotfiles infrastructure tests..."
-        "$DOTFILES_DIR/tests/test_runner.sh" "$@"
+    # Dotfiles suite (bats-core)
+    if command -v bats >/dev/null 2>&1; then
+        print_info "Running bats tests..."
+        bats "$DOTFILES_DIR"/tests/bats/*.bats "$@"
+    else
+        print_warning "bats not installed — skip with: brew install bats-core"
     fi
     
     # Run project tests if in a project
@@ -245,10 +247,10 @@ run_quick_tests() {
 run_infrastructure_tests() {
     print_info "Running infrastructure tests..."
     
-    if [[ -f "$DOTFILES_DIR/tests/test_runner.sh" ]]; then
-        "$DOTFILES_DIR/tests/test_runner.sh" --category infrastructure "$@"
+    if command -v bats >/dev/null 2>&1; then
+        bats "$DOTFILES_DIR/tests/bats/infrastructure.bats" "$@"
     else
-        print_warning "Infrastructure test runner not found"
+        print_warning "bats not installed — skip with: brew install bats-core"
     fi
 }
 

@@ -70,10 +70,12 @@ No custom `versions.json`. Package managers already know what's installed.
 ## Shell Modes
 
 **Primary knob:** `DOTFILES_MODE=full|minimal|agent`
-- SSH defaults to `minimal` (via `$SSH_CONNECTION` → `DOTFILES_SSH`)
-- Agents/CI: `DOTFILES_MODE=agent` (or `FORGE_AGENT_TYPE` / `CI`) → `DOTFILES_AGENT_SAFE=1`
+- Auto when unset: SSH → `minimal`, else `full`
+- `FORGE_AGENT_TYPE` / `CI` force `agent` → `DOTFILES_AGENT_SAFE=1`
+- Tools file: `full` → `tools-optimized.zsh`; `minimal`/`agent` → `tools-minimal.zsh`
+- Modern aliases only in `aliases.zsh` (tools modules are init-only)
 - Override in the environment or `~/.zshrc.local`
-- Optional fleet extras: `config/profiles/fleet/` when `DOTFILES_PROFILE=fleet` or `.enabled` marker
+- Optional fleet: `config/profiles/fleet/` when `DOTFILES_PROFILE=fleet` or `.enabled` marker
 
 ## Testing
 

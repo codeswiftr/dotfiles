@@ -259,40 +259,8 @@ load_context_tools() {
 }
 
 # ============================================================================
-# Performance-Optimized Aliases
-# ============================================================================
-
-setup_optimized_aliases() {
-    # Use fastest available tools
-    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v eza >/dev/null 2>&1; then
-        alias ls='eza --group-directories-first'
-        alias ll='eza -l --group-directories-first --git'
-        alias la='eza -la --group-directories-first --git'
-        alias tree='eza --tree'
-    fi
-    
-    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v bat >/dev/null 2>&1; then
-        alias cat='bat --style=plain'
-        alias less='bat'
-        export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-    fi
-    
-    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v rg >/dev/null 2>&1; then
-        alias grep='rg'
-    fi
-    
-    if [[ -z "$DOTFILES_AGENT_SAFE" ]] && command -v fd >/dev/null 2>&1; then
-        alias find='fd'
-    fi
-    
-    # Performance shortcuts
-    alias reload='source ~/.zshrc'
-    alias perf='perf_benchmark_startup'
-    alias tools='command -v starship zoxide eza bat rg fd fzf mise atuin'
-}
-
-# ============================================================================
 # Main Initialization Function
+# Aliases for modern tools live in aliases.zsh (SSOT) — this file is init-only.
 # ============================================================================
 
 init_tools_optimized() {
@@ -306,9 +274,6 @@ init_tools_optimized() {
     
     # Initialize FZF with optimizations
     init_fzf_optimized
-    
-    # Set up optimized aliases
-    setup_optimized_aliases
     
     # Load context-specific tools (must run in current shell — `source` can't affect parent from subshell)
     load_context_tools 2>/dev/null || true

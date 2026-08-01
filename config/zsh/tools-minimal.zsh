@@ -31,22 +31,7 @@ if _has fzf; then
     source <(fzf --zsh 2>/dev/null) 2>/dev/null || true
 fi
 
-# Core aliases (no external tool deps)
-if [[ -z "$DOTFILES_AGENT_SAFE" ]] && _has eza; then
-    alias ls='eza --group-directories-first'
-    alias ll='eza -lhF --group-directories-first --git'
-    alias la='eza -lhAF --group-directories-first --git'
-else
-    alias ll='ls -lhF'
-    alias la='ls -lhAF'
-fi
-
-if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
-    _has bat  && alias cat='bat --paging=never'
-    _has rg   && alias grep='rg'
-    _has fd   && alias find='fd'
-    _has nvim && alias vim='nvim' && alias vi='nvim'
-fi
+# Aliases (ls/cat/grep/find/…) live in aliases.zsh — keep this file init-only.
 
 # History (essential everywhere)
 HISTSIZE=50000
