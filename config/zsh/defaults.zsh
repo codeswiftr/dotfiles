@@ -6,8 +6,12 @@
 # ----------------------------------------------------------------------------
 # Core PATH (single source)
 # ----------------------------------------------------------------------------
-# Ensure essential system paths are always present
-export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+# Order (later prepends win when re-exported carefully):
+#   system → package managers (brew via .zprofile) → ~/.local/bin (tools) →
+#   $DOTFILES_DIR/bin (repo-owned scripts only; never install tool binaries here)
+# ~/.local/bin MUST be a real directory, not a symlink to the repo bin/.
+export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 export PATH="$DOTFILES_DIR/bin:$PATH"
 
 # ----------------------------------------------------------------------------

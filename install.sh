@@ -658,23 +658,24 @@ link_dotfiles() {
     # Use chezmoi if available (manages templates, symlinks, and run_onchange)
     if command -v chezmoi >/dev/null 2>&1; then
         print_header "Applying Dotfiles via chezmoi"
-        # Use home/ as source dir — .chezmoiroot points there but --source overrides it.
-        # Passing home/ explicitly keeps behaviour correct regardless of .chezmoiroot.
+        # home/ is the chezmoi source tree (templates use sourceDir/.. for repo roots).
         local chezmoi_src="$DOTFILES_DIR/home"
         if [[ "$DRY_RUN" == "true" ]]; then
             print_info "DRY RUN: Would apply dotfiles via chezmoi"
             chezmoi --source "$chezmoi_src" managed 2>/dev/null | while read -r f; do
                 print_info "  Would manage: ~/$f"
             done
-        else
-            chezmoi --source "$chezmoi_src" apply --force 2>/dev/null && \
-                print_success "Dotfiles applied via chezmoi" || \
-                print_warning "chezmoi apply had issues, falling back to manual linking"
+            return 0
         fi
-        return 0
+        if chezmoi --source "$chezmoi_src" apply --force; then
+            print_success "Dotfiles applied via chezmoi"
+            return 0
+        fi
+        print_warning "chezmoi apply failed — falling back to manual linking"
+        # fall through to manual linker below
     fi
 
-    # Fallback: manual symlink-based linking (for machines without chezmoi)
+    # Fallback: manual symlink-based linking (no chezmoi, or chezmoi failed)
     print_header "Linking Dotfiles Configuration"
     
     local linked_count=0

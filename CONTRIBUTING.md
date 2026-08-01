@@ -12,8 +12,9 @@ Welcome! We're thrilled you're interested in contributing to this project. Our g
    ```
 3. **Install and test locally**:
    ```bash
-   ./install.sh install full --dev
-   ./tests/test_runner.sh
+   ./install.sh install standard
+   bats tests/bats/*.bats
+   # or: make test
    ```
 
 ## 🎨 Code Style & Configuration Conventions
@@ -33,7 +34,7 @@ See [AGENTS.md](AGENTS.md) for full style guidelines and commit conventions.
   Use conventional commit messages and always reference Gemini review in your PRs.
 - **Test/Lint Hooks:**  
   All commits are validated by automated hooks (security, syntax, structure, commit message, and testing).  
-  Run `./tests/test_runner.sh`, `shellcheck`, and `yamllint` before committing.
+  Run `bats tests/bats/*.bats`, `shellcheck`, and `yamllint` before committing.
   - **Install shellcheck and yamllint first:**
     ```bash
     brew install shellcheck yamllint   # macOS

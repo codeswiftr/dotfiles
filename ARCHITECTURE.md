@@ -36,10 +36,13 @@ All configuration source-of-truth lives in `config/`. Root-level dotfiles (`.zsh
 - `viman` — vim man pages
 - `dotfiles-tutor` — interactive tutor
 - `tmux-versions` — tmux version helper
+- `_agent` and `_claude` / `_codex` / … — agent launch wrappers
 
-All other executables (tool symlinks, binaries) are managed by their respective package managers (mise, uv, brew) and live in `~/.local/bin/`, mise shims, or Homebrew paths. They are NOT tracked in git and NOT symlinked from this repo.
+All other executables (tool binaries, uv entrypoints) are managed by package managers (mise, uv, brew) and live in **`~/.local/bin/`** (a real directory), mise shims, or Homebrew paths. They are NOT tracked in git.
 
-`bin/` is added to `$PATH` via `.zshrc`/`defaults.zsh` — no symlinking of the directory to `~/.local/bin`.
+**Never** make `~/.local/bin` a symlink to this repo’s `bin/`. That dumps tool installs into the git tree.
+
+`bin/` is on `$PATH` via `config/zsh/defaults.zsh` (after `~/.local/bin`).
 
 ## Linking Strategy
 
@@ -66,18 +69,18 @@ No custom `versions.json`. Package managers already know what's installed.
 
 ## Shell Modes
 
-**One knob:** `DOTFILES_MODE=full|minimal`
-- SSH defaults to `minimal` (auto-detected via `$SSH_CONNECTION`)
-- Can be overridden explicitly: `DOTFILES_MODE=minimal` in `.zshrc.local`
-- Replaces: `DOTFILES_FAST_MODE`, `DOTFILES_PERFORMANCE_MODE`, `DOTFILES_SSH`
+**Primary knob:** `DOTFILES_MODE=full|minimal|agent`
+- SSH defaults to `minimal` (via `$SSH_CONNECTION` → `DOTFILES_SSH`)
+- Agents/CI: `DOTFILES_MODE=agent` (or `FORGE_AGENT_TYPE` / `CI`) → `DOTFILES_AGENT_SAFE=1`
+- Override in the environment or `~/.zshrc.local`
+- Optional fleet extras: `config/profiles/fleet/` when `DOTFILES_PROFILE=fleet` or `.enabled` marker
 
 ## Testing
 
-**Framework:** bats-core (36 tests, 100% passing).
-- `tests/bats/smoke.bats` — CLI, install, shell syntax, symlinks (19 tests)
-- `tests/bats/infrastructure.bats` — paths, contracts, bindings, tiers, performance (17 tests)
-- Run: `bats tests/bats/*.bats`
-- Legacy custom framework fully retired
+**Framework:** bats-core.
+- `tests/bats/smoke.bats` — CLI, install, shell syntax, agent-safe, bin hygiene
+- `tests/bats/infrastructure.bats` — paths, contracts, bindings, tiers, performance
+- Run: `bats tests/bats/*.bats` or `make test`
 
 ## Neovim Tiers
 

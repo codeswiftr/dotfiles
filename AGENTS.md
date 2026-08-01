@@ -1,43 +1,85 @@
-# Repository Guidelines
+# Agent Guide
 
-## Project Structure & Module Organization
-- `bin/` ships the `dot` CLI and bundled helper scripts; keep entrypoints self-contained.
-- `config/`, `lib/`, `scripts/` host runtime modules, installer assets, and automation hooks.
-- `src/`, `templates/`, `themes/` cover user-facing assets for shell, web, and theming experiments.
-- `tests/bats/` holds bats-core test suites (smoke.bats, infrastructure.bats).
-- `docs/` stores planning notes; long-form prompts belong here, not in root.
+Short instructions for coding agents working in this repository.
 
-## Build, Test, and Development Commands
-- `bats tests/bats/*.bats` runs the full test suite (36 tests).
-- `bats tests/bats/smoke.bats` gives a fast smoke pass before commits.
-- `make api-run` boots the FastAPI/Uvicorn dev server via `scripts/dev-api.sh`.
-- `make dev-web` launches the web harness; `make build-ios` wraps `scripts/dev-ios.sh build`.
-- `find . -name "*.sh" -exec shellcheck {} \;` and `shfmt -w` keep shell scripts consistent; pair with `find . -name "*.yml" -o -name "*.yaml" | xargs yamllint`.
+## Read first
 
-## Coding Style & Naming Conventions
-- Shell scripts stay POSIX/Bash; prefer snake_case functions and kebab-case filenames.
-- Python follows PEP8 with type hints; lint using `make lint-py` (`ruff check`) and format via `make format-py`.
-- JavaScript/TypeScript use ES modules, `const`/`let`, and Prettier; Swift code uses `swift-format --lint .`.
-- Keep configuration keys lowercase with hyphen separators; classes stay PascalCase.
+| Doc | Use for |
+|-----|---------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Layout, bin policy, linking (chezmoi), PATH |
+| [docs/agents.md](docs/agents.md) | Agent-safe shell, wrappers (`_claude`, `ai`) |
+| [docs/testing.md](docs/testing.md) | bats suite details |
+| [README.md](README.md) | Human install / features |
 
-## Testing Guidelines
-- Place new tests in the matching `tests/<suite>/test_*.sh`; echo `Tests Run/Passed/Failed` per harness.
-- Critical coverage targets: `install.sh`, `bin/dot`, security flows, and performance budgets.
-- Capture command outputs in `tests/results/`; attach logs to PRs when failures occur.
+Claude-specific slash commands and skills live under `config/claude/` (see thin [CLAUDE.md](CLAUDE.md)).
 
-## Commit & Pull Request Guidelines
-- Use Conventional Commits (`feat(cli):…`, `fix(tests):…`); reference issues in the body.
-- PRs should outline intent, link issues, include screenshots or terminal logs, and confirm tests.
-- Expect pre-commit and security gates (e.g., `gitleaks`); resolve before review.
+## Layout (high level)
 
-## Security & Configuration Tips
-- Do not commit secrets; rely on `.env.local` patterns and `dot security` helpers.
-- Prefer reproducible scripts over manual steps; document new env vars in `docs/`.
+```
+bin/           # repo-owned scripts only (dot, ai, _agent wrappers) — no binaries
+config/zsh/    # shell modules sourced by .zshrc
+config/nvim/   # neovim
+home/          # chezmoi source (symlinks + templates)
+lib/cli/       # dot CLI modules
+scripts/       # install helpers (not on PATH by default)
+tests/bats/    # bats-core tests
+```
 
-## Agent-Specific Instructions
-- Follow the minimal-diff principle: change only what is required and mirror existing style.
-- Reach for `rg` to explore the repo; avoid `git reset` or reverting user-owned changes.
-- When unsure, run the quick test suite before proposing large edits.
-- Prefer `DOTFILES_MODE=agent` for agent shells. This preserves standard command
-  behavior for `cat`, `grep`, `find`, `ls`, `less`, `man`, `vim`, `vi`, and
-  `tmux`; use explicit modern tools (`bat`, `rg`, `fd`, `eza`) when desired.
+## Commands
+
+```bash
+# Tests (source of truth)
+bats tests/bats/*.bats
+bats tests/bats/smoke.bats
+
+# Health
+./bin/dot check
+./bin/dot check -m          # machine-readable when available
+
+# Apply links (chezmoi-primary)
+chezmoi --source "$HOME/dotfiles/home" apply
+# or: ./install.sh link
+
+# Lint
+make lint                   # shellcheck + yamllint + ruff when installed
+```
+
+## Shell modes
+
+| Mode | When | Behavior |
+|------|------|----------|
+| `full` | default interactive | tools-optimized, aliases, AI helpers |
+| `minimal` | SSH default | lighter tools init |
+| `agent` | `DOTFILES_MODE=agent`, `FORGE_AGENT_TYPE`, `CI` | predictable POSIX commands, pagers=`cat` |
+
+```bash
+DOTFILES_MODE=agent zsh
+_claude          # wrapper forces agent mode
+ai claude        # unified launcher also sets agent mode
+agent-safe-status
+```
+
+Human shells may alias `cat`/`ls`/… to modern tools. Prefer explicit `bat`, `rg`, `fd`, or agent mode.
+
+## bin/ policy
+
+- Tracked scripts only (see `.gitignore` whitelist).
+- **Never** install package-manager binaries into `bin/`.
+- `~/.local/bin` must be a **real directory** for tools (mise/uv/brew), not a symlink to this repo.
+- PATH: `~/.local/bin` (tools) + `$DOTFILES_DIR/bin` (scripts). See `config/zsh/defaults.zsh`.
+
+## Linking
+
+Chezmoi source: `~/dotfiles/home` (configured in `~/.config/chezmoi/chezmoi.toml`).  
+Edit files under the repo; apply with chezmoi. Do not hand-edit only the home-side symlinks.
+
+## Conventions
+
+- Conventional commits: `feat(scope):`, `fix(scope):`, `docs:`, `refactor:`
+- Minimal diffs; match existing style
+- Explore with `rg`; avoid `git reset --hard` / force-push
+- No secrets in git — use `~/.env.local` / `~/.zshrc.local`
+
+## Optional fleet profile
+
+Forge/OpenClaw extras: `config/profiles/fleet/` — enable with `DOTFILES_PROFILE=fleet` or `config/profiles/fleet/.enabled` (gitignored marker).

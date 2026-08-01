@@ -87,3 +87,6 @@ reviews/
 # Plan (working document)
 plan.md
 nvim.log
+
+# Machine-local fleet enable marker
+config/profiles/fleet/.enabled

@@ -163,3 +163,54 @@ setup() {
     # Tier 3 should fail since we only have 2
     [[ "$output" == *"Invalid tier"* ]] || [ "$status" -ne 0 ] || true
 }
+
+# --- bin/ hygiene (no tool landfill) ---
+
+@test "bin/ contains only whitelisted scripts" {
+    local allowed='^(dot|ai|cursor|viman|dotfiles-tutor|tmux-versions|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
+    local bad=0
+    local name
+    for f in "$DOTFILES_DIR"/bin/*; do
+        [ -e "$f" ] || continue
+        name=$(basename "$f")
+        if ! echo "$name" | grep -Eq "$allowed"; then
+            echo "unexpected bin entry: $name" >&2
+            bad=1
+        fi
+    done
+    [ "$bad" -eq 0 ]
+}
+
+@test "bin/ has no Mach-O binaries" {
+    local f
+    for f in "$DOTFILES_DIR"/bin/*; do
+        [ -f "$f" ] || continue
+        [ -L "$f" ] && continue
+        if file -b "$f" 2>/dev/null | grep -q 'Mach-O'; then
+            echo "binary in bin/: $(basename "$f")" >&2
+            return 1
+        fi
+    done
+}
+
+@test "tracked bin scripts have no absolute /Users/ paths" {
+    run bash -c 'grep -REn "/Users/[a-zA-Z0-9._-]+" "$0"/bin 2>/dev/null | grep -v "^Binary" || true' "$DOTFILES_DIR"
+    [ "$status" -eq 0 ]
+    [ -z "$output" ]
+}
+
+@test "~/.local/bin is not a symlink into the repo" {
+    if [ -L "$HOME/.local/bin" ]; then
+        target=$(readlink "$HOME/.local/bin")
+        [[ "$target" != *"/dotfiles/bin"* ]]
+    else
+        [ -d "$HOME/.local/bin" ] || [ ! -e "$HOME/.local/bin" ]
+    fi
+}
+
+@test "chezmoi sourceDir is the repo home/ tree" {
+    command -v chezmoi >/dev/null 2>&1 || skip "chezmoi not installed"
+    run chezmoi source-path
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"/dotfiles/home"* ]] || [[ "$output" == *"/dotfiles"* ]]
+}

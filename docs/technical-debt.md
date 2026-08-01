@@ -4,6 +4,21 @@ This document tracks known technical debt, legacy code/configs, and refactor opp
 
 If you find outdated guides, legacy configs, or documentation debt, please open an issue or PR and add them here. See [README.md](../README.md) and [CONTRIBUTING.md](../CONTRIBUTING.md) for more ways to help!
 
+## ✅ Phase 1 modernization (2026-07-30)
+
+- Restored real `~/.local/bin` (was symlink to repo `bin/` landfill)
+- Repo `bin/` is whitelist scripts only; bats enforces no Mach-O / no absolute `/Users/` paths
+- Chezmoi `sourceDir` → `~/dotfiles/home`; install.sh chezmoi fallback now actually runs manual linker
+- Tracked `.zshrc` is a thin loader; host bits in `config/zsh/nova.zsh`; fleet in `config/profiles/fleet/`
+- AGENTS.md / CLAUDE.md / ARCHITECTURE.md / Makefile aligned with bats
+
+## Next (Phase 2+)
+
+- Unify tools branch on `DOTFILES_MODE` alone (not separate SSH/agent flags for tools file choice)
+- Split `tools.yaml` vs `mise.toml` duplicate CLI installs
+- Prune stale `docs/modular-architecture.md`, broken INDEX, `src/--help` snapshots
+- Delete disk clutter: `reviews/`, empty docs scaffolds, legacy backups
+
 ## 🚨 Legacy Scripts & Configs
 
 - **Legacy install logic:**

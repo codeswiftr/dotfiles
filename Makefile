@@ -41,7 +41,7 @@ check:
 # =============================================================================
 
 test:
-	@./tests/test_runner.sh
+	@bats tests/bats/*.bats
 
 lint: lint-sh lint-yaml lint-py
 	@echo "✅ All linting complete"
