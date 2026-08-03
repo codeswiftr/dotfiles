@@ -1,0 +1,585 @@
+#!/usr/bin/env bash
+# =============================================================================
+# agent-restart — graceful agent shutdown + post-reboot resume for tmux
+#
+# Planned restart:
+#   agent-restart prepare          # stop agents carefully, save registry + layout
+#   # reboot / sleep / update
+#   agent-restart resume           # reattach layout + relaunch agents with --continue
+#
+# Painful / emergency:
+#   agent-restart prepare --force  # SIGINT → wait → SIGTERM (no SIGKILL unless --kill)
+#   agent-restart resume --best-effort
+#
+# Also: agent-restart status | save-layout | help
+# =============================================================================
+set -euo pipefail
+
+STATE_DIR="${AGENT_RESTART_DIR:-$HOME/.local/share/dotfiles/agent-restart}"
+STATE_FILE="${STATE_DIR}/registry.json"
+HANDOFF_DIR="${STATE_DIR}/handoffs"
+LOG_FILE="${STATE_DIR}/last-run.log"
+
+# Process name patterns → logical agent id (order matters: more specific first)
+# Matches pane command or any descendant process name.
+AGENT_PATTERNS=(
+  'claude:claude'
+  '@anthropic-ai/claude:claude'
+  'codex:codex'
+  'codex-aarch64:codex'
+  'cursor-agent:cursor'
+  'cursor agent:cursor'
+  'opencode:opencode'
+  'kilo:kilo'
+  'kimi:kimi'
+  'gemini:gemini'
+  'amp:amp'
+  'aider:aider'
+  'droid:droid'
+  'pi-coding:pi'
+  'grok:grok'
+  'antigravity:agy'
+  'agy:agy'
+)
+
+usage() {
+  cat <<'EOF'
+agent-restart — carefully park coding agents before a machine restart, resume after
+
+USAGE:
+  agent-restart status                 List agent panes + last registry
+  agent-restart prepare [opts]         Graceful stop + save resume registry + tmux layout
+  agent-restart resume  [opts]         After restart: restore layout (if needed) + relaunch
+  agent-restart save-layout            Only run tmux-resurrect save (if available)
+  agent-restart handoff-nudge          Paste a short "write handoff" prompt into agent panes
+
+PREPARE OPTIONS:
+  --force          Escalate: SIGINT → wait → SIGTERM (still no SIGKILL unless --kill)
+  --kill           After force wait, SIGKILL remaining agent PIDs (last resort)
+  --no-stop        Inventory + save only; do not send keys/signals
+  --no-layout      Skip tmux-resurrect save
+  --dry-run        Print actions only
+
+RESUME OPTIONS:
+  --best-effort    Continue even if layout restore fails
+  --no-launch      Only attach/list; do not start agents
+  --dry-run        Print launch commands only
+  --session NAME   Only resume panes for one tmux session
+
+ENV:
+  AGENT_RESTART_DIR   Override state dir (default: ~/.local/share/dotfiles/agent-restart)
+
+NOTES:
+  - Agents keep their own conversation DBs; we only re-open the TUI with continue flags.
+  - Pane content capture is intentionally OFF (memory). Layout comes from tmux-resurrect.
+  - Planned flow is safer than crash recovery; use prepare before reboot when you can.
+EOF
+}
+
+log() { printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S')" "$*" | tee -a "$LOG_FILE" >&2; }
+die() { log "ERROR: $*"; exit 1; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+ensure_state_dir() {
+  mkdir -p "$STATE_DIR" "$HANDOFF_DIR"
+  : >>"$LOG_FILE"
+}
+
+# --- discovery ----------------------------------------------------------------
+
+list_panes_raw() {
+  tmux list-panes -a -F \
+    '#{session_name}|#{window_index}|#{pane_index}|#{pane_id}|#{pane_pid}|#{pane_current_command}|#{pane_current_path}|#{pane_title}|#{window_name}|#{pane_tty}' \
+    2>/dev/null || true
+}
+
+# One process snapshot for all panes (much faster than ps-per-pane)
+_PS_SNAPSHOT=""
+refresh_ps_snapshot() {
+  _PS_SNAPSHOT=$(ps -axo pid=,tty=,comm=,args= 2>/dev/null || true)
+}
+
+procs_on_tty() {
+  local tty="$1"
+  local short="${tty#/dev/}"
+  [[ -z "$short" || "$short" == "?" ]] && return 0
+  [[ -z "$_PS_SNAPSHOT" ]] && refresh_ps_snapshot
+  printf '%s\n' "$_PS_SNAPSHOT" | awk -v t="$short" '$2 == t { print }'
+}
+
+# Print: session|win|pane|pane_id|pid|cmd|cwd|title|winname|agent_id|match_proc
+discover_agents() {
+  local line session win pane pane_id pid cmd cwd title winname tty
+  local agent match children
+  refresh_ps_snapshot
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    IFS='|' read -r session win pane pane_id pid cmd cwd title winname tty <<<"$line"
+    agent=""
+    match=""
+    children=""
+    # Prefer TTY process table — agent CLIs often aren't the process-group leader
+    if [[ -n "${tty:-}" ]]; then
+      children=$(procs_on_tty "$tty")
+    fi
+    if [[ -z "$children" && -n "${pid:-}" && "$pid" =~ ^[0-9]+$ ]]; then
+      children=$(ps -o comm= -g "$pid" 2>/dev/null || ps -o comm= -p "$pid" 2>/dev/null || true)
+      children+=$'\n'$(ps -o args= -g "$pid" 2>/dev/null || ps -o args= -p "$pid" 2>/dev/null || true)
+    fi
+    local blob
+    blob=$(printf '%s\n%s\n' "$cmd" "$children" | tr '[:upper:]' '[:lower:]')
+    local entry pat name
+    for entry in "${AGENT_PATTERNS[@]}"; do
+      pat="${entry%%:*}"
+      name="${entry#*:}"
+      if printf '%s' "$blob" | grep -Fq "$pat"; then
+        agent="$name"
+        match="$pat"
+        break
+      fi
+    done
+    [[ -z "$agent" ]] && continue
+    printf '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n' \
+      "$session" "$win" "$pane" "$pane_id" "$pid" "$cmd" "$cwd" "$title" "$winname" "$agent" "$match"
+  done < <(list_panes_raw)
+}
+
+resume_cmd_for() {
+  local agent="$1" cwd="$2"
+  case "$agent" in
+    claude)  printf 'cd %q && DOTFILES_MODE=agent claude --continue --dangerously-skip-permissions' "$cwd" ;;
+    codex)   printf 'cd %q && DOTFILES_MODE=agent codex resume --last' "$cwd" ;;
+    cursor)  printf 'cd %q && DOTFILES_MODE=agent cursor-agent --continue' "$cwd" ;;
+    opencode) printf 'cd %q && DOTFILES_MODE=agent opencode --continue' "$cwd" ;;
+    kilo)    printf 'cd %q && DOTFILES_MODE=agent kilo --continue' "$cwd" ;;
+    kimi)    printf 'cd %q && DOTFILES_MODE=agent kimi' "$cwd" ;;
+    gemini)  printf 'cd %q && DOTFILES_MODE=agent gemini' "$cwd" ;;
+    amp)     printf 'cd %q && DOTFILES_MODE=agent amp' "$cwd" ;;
+    aider)   printf 'cd %q && DOTFILES_MODE=agent aider' "$cwd" ;;
+    droid)   printf 'cd %q && DOTFILES_MODE=agent droid' "$cwd" ;;
+    pi)      printf 'cd %q && DOTFILES_MODE=agent pi' "$cwd" ;;
+    grok)    printf 'cd %q && DOTFILES_MODE=agent grok' "$cwd" ;;
+    agy)     printf 'cd %q && DOTFILES_MODE=agent agy' "$cwd" ;;
+    *)       printf 'cd %q && echo "unknown agent %s — relaunch manually"' "$cwd" "$agent" ;;
+  esac
+}
+
+# --- graceful stop ------------------------------------------------------------
+
+send_keys() {
+  local pane_id="$1"
+  shift
+  if [[ "${DRY_RUN:-0}" == "1" ]]; then
+    log "DRY-RUN send-keys -t $pane_id $*"
+    return 0
+  fi
+  tmux send-keys -t "$pane_id" "$@" 2>/dev/null || true
+}
+
+# Best-effort polite exit: interrupt active work, then let process end.
+stop_agent_pane() {
+  local pane_id="$1" agent="$2" pid="$3"
+  local force="${FORCE:-0}" kill_hard="${KILL_HARD:-0}"
+
+  log "Stopping agent=$agent pane=$pane_id pid=$pid force=$force"
+
+  # 1) Interrupt current tool run (most TUIs treat Ctrl-C as cancel, not always exit)
+  send_keys "$pane_id" C-c
+  sleep 0.4
+
+  # 2) Agent-specific quit sequences (best effort; TUIs differ by version)
+  case "$agent" in
+    claude|codex|opencode|kilo|gemini|kimi|amp|cursor|pi|droid)
+      # Double Ctrl-C often exits or returns to idle; then try common quit bindings
+      send_keys "$pane_id" C-c
+      sleep 0.3
+      # Ctrl-D / quit-ish — ignored if not at prompt
+      send_keys "$pane_id" C-d
+      sleep 0.2
+      ;;
+    aider)
+      send_keys "$pane_id" C-c
+      sleep 0.2
+      send_keys "$pane_id" "/exit" Enter
+      ;;
+  esac
+
+  # 3) Wait for clean exit
+  local i
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    if ! kill -0 "$pid" 2>/dev/null; then
+      log "  exited cleanly after wait ${i}s"
+      return 0
+    fi
+    sleep 0.5
+  done
+
+  if [[ "$force" != "1" ]]; then
+    log "  still running (pid $pid) — left alive; re-run with --force to escalate"
+    return 1
+  fi
+
+  log "  sending SIGINT to process group $pid"
+  if [[ "${DRY_RUN:-0}" != "1" ]]; then
+    kill -INT -- "-$pid" 2>/dev/null || kill -INT "$pid" 2>/dev/null || true
+  fi
+  for i in 1 2 3 4 5 6; do
+    kill -0 "$pid" 2>/dev/null || { log "  stopped after SIGINT"; return 0; }
+    sleep 0.5
+  done
+
+  log "  sending SIGTERM"
+  if [[ "${DRY_RUN:-0}" != "1" ]]; then
+    kill -TERM -- "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
+  fi
+  for i in 1 2 3 4 5 6; do
+    kill -0 "$pid" 2>/dev/null || { log "  stopped after SIGTERM"; return 0; }
+    sleep 0.5
+  done
+
+  if [[ "$kill_hard" == "1" ]]; then
+    log "  SIGKILL (last resort)"
+    if [[ "${DRY_RUN:-0}" != "1" ]]; then
+      kill -KILL -- "-$pid" 2>/dev/null || kill -KILL "$pid" 2>/dev/null || true
+    fi
+    return 0
+  fi
+
+  log "  still running — use --kill if you must"
+  return 1
+}
+
+# --- registry -----------------------------------------------------------------
+
+write_registry() {
+  ensure_state_dir
+  local tmp lines=0
+  tmp=$(mktemp)
+
+  {
+    echo '{'
+    echo "  \"saved_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\","
+    echo "  \"hostname\": \"$(hostname -s 2>/dev/null || hostname)\","
+    echo '  "panes": ['
+  } >"$tmp"
+
+  local first=1 line session win pane pane_id pid cmd cwd title winname agent match
+  local resume_cmd
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    IFS='|' read -r session win pane pane_id pid cmd cwd title winname agent match <<<"$line"
+    resume_cmd=$(resume_cmd_for "$agent" "$cwd")
+    # handoff path suggestion
+    local handoff
+    handoff="$HANDOFF_DIR/${session}-${win}-${pane}-${agent}.md"
+    if [[ "$first" -eq 0 ]]; then
+      echo ',' >>"$tmp"
+    fi
+    first=0
+    # minimal JSON escaping for paths/titles
+    python3 - "$session" "$win" "$pane" "$pane_id" "$pid" "$cmd" "$cwd" "$title" "$winname" "$agent" "$match" "$resume_cmd" "$handoff" >>"$tmp" <<'PY'
+import json, sys
+keys = ["session","window","pane","pane_id","pid","command","cwd","title","window_name","agent","match","resume_cmd","handoff"]
+vals = sys.argv[1:]
+obj = dict(zip(keys, vals))
+obj["pid"] = int(obj["pid"]) if str(obj["pid"]).isdigit() else obj["pid"]
+print("    " + json.dumps(obj, ensure_ascii=False), end="")
+PY
+    lines=$((lines + 1))
+  done
+
+  {
+    echo
+    echo '  ]'
+    echo '}'
+  } >>"$tmp"
+
+  if [[ "${DRY_RUN:-0}" == "1" ]]; then
+    log "DRY-RUN registry ($lines panes):"
+    cat "$tmp" >&2
+    rm -f "$tmp"
+    return 0
+  fi
+  mv "$tmp" "$STATE_FILE"
+  log "Wrote registry: $STATE_FILE ($lines agent pane(s))"
+}
+
+cmd_status() {
+  ensure_state_dir
+  echo "=== Live agent panes ==="
+  local line count=0
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    count=$((count + 1))
+    IFS='|' read -r session win pane pane_id pid cmd cwd title winname agent match <<<"$line"
+    printf '  %s:%s.%s  agent=%-8s pid=%-6s  %s\n' "$session" "$win" "$pane" "$agent" "$pid" "$cwd"
+    printf '           cmd=%s match=%s\n' "$cmd" "$match"
+  done < <(discover_agents)
+  if [[ "$count" -eq 0 ]]; then
+    echo "  (none detected)"
+  fi
+  echo
+  if [[ -f "$STATE_FILE" ]]; then
+    echo "=== Last registry: $STATE_FILE ==="
+    if have python3; then
+      python3 - "$STATE_FILE" <<'PY'
+import json, sys
+from pathlib import Path
+p = Path(sys.argv[1])
+data = json.loads(p.read_text())
+print(f"  saved_at: {data.get('saved_at')} host={data.get('hostname')}")
+for pane in data.get("panes", []):
+    print(f"  {pane.get('session')}:{pane.get('window')}.{pane.get('pane')}  {pane.get('agent')}  {pane.get('cwd')}")
+    print(f"    resume: {pane.get('resume_cmd')}")
+PY
+    else
+      head -40 "$STATE_FILE"
+    fi
+  else
+    echo "=== No registry yet (run: agent-restart prepare) ==="
+  fi
+}
+
+cmd_handoff_nudge() {
+  local msg
+  msg='Before any restart: write a short handoff in ./HANDOFF.md (goal, done, next 3 steps, risks). Then idle and wait for exit.'
+  local line pane_id agent
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    IFS='|' read -r _s _w _p pane_id _pid _cmd _cwd _t _wn agent _m <<<"$line"
+    log "Handoff nudge → $pane_id ($agent)"
+    send_keys "$pane_id" Escape
+    sleep 0.1
+    # paste as if user typed (may land in prompt or as message depending on agent)
+    send_keys "$pane_id" -l "$msg"
+    send_keys "$pane_id" Enter
+  done < <(discover_agents)
+}
+
+tmux_resurrect_save() {
+  if [[ "${NO_LAYOUT:-0}" == "1" ]]; then
+    log "Skipping layout save (--no-layout)"
+    return 0
+  fi
+  if ! have tmux; then
+    log "tmux not available"
+    return 1
+  fi
+  # Prefer plugin script if present
+  local save_script="$HOME/.tmux/plugins/tmux-resurrect/scripts/save.sh"
+  if [[ -x "$save_script" ]]; then
+    log "Saving tmux layout via resurrect..."
+    if [[ "${DRY_RUN:-0}" == "1" ]]; then
+      log "DRY-RUN $save_script"
+      return 0
+    fi
+    "$save_script" || log "resurrect save returned non-zero"
+    return 0
+  fi
+  # Fallback: prefix binding C-s if client attached
+  if [[ -n "${TMUX:-}" ]]; then
+    log "resurrect save.sh missing — try Ctrl-a C-s manually"
+  else
+    log "tmux-resurrect not installed; layout will not auto-restore (install TPM plugins)"
+  fi
+  return 0
+}
+
+tmux_resurrect_restore() {
+  local restore_script="$HOME/.tmux/plugins/tmux-resurrect/scripts/restore.sh"
+  if [[ -x "$restore_script" ]]; then
+    log "Restoring tmux layout via resurrect..."
+    if [[ "${DRY_RUN:-0}" == "1" ]]; then
+      log "DRY-RUN $restore_script"
+      return 0
+    fi
+    "$restore_script" || return 1
+    return 0
+  fi
+  log "No resurrect restore.sh — start tmux and attach existing sessions if any"
+  return 0
+}
+
+cmd_prepare() {
+  ensure_state_dir
+  have tmux || die "tmux not running / not installed"
+  tmux list-sessions >/dev/null 2>&1 || die "no active tmux server"
+
+  log "=== prepare start force=${FORCE:-0} dry=${DRY_RUN:-0} ==="
+
+  # Snapshot before stop
+  local snapshot
+  snapshot=$(discover_agents || true)
+  if [[ -z "${snapshot//[$'\n']/}" ]]; then
+    log "No agent panes detected — still saving empty registry + layout"
+    printf '' | write_registry
+    tmux_resurrect_save
+    log "=== prepare done (nothing to stop) ==="
+    return 0
+  fi
+
+  # Write registry from pre-stop discovery
+  printf '%s\n' "$snapshot" | write_registry
+
+  if [[ "${NO_STOP:-0}" == "1" ]]; then
+    log "Skipping stop (--no-stop)"
+    tmux_resurrect_save
+    log "=== prepare done (no-stop) ==="
+    return 0
+  fi
+
+  local line session win pane pane_id pid cmd cwd title winname agent match
+  local failed=0
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    IFS='|' read -r session win pane pane_id pid cmd cwd title winname agent match <<<"$line"
+    if ! stop_agent_pane "$pane_id" "$agent" "$pid"; then
+      failed=$((failed + 1))
+    fi
+  done <<<"$snapshot"
+
+  tmux_resurrect_save
+
+  if [[ "$failed" -gt 0 ]]; then
+    log "=== prepare finished with $failed pane(s) still running ==="
+    log "Re-run: agent-restart prepare --force   or   --force --kill"
+    return 1
+  fi
+  log "=== prepare done — safe to reboot / sleep / update ==="
+  log "After restart: agent-restart resume"
+}
+
+cmd_resume() {
+  ensure_state_dir
+  local session_filter="${SESSION_FILTER:-}"
+  local best="${BEST_EFFORT:-0}"
+
+  log "=== resume start ==="
+
+  if ! have tmux; then
+    die "tmux not installed"
+  fi
+
+  # Start server / restore layout if no sessions
+  if ! tmux list-sessions >/dev/null 2>&1; then
+    log "No tmux sessions — attempting layout restore"
+    if ! tmux_resurrect_restore; then
+      [[ "$best" == "1" ]] || die "layout restore failed"
+      log "continuing (--best-effort)"
+      tmux new-session -d -s main 2>/dev/null || true
+    fi
+  fi
+
+  if [[ ! -f "$STATE_FILE" ]]; then
+    log "No registry at $STATE_FILE — layout-only recovery"
+    log "Attach with: tmux attach"
+    log "Then relaunch agents manually (claude --continue, codex resume --last, …)"
+    return 0
+  fi
+
+  if [[ "${NO_LAUNCH:-0}" == "1" ]]; then
+    log "--no-launch: registry only"
+    cmd_status
+    return 0
+  fi
+
+  python3 - "$STATE_FILE" "${DRY_RUN:-0}" "$session_filter" <<'PY' | while IFS= read -r rec; do
+import json, sys, shlex
+from pathlib import Path
+path, dry, filt = sys.argv[1], sys.argv[2], sys.argv[3]
+data = json.loads(Path(path).read_text())
+for p in data.get("panes", []):
+    if filt and p.get("session") != filt:
+        continue
+    # one line: session|window|pane|resume_cmd|agent|cwd
+    print("|".join([
+        str(p.get("session","")),
+        str(p.get("window","")),
+        str(p.get("pane","")),
+        p.get("resume_cmd",""),
+        p.get("agent",""),
+        p.get("cwd",""),
+    ]))
+PY
+    [[ -z "$rec" ]] && continue
+    IFS='|' read -r session win pane resume_cmd agent cwd <<<"$rec"
+    local target="${session}:${win}.${pane}"
+    log "Resume $agent → $target ($cwd)"
+    if [[ "${DRY_RUN:-0}" == "1" ]]; then
+      log "DRY-RUN: tmux send-keys -t $target → $resume_cmd"
+      continue
+    fi
+    # If pane missing, create window in session
+    if ! tmux list-panes -t "$target" >/dev/null 2>&1; then
+      if tmux has-session -t "$session" 2>/dev/null; then
+        log "  pane missing — creating new window in $session"
+        tmux new-window -t "$session" -c "$cwd" -n "agent-${agent}"
+        target=$(tmux display-message -p -t "$session" '#{session_name}:#{window_index}.#{pane_index}')
+      else
+        log "  session $session missing — creating"
+        tmux new-session -d -s "$session" -c "$cwd"
+        target="${session}:1.1"
+      fi
+    fi
+    # Only inject if pane looks idle (shell) — avoid double-starting into running agent
+    local pcmd
+    pcmd=$(tmux display-message -p -t "$target" '#{pane_current_command}' 2>/dev/null || echo "")
+    case "$pcmd" in
+      zsh|bash|fish|sh|"" )
+        tmux send-keys -t "$target" C-c
+        sleep 0.1
+        tmux send-keys -t "$target" -l "$resume_cmd"
+        tmux send-keys -t "$target" Enter
+        ;;
+      *)
+        log "  pane busy ($pcmd) — skip auto-launch; attach and check"
+        ;;
+    esac
+  done
+
+  log "=== resume done — attach: tmux attach -t <session> ==="
+  log "If an agent opened the wrong chat, use its own session picker (claude --resume, codex resume)."
+}
+
+# --- main ---------------------------------------------------------------------
+
+FORCE=0
+KILL_HARD=0
+NO_STOP=0
+NO_LAYOUT=0
+NO_LAUNCH=0
+DRY_RUN=0
+BEST_EFFORT=0
+SESSION_FILTER=""
+
+main() {
+  local cmd="${1:-}"
+  shift || true
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force) FORCE=1; shift ;;
+      --kill) KILL_HARD=1; FORCE=1; shift ;;
+      --no-stop) NO_STOP=1; shift ;;
+      --no-layout) NO_LAYOUT=1; shift ;;
+      --no-launch) NO_LAUNCH=1; shift ;;
+      --dry-run) DRY_RUN=1; shift ;;
+      --best-effort) BEST_EFFORT=1; shift ;;
+      --session) SESSION_FILTER="${2:-}"; shift 2 ;;
+      -h|--help) usage; exit 0 ;;
+      *) die "unknown option: $1" ;;
+    esac
+  done
+
+  case "$cmd" in
+    ""|-h|--help|help) usage ;;
+    status|ls|list) cmd_status ;;
+    prepare|pre|park) cmd_prepare ;;
+    resume|post|restore) cmd_resume ;;
+    save-layout|layout) ensure_state_dir; tmux_resurrect_save ;;
+    handoff-nudge|nudge) cmd_handoff_nudge ;;
+    *) usage; die "unknown command: $cmd" ;;
+  esac
+}
+
+main "$@"

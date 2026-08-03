@@ -120,6 +120,14 @@ setup() {
     [[ "$output" == *"Usage: _agent"* ]]
 }
 
+@test "agent-restart CLI is present and helps" {
+    [ -x "$DOTFILES_DIR/bin/agent-restart" ]
+    run "$DOTFILES_DIR/bin/agent-restart" --help
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"prepare"* ]]
+    [[ "$output" == *"resume"* ]]
+}
+
 # --- Shell startup performance ---
 
 @test "shell startup under 500ms" {
@@ -191,7 +199,7 @@ setup() {
 # --- bin/ hygiene (no tool landfill) ---
 
 @test "bin/ contains only whitelisted scripts" {
-    local allowed='^(dot|ai|cursor|viman|dotfiles-tutor|tmux-versions|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
+    local allowed='^(dot|ai|cursor|viman|dotfiles-tutor|tmux-versions|agent-restart|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
     local bad=0
     local name
     for f in "$DOTFILES_DIR"/bin/*; do

@@ -30,6 +30,7 @@ bin/*
 !bin/_amp
 !bin/_minimax
 !bin/_glm
+!bin/agent-restart
 
 # Test results (ephemeral artifacts, never commit)
 tests/results/

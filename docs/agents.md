@@ -55,6 +55,53 @@ _tmux list-sessions
 
 Use `agent-safe-status` to inspect the active mode and any remaining aliases.
 
+## Restarts: park agents, then resume (tmux)
+
+Coding agents keep conversation state in their own stores (Claude/Codex/etc.).
+What breaks on reboot is the **live TUI in a tmux pane**. Use:
+
+```bash
+# Before reboot / macOS update / kernel panic prep
+agent-restart status              # see agent panes
+agent-restart handoff-nudge       # optional: ask agents to write HANDOFF.md
+agent-restart prepare             # polite stop + registry + tmux-resurrect save
+agent-restart prepare --force     # escalate SIGINT/SIGTERM if still running
+agent-restart prepare --force --kill   # last resort SIGKILL
+
+# After boot (tmux server up, or will restore via resurrect)
+agent-restart resume              # restore layout if needed + relaunch with continue flags
+agent-restart resume --best-effort
+tmux attach -t <session>
+```
+
+**Tmux bindings** (after config reload):
+
+| Keys | Action |
+|------|--------|
+| `Ctrl-a Q` | `agent-restart prepare` (park) |
+| `Ctrl-a Y` | `agent-restart resume` |
+
+**Registry:** `~/.local/share/dotfiles/agent-restart/registry.json`  
+Records session/window/pane, cwd, agent type, and the exact resume shell command.
+
+| Agent | Resume command used |
+|-------|---------------------|
+| claude | `claude --continue --dangerously-skip-permissions` |
+| codex | `codex resume --last` |
+| cursor-agent | `cursor-agent --continue` |
+| opencode / kilo | `… --continue` |
+| others | relaunch in cwd (may need manual session pick) |
+
+**Easy vs painful**
+
+| Scenario | What works |
+|----------|------------|
+| Planned reboot | `prepare` → reboot → `resume` — best path |
+| Crash / power loss | Layout from continuum/resurrect (15 min); no registry unless you prepared. Attach and run `claude --continue` / `codex resume` in project dirs |
+| Agent mid-tool-call | Always prefer `prepare` so work is cancelled cleanly; force only if stuck |
+
+Pane **content** capture stays off (memory). Do not rely on scrollback restore for agent context — rely on agent session DBs + handoff notes.
+
 ## Agent Launch Wrappers
 
 Use underscore-prefixed wrappers for manual launches. They force `DOTFILES_MODE=agent`,
