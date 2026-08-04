@@ -338,7 +338,7 @@ PY
       head -40 "$STATE_FILE"
     fi
   else
-    echo "=== No registry yet (run: agent-restart prepare) ==="
+    echo "=== No registry yet (run: dot restart prepare) ==="
   fi
 }
 
