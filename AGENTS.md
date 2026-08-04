@@ -36,6 +36,11 @@ bats tests/bats/smoke.bats
 ./bin/dot check
 ./bin/dot check -m          # machine-readable when available
 
+# Park/resume coding agents in tmux (before/after reboot)
+./bin/dot restart status
+./bin/dot restart prepare
+./bin/dot restart resume
+
 # Apply links (chezmoi-primary)
 chezmoi --source "$HOME/dotfiles/home" apply
 # or: ./install.sh link

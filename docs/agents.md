@@ -57,32 +57,31 @@ Use `agent-safe-status` to inspect the active mode and any remaining aliases.
 
 ## Restarts: park agents, then resume (tmux)
 
-Coding agents keep conversation state in their own stores (Claude/Codex/etc.).
-What breaks on reboot is the **live TUI in a tmux pane**. Use:
+**Pragmatic default:** one command family under `dot`.
 
 ```bash
-# Before reboot / macOS update / kernel panic prep
-agent-restart status              # see agent panes
-agent-restart handoff-nudge       # optional: ask agents to write HANDOFF.md
-agent-restart prepare             # polite stop + registry + tmux-resurrect save
-agent-restart prepare --force     # escalate SIGINT/SIGTERM if still running
-agent-restart prepare --force --kill   # last resort SIGKILL
+# Before reboot / OS update
+dot restart status                 # what's running (also: bare `dot restart`)
+dot restart handoff-nudge          # optional: ask agents to write HANDOFF.md
+dot restart prepare                # polite stop + registry + tmux layout save
+dot restart prepare --force        # escalate if stuck
+dot restart prepare --force --kill # last resort
 
-# After boot (tmux server up, or will restore via resurrect)
-agent-restart resume              # restore layout if needed + relaunch with continue flags
-agent-restart resume --best-effort
+# After boot
+dot restart resume
+dot restart resume --best-effort
 tmux attach -t <session>
 ```
 
-**Tmux bindings** (after config reload):
+Coding agents keep conversation state in their own stores. What dies on reboot is
+the **live TUI in a tmux pane**. We only re-open those TUIs with continue flags.
 
 | Keys | Action |
 |------|--------|
-| `Ctrl-a Q` | `agent-restart prepare` (park) |
-| `Ctrl-a Y` | `agent-restart resume` |
+| `Ctrl-a Q` | same as `dot restart prepare` |
+| `Ctrl-a Y` | same as `dot restart resume` |
 
-**Registry:** `~/.local/share/dotfiles/agent-restart/registry.json`  
-Records session/window/pane, cwd, agent type, and the exact resume shell command.
+**Registry:** `~/.local/share/dotfiles/agent-restart/registry.json`
 
 | Agent | Resume command used |
 |-------|---------------------|
@@ -92,15 +91,15 @@ Records session/window/pane, cwd, agent type, and the exact resume shell command
 | opencode / kilo | `… --continue` |
 | others | relaunch in cwd (may need manual session pick) |
 
-**Easy vs painful**
-
-| Scenario | What works |
+| Scenario | What to do |
 |----------|------------|
-| Planned reboot | `prepare` → reboot → `resume` — best path |
-| Crash / power loss | Layout from continuum/resurrect (15 min); no registry unless you prepared. Attach and run `claude --continue` / `codex resume` in project dirs |
-| Agent mid-tool-call | Always prefer `prepare` so work is cancelled cleanly; force only if stuck |
+| **Planned reboot** | `dot restart prepare` → reboot → `dot restart resume` |
+| **Crash / power loss** | Attach tmux (continuum layout); run continue flags in project dirs; no registry unless you prepared |
+| **Agent mid-tool-call** | Always `prepare` first; `--force` only if stuck |
 
-Pane **content** capture stays off (memory). Do not rely on scrollback restore for agent context — rely on agent session DBs + handoff notes.
+Pane scrollback is not restored (memory). Rely on agent session DBs + handoff notes.
+
+Implementation binary: `bin/agent-restart` (also callable directly).
 
 ## Agent Launch Wrappers
 

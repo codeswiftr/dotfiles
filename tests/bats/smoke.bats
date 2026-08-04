@@ -128,6 +128,16 @@ setup() {
     [[ "$output" == *"resume"* ]]
 }
 
+@test "dot restart dispatches to agent-restart" {
+    run "$DOTFILES_DIR/bin/dot" restart --help
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"prepare"* ]]
+    [[ "$output" == *"resume"* ]]
+    run "$DOTFILES_DIR/bin/dot" --help
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"restart"* ]]
+}
+
 # --- Shell startup performance ---
 
 @test "shell startup under 500ms" {

@@ -62,6 +62,7 @@ ESSENTIAL COMMANDS:
   check       Health check (--fix to auto-repair, -m for JSON)
   update      Update everything (--self | --tools for partial)
   reload      Reload tmux/mise configs
+  restart     Park/resume coding agents in tmux (prepare | resume | status)
   new         Create new project (alias: project init)
 
 DEVELOPMENT:
@@ -85,6 +86,8 @@ EXAMPLES:
   dot check -m              # Health check (JSON)
   dot update --self         # Pull dotfiles only (fast)
   dot update --tools        # Upgrade brew/npm/uv/mise
+  dot restart prepare       # Before reboot: stop agents + save layout
+  dot restart resume        # After boot: relaunch agents
   dot new fastapi my-api    # Create FastAPI project
 
 For full help: dot --help-all
@@ -98,6 +101,7 @@ show_help_all() {
 
 CORE:
   setup, check (--fix), update (--self|--tools), reload, version
+  restart [prepare|resume|status|…]   Park/resume tmux coding agents
 
 DEVELOPMENT:
   new <type> [name]      Create project (fastapi, fullstack, etc.)
@@ -136,6 +140,8 @@ EXAMPLES:
   dot ai review                  # AI code review
   dot security scan              # Security audit
   dot perf optimize              # Optimize performance
+  dot restart prepare            # Before reboot
+  dot restart resume             # After reboot
 
 For command-specific help: dot <command> --help
 EOF
@@ -245,6 +251,19 @@ main() {
                 print_info "Refreshed mise shims"
             fi
             print_info "If your shell environment did not refresh, run: source ~/.zshrc"
+            ;;
+        "restart")
+            # Park/resume coding agents in tmux (implementation: bin/agent-restart)
+            local ar="$DOTFILES_DIR/bin/agent-restart"
+            if [[ ! -x "$ar" ]]; then
+                print_error "agent-restart not found at $ar"
+                exit 1
+            fi
+            # Default subcommand: status (safe / no side effects)
+            if [[ $# -eq 0 ]]; then
+                exec "$ar" status
+            fi
+            exec "$ar" "$@"
             ;;
         "version")
             show_version

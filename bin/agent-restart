@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-# agent-restart — graceful agent shutdown + post-reboot resume for tmux
+# agent-restart — implementation for:  dot restart <subcommand>
 #
-# Planned restart:
-#   agent-restart prepare          # stop agents carefully, save registry + layout
+# Preferred entry (humans + agents):
+#   dot restart prepare            # stop agents carefully, save registry + layout
 #   # reboot / sleep / update
-#   agent-restart resume           # reattach layout + relaunch agents with --continue
+#   dot restart resume             # reattach layout + relaunch with --continue
 #
 # Painful / emergency:
-#   agent-restart prepare --force  # SIGINT → wait → SIGTERM (no SIGKILL unless --kill)
-#   agent-restart resume --best-effort
+#   dot restart prepare --force    # SIGINT → wait → SIGTERM (--kill for SIGKILL)
+#   dot restart resume --best-effort
 #
-# Also: agent-restart status | save-layout | help
+# Direct binary still works: agent-restart status | prepare | resume | help
+# Tmux: Ctrl-a Q (prepare), Ctrl-a Y (resume)
 # =============================================================================
 set -euo pipefail
 
@@ -44,14 +45,14 @@ AGENT_PATTERNS=(
 
 usage() {
   cat <<'EOF'
-agent-restart — carefully park coding agents before a machine restart, resume after
+dot restart — park coding agents before a machine restart, resume after
 
 USAGE:
-  agent-restart status                 List agent panes + last registry
-  agent-restart prepare [opts]         Graceful stop + save resume registry + tmux layout
-  agent-restart resume  [opts]         After restart: restore layout (if needed) + relaunch
-  agent-restart save-layout            Only run tmux-resurrect save (if available)
-  agent-restart handoff-nudge          Paste a short "write handoff" prompt into agent panes
+  dot restart status                 List agent panes + last registry  (default)
+  dot restart prepare [opts]         Graceful stop + save resume registry + tmux layout
+  dot restart resume  [opts]         After restart: restore layout (if needed) + relaunch
+  dot restart save-layout            Only run tmux-resurrect save (if available)
+  dot restart handoff-nudge          Paste a short "write handoff" prompt into agent panes
 
 PREPARE OPTIONS:
   --force          Escalate: SIGINT → wait → SIGTERM (still no SIGKILL unless --kill)
@@ -70,9 +71,10 @@ ENV:
   AGENT_RESTART_DIR   Override state dir (default: ~/.local/share/dotfiles/agent-restart)
 
 NOTES:
+  - Prefer:  dot restart prepare  /  dot restart resume
   - Agents keep their own conversation DBs; we only re-open the TUI with continue flags.
   - Pane content capture is intentionally OFF (memory). Layout comes from tmux-resurrect.
-  - Planned flow is safer than crash recovery; use prepare before reboot when you can.
+  - Tmux: Ctrl-a Q = prepare, Ctrl-a Y = resume
 EOF
 }
 
