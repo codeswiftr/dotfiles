@@ -444,11 +444,11 @@ cmd_prepare() {
 
   if [[ "$failed" -gt 0 ]]; then
     log "=== prepare finished with $failed pane(s) still running ==="
-    log "Re-run: agent-restart prepare --force   or   --force --kill"
+    log "Re-run: dot restart prepare --force   or   --force --kill"
     return 1
   fi
   log "=== prepare done — safe to reboot / sleep / update ==="
-  log "After restart: agent-restart resume"
+  log "After restart: dot restart resume"
 }
 
 cmd_resume() {
