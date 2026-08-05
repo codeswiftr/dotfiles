@@ -32,6 +32,19 @@ bin/*
 !bin/_glm
 !bin/agent-restart
 
+# Machine-local Claude skill symlinks (broken if target not in-repo)
+config/claude/skills/agents-sdk
+config/claude/skills/cloudflare
+config/claude/skills/cloudflare-email-service
+config/claude/skills/cloudflare-one
+config/claude/skills/cloudflare-one-migrations
+config/claude/skills/durable-objects
+config/claude/skills/sandbox-sdk
+config/claude/skills/turnstile-spin
+config/claude/skills/web-perf
+config/claude/skills/workers-best-practices
+config/claude/skills/wrangler
+
 # Test results (ephemeral artifacts, never commit)
 tests/results/
 

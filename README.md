@@ -209,7 +209,7 @@ dotfiles/
 ## Security
 
 - Secrets in `~/.env.local` (gitignored, never committed)
-- Global git hooks via `git/hooks/` — runs pre-commit/gitleaks on commit
+- Global git hooks via `hooks/` → `~/.config/git/hooks` (chezmoi)
 - GPG signing configured via `dot security setup-gpg`
 - Secret scanning with gitleaks and trufflehog (in `full` profile)
 

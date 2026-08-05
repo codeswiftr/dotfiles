@@ -17,7 +17,7 @@ All configuration source-of-truth lives in `config/`. Root-level dotfiles (`.zsh
 | `config/nvim/` | `~/.config/nvim` | Symlink (directory) |
 | `config/starship.toml` | `~/.config/starship.toml` | Symlink |
 | `completions/_dot` | `~/.local/share/zsh/completions/_dot` | Symlink |
-| `hooks/` | `~/.config/git/hooks` | Symlink (directory) |
+| `hooks/` | `~/.config/git/hooks` | Symlink (directory) — single hooks tree (no `git/hooks/`) |
 
 ### Not Managed (machine-local)
 

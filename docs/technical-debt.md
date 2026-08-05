@@ -20,10 +20,17 @@ Living backlog after the 2026 modernization waves. Prefer deleting dead code ove
 | Item | Priority | Notes |
 |------|----------|--------|
 | Slim `install.sh` (~1.5k lines) | Low | Works; cut dead branches only if editing |
-| Slim `lib/cli/*` (perf/ai/testing) | Low | Starve unused commands; don’t rewrite for sport |
-| Unify `hooks/` vs `git/hooks/` | Medium | One tree |
-| `DOT_QUIET` / less emoji on `dot` | Low | Agents prefer `-m` / plain text |
+| Slim `lib/cli/*` (perf/ai/testing) | Low | Marked legacy in `dot --help`; starve unless used |
+| `DOT_QUIET` / less emoji on `dot` | Low | Prefer `-m` / plain primary help |
 | Age-encrypted secrets | Optional | Not blocking |
+
+## Done recently (2026-08)
+
+| Item | Notes |
+|------|--------|
+| Single hooks tree | `hooks/` only; `git/hooks/` removed |
+| CI | One workflow `.github/workflows/ci.yml` (bats + shellcheck) |
+| Broken Claude skill symlinks | Removed; gitignored if recreated locally |
 
 ## Explicit non-goals
 

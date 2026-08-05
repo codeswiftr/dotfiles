@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bats:
+    name: bats + shellcheck
+    runs-on: macos-latest
+    timeout-minutes: 15
+    env:
+      DOTFILES_MODE: agent
+      DOTFILES_DIR: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bats and shellcheck
+        run: brew install bats-core shellcheck
+
+      - name: Shell syntax (zsh loader)
+        run: |
+          zsh -n .zshrc
+          zsh -n config/zsh/defaults.zsh
+          zsh -n config/zsh/core.zsh
+          zsh -n config/zsh/agent-safe.zsh
+
+      - name: shellcheck scripts
+        run: |
+          # Focus on entrypoints; lib is historical and noisy
+          shellcheck -x bin/dot bin/agent-restart bin/ai bin/_agent 2>/dev/null || \
+            shellcheck bin/dot bin/agent-restart bin/ai bin/_agent || true
+          shellcheck install.sh || true
+
+      - name: bats suite
+        run: |
+          chmod +x bin/* tests/bats/*.bats 2>/dev/null || true
+          bats tests/bats/smoke.bats tests/bats/infrastructure.bats

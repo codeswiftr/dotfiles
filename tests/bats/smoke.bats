@@ -12,9 +12,9 @@ setup() {
 @test "dot --help shows usage" {
     run dot --help
     [ "$status" -eq 0 ]
-    [[ "$output" == *"setup"* ]]
     [[ "$output" == *"check"* ]]
     [[ "$output" == *"update"* ]]
+    [[ "$output" == *"restart"* ]]
 }
 
 @test "dot --version shows version" {

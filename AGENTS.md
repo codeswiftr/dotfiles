@@ -47,6 +47,8 @@ chezmoi --source "$HOME/dotfiles/home" apply
 
 # Lint
 make lint                   # shellcheck + yamllint + ruff when installed
+
+# CI (GitHub): .github/workflows/ci.yml — bats + shellcheck only
 ```
 
 ## Shell modes

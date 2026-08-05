@@ -46,7 +46,7 @@ Where to change things. Prefer editing files under the repo; chezmoi / install l
 
 ## Git hooks
 
-- Repo: `hooks/*` → linked to `~/.config/git/hooks`
+- Single tree: `hooks/*` → `~/.config/git/hooks` (chezmoi)
 - Docs: [git-hooks.md](git-hooks.md)
 
 ## Claude Code

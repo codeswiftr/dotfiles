@@ -53,97 +53,76 @@ print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
 # Help system
 show_help() {
     cat << 'EOF'
-🚀 DOT CLI - Development Environment Manager
+DOT CLI — development environment manager
 
 USAGE: dot <command> [options]
 
-ESSENTIAL COMMANDS:
-  setup       Setup environment (idempotent)
-  check       Health check (--fix to auto-repair, -m for JSON)
-  update      Update everything (--self | --tools for partial)
-  reload      Reload tmux/mise configs
-  restart     Park/resume coding agents in tmux (prepare | resume | status)
-  new         Create new project (alias: project init)
+PRIMARY (use these):
+  check       Health check (--fix, -m JSON)
+  update      Update (--self | --tools)
+  restart     Park/resume tmux agents (prepare | resume | status)
+  test        Run bats suite
+  reload      Reload tmux / mise
+  install     Platform tools via install.sh / tools.yaml
+  setup       First-time / force setup
 
-DEVELOPMENT:
-  test        Run tests (all-in-one: test/quick/watch)
-  ai          AI assistant (review/test/commit)
-  git         Git helpers (workflow/branch/sign)
+ALSO:
+  docs        Documentation helpers
+  security    Security scans
+  git         Git helpers
+  ai          AI helper (legacy surface)
+  config      Config helpers
 
-TOOLS:
-  install     Install tools (use: dot install <tool>)
-  docs        Documentation (check/search/list/open)
-  perf        Performance tools (benchmark/optimize)
-  security    Security scanning (scan/deps/secrets)
+LEGACY (still wired; prefer not to grow):
+  new, project, perf, nvim, template, platform
+  → see: dot --help-all
 
 OPTIONS:
   -h, --help      Show help
   -v, --version   Show version
-  --machine, -m   Machine-readable JSON output
+  -m, --machine   JSON where supported
 
 EXAMPLES:
-  dot setup                 # First-time setup
-  dot check -m              # Health check (JSON)
-  dot update --self         # Pull dotfiles only (fast)
-  dot update --tools        # Upgrade brew/npm/uv/mise
-  dot restart prepare       # Before reboot: stop agents + save layout
-  dot restart resume        # After boot: relaunch agents
-  dot new fastapi my-api    # Create FastAPI project
+  dot check -m
+  dot update --self
+  dot restart prepare
+  dot restart resume
+  dot test
 
-For full help: dot --help-all
+Full list: dot --help-all
 EOF
 }
 
 # Extended help (all commands)
 show_help_all() {
     cat << 'EOF'
-🚀 DOT CLI - Complete Command Reference
+DOT CLI — complete command reference
 
-CORE:
-  setup, check (--fix), update (--self|--tools), reload, version
-  restart [prepare|resume|status|…]   Park/resume tmux coding agents
+PRIMARY:
+  setup                  Idempotent environment setup
+  check [--fix] [-m]     Health validation
+  update [--self|--tools]
+  reload                 tmux + mise refresh
+  restart <sub>          prepare | resume | status | handoff-nudge
+  test                   bats tests/bats/*.bats
+  install <tool|group>   tools.yaml / install.sh
 
-DEVELOPMENT:
-  new <type> [name]      Create project (fastapi, fullstack, etc.)
-  project                Project management (init/list)
-  test                   Testing (run/quick/watch/coverage)
+SECONDARY:
+  docs, security, git, ai, config
 
-AI:
-  ai                     AI assistant (review/test/commit/explain)
+LEGACY (frozen — may be removed later):
+  new / project           Project scaffolding
+  perf / nvim            Performance experiments
+  template               Template CLI
+  platform               Platform helpers
+  doctor                 Alias for check --fix
+  health / init          Aliases for check / setup
 
-SECURITY:
-  security               Security scanning (scan/deps/secrets/code)
+OPTIONS:
+  -h, --help | --help-all | -v, --version | -m, --machine
 
-CONFIG:
-  config                 Configuration (theme/tools/edit/validate)
-  template               Template management
-
-GIT:
-  git                    Git helpers (workflow/branch/sign)
-
-TOOLS:
-  install <tool|group>   Install tools from config/tools.yaml
-  docs                   Documentation (check/search/list/open)
-  perf                   Performance (benchmark/optimize/cache)
-
-GLOBAL OPTIONS:
-  -h, --help             Show help
-  --help-all             Show this full help
-  -v, --version          Show version
-  -m, --machine          JSON output
-
-EXAMPLES:
-  dot setup                      # First-time setup
-  dot check --fix                # Health check with auto-repair
-  dot update --tools             # Upgrade brew/npm/uv/mise
-  dot new fastapi my-api         # Create FastAPI project
-  dot ai review                  # AI code review
-  dot security scan              # Security audit
-  dot perf optimize              # Optimize performance
-  dot restart prepare            # Before reboot
-  dot restart resume             # After reboot
-
-For command-specific help: dot <command> --help
+Agent restarts:  docs/agents.md
+Layout SSOT:     ARCHITECTURE.md
 EOF
 }
 

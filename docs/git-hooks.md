@@ -1,31 +1,32 @@
 # Git Hooks Documentation
 
-This document describes the automated quality gates implemented via Git hooks in the dotfiles repository.
+Quality gates for this machine’s Git workflow.
 
-## Overview
+## Single tree
 
-Git hooks are scripts that run automatically at specific points in the Git workflow. Our dotfiles include three main hooks that enforce quality standards and prevent common issues:
+**SSOT:** repo `hooks/` → `~/.config/git/hooks` (chezmoi symlink).  
+There is no separate `git/hooks/` directory.
 
-- **pre-commit**: Quality gates before commits
-- **commit-msg**: Commit message validation
-- **pre-push**: Comprehensive validation before pushing
+| Hook | Role |
+|------|------|
+| `pre-commit` | Security / syntax gates (dotfiles-oriented) |
+| `commit-msg` | Conventional commit message check |
+| `pre-push` | Pre-push validation |
+| `prepare-commit-msg` | Optional `pre-commit` framework stage |
 
 ## Installation
 
-Git hooks are automatically installed during the dotfiles setup process. To manually install or update hooks:
+Applied by chezmoi / `install.sh link`. Manual:
 
 ```bash
-# Install all hooks
 ./scripts/setup-hooks.sh install
-
-# Show hook information
 ./scripts/setup-hooks.sh info
+```
 
-# Test hooks
-./scripts/setup-hooks.sh test
+Global:
 
-# Uninstall hooks
-./scripts/setup-hooks.sh uninstall
+```bash
+git config --global core.hooksPath ~/.config/git/hooks
 ```
 
 ## Hook Details
