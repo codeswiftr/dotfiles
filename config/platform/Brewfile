@@ -1,107 +1,44 @@
-# Brewfile - macOS packages
-# Core development tools for the FORGE portfolio
+# Brewfile — macOS *platform* packages only
+# Pinned CLIs (rg, bat, fd, fzf, starship, zoxide, atuin, delta, jq, yq, gh,
+# security scanners, k6, …) are installed via mise.toml — do not re-add here.
 
 # =============================================================================
-# Core Shell & Terminal
+# Core shell & editor
 # =============================================================================
-brew "zsh"                  # Modern shell
-brew "tmux"                 # Terminal multiplexer
-brew "starship"             # Cross-shell prompt
+brew "zsh"
+brew "tmux"
+brew "neovim"
+brew "git"
 
 # =============================================================================
-# Version Control & Git Tools
+# Modern CLI that mise does not pin (no reliable aqua arm64 for eza)
 # =============================================================================
-brew "git"                  # Version control
-brew "gh"                   # GitHub CLI
-brew "git-delta"            # Better git diffs
+brew "eza"
+brew "duf"
+brew "btop"
 
 # =============================================================================
-# Modern CLI Replacements
+# Version managers & language tooling (not aqua-pinned in mise.toml)
 # =============================================================================
-brew "fzf"                  # Fuzzy finder
-brew "ripgrep"              # Fast grep (rg)
-brew "fd"                   # Fast find
-brew "bat"                  # Better cat
-brew "eza"                  # Better ls
-brew "zoxide"               # Smart cd
-brew "duf"                  # Better df
-brew "btop"                 # Better top
+brew "mise"
+brew "uv"
 
 # =============================================================================
-# Text Processing
+# Data / network basics
 # =============================================================================
-brew "jq"                   # JSON processor
-brew "yq"                   # YAML processor
-brew "glow"                 # Markdown renderer
+brew "curl"
+brew "wget"
+brew "httpie"
+brew "glow"
 
 # =============================================================================
-# Editors
+# Data stores (clients)
 # =============================================================================
-brew "neovim"               # Modern vim
+brew "postgresql@16"
+brew "redis"
 
 # =============================================================================
-# Development Languages & Runtimes
+# Apps
 # =============================================================================
-brew "mise"                 # Universal version manager (replaces asdf/nvm/pyenv)
-brew "uv"                   # Fast Python package manager
-
-# =============================================================================
-# Database Tools
-# =============================================================================
-brew "postgresql@16"        # PostgreSQL client
-brew "redis"                # Redis client
-
-# =============================================================================
-# API & Web Tools
-# =============================================================================
-brew "httpie"               # HTTP client
-brew "curl"                 # Standard HTTP tool
-brew "wget"                 # File downloader
-
-# =============================================================================
-# Container & Infrastructure
-# =============================================================================
-cask "orbstack"             # Modern Docker/Linux VM (fast, lightweight)
-# brew "docker"             # Uncomment if Orbstack not preferred
-# brew "colima"             # Lightweight Docker runtime alternative
-
-# =============================================================================
-# Terminal & Editors
-# =============================================================================
-cask "ghostty"              # Fast, native terminal emulator
-# cask "cursor"             # AI code editor (installed via manual download)
-# cask "warp"               # Modern terminal alternative
-
-# =============================================================================
-# AI & LLM Tools (optional)
-# =============================================================================
-# brew "ollama"             # Local LLM runtime
-# brew "llm"                # CLI for LLMs
-
-# =============================================================================
-# FORGE Fleet Tools
-# =============================================================================
-# brew "qmd"                # Documentation search (install via npm: npm install -g @forge/qmd)
-# Note: QMD is installed via npm, not Homebrew
-# Install with: npm install -g @forge/qmd
-
-# =============================================================================
-# Productivity & Knowledge Management
-# =============================================================================
-cask "obsidian"             # Markdown-based knowledge base
-cask "notion"               # Team wiki & project management
-cask "p4v"                  # Perforce visual client
-# cask "raycast"            # Better Spotlight
-
-# =============================================================================
-# Fonts
-# =============================================================================
-cask "font-jetbrains-mono-nerd-font"
-cask "font-fira-code-nerd-font"
-cask "font-meslo-lg-nerd-font"
-
-# =============================================================================
-# Mac App Store (requires `mas` CLI)
-# =============================================================================
-# brew "mas"
-# mas "Xcode", id: 497799835
+cask "orbstack"
+cask "ghostty"

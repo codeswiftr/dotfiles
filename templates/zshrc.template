@@ -104,10 +104,8 @@ if [[ -f "$DOTFILES_DIR/config/zsh/functions.zsh" ]]; then
     source "$DOTFILES_DIR/config/zsh/functions.zsh"
 fi
 
-# Load platform-specific configuration
-if [[ -f "$DOTFILES_DIR/config/platform/{{OS}}.zsh" ]]; then
-    source "$DOTFILES_DIR/config/platform/{{OS}}.zsh"
-fi
+# Platform packages: config/platform/{Brewfile,apt.txt,pacman.txt} via install.sh
+# Host-specific shell: config/zsh/<hostname>.zsh (loaded by real .zshrc)
 {{/if}}
 
 # Starship prompt

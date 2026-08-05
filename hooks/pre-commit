@@ -309,43 +309,20 @@ run_quick_tests() {
     fi
 }
 
-# Index consistency
+# Docs hub (generated INDEX retired — hub is docs/README.md)
 validate_index_consistency() {
-    log_info "Validating docs index consistency..."
-    if [[ -x "scripts/generate-index.sh" ]]; then
-        # Run generator and see if index changes
-        before_hash_md=$(md5 -q docs/INDEX.md 2>/dev/null || md5sum docs/INDEX.md | awk '{print $1}' || true)
-        before_hash_json=$(md5 -q docs/index.json 2>/dev/null || md5sum docs/index.json | awk '{print $1}' || true)
-        bash scripts/generate-index.sh >/dev/null 2>&1 || true
-        after_hash_md=$(md5 -q docs/INDEX.md 2>/dev/null || md5sum docs/INDEX.md | awk '{print $1}' || true)
-        after_hash_json=$(md5 -q docs/index.json 2>/dev/null || md5sum docs/index.json | awk '{print $1}' || true)
-        if [[ "$before_hash_md" != "$after_hash_md" || "$before_hash_json" != "$after_hash_json" ]]; then
-            log_error "Docs index out of date. Please run scripts/generate-index.sh and re-commit."
-        else
-            log_success "Docs index is up to date"
-        fi
+    log_info "Validating docs hub..."
+    if [[ -f "docs/README.md" && -f "AGENTS.md" && -f "ARCHITECTURE.md" ]]; then
+        log_success "Docs hub present (README + AGENTS + ARCHITECTURE)"
     else
-        log_warning "Index generator not found; skipping index validation"
+        log_error "Missing docs hub files (docs/README.md, AGENTS.md, or ARCHITECTURE.md)"
     fi
 }
 
-# Help snapshot freshness
+# Live CLI help is SSOT — no snapshot files
 validate_help_snapshots() {
-    log_info "Validating CLI help snapshots..."
-    if [[ -x "scripts/capture-cli-help.sh" ]]; then
-        local before_hash
-        before_hash=$(tar -cf - src/--help 2>/dev/null | (shasum 2>/dev/null || sha1sum 2>/dev/null) | awk '{print $1}' || echo "")
-        bash scripts/capture-cli-help.sh >/dev/null 2>&1 || true
-        local after_hash
-        after_hash=$(tar -cf - src/--help 2>/dev/null | (shasum 2>/dev/null || sha1sum 2>/dev/null) | awk '{print $1}' || echo "")
-        if [[ "$before_hash" != "$after_hash" ]]; then
-            log_error "Help snapshots out of date. Run scripts/capture-cli-help.sh and commit."
-        else
-            log_success "Help snapshots are up to date"
-        fi
-    else
-        log_warning "Help capture script not found; skipping help validation"
-    fi
+    log_info "CLI help snapshots retired (use bin/dot --help)"
+    log_success "Skipped obsolete help-snapshot check"
 }
 
 # Version check
