@@ -23,7 +23,7 @@ bats --verbose-run tests/bats/*.bats
 | File | Tests | What it covers |
 |------|-------|----------------|
 | `smoke.bats` | 19 | dot CLI, install.sh dry-run, shell syntax, startup time, file existence, symlinks, nvim tiers |
-| `infrastructure.bats` | 17 | CLI path resolution, version contract, tmux bindings, nvim tier files, keymaps, release script, shell performance |
+| `infrastructure.bats` | CLI path resolution, version contract, herdr config, nvim tier files, keymaps, release script, shell performance |
 
 ## Requirements
 

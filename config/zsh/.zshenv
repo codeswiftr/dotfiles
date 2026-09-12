@@ -7,3 +7,4 @@ if [[ -d "$HOME/.pyenv" ]]; then
     [[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init --path)" 2>/dev/null
 fi
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"

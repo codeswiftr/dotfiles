@@ -712,7 +712,7 @@ link_dotfiles() {
     local failed_links=()
     
     # Create necessary directories
-    mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/zsh/completions" "$HOME/.config/git"
+    mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/zsh/completions" "$HOME/.config/git" "$HOME/.config/herdr"
 
     # Desired logical sources and resolved targets
     # Managed file manifest (see ARCHITECTURE.md)
@@ -721,11 +721,12 @@ link_dotfiles() {
         ".zshrc"
         "config/zsh/.zshenv"
         "config/zsh/.zprofile"
-        ".tmux.conf"
         ".gitconfig"
         "config/nvim"
         "config/starship.toml"
+        "config/herdr/config.toml"
         "completions/_dot"
+        "completions/_herdr"
         "hooks"
     )
 
@@ -733,11 +734,12 @@ link_dotfiles() {
         "$HOME/.zshrc"
         "$HOME/.zshenv"
         "$HOME/.zprofile"
-        "$HOME/.tmux.conf"
         "$HOME/.gitconfig"
         "$HOME/.config/nvim"
         "$HOME/.config/starship.toml"
+        "$HOME/.config/herdr/config.toml"
         "$HOME/.local/share/zsh/completions/_dot"
+        "$HOME/.local/share/zsh/completions/_herdr"
         "$HOME/.config/git/hooks"
     )
 
@@ -921,8 +923,15 @@ link_claude_config() {
         fi
     done
 
-    # Link individual files
-    local files=("CLAUDE.md" "WORKFLOW_GUIDE.md" "starship-statusline.sh")
+    # Link individual files (CLAUDE.md lives at repo root, not config/claude/)
+    if [[ -f "$DOTFILES_DIR/CLAUDE.md" ]]; then
+        if link_dotfile "$DOTFILES_DIR/CLAUDE.md" "$claude_target/CLAUDE.md"; then
+            ((++linked_count))
+        else
+            failed_links+=("CLAUDE.md")
+        fi
+    fi
+    local files=("WORKFLOW_GUIDE.md" "starship-statusline.sh")
     for file in "${files[@]}"; do
         if [[ -f "$claude_source/$file" ]]; then
             if link_dotfile "$claude_source/$file" "$claude_target/$file"; then
@@ -1050,7 +1059,7 @@ verify_installation() {
     print_info "Detected OS: $os"
     
     # Check essential tools
-    local tools=("zsh" "git" "curl" "nvim" "tmux" "starship" "zoxide" "eza" "bat" "ripgrep" "fd" "fzf")
+    local tools=("zsh" "git" "curl" "nvim" "herdr" "starship" "zoxide" "eza" "bat" "ripgrep" "fd" "fzf")
     local installed=0
     local total=${#tools[@]}
     
@@ -1129,63 +1138,11 @@ validate_nvim_plugins() {
     return 0
 }
 
-# Validate Tmux plugins are installed
-validate_tmux_plugins() {
-    print_step "Validating Tmux plugin setup..."
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-        print_info "DRY RUN: Would validate Tmux plugins"
-        return 0
-    fi
-
-    if ! command_exists tmux; then
-        print_warning "Tmux not installed, skipping plugin validation"
-        return 0
-    fi
-
-    local tpm_dir="$HOME/.tmux/plugins/tpm"
-
-    # Check for TPM (verify bin/ exists to detect partial clones)
-    if [[ -d "$tpm_dir" ]] && [[ -f "$tpm_dir/bin/install_plugins" ]]; then
-        print_success "TPM (Tmux Plugin Manager) installed"
-    else
-        print_info "Installing TPM (Tmux Plugin Manager)..."
-        if git clone https://github.com/tmux-plugins/tpm "$tpm_dir" 2>/dev/null; then
-            print_success "TPM installed successfully"
-        else
-            print_warning "Failed to install TPM"
-            print_info "TPM will auto-install on first tmux session"
-        fi
-    fi
-
-    # Install plugins via TPM if it exists
-    if [[ -d "$tpm_dir" ]] && [[ -f "$tpm_dir/bin/install_plugins" ]]; then
-        print_info "Installing Tmux plugins via TPM..."
-        if "$tpm_dir/bin/install_plugins" >/dev/null 2>&1; then
-            print_success "Tmux plugins installed"
-        else
-            print_info "Plugins will install on first tmux session"
-        fi
-    fi
-
-    # Count installed plugins
-    local plugins_dir="$HOME/.tmux/plugins"
-    if [[ -d "$plugins_dir" ]]; then
-        local plugin_count
-        plugin_count=$(find "$plugins_dir" -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
-        ((plugin_count--)) # Subtract 1 for the plugins_dir itself
-        print_info "Tmux plugins installed: $plugin_count"
-    fi
-
-    return 0
-}
-
 # Run all post-installation validations
 run_post_install_validations() {
     print_header "Post-Installation Validation"
 
     validate_nvim_plugins
-    validate_tmux_plugins
 
     print_success "Post-installation validation complete"
 }

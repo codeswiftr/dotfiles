@@ -4,7 +4,7 @@ Decided: 2026-04-22
 
 ## Canonical File Layout
 
-All configuration source-of-truth lives in `config/`. Root-level dotfiles (`.zshrc`, `.tmux.conf`) are thin loaders that source from `config/`.
+All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a thin loader that sources `config/zsh`.
 
 ### Managed File Manifest
 
@@ -13,11 +13,13 @@ All configuration source-of-truth lives in `config/`. Root-level dotfiles (`.zsh
 | `.zshrc` | `~/.zshrc` | Loader → sources `config/zsh/*.zsh` |
 | `config/zsh/.zshenv` | `~/.zshenv` | Symlink |
 | `config/zsh/.zprofile` | `~/.zprofile` | Symlink |
-| `.tmux.conf` | `~/.tmux.conf` | Loader → sources `config/tmux/tmux.conf` |
 | `config/nvim/` | `~/.config/nvim` | Symlink (directory) |
 | `config/starship.toml` | `~/.config/starship.toml` | Symlink |
 | `completions/_dot` | `~/.local/share/zsh/completions/_dot` | Symlink |
 | `hooks/` | `~/.config/git/hooks` | Symlink (directory) — single hooks tree (no `git/hooks/`) |
+| `CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink (repo-root agent notes) |
+| `config/claude/{agents,commands,skills,output-styles,WORKFLOW_GUIDE.md,starship-statusline.sh}` | `~/.claude/{...}` | Symlinks via chezmoi `home/private_dot_claude/` |
+| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Symlink via chezmoi `home/dot_config/herdr/` (file only) |
 
 ### Not Managed (machine-local)
 
@@ -25,7 +27,8 @@ All configuration source-of-truth lives in `config/`. Root-level dotfiles (`.zsh
 |---|---|
 | `~/.local/bin/*` | mise, uv, brew — NOT linked from repo `bin/` |
 | `~/.gitconfig` | Generated from `config/gitconfig` template during install |
-| `~/.claude/` | Claude Code owns this; template applied once during install |
+| `~/.claude/settings.json` | Claude Code owns this; template applied once if missing |
+| `~/.config/herdr/{session.json,*.sock,*.log}` | Herdr runtime — never symlink the whole directory |
 
 ### `bin/` Policy
 
@@ -35,7 +38,6 @@ All configuration source-of-truth lives in `config/`. Root-level dotfiles (`.zsh
 - `cursor` — cursor launcher
 - `viman` — vim man pages
 - `dotfiles-tutor` — interactive tutor
-- `tmux-versions` — tmux version helper
 - `_agent` and `_claude` / `_codex` / … — agent launch wrappers
 
 All other executables (tool binaries, uv entrypoints) are managed by package managers (mise, uv, brew) and live in **`~/.local/bin/`** (a real directory), mise shims, or Homebrew paths. They are NOT tracked in git.
@@ -49,7 +51,7 @@ All other executables (tool binaries, uv entrypoints) are managed by package man
 **Primary:** chezmoi (`home/` directory with `.chezmoiroot`).
 
 chezmoi manages:
-- Symlinks: .zshrc, .tmux.conf, .zshenv, .zprofile, nvim, starship.toml, hooks, completions
+- Symlinks: .zshrc, .zshenv, .zprofile, nvim, starship.toml, herdr, hooks, completions
 - Templates: .gitconfig (with machine-specific name/email/credential helper)
 - Scripts: run_onchange for git hooksPath configuration
 
@@ -62,7 +64,7 @@ chezmoi manages:
 | Source | Owns |
 |--------|------|
 | **`mise.toml`** | Version-pinned CLIs + runtimes (rg, bat, fd, fzf, starship, zoxide, atuin, delta, jq, yq, gh, security scanners, node, python, …). Install via `mise install` / installer bootstrap. |
-| **`config/tools.yaml`** | Platform packages (zsh, git, nvim, tmux, eza, uv, bun, docker, AI casks) and profile groups. Tools with `provided_by: mise` are never brew/apt-installed. |
+| **`config/tools.yaml`** | Platform packages (zsh, git, nvim, eza, uv, bun, docker, AI casks) and profile groups. Tools with `provided_by: mise` are never brew/apt-installed. |
 | **`config/platform/Brewfile`** | macOS platform packages only — no mise-owned CLI duplicates |
 | **uv / npm / brew** | Language tools and casks not covered by mise. Prefer `brew uninstall` of mise-owned CLIs if both appear on PATH. |
 
@@ -87,7 +89,7 @@ No custom `versions.json`. Package managers already know what's installed.
 **Framework:** bats-core.
 - `tests/bats/smoke.bats` — CLI, install, shell syntax, agent-safe, bin hygiene
 - `tests/bats/infrastructure.bats` — paths, contracts, bindings, tiers, performance
-- Run: `bats tests/bats/*.bats` or `make test`
+- Run: `bats tests/bats/*.bats` or `just test`
 
 ## Neovim Tiers
 

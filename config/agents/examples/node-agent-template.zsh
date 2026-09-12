@@ -177,12 +177,11 @@ t-status() {
     echo "🤖 Trinity Agent Status"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    # Check for running agent sessions
-    if tmux has-session 2>/dev/null; then
-        echo "Tmux sessions:"
-        tmux list-sessions 2>/dev/null | grep -i "agent\|claude\|minimax\|glm" || echo "  (no agent sessions found)"
+    if command -v herdr >/dev/null 2>&1; then
+        echo "Herdr agents:"
+        herdr agent list 2>/dev/null || echo "  (herdr list failed)"
     else
-        echo "  Tmux not running"
+        echo "  Herdr not on PATH"
     fi
 
     echo ""

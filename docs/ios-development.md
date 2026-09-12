@@ -240,25 +240,6 @@ CODE_SIGN_IDENTITY="Apple Development"
 DEVELOPMENT_TEAM="ABC123DEF4"
 ```
 
-## 🏗️ Specialized Tmux Layout
-
-Access the iOS development layout with:
-
-```bash
-# From tmux command palette
-Ctrl-a D → iOS Development
-
-# Or directly
-tmux-ios-layout
-```
-
-The layout provides:
-
-1. **Main Editor Pane** - For Xcode or text editor
-2. **Build Output** - Shows build logs and errors  
-3. **Simulator Control** - Manage simulator and devices
-4. **File Management** - Navigate project files
-
 ## 📋 Common Workflows
 
 ### New Feature Development

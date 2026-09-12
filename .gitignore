@@ -11,14 +11,13 @@ mise.lock
 .config/
 
 # bin/ policy: only repo-owned scripts are tracked (dot, ai, cursor, viman,
-# dotfiles-tutor, tmux-versions). Everything else is machine-local.
+# dotfiles-tutor). Everything else is machine-local.
 bin/*
 !bin/dot
 !bin/ai
 !bin/cursor
 !bin/viman
 !bin/dotfiles-tutor
-!bin/tmux-versions
 !bin/_agent
 !bin/_claude
 !bin/_codex
@@ -30,7 +29,6 @@ bin/*
 !bin/_amp
 !bin/_minimax
 !bin/_glm
-!bin/agent-restart
 
 # Machine-local Claude skill symlinks (broken if target not in-repo)
 config/claude/skills/agents-sdk

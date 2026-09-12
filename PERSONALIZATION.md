@@ -88,16 +88,9 @@ under `profiles.default`, or pass it explicitly:
 ./install.sh install minimal     # symlinks only
 ```
 
-## 8. Tmux node accent color
+## 8. Herdr
 
-In `config/tmux/tmux.conf`, add your hostname to get a unique status bar color:
-
-```tmux
-if-shell "echo '#H' | grep -qxE 'your-hostname'" \
-    'set -g @node-accent "#a6e3a1"; set -g @node-accent-dim "#94b877"'
-```
-
-Colors follow the Catppuccin Mocha palette.
+Config lives at `config/herdr/config.toml` (prefix `Ctrl-a`). Daily aliases: `hw`, `ha`, `hl`.
 
 ## 9. Neovim tier
 

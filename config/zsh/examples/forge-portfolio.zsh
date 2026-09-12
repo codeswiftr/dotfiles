@@ -156,5 +156,4 @@ function forge-status() {
     echo "═══════════════════════════════════════"
 }
 
-alias forge-tmux="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux/forge-layout.sh"
-alias ft="forge-tmux"
+alias ft="herdr workspace list"

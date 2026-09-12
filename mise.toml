@@ -28,6 +28,9 @@ python = "3.12"
 # GitHub CLI
 "aqua:cli/cli"                  = "2.67.0"    # gh
 
+# Command runner
+"aqua:casey/just"               = "1.40.0"    # just (modern make replacement)
+
 # Security tools
 "aqua:gitleaks/gitleaks"        = "8.25.1"
 "aqua:aquasecurity/trivy"       = "0.70.0"

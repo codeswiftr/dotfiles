@@ -80,18 +80,13 @@ require("catppuccin").setup({
 })
 ```
 
-#### **3. Tmux Theme**
-Edit `~/.tmux.conf`:
-```bash
-set -g @catppuccin_flavour 'mocha'  # Change to: latte, frappe, macchiato
-```
+#### **3. Herdr**
+Accent color is in `config/herdr/config.toml` (`[ui] accent`).
 
 #### **4. Apply Changes**
 ```bash
-# Reload configurations
 source ~/.zshrc
-tmux source-file ~/.tmux.conf
-# Restart Neovim to apply theme
+herdr server reload-config
 ```
 
 ## 🖥️ **Terminal Setup**
@@ -281,8 +276,7 @@ curl -s https://gist.githubusercontent.com/lifepillar/09a44b8cf0f9397465614e6229
 ```bash
 # Reload all configurations
 source ~/.zshrc
-tmux source-file ~/.tmux.conf
-# Restart terminal application
+herdr server reload-config
 ```
 
 ### **Neovim Theme Not Loading**

@@ -67,14 +67,14 @@ setup() {
 }
 
 @test "agent mode preserves standard command names" {
-    run zsh -fc 'DOTFILES_DIR="$1" DOTFILES_MODE=agent source "$1/.zshrc" >/dev/null 2>&1; alias cat less grep find ls man vim vi tmux python python3 pip pip3 node npm npx 2>/dev/null || true; echo "PAGER=$PAGER GIT_PAGER=$GIT_PAGER MANPAGER=$MANPAGER CORRECT=$options[correct]"' _ "$DOTFILES_DIR"
+    run zsh -fc 'DOTFILES_DIR="$1" DOTFILES_MODE=agent source "$1/.zshrc" >/dev/null 2>&1; alias cat less grep find ls man vim vi herdr python python3 pip pip3 node npm npx 2>/dev/null || true; echo "PAGER=$PAGER GIT_PAGER=$GIT_PAGER MANPAGER=$MANPAGER CORRECT=$options[correct]"' _ "$DOTFILES_DIR"
     [ "$status" -eq 0 ]
     [[ "$output" != *"cat="* ]]
     [[ "$output" != *"less="* ]]
     [[ "$output" != *"grep="* ]]
     [[ "$output" != *"find="* ]]
     [[ "$output" != *"ls="* ]]
-    [[ "$output" != *"tmux="* ]]
+    [[ "$output" != *"herdr="* ]]
     [[ "$output" != *"python3="* ]]
     [[ "$output" != *"pip="* ]]
     [[ "$output" != *"node="* ]]
@@ -101,13 +101,13 @@ setup() {
 }
 
 @test "native escape aliases are available" {
-    run zsh -fc 'DOTFILES_DIR="$1" source "$1/.zshrc" >/dev/null 2>&1; alias _cat _grep _find _ls _tmux _python3 2>/dev/null' _ "$DOTFILES_DIR"
+    run zsh -fc 'DOTFILES_DIR="$1" source "$1/.zshrc" >/dev/null 2>&1; alias _cat _grep _find _ls _herdr _python3 2>/dev/null' _ "$DOTFILES_DIR"
     [ "$status" -eq 0 ]
     [[ "$output" == *"_cat='command cat'"* ]]
     [[ "$output" == *"_grep='command grep'"* ]]
     [[ "$output" == *"_find='command find'"* ]]
     [[ "$output" == *"_ls='command ls'"* ]]
-    [[ "$output" == *"_tmux='command tmux'"* ]]
+    [[ "$output" == *"_herdr='command herdr'"* ]]
     [[ "$output" == *"_python3='command python3'"* ]]
 }
 
@@ -120,22 +120,11 @@ setup() {
     [[ "$output" == *"Usage: _agent"* ]]
 }
 
-@test "agent-restart CLI is present and helps" {
-    [ -x "$DOTFILES_DIR/bin/agent-restart" ]
-    run "$DOTFILES_DIR/bin/agent-restart" --help
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"prepare"* ]]
-    [[ "$output" == *"resume"* ]]
-}
-
-@test "dot restart dispatches to agent-restart" {
-    run "$DOTFILES_DIR/bin/dot" restart --help
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"prepare"* ]]
-    [[ "$output" == *"resume"* ]]
+@test "dot restart reports herdr status" {
     run "$DOTFILES_DIR/bin/dot" --help
     [ "$status" -eq 0 ]
     [[ "$output" == *"restart"* ]]
+    [[ "$output" != *"tmux agents"* ]]
 }
 
 # --- Shell startup performance ---
@@ -173,8 +162,8 @@ setup() {
     [ -f "$DOTFILES_DIR/config/nvim/init.lua" ]
 }
 
-@test "config/tmux/tmux.conf exists" {
-    [ -f "$DOTFILES_DIR/config/tmux/tmux.conf" ]
+@test "config/herdr/config.toml exists" {
+    [ -f "$DOTFILES_DIR/config/herdr/config.toml" ]
 }
 
 # --- Symlinks correct ---
@@ -188,9 +177,8 @@ setup() {
     [ -L "$HOME/.config/nvim" ] || [ -d "$HOME/.config/nvim" ]
 }
 
-@test "~/.tmux.conf symlink points to dotfiles" {
-    [ -L "$HOME/.tmux.conf" ]
-    [[ "$(readlink "$HOME/.tmux.conf")" == *"dotfiles"* ]]
+@test "~/.config/herdr/config.toml is linked from dotfiles" {
+    [ -L "$HOME/.config/herdr/config.toml" ] || [ -f "$HOME/.config/herdr/config.toml" ]
 }
 
 # --- Neovim tier system ---
@@ -209,7 +197,7 @@ setup() {
 # --- bin/ hygiene (no tool landfill) ---
 
 @test "bin/ contains only whitelisted scripts" {
-    local allowed='^(dot|ai|cursor|viman|dotfiles-tutor|tmux-versions|agent-restart|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
+    local allowed='^(dot|ai|cursor|viman|dotfiles-tutor|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
     local bad=0
     local name
     for f in "$DOTFILES_DIR"/bin/*; do
@@ -256,3 +244,56 @@ setup() {
     [ "$status" -eq 0 ]
     [[ "$output" == *"/dotfiles/home"* ]] || [[ "$output" == *"/dotfiles"* ]]
 }
+
+# --- Claude agent instruction surface ---
+
+@test "CLAUDE.md lives at repo root, not config/claude/" {
+    [ -f "$DOTFILES_DIR/CLAUDE.md" ]
+    [ ! -e "$DOTFILES_DIR/config/claude/CLAUDE.md" ]
+}
+
+@test "chezmoi CLAUDE.md template points at repo-root CLAUDE.md" {
+    local tmpl="$DOTFILES_DIR/home/private_dot_claude/symlink_CLAUDE.md.tmpl"
+    [ -f "$tmpl" ]
+    grep -q 'CLAUDE.md' "$tmpl"
+    grep -qv 'config.*claude.*CLAUDE' "$tmpl"
+}
+
+@test "herdr config.toml is source-managed with ctrl+a prefix" {
+    local cfg="$DOTFILES_DIR/config/herdr/config.toml"
+    local tmpl="$DOTFILES_DIR/home/dot_config/herdr/symlink_config.toml.tmpl"
+    [ -f "$cfg" ]
+    [ -f "$tmpl" ]
+    grep -q 'prefix = "ctrl+a"' "$cfg"
+    grep -q 'reload_config' "$cfg"
+    grep -q 'herdr' "$tmpl"
+    grep -q 'config.toml' "$tmpl"
+}
+
+@test "prime/continue/handoff commands do not require Forge" {
+    local dir="$DOTFILES_DIR/config/claude/commands"
+    grep -q 'AGENTS.md' "$dir/prime.md"
+    grep -q 'HANDOFF.md' "$dir/continue.md"
+    grep -q 'HANDOFF.md' "$dir/handoff.md"
+    # No FORGE portfolio examples as the default target
+    if grep -E 'voice-coach|interview-simulator|code-atlas' \
+        "$dir/prime.md" "$dir/continue.md" "$dir/handoff.md" "$dir/README.md"; then
+        return 1
+    fi
+}
+
+@test "justfile exists and contains core recipes" {
+    [ -f "$DOTFILES_DIR/justfile" ]
+    grep -q 'test:' "$DOTFILES_DIR/justfile"
+    grep -q 'lint:' "$DOTFILES_DIR/justfile"
+    grep -q 'check:' "$DOTFILES_DIR/justfile"
+}
+
+@test "herdr zsh completions and aliases are defined" {
+    [ -f "$DOTFILES_DIR/completions/_herdr" ]
+    grep -q '#compdef herdr' "$DOTFILES_DIR/completions/_herdr"
+    grep -q 'alias herder="herdr"' "$DOTFILES_DIR/config/zsh/aliases.zsh"
+    grep -q 'alias hs=' "$DOTFILES_DIR/config/zsh/aliases.zsh"
+    grep -q 'alias hw=' "$DOTFILES_DIR/config/zsh/aliases.zsh"
+}
+

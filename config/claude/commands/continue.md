@@ -1,138 +1,71 @@
 ---
 name: continue
-description: Resume work from a handoff prompt - read context and continue execution
+description: Resume work from a handoff in the current repo
 ---
 
 # Continue From Handoff
 
-Resume work from a previous session using the context in docs/PROMPT.md.
+Resume the current repository from a saved handoff. Do not assume Forge or `docs/PROMPT.md`.
 
-## Startup Sequence
+## 1. Find a handoff
 
-### 1. Load Context
+Look in this order; use the first file that exists:
+
+1. `HANDOFF.md` (repo root) — preferred
+2. `docs/PROMPT.md` — legacy name some sessions used
+3. Newest `docs/handoffs/*`
+4. Newest `.forge_sessions/handoff_*`
+
+If none exist, say so, run `/prime` (or the prime steps), and wait for a goal. Do not invent a plan.
+
+## 2. Load repo context
+
+Read `AGENTS.md`, then `CLAUDE.md`, then `README.md` when present. Then:
+
 ```bash
-# Load all context in one command (reads CLAUDE.md, PLAN.md, PROMPT.md, git status, handoffs)
-forge context load
-
-# Or load with project focus
-forge context load --project voice-coach --focus dev
-
-# Read the latest handoff if available
-forge handoff read <latest-id>
+git status
+git log --oneline -5
 ```
 
-### 2. Verify Environment
+Re-read any files the handoff names; they may have changed.
+
+## 3. Verify
+
+Use the test/check command from the handoff or `AGENTS.md`. Examples this repo uses:
+
 ```bash
-# Check tests pass
-[test command from PROMPT.md]
-
-# Verify build works
-[build command from PROMPT.md]
+bats tests/bats/smoke.bats
+./bin/dot check
 ```
 
-### 3. Identify Resume Point
-From the plan, find:
-- Current phase
-- Current task (🔄 In Progress or next ⏳ Pending)
-- Any blockers noted
+In other repos, use that project's documented command. Skip tools that are not installed.
 
-### 4. Begin Execution
+## 4. Resume
 
-```
-DO NOT STOP! Continue with the plan like an empowered, pragmatic senior engineer.
+Continue from the handoff's **exact next action**. Treat the rest of the handoff as stale hints until you verify files and git.
 
-As a master CLI/terminal power user, execute safe commands as needed.
-```
+Stop and ask when:
 
-## Execution Mode
+- The handoff's next step is gone or contradicts the working tree
+- You would need a human decision (secrets, force-push, unrelated refactors)
+- There is no handoff and no clear request
 
-### Mindset
-- You are a pragmatic senior engineer
-- Apply Pareto principle - 20% effort for 80% value
-- TDD for business logic
-- YAGNI - don't build what isn't needed
-- Clean architecture with clear separation
+Do not "keep going until the whole backlog is done." Finish the stated next action, then report.
 
-### Workflow Loop
-```
-1. Read current task from plan
-2. Think about approach
-3. Write test (if TDD appropriate)
-4. Implement solution
-5. Verify (tests, lint)
-6. Commit with conventional message
-7. Update plan status
-8. Continue to next task
-9. DO NOT STOP
-```
-
-### Agent Delegation
-Use subagents for complex tasks to avoid context rot:
-- `backend-engineer` → API, database, business logic
-- `frontend-builder` → UI components
-- `qa-test-guardian` → Test creation
-- `security-auditor` → Security review
-
-### Quality Gates
-After every change:
-- Run affected tests
-- Ensure no regressions
-- Commit with descriptive message
-- Update plan status
-
-## Progress Tracking
-
-Update plan as you work:
-```markdown
-| Task | Status |
-|------|--------|
-| X.1 | ✅ Done |
-| X.2 | 🔄 In Progress |
-| X.3 | ⏳ Pending |
-```
-
-## When to Stop
-
-Only stop when:
-1. Plan fully implemented (all tasks ✅)
-2. Tests passing (full suite green)
-3. Committed and pushed
-4. Plan updated with completion status
-
-OR when encountering:
-- Truly blocking issues requiring human decision
-- Security-critical decisions
-- Ambiguous requirements that need clarification
-
-## Output on Completion
-
-```markdown
-## ✅ Session Complete
-
-### Progress Made
-- ✅ [Completed task 1]
-- ✅ [Completed task 2]
-- 🔄 [In progress task] - [status]
-
-### Commits
-- `abc123` feat(x): description
-- `def456` test(x): description
-
-### Tests
-- All passing: ✅
-- Coverage: XX%
-
-### Next Session
-[What to pick up next]
-```
-
-## Quick Start Command
+## 5. Output when you pause or finish
 
 ```
-Read docs/PROMPT.md, verify tests pass, then continue from the current task.
+## Session
 
-When the plan is clear, proceed as a senior engineer.
-When clarity needed, check docs or ask.
+### Done
+- …
 
-DO NOT STOP until plan is complete or blocked.
+### Still open
+- …
+
+### Verify
+- [command] [pass/fail/not run]
+
+### Next
+[one concrete step]
 ```

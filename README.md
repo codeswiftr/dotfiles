@@ -44,7 +44,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/m
 
 | Profile | Description | Good for |
 |---------|-------------|----------|
-| `minimal` | Symlinks only (zsh, tmux, nvim, git) | Servers, containers |
+| `minimal` | Symlinks only (zsh, herdr, nvim, git) | Servers, containers |
 | `standard` | + Modern CLI tools (starship, eza, bat, fzf, atuin) | Most developers |
 | `full` | + AI tools, security scanners, optional extras | Power users |
 | `ai_focused` | + AI coding agents (claude, aider, opencode) | AI-assisted dev |
@@ -91,18 +91,15 @@ delta       → better git diffs
 ```
 
 Human shells may alias common names like `cat` to these tools. Native escape
-hatches such as `_cat`, `_grep`, `_find`, `_ls`, and `_tmux` are always
+hatches such as `_cat`, `_grep`, `_find`, `_ls`, and `_herdr` are always
 available. Agent shells should use `DOTFILES_MODE=agent`; see
 [docs/agents.md](docs/agents.md).
 
-### Tmux
+### Herdr (local multiplexer)
 
 - Prefix: `Ctrl-a`
-- ~25 essential bindings (hjkl navigation, `|`/`-` splits, `Tab` last window)
-- Per-node status bar accent color (defined in `tmux.conf`)
-- SSH indicator: status bar moves to top with red `SSH` label on remote sessions
-- F12 to toggle key passthrough for nested sessions
-- Plugins: `tmux-resurrect` + `tmux-continuum` (auto-save every 15 min)
+- Workspaces / agents: `hw`, `ha`, `hl` (`config/zsh/aliases.zsh`)
+- Config: `config/herdr/config.toml`
 
 ### Neovim (tier-based)
 
@@ -196,7 +193,7 @@ dotfiles/
 │   │   └── examples/     # Node-specific templates (not loaded automatically)
 │   ├── agents/           # AI agent aliases and per-node config
 │   ├── nvim/             # Neovim tier-based config
-│   ├── tmux/             # Tmux config
+│   ├── herdr/            # Terminal multiplexer (Herdr)
 │   ├── claude/           # Claude Code integration (commands, skills, agents)
 │   └── tools.yaml        # Declarative tool definitions
 ├── lib/                  # Shell libraries used by dot CLI
@@ -224,9 +221,9 @@ dot security setup-ssh
 ## Testing
 
 ```bash
-bats tests/bats/*.bats              # Full test suite
-bats tests/bats/smoke.bats          # Smoke tests only
-find . -name "*.sh" | xargs shellcheck -S warning
+just test                           # Full bats suite
+just smoke                          # Smoke tests only
+just lint                           # shellcheck + yamllint + ruff when installed
 ```
 
 ## Documentation
@@ -235,9 +232,8 @@ find . -name "*.sh" | xargs shellcheck -S warning
 |-------|---------|
 | [Personalization](PERSONALIZATION.md) | **Start here** — fork setup, API keys, profiles |
 | [Installation](docs/INSTALL-DECLARATIVE.md) | Detailed install instructions |
-| [Configuration](docs/configuration.md) | All configuration options |
+| [Configuration](docs/configuration.md) | Herdr, shell, nvim, tools |
 | [Neovim](docs/neovim.md) | Neovim tier system |
-| [Tmux](docs/tmux-quick-reference.md) | Tmux keybindings reference |
 | [AI Workflows](docs/ai-workflows.md) | AI tool integration |
 | [Git Hooks](docs/git-hooks.md) | Pre-commit hook setup |
 | [Security](docs/security.md) | GPG, SSH, secret management |
@@ -248,7 +244,7 @@ find . -name "*.sh" | xargs shellcheck -S warning
 
 1. Fork and clone
 2. Make changes (run `shellcheck` on any shell scripts you edit)
-3. Test: `bats tests/bats/*.bats`
+3. Test: `just smoke` (or `just test`)
 4. Open a PR
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.

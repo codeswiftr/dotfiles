@@ -19,10 +19,11 @@ Where to change things. Prefer editing files under the repo; chezmoi / install l
 
 **Modes:** `DOTFILES_MODE=full|minimal|agent` — see [agents.md](agents.md) and [ARCHITECTURE.md](../ARCHITECTURE.md).
 
-## Tmux
+## Herdr (local multiplexer)
 
-- Single config: `config/tmux/tmux.conf` (prefix `Ctrl-a`)
-- Loader: root `.tmux.conf` → sources the above
+- Config: `config/herdr/config.toml` (prefix `Ctrl-a`)
+- Chezmoi: `home/dot_config/herdr/symlink_config.toml.tmpl`
+- Shell: `ha` / `hw` / `hs` / `hl` in `config/zsh/aliases.zsh`
 
 ## Neovim
 
@@ -56,4 +57,4 @@ Where to change things. Prefer editing files under the repo; chezmoi / install l
 ## Themes
 
 - Prompt: `config/starship.toml`
-- Neovim / tmux: Catppuccin-oriented defaults in their configs
+- Neovim / Herdr: Catppuccin-oriented defaults in their configs

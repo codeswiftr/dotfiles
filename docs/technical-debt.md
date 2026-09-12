@@ -36,14 +36,14 @@ Living backlog after the 2026 modernization waves. Prefer deleting dead code ove
 
 - Multi-shell (fish) support  
 - Perfect multi-chat resume beyond agent native continue flags  
-- Pane scrollback capture in tmux-resurrect  
+- tmux (retired; Herdr is the multiplexer)  
 
 ## Contributor path
 
 ```bash
-bats tests/bats/*.bats   # or: make test
-./bin/dot check
-./bin/dot restart status
+just smoke
+just test
+just check
 ```
 
 See [AGENTS.md](../AGENTS.md) and [ARCHITECTURE.md](../ARCHITECTURE.md).

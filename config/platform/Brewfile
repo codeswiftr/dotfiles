@@ -6,7 +6,6 @@
 # Core shell & editor
 # =============================================================================
 brew "zsh"
-brew "tmux"
 brew "neovim"
 brew "git"
 

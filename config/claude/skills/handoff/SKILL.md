@@ -161,7 +161,7 @@ Output a resume command for easy restart:
 claude "Continue work on [task]. See .forge_sessions/handoff_YYYY-MM-DD_HH-MM.md"
 
 # For FORGE agents:
-tmux attach -t forge:[agent-name]
+ha   # or: herdr agent focus <name>
 # Then paste the handoff prompt
 ```
 

@@ -40,30 +40,14 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
-# --- Tmux Bindings (from test_tmux_bindings.sh) ---
+# --- Herdr config ---
 
-@test "tmux config has new-window binding" {
-    run grep "bind.*c.*new-window" "$DOTFILES_DIR/config/tmux/tmux.conf"
+@test "herdr config sets ctrl+a prefix and detach" {
+    [ -f "$DOTFILES_DIR/config/herdr/config.toml" ]
+    run grep 'prefix = "ctrl+a"' "$DOTFILES_DIR/config/herdr/config.toml"
     [ "$status" -eq 0 ]
-}
-
-@test "tmux config has detach binding" {
-    run grep "bind.*d.*detach" "$DOTFILES_DIR/config/tmux/tmux.conf"
+    run grep 'detach' "$DOTFILES_DIR/config/herdr/config.toml"
     [ "$status" -eq 0 ]
-}
-
-@test "tmux config has split bindings" {
-    run grep 'bind.*|.*split' "$DOTFILES_DIR/config/tmux/tmux.conf"
-    [ "$status" -eq 0 ]
-    run grep 'bind.*-.*split' "$DOTFILES_DIR/config/tmux/tmux.conf"
-    [ "$status" -eq 0 ]
-}
-
-@test "tmux config has pane navigation" {
-    for key in h j k l; do
-        run grep "bind.*$key.*select-pane" "$DOTFILES_DIR/config/tmux/tmux.conf"
-        [ "$status" -eq 0 ]
-    done
 }
 
 # --- Neovim Tiers (from test_nvim_tiers.sh) ---

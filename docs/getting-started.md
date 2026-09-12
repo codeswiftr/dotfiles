@@ -8,7 +8,7 @@ First, verify your installation was successful:
 
 ```bash
 # Check core tools
-which zsh starship nvim tmux
+which zsh starship nvim herdr
 
 # Run health check
 dot-health
@@ -31,7 +31,7 @@ cd ~/dotfiles
 
 # Start coding
 nvim   # Press <Space>? for command discovery
-tmux   # Minimal essential keybindings
+herdr  # or: ha / hw / hl
 
 # Quick health
 ./scripts/health-check.sh --json | jq .  # or: dot-health
@@ -77,8 +77,8 @@ echo "print('Hello, modern development!')" > main.py
 # Test project switching
 proj  # Should show your project in the list
 
-# Create a smart tmux session
-tm sample-app  # Creates optimized development layout
+# Open the project in Herdr
+ha
 ```
 
 ### **3. Test AI Integration (5 minutes)**
@@ -101,9 +101,9 @@ ai-security-status
 ### **🔄 Project & Session Management**
 ```bash
 proj                    # Switch between projects (fuzzy finder)
-tm <project-name>      # Smart tmux session for project
-ta <session-name>      # Attach to existing session
-ts                     # List all tmux sessions
+hw                      # List Herdr workspaces
+ha                      # Attach / open Herdr
+hl                      # List Herdr agents
 ```
 
 ### **🤖 AI-Powered Development**
@@ -271,7 +271,7 @@ ai-review-branch  # Compares with main branch
 - **International Keyboard Tips:**
   - All shortcuts are designed to work with US, UK, and most EU layouts.
   - For non-standard layouts, remap keys in your terminal emulator or use platform tools (e.g., Karabiner-Elements on macOS).
-  - See [Navigation Guide](navigation.md#internationalization) for more.
+  - Remap in the terminal emulator or OS settings if a shortcut does not match your layout.
 
 ### 🌍 Internationalization & Accessibility
 
@@ -286,7 +286,7 @@ ai-review-branch  # Compares with main branch
 ### 🎓 Interactive Tutorials & Help
 
 - Run `dotfiles-tutor` for guided onboarding and advanced tips.
-- Explore [AI Workflows](ai-workflows.md) and [Navigation Guide](navigation.md) for more.
+- Explore [AI Workflows](ai-workflows.md) for more.
 - For troubleshooting, see [Troubleshooting](troubleshooting.md) and FAQ below.
 
 ---
@@ -346,7 +346,7 @@ nvim +checkhealth +qall
 If you encounter issues or are migrating from legacy configs, see the [Troubleshooting Guide](troubleshooting.md) and [Technical Debt & Migration](technical-debt.md). Contributors are encouraged to help document and improve migration steps!
 
 ### **This Week**
-1. 📚 Read [Navigation Guide](navigation.md) for advanced shortcuts
+1. 📚 Read [Configuration](configuration.md) for where files live
 2. 🤖 Explore [AI Workflows](ai-workflows.md) for development
 3. ⚡ Review [Performance Guide](performance.md) for optimization
 4. 🎨 Customize theme in [Theme Guide](themes.md)

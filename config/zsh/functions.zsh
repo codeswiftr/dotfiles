@@ -73,9 +73,9 @@ function proj() {
 unalias dot-reload 2>/dev/null || true
 
 dot-reload() {
-    # 1) tmux: reload server-side config
-    if command -v tmux >/dev/null 2>&1; then
-        tmux source-file ~/.tmux.conf 2>/dev/null || true
+    # 1) herdr: reload server-side config
+    if command -v herdr >/dev/null 2>&1; then
+        herdr server reload-config >/dev/null 2>&1 || true
     fi
     # 2) mise: refresh shims
     if command -v mise >/dev/null 2>&1; then
@@ -85,32 +85,6 @@ dot-reload() {
     if [[ -f "$HOME/.zshrc" ]]; then
         source "$HOME/.zshrc"
         echo "✅ Reloaded shell configuration (zsh)"
-    fi
-}
-
-# Tmux session management
-function tmux-project() {
-    local project_name=$(basename $(pwd))
-    if tmux has-session -t "$project_name" 2>/dev/null; then
-        tmux attach-session -t "$project_name"
-    else
-        tmux new-session -d -s "$project_name"
-        tmux send-keys -t "$project_name" "clear" C-m
-        tmux attach-session -t "$project_name"
-    fi
-}
-
-# Smart tmux sessionizer (enhanced project switching)
-function tmux-sessionizer() {
-    "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux/tmux-sessionizer"
-}
-
-# Quick tmux session launcher
-function tm() {
-    if [[ $# -eq 0 ]]; then
-        tmux-sessionizer
-    else
-        tmux-sessionizer "$1"
     fi
 }
 

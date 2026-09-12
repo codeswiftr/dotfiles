@@ -89,7 +89,7 @@ echo "📦 Core Tools:"
 OS_NAME="$(uname -s)"
 print_info "OS: $OS_NAME"
 print_info "Shell: $SHELL"
-tools=(starship zoxide eza bat rg fd fzf mise git nvim tmux)
+tools=(starship zoxide eza bat rg fd fzf mise git nvim herdr)
 declare -A TOOL_STATUS
 for t in "${tools[@]}"; do
     if check_command_with_alt "$t"; then
@@ -159,7 +159,7 @@ echo "📁 Configuration Files:"
 configs=(
     "$HOME/.zshrc"
     "$HOME/.config/nvim/init.lua"
-    "$HOME/.tmux.conf"
+    "$HOME/.config/herdr/config.toml"
     "$HOME/.config/starship.toml:${DOTFILES_DIR:-$HOME/dotfiles}/config/starship.toml"
 )
 

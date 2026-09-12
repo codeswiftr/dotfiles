@@ -44,11 +44,8 @@ forge-node-up-local() {
 }
 
 forge-restart() {
-    local pane="${1:-forge:$(hostname -s)}"
-    echo "Bootstrap restart in $pane: /clear then /continue"
-    tmux send-keys -t "$pane" "/clear" Enter
-    sleep 3
-    tmux send-keys -t "$pane" "/continue" Enter
+    echo "tmux send-keys retired. Prompt the agent in Herdr, or: herdr agent prompt <name> /continue" >&2
+    return 1
 }
 
 tailscale-start() {

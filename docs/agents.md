@@ -26,7 +26,7 @@ DOTFILES_MODE=agent zsh
 FORGE fleet agents also enable this automatically when `FORGE_AGENT_TYPE` is set.
 In agent-safe mode:
 
-- `cat`, `less`, `grep`, `find`, `ls`, `man`, `vim`, `vi`, `tmux`, and common
+- `cat`, `less`, `grep`, `find`, `ls`, `man`, `vim`, `vi`, `herdr`, and common
   runtime commands such as `python3`, `pip`, `node`, `npm`, and `npx` keep their
   standard command behavior.
 - pagers default to `cat` for command capture (`PAGER`, `GIT_PAGER`,
@@ -50,56 +50,17 @@ _cat file.txt
 _grep "pattern" file.txt
 _find . -name "*.py"
 _ls -la
-_tmux list-sessions
+_herdr workspace list
 ```
 
 Use `agent-safe-status` to inspect the active mode and any remaining aliases.
 
-## Restarts: park agents, then resume (tmux)
+## Restarts
 
-**Pragmatic default:** one command family under `dot`.
-
-```bash
-# Before reboot / OS update
-dot restart status                 # what's running (also: bare `dot restart`)
-dot restart handoff-nudge          # optional: ask agents to write HANDOFF.md
-dot restart prepare                # polite stop + registry + tmux layout save
-dot restart prepare --force        # escalate if stuck
-dot restart prepare --force --kill # last resort
-
-# After boot
-dot restart resume
-dot restart resume --best-effort
-tmux attach -t <session>
-```
-
-Coding agents keep conversation state in their own stores. What dies on reboot is
-the **live TUI in a tmux pane**. We only re-open those TUIs with continue flags.
-
-| Keys | Action |
-|------|--------|
-| `Ctrl-a Q` | same as `dot restart prepare` |
-| `Ctrl-a Y` | same as `dot restart resume` |
-
-**Registry:** `~/.local/share/dotfiles/agent-restart/registry.json`
-
-| Agent | Resume command used |
-|-------|---------------------|
-| claude | `claude --continue --dangerously-skip-permissions` |
-| codex | `codex resume --last` |
-| cursor-agent | `cursor-agent --continue` |
-| opencode / kilo | `… --continue` |
-| others | relaunch in cwd (may need manual session pick) |
-
-| Scenario | What to do |
-|----------|------------|
-| **Planned reboot** | `dot restart prepare` → reboot → `dot restart resume` |
-| **Crash / power loss** | Attach tmux (continuum layout); run continue flags in project dirs; no registry unless you prepared |
-| **Agent mid-tool-call** | Always `prepare` first; `--force` only if stuck |
-
-Pane scrollback is not restored (memory). Rely on agent session DBs + handoff notes.
-
-Implementation binary: `bin/agent-restart` (also callable directly).
+Local work uses **Herdr** (`hw`, `ha`, `hl`). Agent conversation state lives in
+each tool's own store. Herdr can restore agent TUIs when
+`resume_agents_on_restore` is set. `dot restart` prints current Herdr
+workspaces/agents; tmux park/resume is gone.
 
 ## Agent Launch Wrappers
 
@@ -299,17 +260,6 @@ Check agent health:
 
 ```bash
 ai-status               # Shows installed agents and API keys
-```
-
-## Tmux Integration
-
-The tmux configuration includes an AI tools menu:
-
-```
-Ctrl-a A    → AI Tools Menu
-            → Claude Interactive
-            → Aider Code Assistant
-            → AI Code Review
 ```
 
 ## Project Context Files

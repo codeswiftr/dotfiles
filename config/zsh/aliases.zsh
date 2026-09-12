@@ -13,7 +13,7 @@ alias _ls='command ls'
 alias _man='command man'
 alias _vim='command vim'
 alias _vi='command vi'
-alias _tmux='command tmux'
+alias _herdr='command herdr'
 alias _python='command python'
 alias _python3='command python3'
 alias _pip='command pip'
@@ -198,60 +198,20 @@ alias uv-opt="uv-optimize"
 alias bun-opt="bun-optimize" 
 alias mise-opt="mise-optimize"
 
-# Tmux session management aliases
-alias ts="tmux list-sessions"       # List tmux sessions
-alias tl="tmux list-sessions"       # Common muscle memory: tl -> list
+# Herdr / Herder workspace & session management
+alias herder="herdr"
+alias hs="herdr session list"
+alias hw="herdr workspace list"
+alias hl="herdr agent list"
+alias hn="herdr --session"
 
-if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
-    # Auto-resume tmux: attach to existing session or create new one
-    tmux() {
-        if [[ $# -eq 0 ]]; then
-            # No arguments: auto-attach or create
-            if command tmux has-session 2>/dev/null; then
-                command tmux attach-session
-            else
-                command tmux new-session
-            fi
-        else
-            # Pass through any arguments to real tmux
-            command tmux "$@"
-        fi
-    }
-fi
-# Attach to session by name; if no param, open interactive picker
-ta() {
+ha() {
     if [[ -n "$1" ]]; then
-        command tmux attach-session -t "$1"
-        return
-    fi
-    # Interactive session picker
-    local choice=""
-    if command -v fzf >/dev/null 2>&1; then
-        # fzf picker with window preview
-        choice=$(command tmux list-sessions -F "#S" 2>/dev/null | fzf --prompt='ta > ' --height 40% --reverse --preview 'tmux list-windows -t {}' --preview-window=down,50% || true)
+        herdr session attach "$1"
     else
-        local sessions=($(command tmux list-sessions -F "#S" 2>/dev/null))
-        if [[ ${#sessions[@]} -eq 0 ]]; then
-            echo "No tmux sessions found. Create one with: tn <name>"
-            return 1
-        fi
-        echo "Available sessions: ${sessions[*]}"
-        read -r "choice?Attach to session: "
-    fi
-    if [[ -n "$choice" ]]; then
-        command tmux attach-session -t "$choice"
-    else
-        echo "Cancelled"
+        herdr
     fi
 }
-alias tk="tmux kill-session -t"     # Kill session by name
-alias tn="tmux new-session -s"      # Create new named session
-
-# Tmux clipboard aliases
-alias tcopy="${DOTFILES_DIR}/scripts/tmux-clipboard.sh copy"
-alias tpaste="${DOTFILES_DIR}/scripts/tmux-clipboard.sh paste"
-alias tclip-status="${DOTFILES_DIR}/scripts/tmux-clipboard.sh status"
-alias tclip-test="${DOTFILES_DIR}/scripts/tmux-clipboard.sh test"
 
 # Health check convenience
 alias dot-health="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/health-check.sh"

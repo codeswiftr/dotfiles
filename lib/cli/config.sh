@@ -46,7 +46,7 @@ config_list_themes() {
     echo "Available Themes:"
     echo "  catppuccin     - Catppuccin Mocha (active)"
     echo ""
-    echo "Theme is configured via starship.toml, tmux.conf, and nvim config."
+    echo "Theme is configured via starship.toml, herdr config, and nvim config."
     echo "Edit these directly with 'dot config edit'."
 }
 
@@ -69,7 +69,7 @@ config_edit_files() {
         echo "Configuration Files:"
         echo ""
         echo "1) .zshrc - Shell configuration"
-        echo "2) .tmux.conf - Tmux configuration"
+        echo "2) config/herdr/config.toml - Herdr configuration"
         echo "3) config/nvim/init.lua - Neovim configuration"
         echo "4) config/starship.toml - Prompt configuration"
         echo "5) .gitconfig - Git configuration"
@@ -79,7 +79,7 @@ config_edit_files() {
 
         case "$choice" in
             1) file=".zshrc" ;;
-            2) file=".tmux.conf" ;;
+            2) file="config/herdr/config.toml" ;;
             3) file="config/nvim/init.lua" ;;
             4) file="config/starship.toml" ;;
             5) file=".gitconfig" ;;
@@ -121,7 +121,6 @@ config_backup() {
     cd "$DOTFILES_DIR"
     tar -czf "$backup_path" \
         .zshrc \
-        .tmux.conf \
         .gitconfig \
         config/ \
         2>/dev/null || true
@@ -172,7 +171,7 @@ config_validate() {
 
     local errors=0
 
-    local essential_files=(".zshrc" ".tmux.conf" "config/nvim/init.lua" "config/starship.toml")
+    local essential_files=(".zshrc" "config/herdr/config.toml" "config/nvim/init.lua" "config/starship.toml")
     for file in "${essential_files[@]}"; do
         if [[ -f "$DOTFILES_DIR/$file" ]]; then
             print_success "$file exists"
@@ -193,7 +192,7 @@ config_validate() {
 
     local symlinks=(
         "$HOME/.zshrc:$DOTFILES_DIR/.zshrc"
-        "$HOME/.tmux.conf:$DOTFILES_DIR/.tmux.conf"
+        "$HOME/.config/herdr/config.toml:$DOTFILES_DIR/config/herdr/config.toml"
         "$HOME/.config/nvim:$DOTFILES_DIR/config/nvim"
     )
 
@@ -228,7 +227,7 @@ config_reset() {
         "all")
             print_info "Resetting all configurations..."
             cd "$DOTFILES_DIR"
-            git checkout HEAD -- .zshrc .tmux.conf .gitconfig config/
+            git checkout HEAD -- .zshrc .gitconfig config/
             ;;
         "zsh")
             print_info "Resetting ZSH configuration..."

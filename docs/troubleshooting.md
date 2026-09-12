@@ -1,14 +1,8 @@
 # 🔧 Troubleshooting Guide
 
 ## 🔄 Legacy Config Migration
-- Migrating from older Neovim/tmux configs? See [Technical Debt & Migration](technical-debt.md) for migration plans and steps.
+- Migrating from older Neovim configs? See [Technical Debt & Migration](technical-debt.md) for migration plans and steps.
 - If you encounter legacy config issues, please open an issue or PR and help document solutions!
-
-## ⚡ Opt-in Features (Tmux Mouse Mode)
-- Tmux mouse mode is now opt-in for pure keyboard workflows.
-- To enable mouse mode: add `set -g mouse on` to your tmux config.
-- To disable: remove/comment that line.
-- See [Technical Debt & Migration](technical-debt.md) for more details and ongoing improvements.
 
 Comprehensive guide to resolving common issues with the dotfiles environment.
 
@@ -21,7 +15,7 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 **Q: Keyboard shortcuts not working (international layout)?**
 - All shortcuts are designed for US, UK, and most EU layouts.
 - For non-standard layouts, remap keys using Karabiner-Elements (macOS) or xmodmap (Linux).
-- See [Navigation Guide](navigation.md#internationalization).
+- Remap in the terminal emulator or OS settings.
 
 **Q: How do I use agentic workflows (Gemini CLI, AI commit, etc.)?**
 - See [AI Workflows](ai-workflows.md) for setup and troubleshooting.
@@ -42,12 +36,12 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 - **macOS:** Use Karabiner-Elements for custom keybindings. Check System Preferences > Keyboard for layout issues.
 - **Linux:** Use xmodmap or your desktop environment's keyboard settings for remapping.
 - **Remapping Example (macOS):**
-  - Use Karabiner-Elements to remap Caps Lock to Ctrl, or remap other keys for easier tmux/Neovim navigation.
+  - Use Karabiner-Elements to remap Caps Lock to Ctrl, or remap other keys for easier Herdr/Neovim navigation.
 - **Remapping Example (Linux):**
   - Use `xmodmap -e 'keycode 66 = Control_L'` to remap Caps Lock to Ctrl.
 - **High-Contrast Themes:**
   - Enable high-contrast mode in your terminal, and use the Catppuccin Latte or Macchiato themes for better visibility. See [Theme Guide](themes.md).
-- **International Keyboards:** If a shortcut doesn't work, remap in your terminal emulator or OS settings. See [Navigation Guide](navigation.md#internationalization).
+- **International Keyboards:** If a shortcut doesn't work, remap in your terminal emulator or OS settings.
 - **Terminal True Color:** For best theme support, ensure `$TERM` is `screen-256color` or similar.
 
 ## 🤖 Agentic Workflow Troubleshooting
@@ -74,7 +68,7 @@ dot doctor
 perf-status
 
 # Check specific components
-tmux-diagnostic
+herdr status
 nvim-diagnostic
 zsh-diagnostic
 ```

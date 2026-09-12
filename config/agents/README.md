@@ -167,4 +167,4 @@ brew install --cask cursor
 1. **Project Context**: Create `CLAUDE.md` or `AGENTS.md` in your project root for agent context
 2. **Git Integration**: Aider works best when run from a git repository
 3. **Multiple Agents**: Use `ai-compare` to get responses from multiple agents
-4. **Tmux Integration**: Use `Ctrl-a A` in tmux for AI tools menu
+4. **Herdr**: prefix `Ctrl-a`; list agents with `hl`

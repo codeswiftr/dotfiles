@@ -3,8 +3,9 @@
 # Basic shell settings and editor configuration
 # ============================================================================
 
-# Prevent duplicate PATH entries (use -g for global scope to work with reload)
-typeset -gU path PATH
+# Prevent duplicate PATH and fpath entries (use -g for global scope to work with reload)
+typeset -gU path PATH fpath
+fpath=("$DOTFILES_DIR/completions" "$HOME/.local/share/zsh/completions" $fpath)
 
 # Enable colors
 autoload -U colors && colors

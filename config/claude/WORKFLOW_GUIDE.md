@@ -1,16 +1,12 @@
 # Claude Code Workflow Guide
 
-11 commands. 4 workflows. That's it.
-
-**For autonomous development with compounding loops, see:**
-- `harness/docs/AUTONOMOUS_WORKFLOW.md` - Full workflow with progressive disclosure
-- `harness/docs/FLYWHEEL.md` - Compounding loops one-pager
+11 commands. 4 workflows. Commands run in the **current repo** and must not assume Forge.
 
 ## Commands
 
 | Command | Purpose | Flags |
 |---------|---------|-------|
-| `/prime [project]` | Prime session with context | `--focus [area]` |
+| `/prime` | Prime session from this repo | `--focus [area]` |
 | `/plan [task]` | Research, design, create plan | |
 | `/execute [plan]` | Implement with TDD | `--auto` |
 | `/review [target]` | Code review | `--deep` |
@@ -19,19 +15,19 @@
 | `/fix-tests` | Fix failing tests | |
 | `/deps` | Dependency security | |
 | `/release [ver]` | Prepare release | |
-| `/handoff` | Save context | |
-| `/continue` | Resume work | |
+| `/handoff` | Write `HANDOFF.md` | |
+| `/continue` | Resume from `HANDOFF.md` | |
 
 ## Workflows
 
 ### Feature Development
 ```
-/prime [project] → /plan [feature] → /execute → /review → /release
+/prime → /plan [feature] → /execute → /review → /release
 ```
 
 ### Bug Fix
 ```
-/prime [project] → /debug [issue] → /fix-tests → /review
+/prime → /debug [issue] → /fix-tests → /review
 ```
 
 ### Security
@@ -41,7 +37,7 @@
 
 ### Session
 ```
-Start:  /prime [project] --focus [area]
+Start:  /prime [--focus area]
 End:    /handoff
 Resume: /continue
 ```
@@ -61,23 +57,17 @@ Use agents for complex subtasks during `/execute`:
 | `performance-optimizer` | Performance issues |
 | `devops-deployer` | Deployment, CI/CD |
 
-## Skills
+## Skills (user-level, `~/.claude/skills/`)
 
-### User-Level (everywhere)
 ```
 git-committer, uv-dependency-keeper, gemini-researcher,
 repo-reviewer, docker-composer, api-service-scaffold,
 dependency-auditor, test-coverage-analyzer, env-manager,
-changelog-generator, nano-banana-imagegen
+changelog-generator, nano-banana-imagegen, handoff,
+perplexity-researcher
 ```
 
-### Project-Level (FORGE)
-```
-living-docs, fastapi-service-template, pwa-frontend-lite,
-frontend-design, llm-prompt-guardrails, compliance-playbook-writer,
-content-library-producer, content-publisher, update-broadcaster,
-research-digest-compiler, mvp-bootstrap-orchestrator, human-review-gate
-```
+Project-only skills stay in that project (or a fleet profile). Do not load Forge portfolio skills unless this tree is a Forge project.
 
 ## Quick Reference
 
@@ -85,25 +75,16 @@ research-digest-compiler, mvp-bootstrap-orchestrator, human-review-gate
 ┌─────────────────────────────────────────────┐
 │            CLAUDE CODE COMMANDS             │
 ├─────────────────────────────────────────────┤
-│                                             │
-│  START     /prime [project] --focus [area]  │
-│                                             │
+│  START     /prime [--focus area]            │
 │  PLAN      /plan [task]                     │
-│                                             │
 │  BUILD     /execute [plan]    --auto        │
-│                                             │
 │  QUALITY   /review [target]   --deep        │
 │            /audit [target]    --full        │
-│            /fix-tests                       │
-│            /deps                            │
-│                                             │
+│            /fix-tests  /deps                │
 │  DEBUG     /debug [issue]                   │
-│                                             │
 │  SHIP      /release [version]               │
-│                                             │
 │  SESSION   /handoff  /continue              │
-│                                             │
-│  Focus areas: dev, content, ops, marketing  │
-│               security, testing, design     │
+│  Focus:    dev, ops, testing, security,     │
+│            docs, agents                     │
 └─────────────────────────────────────────────┘
 ```

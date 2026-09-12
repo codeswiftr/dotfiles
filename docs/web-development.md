@@ -382,25 +382,6 @@ rate-limit-setup
 input-validation-setup
 ```
 
-## 🏗️ Specialized Tmux Layout
-
-Access the FastAPI development layout with:
-
-```bash
-# From tmux command palette
-Ctrl-a D → FastAPI Dev
-
-# Or directly
-tmux-fastapi-layout
-```
-
-The layout provides:
-
-1. **API Development** - FastAPI server and code
-2. **Frontend Development** - Lit PWA development
-3. **Database/Tools** - Database management and utilities
-4. **Testing/Logs** - Test execution and log monitoring
-
 ## 📋 Common Workflows
 
 ### New Feature Development

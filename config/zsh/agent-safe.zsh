@@ -16,7 +16,7 @@ export CLICOLOR="0"
 
 # Standard commands must keep their standard semantics. Prefer short explicit
 # aliases such as ll, tree, bat, rg, and fd for human convenience.
-unalias cat less grep find ls man vim vi tmux python python3 pip pip3 node npm npx 2>/dev/null || true
+unalias cat less grep find ls man vim vi herdr herder python python3 pip pip3 node npm npx 2>/dev/null || true
 
 # zsh spelling correction prompts are useful for humans but hazardous when an
 # agent runs generated commands non-interactively.
@@ -31,5 +31,5 @@ agent-safe-status() {
     echo "BAT_PAGER=${BAT_PAGER:-unset}"
     echo "LESS=${LESS:-unset}"
     echo "CORRECT=${options[correct]}"
-    alias cat less grep find ls man vim vi tmux python python3 pip pip3 node npm npx 2>/dev/null || true
+    alias cat less grep find ls man vim vi herdr herder python python3 pip pip3 node npm npx 2>/dev/null || true
 }

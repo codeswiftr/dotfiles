@@ -1,120 +1,75 @@
 ---
 name: prime
-description: Prime session with context, optionally focus on project/function
+description: Prime session with context from the current repo
 ---
 
 # Prime Session
 
-Load context and prepare for focused work.
-
-## Quick Start (CLI)
-
-```bash
-# General context load
-forge context load
-
-# Project-focused
-forge context load --project voice-coach
-
-# With focus area
-forge context load --project voice-coach --focus dev
-
-# Machine-readable
-forge context load --json
-```
-
-If you need LLM-generated priorities or deeper analysis, continue with the manual workflow below.
+Load this repository and suggest a few next moves. Works in any project. Do not assume Forge, a portfolio layout, or files that are not here.
 
 ## Usage
 
 ```
-/prime                           # General session, auto-detect focus
-/prime [project]                 # Focus on specific project
-/prime [project] --focus [area]  # Focus on project + business function
-/prime --focus [area]            # Focus on business function across portfolio
+/prime                  # current repo, general
+/prime --focus [area]   # same repo, one area
 ```
 
-## Focus Areas
+`/prime [project]` is only useful if that project is the current working directory (or a nested path you can `cd` into). Do not invent sibling repos.
 
-| Area | Description | Key Files |
-|------|-------------|-----------|
-| `dev` | Development, coding, features | `PLAN.md`, `progress.md`, tests |
-| `content` | Blog posts, marketing copy, docs | `content/`, `blog/`, marketing-template |
-| `ops` | DevOps, deployment, infrastructure | Dockerfile, CI/CD, Railway/Cloudflare |
-| `marketing` | Landing pages, SEO, analytics | marketing-template, PostHog, content.json |
-| `security` | Auth, compliance, audits | CLAUDE.md gates, auth code, HIPAA/COPPA |
-| `testing` | Test coverage, QA, quality | tests/, pytest, vitest |
-| `design` | UI/UX, components, styling | frontend/, components/, Tailwind |
+## 1. Load context (always)
 
-## 1. Load Context (always)
+Read whatever exists, in this order. Skip missing files; do not fetch substitutes.
 
-Read in order:
-- Root `CLAUDE.md` - portfolio rules
-- `AGENTS.md` - skill/agent guidance
-- `docs/PLAN.md` - current sprint
+1. `AGENTS.md` (shared agent rules)
+2. `CLAUDE.md` (Claude-specific notes)
+3. `README.md`
+4. `ARCHITECTURE.md` if present
 
-If project specified:
-- `{domain}/CLAUDE.md` - domain rules
-- `{domain}/{project}/CLAUDE.md` - project rules
-- `{domain}/{project}/docs/` - project docs
-
-## 2. Check State
+Then:
 
 ```bash
-git status           # Working tree
-git branch -v        # Current branch
-git log --oneline -5 # Recent commits
+git status
+git branch -v
+git log --oneline -5
 ```
 
-If focus area specified, also check:
-- `dev`: Recent test failures, open PRs
-- `content`: Content calendar, draft posts
-- `ops`: Deployment status, infrastructure issues
-- `marketing`: Analytics, conversion metrics
-- `security`: Recent auth changes, compliance status
-- `testing`: Coverage reports, flaky tests
+If `DOTFILES_MODE` / agent-safe guidance appears in those files, follow it.
 
-## 3. Generate Priorities
+## 2. Detect how this repo works
 
-Based on project and focus, suggest 3 priorities:
+From the files above (not from memory of other projects):
 
-| Priority | Task | Area | Effort |
-|----------|------|------|--------|
-| 1 | [Most urgent for focus] | [area] | S/M/L |
-| 2 | [Second priority] | [area] | S/M/L |
-| 3 | [Third priority] | [area] | S/M/L |
+- Test command (e.g. `just smoke`, `just test`, `pytest`)
+- Lint / check command
+- How links or installs are applied
 
-## 4. Output Summary
+Optional: if `command -v forge` succeeds **and** this tree is clearly a Forge project (Forge docs, `forge` in `AGENTS.md`, or a `.forge` dir), you may use `forge context load`. Otherwise ignore Forge.
+
+## 3. Focus (optional)
+
+| Area | Look at |
+|------|---------|
+| `dev` | Recent diffs, main source, open TODOs |
+| `ops` | Install, CI, linking, PATH |
+| `testing` | Test runner, last failures |
+| `security` | Secrets, hooks, env templates |
+| `docs` | README and agent instruction files |
+| `agents` | `AGENTS.md`, `CLAUDE.md`, skills/commands if this repo owns them |
+
+## 4. Output
 
 ```
-Primed for: [project or "FORGE portfolio"]
-Focus: [area or "general"]
-Branch: [current branch]
-Recent: [last activity summary]
+Primed for: [directory name]
+Focus: [area or general]
+Branch: [branch]
+Recent: [one-line summary of last commits + dirty files]
 
 Priorities:
-1. [P1 - with context]
-2. [P2 - with context]
-3. [P3 - with context]
+1. [most useful next step in this repo]
+2. …
+3. …
 
-Next: /plan [priority] or ask about specific task
+Next: /plan [priority], or say what to implement
 ```
 
-## Examples
-
-```
-/prime
-→ General portfolio overview, suggests top priorities across all projects
-
-/prime interview-simulator
-→ Focuses on Interview Simulator, loads project context
-
-/prime interview-simulator --focus testing
-→ Interview Simulator testing: coverage gaps, failing tests, test backlog
-
-/prime --focus content
-→ Content work across portfolio: blog posts, landing pages, marketing copy
-
-/prime code-atlas --focus ops
-→ Code Atlas deployment/infrastructure: Railway, Cloudflare, CI/CD
-```
+Keep priorities grounded in git status and the files you read. If the tree is clean and docs say a modernization is done, do not reopen it.

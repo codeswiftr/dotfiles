@@ -107,13 +107,13 @@ dot_check() {
         json_output+='"tools":{},'
         json_output+='"issues":[],'
         json_output+='"configs":{},'
-        json_output+='"tmux":{},'
+        json_output+='"herdr":{},'
         json_output+='"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"'
         json_output+='}'
         
         # Parse and check tools
         local tools_status='{'
-        local essential_tools=("zsh" "git" "nvim" "tmux" "starship" "eza" "bat" "rg" "fd" "fzf")
+        local essential_tools=("zsh" "git" "nvim" "herdr" "starship" "eza" "bat" "rg" "fd" "fzf")
         local first=true
         
         for tool in "${essential_tools[@]}"; do
@@ -133,7 +133,7 @@ dot_check() {
                     zsh) tool_version=$(zsh --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
                     git) tool_version=$(git --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
                     nvim) tool_version=$(nvim --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
-                    tmux) tool_version=$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo "unknown") ;;
+                    herdr) tool_version=$(herdr --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo "unknown") ;;
                     *) tool_version=$(eval "$tool" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "unknown") ;;
                 esac
             fi
@@ -147,18 +147,16 @@ dot_check() {
         # Check configs
         local configs_status='{'
         configs_status+="\"zsh\":$([[ -L \"$HOME/.zshrc\" ]] && echo true || echo false),"
-        configs_status+="\"tmux\":$([[ -L \"$HOME/.tmux.conf\" ]] && echo true || echo false),"
+        configs_status+="\"herdr\":$([[ -L \"$HOME/.config/herdr/config.toml\" ]] && echo true || echo false),"
         configs_status+="\"nvim\":$([[ -L \"$HOME/.config/nvim\" ]] && echo true || echo false)"
         configs_status+='}'
         
-        # Check tmux
-        local tmux_status="{}"
-        if command -v tmux &>/dev/null; then
-            tmux_status='{'
-            tmux_status+="\"installed\":true,"
-            tmux_status+="\"version\":\"$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo unknown)\","
-            tmux_status+="\"config_valid\":$(tmux -f ~/.tmux.conf list-keys &>/dev/null && echo true || echo false)"
-            tmux_status+='}'
+        local herdr_status="{}"
+        if command -v herdr &>/dev/null; then
+            herdr_status='{'
+            herdr_status+="\"installed\":true,"
+            herdr_status+="\"version\":\"$(herdr --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || echo unknown)\""
+            herdr_status+='}'
         fi
         
         # Build final JSON
@@ -166,7 +164,7 @@ dot_check() {
         final_json+='"status":"ok",'
         final_json+='"tools":'$tools_status','
         final_json+='"configs":'$configs_status','
-        final_json+='"tmux":'$tmux_status','
+        final_json+='"herdr":'$herdr_status','
         final_json+='"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"'
         final_json+='}'
         
@@ -189,7 +187,7 @@ dot_check() {
     fi
     
     # Check essential tools
-    local essential_tools=("zsh" "git" "nvim" "tmux" "starship" "eza" "bat" "rg" "fd" "fzf")
+    local essential_tools=("zsh" "git" "nvim" "herdr" "starship" "eza" "bat" "rg" "fd" "fzf")
     local missing_tools=()
 
     # Helper to check command with Ubuntu/Debian alternative names
@@ -226,7 +224,7 @@ dot_check() {
     fi
     
     # Check dotfiles symlinks
-    local config_files=("$HOME/.zshrc" "$HOME/.tmux.conf" "$HOME/.config/nvim")
+    local config_files=("$HOME/.zshrc" "$HOME/.config/herdr/config.toml" "$HOME/.config/nvim")
     if [[ "$test_mode" != "true" ]]; then
         for config in "${config_files[@]}"; do
             if [[ ! -L "$config" ]]; then
@@ -236,52 +234,12 @@ dot_check() {
         done
     fi
     
-    # Check tmux configuration for conflicts
-    if command -v tmux >/dev/null 2>&1; then
-        local tmux_issues=0
-        
-        # Check if tmux config is valid
-        if ! tmux -f ~/.tmux.conf list-keys >/dev/null 2>&1; then
-            [[ "$quiet" != "true" ]] && print_error "Tmux configuration has syntax errors"
-            exit_code=1
-            tmux_issues=1
+    if command -v herdr >/dev/null 2>&1; then
+        if [[ "$quiet" != "true" ]]; then
+            print_success "Herdr available ($(herdr --version 2>/dev/null | head -1 || echo herdr))"
         fi
-        
-        # Check for keybinding conflicts (only if config is valid)
-        # Look for direct bindings to c or d that launch claude/docker (not menu items)
-        if [[ $tmux_issues -eq 0 ]]; then
-            # Check if c key directly launches claude (not new-window)
-            local c_binding=$(tmux list-keys 2>/dev/null | rg "bind-key.*-T prefix[[:space:]]+c[[:space:]]" | head -1 || true)
-            local d_binding=$(tmux list-keys 2>/dev/null | rg "bind-key.*-T prefix[[:space:]]+d[[:space:]]" | head -1 || true)
-            
-            local has_c_conflict=false
-            local has_d_conflict=false
-            
-            # Check if c binding launches claude instead of new-window
-            if [[ -n "$c_binding" ]] && echo "$c_binding" | rg -q "claude" && ! echo "$c_binding" | rg -q "new-window"; then
-                has_c_conflict=true
-            fi
-            
-            # Check if d binding launches docker instead of detach
-            if [[ -n "$d_binding" ]] && echo "$d_binding" | rg -q "docker" && ! echo "$d_binding" | rg -q "detach"; then
-                has_d_conflict=true
-            fi
-            
-            if [[ "$has_c_conflict" == "true" ]] || [[ "$has_d_conflict" == "true" ]]; then
-                [[ "$quiet" != "true" ]] && print_warning "Tmux keybinding conflicts detected (run 'dot update' to fix)"
-                exit_code=1
-            fi
-        fi
-        
-        if [[ "$quiet" != "true" ]] && [[ $tmux_issues -eq 0 ]]; then
-            # Check configuration type by looking for markers in config
-            local tmux_conf="$HOME/dotfiles/config/tmux/tmux.conf"
-            if grep -q "STREAMLINED" "$tmux_conf" 2>/dev/null; then
-                print_success "Using streamlined tmux config (~25 essential bindings)"
-            elif grep -q "ULTIMATE Tmux Configuration" ~/.tmux.conf 2>/dev/null; then
-                print_success "Using ultimate tmux config"
-            fi
-        fi
+    elif [[ "$quiet" != "true" ]]; then
+        print_warning "Herdr not on PATH"
     fi
     
     # Call existing health check if available
@@ -444,7 +402,6 @@ dot_update() {
     if [[ "$update_scope" != "self" ]]; then
         _update_package_managers
         _update_nvim_plugins
-        _update_tpm_plugins
     fi
 
     # --- Step 4: Reload running services ---
@@ -532,23 +489,6 @@ _update_nvim_plugins() {
     fi
 }
 
-# Update tmux plugins via TPM
-_update_tpm_plugins() {
-    local tpm_dir="$HOME/.tmux/plugins/tpm"
-    if [[ -d "$tpm_dir" ]] && [[ -x "$tpm_dir/bin/update_plugins" ]]; then
-        if tmux list-sessions >/dev/null 2>&1; then
-            print_info "Updating tmux plugins..."
-            tmux run-shell "$tpm_dir/bin/update_plugins all" 2>/dev/null \
-                && print_success "  Tmux plugins updated" || true
-        fi
-    elif [[ ! -d "$tpm_dir" ]]; then
-        print_info "Installing TPM..."
-        git clone https://github.com/tmux-plugins/tpm "$tpm_dir" 2>/dev/null \
-            && print_success "  TPM installed" \
-            || print_warning "  Failed to install TPM"
-    fi
-}
-
 # Per-tool update: dot update claude / dot update codex / etc.
 _update_tool() {
     local tool="$1"
@@ -587,12 +527,10 @@ _update_tool() {
             command -v mise &>/dev/null && mise upgrade 2>/dev/null || return 1 ;;
         nvim|neovim)
             _update_nvim_plugins ;;
-        tmux)
-            _update_tpm_plugins ;;
         *)
             print_error "Unknown tool: $tool"
             echo "Tools: claude, codex, gemini, amp, aider, kimi, opencode, cursor, pi, kilo, factory"
-            echo "Managers: brew, npm, uv, mise, nvim, tmux"
+            echo "Managers: brew, npm, uv, mise, nvim"
             return 1 ;;
     esac
     local rc=$?
@@ -605,12 +543,11 @@ _try_brew()      { command -v brew &>/dev/null && brew upgrade "$1" 2>/dev/null;
 _try_npm()       { command -v npm &>/dev/null && npm update -g "$1" 2>/dev/null; }
 _try_uv()        { command -v uv &>/dev/null && uv tool upgrade "$1" 2>/dev/null; }
 
-# Reload running tmux and nvim
+# Reload running herdr and nvim
 _reload_running_services() {
-    # Tmux
-    if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
-        tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
-        print_success "Tmux config reloaded"
+    if command -v herdr >/dev/null 2>&1; then
+        herdr server reload-config >/dev/null 2>&1 || true
+        print_success "Herdr config reloaded"
     fi
 
     # Neovim (via nvr if available)
@@ -627,9 +564,8 @@ dot_reload() {
 
     print_info "${reload_icon} Reloading key configurations..."
 
-    # Reload tmux configuration when available
-    if command -v tmux >/dev/null 2>&1; then
-        tmux source-file ~/.tmux.conf 2>/dev/null || true
+    if command -v herdr >/dev/null 2>&1; then
+        herdr server reload-config >/dev/null 2>&1 || true
     fi
 
     # Ask Neovim instances to reload via nvr when present
@@ -720,7 +656,7 @@ OPTIONS:
 
 TOOLS (per-tool fast update):
     claude, codex, gemini, amp, aider, kimi, opencode, cursor, pi, kilo, factory
-    brew, npm, uv, mise, nvim, tmux
+    brew, npm, uv, mise, nvim
 
 EXAMPLES:
     dot update             # Full update (pull + tools + reload)
@@ -739,7 +675,7 @@ check_managed_file_drift() {
 
     # Build the list of managed symlinks.
     # Each entry is "target|expected_source_relative" where the source is
-    # relative to $dotfiles_dir.  For .tmux.conf and .gitconfig the installer
+    # relative to $dotfiles_dir.  For .gitconfig the installer
     # supports fallback paths, so we check both.
     local -a targets=()
     local -a expected_sources=()
@@ -747,9 +683,9 @@ check_managed_file_drift() {
     targets+=("$HOME/.zshrc");              expected_sources+=(".zshrc")
     targets+=("$HOME/.zshenv");             expected_sources+=("config/zsh/.zshenv")
     targets+=("$HOME/.zprofile");           expected_sources+=("config/zsh/.zprofile")
-    targets+=("$HOME/.tmux.conf");          expected_sources+=(".tmux.conf")
     targets+=("$HOME/.gitconfig");          expected_sources+=(".gitconfig")
     targets+=("$HOME/.config/nvim");        expected_sources+=("config/nvim")
+    targets+=("$HOME/.config/herdr/config.toml"); expected_sources+=("config/herdr/config.toml")
     targets+=("$HOME/.config/git/hooks");   expected_sources+=("hooks")
 
     echo ""
@@ -885,17 +821,7 @@ dot_doctor() {
         ((warnings++))
     fi
     
-    # Check 5: TPM installed (if tmux is used)
-    if command -v tmux &>/dev/null && [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-        issues+=("TPM (Tmux Plugin Manager) not installed")
-        ((warnings++))
-        if [[ "$fix_mode" == "true" ]]; then
-            git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" 2>/dev/null
-            fixes+=("Installed TPM")
-        fi
-    fi
-    
-    # Check 6: Neovim health
+    # Check 5: Neovim health
     if command -v nvim &>/dev/null; then
         local nvim_version=$(nvim --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1)
         if printf '%s\n' "0.10.0" "$nvim_version" | sort -V -C; then
@@ -906,13 +832,13 @@ dot_doctor() {
         fi
     fi
     
-    # Check 7: PATH contains common bin directories
+    # Check 6: PATH contains common bin directories
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
         issues+=("~/.local/bin not in PATH")
         ((warnings++))
     fi
 
-    # Check 8: Managed file drift
+    # Check 7: Managed file drift
     check_managed_file_drift
     local drift_count=$?
     if [[ $drift_count -gt 0 ]]; then

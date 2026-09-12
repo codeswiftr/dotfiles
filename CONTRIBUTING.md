@@ -14,7 +14,7 @@ Welcome! We're thrilled you're interested in contributing to this project. Our g
    ```bash
    ./install.sh install standard
    bats tests/bats/*.bats
-   # or: make test
+   # or: just test
    ```
 
 ## 🎨 Code Style & Configuration Conventions
@@ -62,7 +62,7 @@ See [AGENTS.md](AGENTS.md) for full style guidelines.
 
 ## 🧪 Testing, Linting & Security
 
-- Run all tests: `bats tests/bats/*.bats` (or `make test`)
+- Run all tests: `just test`
 - Shell lint: `find . -name "*.sh" -exec shellcheck {} \;`
 - YAML lint: `find . -name "*.yaml" -o -name "*.yml" | xargs yamllint`
 - See [AGENTS.md](AGENTS.md) for more.
@@ -87,7 +87,7 @@ See [AGENTS.md](AGENTS.md) for full style guidelines.
   ```
   type(scope): short description
   ```
-  Example: `feat(tmux): add streamlined keybindings`
+  Example: `feat(herdr): add workspace aliases`
 - Always run tests before committing/pushing.
 - Reference Gemini CLI review in your PR if possible.
 

@@ -32,7 +32,7 @@ The new declarative installation system provides a modern, configurable, and rep
 
 | Profile | Description | Tools Included |
 |---------|-------------|----------------|
-| **minimal** | Basic functionality only | zsh, git, curl, nvim, tmux |
+| **minimal** | Basic functionality only | zsh, git, curl, nvim, herdr |
 | **standard** | Complete development environment | minimal + modern CLI tools + development tools |
 | **full** | Everything including optional tools | standard + AI tools + optional utilities |
 | **ai_focused** | AI-enhanced development | standard + AI tools (optimized for AI workflows) |
@@ -45,7 +45,7 @@ Core tools required for basic functionality:
 - **git** - Version control system
 - **curl** - Data transfer tool
 - **nvim** - Modern text editor
-- **tmux** - Terminal multiplexer
+- **herdr** - Terminal multiplexer
 
 ### **Modern CLI Tools**
 Enhanced replacements for traditional commands:

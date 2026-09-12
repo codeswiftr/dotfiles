@@ -34,7 +34,7 @@ node-health-local() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     # Required tools (customize this list)
-    for tool in git nvim tmux; do
+    for tool in git nvim herdr; do
         if command -v "$tool" >/dev/null 2>&1; then
             echo "  ✅ $tool"
         else

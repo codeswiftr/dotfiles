@@ -60,9 +60,9 @@ USAGE: dot <command> [options]
 PRIMARY (use these):
   check       Health check (--fix, -m JSON)
   update      Update (--self | --tools)
-  restart     Park/resume tmux agents (prepare | resume | status)
+  restart     Herdr agent/workspace status (tmux retired)
   test        Run bats suite
-  reload      Reload tmux / mise
+  reload      Reload herdr / mise
   install     Platform tools via install.sh / tools.yaml
   setup       First-time / force setup
 
@@ -85,8 +85,7 @@ OPTIONS:
 EXAMPLES:
   dot check -m
   dot update --self
-  dot restart prepare
-  dot restart resume
+  dot restart status
   dot test
 
 Full list: dot --help-all
@@ -102,8 +101,8 @@ PRIMARY:
   setup                  Idempotent environment setup
   check [--fix] [-m]     Health validation
   update [--self|--tools]
-  reload                 tmux + mise refresh
-  restart <sub>          prepare | resume | status | handoff-nudge
+  reload                 herdr + mise refresh
+  restart                herdr agent/workspace status
   test                   bats tests/bats/*.bats
   install <tool|group>   tools.yaml / install.sh
 
@@ -220,10 +219,10 @@ main() {
             # Best-effort reload of runtime-managed configs.
             # Note: re-sourcing the parent shell (e.g., ~/.zshrc) must be done from the shell process.
             # A zsh wrapper function is provided in config/zsh/functions.zsh to handle that automatically
-            # when you run `dot reload`. Here we refresh external daemons and tmux config.
-            if command -v tmux >/dev/null 2>&1; then
-                tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
-                print_info "Reloaded tmux configuration"
+            if command -v herdr >/dev/null 2>&1; then
+                if herdr server reload-config >/dev/null 2>&1; then
+                    print_info "Reloaded Herdr configuration"
+                fi
             fi
             if command -v mise >/dev/null 2>&1; then
                 mise reshim >/dev/null 2>&1 || true
@@ -232,17 +231,21 @@ main() {
             print_info "If your shell environment did not refresh, run: source ~/.zshrc"
             ;;
         "restart")
-            # Park/resume coding agents in tmux (implementation: bin/agent-restart)
-            local ar="$DOTFILES_DIR/bin/agent-restart"
-            if [[ ! -x "$ar" ]]; then
-                print_error "agent-restart not found at $ar"
+            if ! command -v herdr >/dev/null 2>&1; then
+                print_error "tmux park/resume is retired. Install herdr and use hw / ha / hl."
                 exit 1
             fi
-            # Default subcommand: status (safe / no side effects)
-            if [[ $# -eq 0 ]]; then
-                exec "$ar" status
-            fi
-            exec "$ar" "$@"
+            case "${1:-status}" in
+                -h|--help|help|status|"")
+                    herdr workspace list
+                    herdr agent list
+                    ;;
+                *)
+                    print_error "dot restart prepare/resume retired with tmux."
+                    print_info "Herdr restores agents via resume_agents_on_restore. Inspect with: hw  ha  hl"
+                    exit 1
+                    ;;
+            esac
             ;;
         "version")
             show_version

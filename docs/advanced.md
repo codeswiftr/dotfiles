@@ -4,7 +4,7 @@ This guide covers expert customization, modular setup, team deployment, and ente
 
 ## 🔧 Modular Setup {#modular-setup}
 - Keep changes in `~/.config` symlinked from this repo.
-- Prefer small, focused files. See `config/zsh/*.zsh`, `config/tmux/*.conf`, `config/nvim/lua/**`.
+- Prefer small, focused files. See `config/zsh/*.zsh`, `config/herdr/config.toml`, `config/nvim/lua/**`.
 - Use `config/templates.yaml` and `templates/*` for reproducible scaffolding.
 
 ## 👥 Team Setup {#team-setup}

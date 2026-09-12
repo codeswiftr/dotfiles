@@ -40,10 +40,6 @@ profiles:
         source: "templates/gitconfig.template"
         target: "~/.gitconfig"
         backup: true
-      - name: "tmux"
-        source: "templates/tmux.conf.template"
-        target: "~/.tmux.conf"
-        backup: true
   development:
     extends: "standard"
     variables:

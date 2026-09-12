@@ -65,9 +65,8 @@ forge dispatch send <agent> --file .forge/dispatches/<brief>.md
 forge message send <node> "orchestrator directive"
 ```
 
-Do not use raw `tmux send-keys` for task delivery. The only dotfiles helper that
-sends tmux keys is `forge-restart`, and it is for bootstrap/recovery of an
-already-known lead pane.
+Do not use tmux for task delivery. Prompt the agent in Herdr
+(`herdr agent prompt <name> …`).
 
 ## Useful Recovery
 

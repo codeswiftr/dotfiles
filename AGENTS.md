@@ -28,27 +28,21 @@ tests/bats/    # bats-core tests
 ## Commands
 
 ```bash
-# Tests (source of truth)
-bats tests/bats/*.bats
-bats tests/bats/smoke.bats
+# Daily (canonical task runner)
+just smoke                  # fast bats
+just test                   # full bats suite
+just check                  # ./bin/dot check
+just lint                   # shellcheck + yamllint + ruff when installed
+just --list
 
-# Health
-./bin/dot check
-./bin/dot check -m          # machine-readable when available
-
-# Park/resume coding agents in tmux (before/after reboot)
-./bin/dot restart status
-./bin/dot restart prepare
-./bin/dot restart resume
-
-# Apply links (chezmoi-primary)
+# Links
 chezmoi --source "$HOME/dotfiles/home" apply
-# or: ./install.sh link
+# or: just link
 
-# Lint
-make lint                   # shellcheck + yamllint + ruff when installed
-
-# CI (GitHub): .github/workflows/ci.yml — bats + shellcheck only
+# Local multiplexer is Herdr (prefix Ctrl-a). Attach / inspect:
+hw                          # herdr workspace list
+ha                          # attach default session
+hl                          # herdr agent list
 ```
 
 ## Shell modes

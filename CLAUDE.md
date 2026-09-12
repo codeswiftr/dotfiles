@@ -5,9 +5,9 @@ Guidance for Claude Code in this repository. **Prefer [AGENTS.md](AGENTS.md)** f
 ## Quick commands
 
 ```bash
-bats tests/bats/*.bats          # full test suite
-bats tests/bats/smoke.bats      # fast smoke
-./bin/dot check
+just smoke
+just test
+just check
 chezmoi --source "$HOME/dotfiles/home" apply
 ./install.sh install standard   # or: minimal | full | ai_focused
 ```
@@ -21,13 +21,13 @@ chezmoi --source "$HOME/dotfiles/home" apply
 | `config/claude/skills/` | Skills |
 | `config/claude/WORKFLOW_GUIDE.md` | Workflow detail |
 
-These are linked into `~/.claude/` via chezmoi (`home/private_dot_claude/`).
+These are linked into `~/.claude/` via chezmoi (`home/private_dot_claude/`). This file itself is `~/.claude/CLAUDE.md`.
 
 ## Architecture pointers
 
 - Shell loader: `.zshrc` → `config/zsh/*`
 - Modes: `DOTFILES_MODE=full|minimal|agent` (see `docs/agents.md`)
-- Tmux: single file `config/tmux/tmux.conf` (prefix `Ctrl-a`)
+- Herdr: `config/herdr/config.toml` (prefix `Ctrl-a`)
 - Neovim: tiered plugins under `config/nvim/` (`:TierUp` / `:TierDown`)
 - Layout SSOT: [ARCHITECTURE.md](ARCHITECTURE.md)
 

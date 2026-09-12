@@ -9,7 +9,7 @@
 #                age, trufflehog, k6, node, python). Installed by
 #                install_mise_bootstrap / `mise install`.
 #   tools.yaml → OS package managers (brew/apt/pacman) for platform packages
-#                (zsh, git, nvim, tmux, eza, uv, bun, docker, casks, …).
+#                (zsh, git, nvim, eza, uv, bun, docker, casks, …).
 #
 # Tools with `provided_by: mise` are never brew/apt-installed by install.sh;
 # they remain listed for verify/docs when referenced by groups.
@@ -29,7 +29,6 @@ groups:
       - git
       - curl
       - nvim
-      - tmux
       - chezmoi
       # gh via mise.toml (provided_by: mise)
 
@@ -182,16 +181,6 @@ tools:
       arch: "sudo pacman -S neovim"
       alpine: "apk add --no-cache neovim"
     verify: "nvim --version | head -1 | grep -qE 'NVIM v([1-9]|0\\.1[1-9])'"
-
-  tmux:
-    description: "Terminal multiplexer"
-    category: "terminal"
-    install:
-      macos: "brew install tmux"
-      ubuntu: "sudo apt install -y tmux"
-      arch: "sudo pacman -S tmux"
-      alpine: "apk add --no-cache tmux"
-    verify: "tmux -V"
 
   chezmoi:
     description: "Dotfiles manager with templates and machine-specific config"
@@ -671,11 +660,6 @@ configs:
     target: "~/.zshrc"
     backup: true
 
-  tmux:
-    source: ".tmux.conf"
-    target: "~/.tmux.conf"
-    backup: true
-
   neovim:
     source: ".config/nvim/"
     target: "~/.config/nvim/"
@@ -760,9 +744,6 @@ fonts:
 post_install:
   - name: "Setup shell as default"
     command: "chsh -s $(which zsh)"
-
-  - name: "Install Tmux Plugin Manager"
-    command: "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm"
 
   - name: "Install vim-plug for Neovim"
     command: |

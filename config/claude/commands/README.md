@@ -1,90 +1,62 @@
 # Claude Code Commands
 
-11 slash commands covering 95% of workflows. Each has a `forge` CLI equivalent for cross-agent portability.
+11 slash commands. They run in **whatever repo is cwd**. They must not assume Forge or files that are not in that tree.
 
 ## Core Commands
 
-| Command | Purpose | CLI Equivalent | Flags |
-|---------|---------|----------------|-------|
-| `/prime [project]` | Prime session with context | `forge context load` | `--focus [area]` |
-| `/plan [task]` | Research, design, create plan | `forge plan` | |
-| `/execute [plan]` | Implement with TDD | (direct coding) | `--auto` |
-| `/review [target]` | Code review | `forge quality check` | `--deep` |
-| `/audit [target]` | Security audit | `forge quality check --security` | `--full` |
-| `/debug [issue]` | Investigate and fix bugs | (direct coding) | |
-| `/fix-tests` | Systematically fix failing tests | (direct coding) | |
-| `/deps` | Audit dependencies for security | `forge quality deps` | |
-| `/release [version]` | Prepare release with changelog | `forge ship --release` | |
-| `/handoff` | Save context for session continuity | `forge handoff clean` | |
-| `/continue` | Resume from handoff | `forge context load` + `forge handoff read` | |
+| Command | Purpose | Flags |
+|---------|---------|-------|
+| `/prime` | Load this repo (`AGENTS.md`, git, tests) | `--focus [area]` |
+| `/plan [task]` | Research, design, write a plan | |
+| `/execute [plan]` | Implement with TDD | `--auto` |
+| `/review [target]` | Code review | `--deep` |
+| `/audit [target]` | Security audit | `--full` |
+| `/debug [issue]` | Investigate and fix bugs | |
+| `/fix-tests` | Systematically fix failing tests | |
+| `/deps` | Audit dependencies | |
+| `/release [version]` | Changelog / version bump | |
+| `/handoff` | Write `HANDOFF.md` at repo root | |
+| `/continue` | Resume from `HANDOFF.md` | |
 
-## CLI-First Principle
+Repo commands (dotfiles example): `bats tests/bats/*.bats`, `./bin/dot check`. Use that project's `AGENTS.md` everywhere else.
 
-All operations should be accessible via `forge` CLI so any agent (Claude, Kimi, OpenCode, Gemini) can use them. Slash commands add LLM context on top.
+If `forge` is on PATH **and** the current tree is a Forge project, Forge CLI is an optional shortcut — never a requirement.
 
-```
-Agent → forge CLI (universal) → does work
-Agent → Slash command (thin wrapper) → forge CLI → does work
-```
-
-## Focus Areas
-
-Use with `/prime [project] --focus [area]` or `forge context load --focus [area]`:
+## Focus Areas (`/prime --focus`)
 
 | Area | Description |
 |------|-------------|
-| `dev` | Development, coding, features |
-| `content` | Blog posts, marketing copy, docs |
-| `ops` | DevOps, deployment, infrastructure |
-| `marketing` | Landing pages, SEO, analytics |
-| `security` | Auth, compliance, audits |
-| `testing` | Test coverage, QA, quality |
-| `design` | UI/UX, components, styling |
+| `dev` | Features, source, open diffs |
+| `ops` | Install, CI, linking, PATH |
+| `testing` | Test runner and failures |
+| `security` | Secrets, hooks, auth |
+| `docs` | README and agent instruction files |
+| `agents` | Skills, commands, `AGENTS.md` / `CLAUDE.md` |
 
 ## Workflows
 
-### Feature Development
+### Feature
 ```
-forge context load -p PROJECT → forge plan → /execute → forge quality check → forge ship
-```
-
-### Bug Fix
-```
-forge context load -p PROJECT → /debug [issue] → /fix-tests → forge quality check
+/prime → /plan [feature] → /execute → /review
 ```
 
-### Security Check
+### Bug
 ```
-forge quality check --security → forge quality deps
-```
-
-### Session Management
-```
-Start:  forge context load -p PROJECT --focus dev
-End:    forge handoff clean
-Resume: forge context load (reads handoffs automatically)
+/prime → /debug [issue] → /fix-tests → /review
 ```
 
-## Command Flags
+### Session
+```
+Start:  /prime [--focus area]
+End:    /handoff          → HANDOFF.md
+Resume: /continue
+```
+
+## Flags
 
 | Flag | Command | Effect |
 |------|---------|--------|
-| `--focus [area]` | `/prime`, `forge context load` | Focus on business function |
-| `--auto` | `/execute` | Run autonomously without pausing |
-| `--deep` | `/review` | Agent-powered thorough review |
-| `--full` | `/audit` | Full codebase health check |
-| `--json` | Most `forge` commands | Machine-readable output |
-
-## That's It
-
-11 slash commands + 50+ `forge` CLI commands. Covers:
-- Session priming with focus
-- Planning & architecture
-- Implementation with TDD
-- Code review & quality checks
-- Security audit
-- Bug fixing & test fixing
-- Dependency audit
-- Release & deployment
-- Context handoff & recovery
-- Fleet management & dispatch
+| `--focus [area]` | `/prime` | Narrow what to inspect |
+| `--auto` | `/execute` | Run without pausing for obvious steps |
+| `--deep` | `/review` | Use the code-reviewer agent |
+| `--full` | `/audit` | Broader security pass |
