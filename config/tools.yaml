@@ -18,7 +18,7 @@
 # Metadata
 version: "2026.8.1"
 description: "Platform package install config (mise owns pinned CLIs)"
-updated: "2026-08-01"
+updated: "2026-09-12"
 
 # Installation groups - allows selective installation
 groups:
@@ -30,6 +30,7 @@ groups:
       - curl
       - nvim
       - chezmoi
+      - herdr
       # gh via mise.toml (provided_by: mise)
 
   modern_cli:
@@ -58,20 +59,17 @@ groups:
       - wrangler
 
   ai_tools:
-    description: "AI coding agents and assistants"
+    description: "Daily AI coding agents (profiles install only this set)"
     tools:
       - claude_code
       - cursor_cli
-      - factory_cli
-      - aider
       - opencode
-      - amp
       - pi
       - kimi
-      - gemini_cli
       - codex
-      - kilo
     optional: true
+    # Opt-in only — still defined below, install with: ./install.sh install <tool>
+    # aider, amp, factory_cli, gemini_cli, kilo
 
   ios_development:
     description: "iOS and Swift development tools"
@@ -189,6 +187,18 @@ tools:
       macos: "brew install chezmoi"
       all: "sh -c \"$(curl -fsLS get.chezmoi.io)\""
     verify: "chezmoi --version"
+
+  herdr:
+    description: "Herdr - Agent multiplexer (tmux replacement)"
+    category: "shell"
+    install:
+      macos: "brew install herdr"
+      ubuntu: "curl -fsSL https://herdr.dev/install.sh | sh"
+      arch: "curl -fsSL https://herdr.dev/install.sh | sh"
+      alpine: "curl -fsSL https://herdr.dev/install.sh | sh"
+      linux: "curl -fsSL https://herdr.dev/install.sh | sh"
+      all: "curl -fsSL https://herdr.dev/install.sh | sh"
+    verify: "herdr --version"
 
   # Modern CLI tools
   # Pinned CLIs (starship, zoxide, bat, ripgrep, fd, fzf, atuin, …) → mise.toml
@@ -368,7 +378,7 @@ tools:
     verify: "codex --version"
 
   aider:
-    description: "Aider - Git-aware AI pair programming"
+    description: "Aider - Git-aware AI pair programming (opt-in; not in ai_tools)"
     category: "ai"
     install:
       macos: "uv tool install aider-chat"
@@ -732,7 +742,6 @@ options:
   create_symlinks: true
   install_fonts: true
   setup_shell: true
-  install_tpm: true  # Tmux Plugin Manager
 
 # Fonts to install
 fonts:

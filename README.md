@@ -33,6 +33,8 @@ git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./install.sh install standard
 ```
 
+That single command installs the essential platform tools (zsh, git, nvim, Herdr), bootstraps mise-pinned CLIs, and links config. On macOS Herdr comes from Homebrew; on Linux it uses the official `herdr.dev` installer.
+
 Or use the bootstrap script (fetches and runs the installer):
 
 ```bash
@@ -47,7 +49,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/m
 | `minimal` | Symlinks only (zsh, herdr, nvim, git) | Servers, containers |
 | `standard` | + Modern CLI tools (starship, eza, bat, fzf, atuin) | Most developers |
 | `full` | + AI tools, security scanners, optional extras | Power users |
-| `ai_focused` | + AI coding agents (claude, aider, opencode) | AI-assisted dev |
+| `ai_focused` | + Daily AI agents (claude, cursor, opencode, pi, kimi, codex) | AI-assisted dev |
 
 ```bash
 ./install.sh install minimal      # Bare essentials
@@ -118,7 +120,6 @@ Auto-detects tier from `$NVIM_TIER` env var or system resources (RAM + cores).
 # Aliases defined in config/agents/agents.zsh
 c       → claude (Claude Code)
 cu      → cursor
-aa      → aider
 oc      → opencode
 ```
 

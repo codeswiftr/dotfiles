@@ -10,7 +10,6 @@
 # Primary agents
 alias c="ai claude"
 alias cu="ai cursor"
-alias aa="ai aider"
 alias oc="ai opencode"
 
 # Agent listing
@@ -26,12 +25,6 @@ alias claude-continue="claude --continue"
 alias ccr="claude --review"
 alias ccd="claude --doc"
 alias cce="claude --explain"
-
-# Aider with common configurations
-alias aider-gpt4="aider --model gpt-4-turbo"
-alias aider-claude="aider --model claude-3-opus-20240229"
-alias aider-sonnet="aider --model claude-3-5-sonnet-20241022"
-alias aider-watch="aider --watch"
 
 # OpenCode
 alias opencode-chat="opencode chat"
@@ -73,9 +66,6 @@ ai-review() {
         claude)
             claude --review "$files"
             ;;
-        aider)
-            aider --message "Review this code for bugs, security issues, and improvements" "$files"
-            ;;
         *)
             ai "$agent" "Review this code" "$files"
             ;;
@@ -92,9 +82,6 @@ ai-doc() {
     case "$agent" in
         claude)
             claude --doc "$files"
-            ;;
-        aider)
-            aider --message "Generate comprehensive documentation for this code" "$files"
             ;;
         *)
             ai "$agent" "Document this code" "$files"

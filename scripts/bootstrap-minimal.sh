@@ -1,7 +1,7 @@
 #!/bin/sh
 # =============================================================================
 # Minimal bootstrap — works on any POSIX system in under 60 seconds
-# Installs: git, mise, essential dotfiles symlinks
+# Installs: git, mise, herdr, essential dotfiles symlinks
 # Does NOT require: zsh, Python, sudo (detects and adapts)
 # =============================================================================
 set -e
@@ -82,9 +82,23 @@ if command -v mise >/dev/null 2>&1; then
     ok "mise tools installed"
 fi
 
+# ---- Herdr (essential multiplexer; not a mise/aqua pin) ---------------------
+if command -v herdr >/dev/null 2>&1; then
+    ok "herdr already installed: $(herdr --version 2>/dev/null | head -1 || echo herdr)"
+else
+    info "Installing herdr..."
+    if command -v brew >/dev/null 2>&1; then
+        brew install herdr
+    else
+        curl -fsSL https://herdr.dev/install.sh | sh
+    fi
+    export PATH="$HOME/.local/bin:$PATH"
+    command -v herdr >/dev/null 2>&1 || warn "herdr install finished but binary not on PATH yet"
+fi
+
 # ---- Minimal symlinks -------------------------------------------------------
 info "Linking minimal config files..."
-mkdir -p "$HOME/.config"
+mkdir -p "$HOME/.config" "$HOME/.config/herdr"
 
 link_if_missing() {
     local src="$1" dst="$2"

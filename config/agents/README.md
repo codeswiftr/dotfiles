@@ -8,7 +8,7 @@ This directory contains configuration and integration for AI-powered coding agen
 |-------|---------|-------------|
 | Claude Code | `ai claude` or `c` | Anthropic's agentic coding CLI |
 | Cursor Agent | `ai cursor` or `cu` | IDE-integrated AI agent |
-| Aider | `ai aider` or `aa` | Git-aware pair programming |
+| Aider | `ai aider` | Opt-in only — not installed by profiles |
 | OpenCode | `ai opencode` or `oc` | Open source AI agent |
 | Amp | `ai amp` | Sourcegraph's coding agent |
 | Pi | `ai pi` | Terminal-native agent |
@@ -64,7 +64,6 @@ Quick shortcuts defined in `agents.zsh`:
 ```bash
 c       # claude
 cu      # cursor agent
-aa      # aider
 oc      # opencode
 ```
 

@@ -9,7 +9,6 @@ The unified `ai` command provides a single entry point for all supported agents:
 ```bash
 ai              # Launch default agent (claude)
 ai claude       # Launch Claude Code
-ai aider        # Launch Aider
 ai --list       # Show installed agents
 ai --help       # Full help
 ```

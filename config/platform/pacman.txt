@@ -5,6 +5,7 @@
 # Core Shell & Terminal
 zsh
 starship
+# herdr is not in extra — official installer: curl -fsSL https://herdr.dev/install.sh | sh
 
 # Version Control
 git

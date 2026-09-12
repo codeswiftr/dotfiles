@@ -66,9 +66,9 @@ Version managers and development utilities:
 - **docker** - Containerization platform
 
 ### **AI Tools** (Optional)
-AI-powered development assistance:
-- **aider** - AI pair programming
-- **gh_copilot** - GitHub Copilot CLI
+Installed only by `full` / `ai_focused`:
+- **claude_code**, **cursor_cli**, **opencode**, **pi**, **kimi**, **codex**
+- Opt-in leftovers (`./install.sh install <tool>`): aider, amp, factory, gemini, kilo
 
 ### **Optional Tools**
 Nice-to-have utilities:

@@ -4,6 +4,7 @@
 
 # Core Shell & Terminal
 zsh
+# herdr is not in apt — official installer: curl -fsSL https://herdr.dev/install.sh | sh
 
 # Version Control
 git

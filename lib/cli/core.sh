@@ -527,9 +527,18 @@ _update_tool() {
             command -v mise &>/dev/null && mise upgrade 2>/dev/null || return 1 ;;
         nvim|neovim)
             _update_nvim_plugins ;;
+        herdr)
+            if command -v brew >/dev/null 2>&1 && brew list herdr >/dev/null 2>&1; then
+                brew upgrade herdr
+            elif command -v herdr >/dev/null 2>&1; then
+                herdr update
+            else
+                print_warning "herdr not installed — run: ./install.sh install minimal"
+                return 1
+            fi ;;
         *)
             print_error "Unknown tool: $tool"
-            echo "Tools: claude, codex, gemini, amp, aider, kimi, opencode, cursor, pi, kilo, factory"
+            echo "Tools: herdr, claude, codex, kimi, opencode, cursor, pi"
             echo "Managers: brew, npm, uv, mise, nvim"
             return 1 ;;
     esac
@@ -655,13 +664,14 @@ OPTIONS:
     -h, --help   Show this help message
 
 TOOLS (per-tool fast update):
-    claude, codex, gemini, amp, aider, kimi, opencode, cursor, pi, kilo, factory
+    herdr, claude, codex, kimi, opencode, cursor, pi
     brew, npm, uv, mise, nvim
 
 EXAMPLES:
     dot update             # Full update (pull + tools + reload)
+    dot update herdr       # Update only Herdr
     dot update claude      # Update only Claude Code (~2s)
-    dot update claude codex gemini  # Update multiple tools
+    dot update claude codex  # Update multiple tools
     dot update --self      # Just pull dotfiles and relink
     dot update --tools     # Just upgrade brew/npm/uv/mise
     dot update --reload    # Full update + auto-reload shell

@@ -149,6 +149,27 @@ setup() {
     [ -f "$DOTFILES_DIR/config/tools.yaml" ]
 }
 
+@test "tools.yaml essential group installs herdr on a fresh box" {
+    local yaml="$DOTFILES_DIR/config/tools.yaml"
+    awk '/^  essential:/{p=1} p&&/^  [a-z].*:/{if(!/^  essential:/)exit} p' "$yaml" \
+        | grep -q -- '- herdr'
+    grep -A20 '^  herdr:' "$yaml" | grep -q 'brew install herdr'
+    grep -A20 '^  herdr:' "$yaml" | grep -q 'https://herdr.dev/install.sh'
+    grep -q 'brew "herdr"' "$DOTFILES_DIR/config/platform/Brewfile"
+}
+
+@test "ai_tools group is the daily agent set" {
+    local group
+    group=$(awk '/^  ai_tools:/{p=1} p&&/^  [a-z].*:/{if(!/^  ai_tools:/)exit} p' \
+        "$DOTFILES_DIR/config/tools.yaml")
+    echo "$group" | grep -q -- '- claude_code'
+    echo "$group" | grep -q -- '- opencode'
+    echo "$group" | grep -q -- '- codex'
+    ! echo "$group" | grep -q -- '- aider'
+    ! echo "$group" | grep -q -- '- amp'
+    ! echo "$group" | grep -q -- '- kilo'
+}
+
 @test "tools.yaml marks mise-owned CLIs with provided_by" {
     grep -q 'provided_by: mise' "$DOTFILES_DIR/config/tools.yaml"
     # starship must not still brew-install in tools.yaml when mise-owned
