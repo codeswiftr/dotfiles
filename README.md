@@ -33,7 +33,7 @@ git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./install.sh install standard
 ```
 
-That single command installs the essential platform tools (zsh, git, nvim, Herdr), bootstraps mise-pinned CLIs, and links config. On macOS Herdr comes from Homebrew; on Linux it uses the official `herdr.dev` installer.
+That single command installs the essential platform tools (zsh, git, nvim, Herdr), bootstraps mise-pinned CLIs, and links config. On macOS Herdr comes from Homebrew; on Linux it uses the official `herdr.dev` installer. The `standard` profile also installs Tailscale and Mosh (for phone remotes via [Moshi](https://getmoshi.app/)).
 
 Or use the bootstrap script (fetches and runs the installer):
 

@@ -170,6 +170,16 @@ setup() {
     ! echo "$group" | grep -q -- '- kilo'
 }
 
+@test "networking group installs mosh for Moshi/phone remotes" {
+    local yaml="$DOTFILES_DIR/config/tools.yaml"
+    awk '/^  networking:/{p=1} p&&/^  [a-z].*:/{if(!/^  networking:/)exit} p' "$yaml" \
+        | grep -q -- '- mosh'
+    grep -A12 '^  mosh:' "$yaml" | grep -q 'scripts/install-mosh.sh'
+    [ -x "$DOTFILES_DIR/scripts/install-mosh.sh" ]
+    grep -q 'brew "mosh"' "$DOTFILES_DIR/config/platform/Brewfile"
+    grep -q 'local/bin' "$DOTFILES_DIR/config/zsh/.zshenv"
+}
+
 @test "tools.yaml marks mise-owned CLIs with provided_by" {
     grep -q 'provided_by: mise' "$DOTFILES_DIR/config/tools.yaml"
     # starship must not still brew-install in tools.yaml when mise-owned

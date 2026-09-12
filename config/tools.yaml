@@ -51,6 +51,7 @@ groups:
     description: "Network connectivity and VPN tools"
     tools:
       - tailscale
+      - mosh
 
   deployment:
     description: "Cloud deployment CLIs for Railway and Cloudflare"
@@ -306,6 +307,13 @@ tools:
       - "command -v systemctl >/dev/null && sudo systemctl enable --now tailscaled || true"
       - "tailscale status >/dev/null 2>&1 || sudo tailscale up --operator=$USER"
     verify: "tailscale version"
+
+  mosh:
+    description: "Mosh - resilient remote shell for Moshi / phone (UDP after SSH)"
+    category: "networking"
+    install:
+      all: "$DOTFILES_DIR/scripts/install-mosh.sh"
+    verify: "command -v mosh-server >/dev/null 2>&1 || test -x \"$HOME/.local/bin/mosh-server\""
 
   # Deployment tools
   railway:

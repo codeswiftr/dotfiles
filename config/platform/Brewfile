@@ -9,6 +9,7 @@ brew "zsh"
 brew "neovim"
 brew "git"
 brew "herdr"
+brew "mosh"
 
 # =============================================================================
 # Modern CLI that mise does not pin (no reliable aqua arm64 for eza)
