@@ -28,21 +28,25 @@ tests/bats/    # bats-core tests
 ## Commands
 
 ```bash
-# Daily (canonical task runner)
+# Fresh machine (one command)
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
+
+# Already cloned
+./setup                     # standard profile
 just smoke                  # fast bats
 just test                   # full bats suite
 just check                  # ./bin/dot check
-just lint                   # shellcheck + yamllint + ruff when installed
+just lint
 just --list
 
 # Links
 chezmoi --source "$HOME/dotfiles/home" apply
 # or: just link
 
-# Local multiplexer is Herdr (prefix Ctrl-a). Attach / inspect:
-hw                          # herdr workspace list
-ha                          # attach default session
-hl                          # herdr agent list
+# Local multiplexer is Herdr (prefix Ctrl-a):
+hw                          # workspaces
+ha                          # attach
+hl                          # agents
 ```
 
 ## Shell modes

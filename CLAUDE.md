@@ -9,7 +9,9 @@ just smoke
 just test
 just check
 chezmoi --source "$HOME/dotfiles/home" apply
-./install.sh install standard   # or: minimal | full | ai_focused
+./setup                         # or: ./install.sh
+# Fresh machine:
+# curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 ```
 
 ## Claude product surface
@@ -36,4 +38,4 @@ These are linked into `~/.claude/` via chezmoi (`home/private_dot_claude/`). Thi
 - **Do** run bats before large changes; use `DOTFILES_MODE=agent` in agent shells
 - **Do** keep `bin/` script-only; tools go in `~/.local/bin` / mise / brew
 - **Don't** commit secrets or API keys
-- **Don't** treat `src/--help/*` as live CLI docs — use `./bin/dot --help`
+- **Don't** invent CLI docs — use `./bin/dot --help`

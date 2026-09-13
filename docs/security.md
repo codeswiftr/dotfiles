@@ -422,6 +422,6 @@ Your development environment now provides **enterprise-grade security** with:
 ---
 
 **Related Guides**:
-- 🤖 [AI Workflows](ai-workflows.md) - Using AI securely
-- ⚡ [Performance](performance.md) - Security performance impact
-- 🎯 [Getting Started](getting-started.md) - Security configuration basics
+- [Agents](agents.md) — agent-safe shell and Moshi
+- [Getting Started](getting-started.md) — first hour after install
+- [Troubleshooting](troubleshooting.md) — common fixes

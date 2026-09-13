@@ -1,37 +1,32 @@
 # Technical debt
 
-Living backlog after the Herdr / just / Moshi cutover. Prefer deleting dead code over rewriting it.
+Prefer deleting dead code over rewriting it.
 
-## Done (do not re-open without pain)
+## Done recently
 
 | Area | Notes |
 |------|--------|
-| `bin/` policy | Scripts-only whitelist; real `~/.local/bin` for tools |
-| Chezmoi | `home/` source; install fallback fixed |
-| Shell modes | `DOTFILES_MODE=full\|minimal\|agent` drives tools + agent-safe |
-| Aliases SSOT | `config/zsh/aliases.zsh`; tools modules are init-only |
-| Tool ownership | `mise.toml` pins CLIs; `tools.yaml` / Brewfile = platform packages |
-| Multiplexer | tmux retired; Herdr + `just` are canonical |
-| Fresh install | Herdr + Mosh provisioned via `install.sh` / `networking` |
-| CI / hooks | Single `ci.yml`; `hooks/` SSOT |
+| Multiplexer | tmux retired → Herdr + `just` |
+| Fresh install | One curl bootstrap; `./setup` / `./install.sh` after clone |
+| Mosh | `networking` group + `.zshenv` PATH for Moshi |
+| Legacy CLI | Removed `perf` / `project` / fat `testing` / `template` / broken `platform` arms |
+| Orphan trees | Removed `templates/`, `themes/`, `src/--help`, stale docs |
 
 ## Still optional
 
 | Item | Priority | Notes |
 |------|----------|--------|
-| Delete legacy `lib/cli/{performance,testing,project}.sh` | Medium | Marked legacy in `dot --help`; ~2k lines |
-| Slim `install.sh` (~1.5k lines) | Low | Works; cut dead branches only while editing |
-| Slim remaining `lib/cli/{ai,config}` surface | Low | Starve unless used weekly |
-| `DOT_QUIET` / less emoji on `dot` | Low | Prefer `-m` / plain primary help |
-| `moshi-hook` on phone-attach hosts | Optional | Only if Live Activities / Watch matter |
+| Slim `install.sh` (~1.5k) | Low | Opportunistic while editing |
+| Slim `lib/cli/{ai,config,git,security}` | Low | Starve unless used weekly |
+| Merge `scripts/health-check.sh` into `dot check` | Low | Duplicate health entry |
+| `moshi-hook` on phone hosts | Optional | Live Activities / Watch |
 | Age-encrypted secrets | Optional | Not blocking |
 
 ## Explicit non-goals
 
-- Multi-shell (fish) support
-- Rebuilding tmux park/resume or `agent-restart`
-- Perfect multi-chat resume beyond agent native continue flags
-- Growing AI profile beyond the daily set (claude, cursor, opencode, pi, kimi, codex)
+- Multi-shell (fish)
+- Rebuilding tmux park / agent-restart
+- Growing AI profiles beyond the daily set
 
 ## Contributor path
 

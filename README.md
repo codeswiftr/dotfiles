@@ -4,252 +4,96 @@
 [![Shell](https://img.shields.io/badge/Shell-Zsh-1f425f.svg)](https://www.zsh.org/)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)](#platform-support)
 
-A declarative, modular dotfiles system built for developers who work across multiple machines. Installs reproducibly, degrades gracefully on SSH sessions, and scales from a minimal server setup to a full AI-assisted development environment.
+Declarative, modular dotfiles for macOS and Linux. One install path, Herdr workspaces, mise-pinned CLIs, agent-safe shell modes.
 
-**[Quick Start](#quick-start)** · **[What's Included](#whats-included)** · **[Configuration](#configuration)** · **[Documentation](#documentation)**
+**[Install](#install)** · **[Daily commands](#daily-commands)** · **[Docs](docs/README.md)** · **[Agents](AGENTS.md)**
 
 ---
 
-## Key Features
+## Install
 
-- **Declarative install**: all tools defined in `config/tools.yaml` — add a tool once, installs everywhere
-- **Profile-based**: `minimal` for servers, `standard` for daily use, `full` for power users
-- **SSH-aware**: heavy tools skip on SSH sessions; shell stays fast everywhere
-- **mise-powered**: all runtimes and CLI tools version-pinned in `mise.toml`
-- **Tiered Neovim**: ~17 → ~30 plugins, promoted with `:TierUp`
-- **Modern CLI**: starship, eza, bat, ripgrep, fzf, atuin, zoxide — all optional with fallbacks
-
-## Quick Start
-
-> **Step 0 — Fork first.** Click **Fork** on GitHub, then replace `YOUR_USERNAME` below with your GitHub handle.
-> After cloning, copy `.env.local.example` → `~/.env.local` and fill in your API keys.
-> See [PERSONALIZATION.md](PERSONALIZATION.md) for the full checklist.
-
-### One-line install
+### One command (remember this)
 
 ```bash
-# Fork this repo first, then:
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
-cd ~/dotfiles && ./install.sh install standard
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 ```
 
-That single command installs the essential platform tools (zsh, git, nvim, Herdr), bootstraps mise-pinned CLIs, and links config. On macOS Herdr comes from Homebrew; on Linux it uses the official `herdr.dev` installer. The `standard` profile also installs Tailscale and Mosh (for phone remotes via [Moshi](https://getmoshi.app/)).
+That clones into `~/dotfiles`, installs the **standard** profile (zsh, Herdr, Mosh, Tailscale, mise CLIs, links), and finishes. Open a new shell when it completes.
 
-Or use the bootstrap script (fetches and runs the installer):
+### Already cloned
 
 ```bash
-export DOTFILES_REPO_URL="https://github.com/YOUR_USERNAME/dotfiles.git"
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/scripts/bootstrap.sh)"
+cd ~/dotfiles && ./setup
 ```
 
-### Installation profiles
+Same as `./install.sh` / `./install.sh install standard`. Other profiles: `./setup full` or `./install.sh install minimal|ai_focused`.
 
-| Profile | Description | Good for |
-|---------|-------------|----------|
-| `minimal` | Symlinks only (zsh, herdr, nvim, git) | Servers, containers |
-| `standard` | + Modern CLI tools (starship, eza, bat, fzf, atuin) | Most developers |
-| `full` | + AI tools, security scanners, optional extras | Power users |
-| `ai_focused` | + Daily AI agents (claude, cursor, opencode, pi, kimi, codex) | AI-assisted dev |
+### Fork of this repo
 
 ```bash
-./install.sh install minimal      # Bare essentials
-./install.sh install standard     # Recommended default
-./install.sh install full
-./install.sh --dry-run install standard   # Preview without changes
+export DOTFILES_REPO_URL="https://github.com/<you>/dotfiles.git"
+curl -fsSL https://raw.githubusercontent.com/<you>/dotfiles/main/scripts/bootstrap.sh | bash
 ```
+
+Then copy `.env.local.example` → `~/.env.local`. See [PERSONALIZATION.md](PERSONALIZATION.md).
+
+### Profiles
+
+| Profile | Good for |
+|---------|----------|
+| `minimal` | Servers — zsh, git, nvim, Herdr, chezmoi |
+| `standard` | **Default** — + modern CLIs, Tailscale, Mosh |
+| `full` | Power — + AI agents, scanners, extras |
+| `ai_focused` | Daily AI set without full extras |
 
 ### Platform support
 
-| Platform | Status | Package manager |
-|----------|--------|----------------|
-| macOS (Apple Silicon / Intel) | Full | Homebrew |
-| Ubuntu / Debian | Full | apt |
-| Arch Linux | Full | pacman |
-| Alpine Linux | Core tools | apk |
-| WSL2 | Full | apt |
+| Platform | Package manager |
+|----------|-----------------|
+| macOS | Homebrew |
+| Ubuntu / Debian / WSL2 | apt |
+| Arch | pacman |
+| Alpine | apk (core) |
 
-## What's Included
+---
 
-### Shell (Zsh)
-
-- Modular config in `config/zsh/` — each file is a separate concern
-- SSH-aware: loads `tools-minimal.zsh` on remote sessions, `tools-optimized.zsh` locally
-- Per-node config auto-loaded based on hostname: `config/zsh/<hostname>.zsh`
-- Fish-like autosuggestions via `history-enhanced.zsh`
-- Background update check — notifies if dotfiles are behind `origin/main`
-
-### Modern CLI replacements
-
-```
-starship    → cross-shell prompt
-zoxide      → smarter cd (z command)
-eza         → ls with icons and git status
-bat         → cat with syntax highlighting
-ripgrep     → fast grep replacement
-fd          → fast find replacement
-fzf         → fuzzy finder
-atuin       → shell history with search
-delta       → better git diffs
-```
-
-Human shells may alias common names like `cat` to these tools. Native escape
-hatches such as `_cat`, `_grep`, `_find`, `_ls`, and `_herdr` are always
-available. Agent shells should use `DOTFILES_MODE=agent`; see
-[docs/agents.md](docs/agents.md).
-
-### Herdr (local multiplexer)
-
-- Prefix: `Ctrl-a`
-- Workspaces / agents: `hw`, `ha`, `hl` (`config/zsh/aliases.zsh`)
-- Config: `config/herdr/config.toml`
-
-### Neovim (tier-based)
-
-| Tier | Plugins | Startup | Features |
-|------|---------|---------|----------|
-| 1 | ~17 | <250ms | LSP, file tree, treesitter, catppuccin |
-| 2 | ~30 | <600ms | + Telescope, DAP, AI assist, git signs, Noice, mini suite |
-
-Promote with `:TierUp`, demote with `:TierDown`, check with `:TierInfo`.
-
-Auto-detects tier from `$NVIM_TIER` env var or system resources (RAM + cores).
-
-### AI development tools
+## Daily commands
 
 ```bash
-# Aliases defined in config/agents/agents.zsh
-c       → claude (Claude Code)
-cu      → cursor
-oc      → opencode
+just check          # health
+just smoke          # fast bats
+dot update --self   # pull + relink
+ha / hw / hl        # Herdr attach / workspaces / agents
+ai                  # default coding agent (claude)
 ```
 
-See `config/agents/agents.zsh` for AI workflow functions (`ai-review`, `ai-doc`, `ai-explain`).
+Phone: Tailscale + [Moshi](https://getmoshi.app/) (connection **Auto**). Mosh is installed by `standard`/`full`.
 
-### `dot` CLI
+---
 
-The `bin/dot` CLI is the main interface:
+## What's included
 
-```bash
-dot setup          # Idempotent environment setup (safe to re-run)
-dot check          # System health check
-dot update         # Pull latest dotfiles and re-link
-dot reload         # Reload shell config
-```
+- **Shell**: modular `config/zsh/` · `DOTFILES_MODE=full|minimal|agent`
+- **Herdr**: multiplexer (prefix `Ctrl-a`) · config in `config/herdr/`
+- **mise**: version-pinned CLIs in `mise.toml`
+- **Neovim**: 2 tiers (`:TierUp` / `:TierDown`)
+- **dot CLI**: `setup` `check` `update` `reload` `test` `install`
 
-## Configuration
+Layout SSOT: [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### Personalize
-
-1. **Identity**: set git name/email via `~/.gitconfig.local` (not tracked):
-   ```ini
-   [user]
-       name = Your Name
-       email = you@example.com
-   ```
-
-2. **Secrets and machine-local overrides**: copy `.env.local.example` → `~/.env.local`:
-   ```bash
-   cp .env.local.example ~/.env.local
-   # then edit ~/.env.local — it's gitignored
-   ```
-
-3. **Node-specific config**: create `config/zsh/<your-hostname>.zsh` for machine-specific aliases, paths, and tools. See `config/zsh/examples/` for templates.
-
-4. **Tool versions**: edit `mise.toml` to pin your preferred versions.
-
-5. **Install profile**: edit `config/tools.yaml` or pass `--profile` to `install.sh`.
-
-### Adding tools
-
-Edit `config/tools.yaml`:
-```yaml
-tools:
-  my_group:
-    my_tool:
-      description: "My tool"
-      macos: "brew install my-tool"
-      ubuntu: "apt-get install -y my-tool"
-      verify: "my-tool --version"
-```
-
-Then re-run `./install.sh install standard` (idempotent, only installs missing tools).
-
-### Multi-machine fleet
-
-If you have multiple machines on a shared network (Tailscale recommended):
-
-1. Create `config/zsh/<hostname>.zsh` for each node
-2. Optionally copy `config/zsh/examples/fleet-dashboard.zsh` and adapt
-3. Set `DOTFILES_FLEET_NODES` in `~/.env.local`
-
-See `config/zsh/examples/README.md` for the full fleet setup guide.
-
-## Architecture
-
-```
-dotfiles/
-├── bin/                  # dot CLI and utilities
-├── config/
-│   ├── zsh/              # Modular zsh config (sourced by .zshrc)
-│   │   └── examples/     # Node-specific templates (not loaded automatically)
-│   ├── agents/           # AI agent aliases and per-node config
-│   ├── nvim/             # Neovim tier-based config
-│   ├── herdr/            # Terminal multiplexer (Herdr)
-│   ├── claude/           # Claude Code integration (commands, skills, agents)
-│   └── tools.yaml        # Declarative tool definitions
-├── lib/                  # Shell libraries used by dot CLI
-├── scripts/              # Install, health-check, bootstrap utilities
-├── tests/                # Test suite
-├── mise.toml             # Version-pinned tool manifest
-└── install.sh            # Main installer
-```
-
-## Security
-
-- Secrets in `~/.env.local` (gitignored, never committed)
-- Global git hooks via `hooks/` → `~/.config/git/hooks` (chezmoi)
-- GPG signing configured via `dot security setup-gpg`
-- Secret scanning with gitleaks and trufflehog (in `full` profile)
-
-```bash
-# Setup GPG signing
-dot security setup-gpg
-
-# Setup SSH key
-dot security setup-ssh
-```
-
-## Testing
-
-```bash
-just test                           # Full bats suite
-just smoke                          # Smoke tests only
-just lint                           # shellcheck + yamllint + ruff when installed
-```
+---
 
 ## Documentation
 
-| Guide | Purpose |
-|-------|---------|
-| [Personalization](PERSONALIZATION.md) | **Start here** — fork setup, API keys, profiles |
-| [Installation](docs/INSTALL-DECLARATIVE.md) | Detailed install instructions |
-| [Configuration](docs/configuration.md) | Herdr, shell, nvim, tools |
-| [Neovim](docs/neovim.md) | Neovim tier system |
-| [AI Workflows](docs/ai-workflows.md) | AI tool integration |
-| [Git Hooks](docs/git-hooks.md) | Pre-commit hook setup |
-| [Security](docs/security.md) | GPG, SSH, secret management |
-| [Troubleshooting](docs/troubleshooting.md) | Common issues |
-| [Performance](docs/performance.md) | Shell startup optimization |
+| Doc | For |
+|-----|-----|
+| [AGENTS.md](AGENTS.md) | Agent entry + conventions |
+| [docs/README.md](docs/README.md) | Doc hub |
+| [docs/getting-started.md](docs/getting-started.md) | First hour |
+| [docs/agents.md](docs/agents.md) | Agent-safe shell, Moshi |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Common fixes |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | PRs / quality gates |
 
-## Contributing
-
-1. Fork and clone
-2. Make changes (run `shellcheck` on any shell scripts you edit)
-3. Test: `just smoke` (or `just test`)
-4. Open a PR
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+```bash
+just smoke && just check
+```

@@ -17,17 +17,17 @@ if [ -f /etc/alpine-release ]; then
 fi
 
 # Configuration
-# Set DOTFILES_REPO_URL to override — required on first run for forks
-REPO_URL="${DOTFILES_REPO_URL:-https://github.com/YOUR_USERNAME/dotfiles.git}"
+# Override with DOTFILES_REPO_URL or DOTFILES_REPO. Default is this repo.
+REPO_URL="${DOTFILES_REPO_URL:-${DOTFILES_REPO:-https://github.com/codeswiftr/dotfiles.git}}"
 
-# Validate that the placeholder URL has been replaced
+# Template forks still using the placeholder must set DOTFILES_REPO_URL
 if [[ "$REPO_URL" == *"YOUR_USERNAME"* ]]; then
     echo -e "\033[0;31m❌ DOTFILES_REPO_URL contains the placeholder 'YOUR_USERNAME'.\033[0m" >&2
     echo -e "\033[1;33m   Fork this repo first, then set the URL before running:\033[0m" >&2
     echo -e "\033[0;36m   export DOTFILES_REPO_URL=https://github.com/<your-username>/dotfiles.git\033[0m" >&2
-    echo -e "\033[0;36m   bash -c \"\$(curl -fsSL <raw-url>/bootstrap.sh)\"\033[0m" >&2
+    echo -e "\033[0;36m   curl -fsSL https://raw.githubusercontent.com/<you>/dotfiles/main/scripts/bootstrap.sh | bash\033[0m" >&2
     echo "" >&2
-    echo -e "   See PERSONALIZATION.md §5 for details." >&2
+    echo -e "   See PERSONALIZATION.md for details." >&2
     exit 1
 fi
 REPO_BRANCH="main"
@@ -311,6 +311,9 @@ main() {
 
     echo "" >&2
     log_success "Bootstrap complete!"
+    echo "" >&2
+    log_info "Next: open a new shell, then run:  just check   # or: dot check"
+    log_info "Herdr:  ha / hw / hl     Phone: Moshi over Tailscale (Auto)"
     echo "" >&2
 }
 

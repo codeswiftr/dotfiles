@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Memorable entrypoint after clone:  ./setup
+# Same as: ./install.sh install standard
+# Usage: ./setup [minimal|standard|full|ai_focused]
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+case "${1:-}" in
+  -h|--help|help)
+    cat <<'EOF'
+Usage: ./setup [profile]
+
+Profiles: minimal | standard (default) | full | ai_focused
+
+Same as: ./install.sh install <profile>
+
+Fresh machine (no clone yet):
+  curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
+EOF
+    exit 0
+    ;;
+esac
+
+profile="${1:-standard}"
+exec bash "$ROOT/install.sh" install "$profile"

@@ -1,48 +1,47 @@
 # Documentation hub
 
-Start here. Prefer live commands and layout docs over old narrative guides.
+Start here. Prefer live commands over long guides.
 
 ## Essential
 
 | Doc | For |
 |-----|-----|
-| [../README.md](../README.md) | Install, features, profiles |
+| [../README.md](../README.md) | **Install** (one curl command) + daily commands |
 | [../ARCHITECTURE.md](../ARCHITECTURE.md) | Layout, bin/PATH, modes, tool ownership |
-| [../AGENTS.md](../AGENTS.md) | Short agent entry (commands + conventions) |
-| [agents.md](agents.md) | Agent-safe shell, wrappers (`_claude`, `ai`) |
-| [configuration.md](configuration.md) | Where config files live |
-| [testing.md](testing.md) | bats suite |
-| [getting-started.md](getting-started.md) | First steps |
+| [../AGENTS.md](../AGENTS.md) | Short agent entry |
+| [getting-started.md](getting-started.md) | First hour after install |
+| [agents.md](agents.md) | Agent-safe shell, wrappers, Moshi |
+| [configuration.md](configuration.md) | Where config lives |
+| [testing.md](testing.md) | bats / `just test` |
 | [troubleshooting.md](troubleshooting.md) | Common issues |
-| [technical-debt.md](technical-debt.md) | Known debt / cleanup backlog |
+| [technical-debt.md](technical-debt.md) | Cleanup backlog |
 
-## Topic guides
+## Topic guides (optional)
 
 | Doc | Topic |
 |-----|--------|
-| [security.md](security.md) | Secrets, scanners, AI exposure |
-| [performance.md](performance.md) | Shell / editor speed |
-| [neovim.md](neovim.md) | Neovim tiers and keys |
-| [git-hooks.md](git-hooks.md) | Pre-commit / hooks |
+| [security.md](security.md) | Secrets / scanners |
+| [neovim.md](neovim.md) | Neovim tiers |
+| [git-hooks.md](git-hooks.md) | Hooks |
 | [themes.md](themes.md) | Appearance |
-| [ai-workflows.md](ai-workflows.md) | AI tooling (may lag `ai` CLI — prefer `ai --help`) |
-| [forge.md](forge.md) | FORGE operator notes |
+| [forge.md](forge.md) | FORGE notes |
 | [ios-development.md](ios-development.md) | iOS helpers |
 | [web-development.md](web-development.md) | Web helpers |
 | [advanced.md](advanced.md) | Advanced usage |
 
-## CLI truth
+## Live truth
 
 ```bash
+# Fresh machine
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
+
+# Already cloned
+cd ~/dotfiles && ./install.sh
+
 just --list
 just smoke
 just check
-./bin/dot --help          # live CLI help
-chezmoi apply             # links (source: home/)
+./bin/dot --help
 ```
 
 Do **not** treat historical help snapshots as authoritative.
-
-## Contributing
-
-See [../CONTRIBUTING.md](../CONTRIBUTING.md). Before commits: `bats tests/bats/*.bats`, `shellcheck`, `yamllint` when available.

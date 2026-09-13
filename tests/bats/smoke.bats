@@ -320,6 +320,25 @@ setup() {
     grep -q 'check:' "$DOTFILES_DIR/justfile"
 }
 
+@test "setup entrypoint and bootstrap point at a single install path" {
+    [ -x "$DOTFILES_DIR/setup" ]
+    grep -q 'install.sh' "$DOTFILES_DIR/setup"
+    grep -q 'codeswiftr/dotfiles' "$DOTFILES_DIR/scripts/bootstrap.sh"
+    grep -q 'DOTFILES_REPO' "$DOTFILES_DIR/scripts/bootstrap.sh"
+}
+
+@test "dot help no longer advertises legacy commands" {
+    run "$DOTFILES_DIR/bin/dot" --help
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"check"* ]]
+    [[ "$output" == *"update"* ]]
+    [[ "$output" != *"LEGACY"* ]]
+    [[ "$output" != *"scaffolding"* ]]
+    run "$DOTFILES_DIR/bin/dot" perf
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"Removed"* ]] || [[ "$output" == *"legacy"* ]]
+}
+
 @test "herdr zsh completions and aliases are defined" {
     [ -f "$DOTFILES_DIR/completions/_herdr" ]
     grep -q '#compdef herdr' "$DOTFILES_DIR/completions/_herdr"

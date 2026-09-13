@@ -17,13 +17,12 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 - For non-standard layouts, remap keys using Karabiner-Elements (macOS) or xmodmap (Linux).
 - Remap in the terminal emulator or OS settings.
 
-**Q: How do I use agentic workflows (Gemini CLI, AI commit, etc.)?**
-- See [AI Workflows](ai-workflows.md) for setup and troubleshooting.
-- Always run `gemini review --diff` before committing for best results.
+**Q: How do I use agentic workflows (Claude, Codex, etc.)?**
+- See [agents.md](agents.md) for setup, wrappers, and Moshi.
+- Prefer `ai --list` and the daily agent set from profiles.
 
 **Q: Shell/terminal is slow or laggy?**
-- Enable fast mode: `export DOTFILES_MODE=minimal; exec zsh`
-- Profile startup: `perf-benchmark-startup`
+- Enable light mode: `export DOTFILES_MODE=minimal; exec zsh`
 - See "Slow Shell Startup" below.
 
 **Q: How do I contribute or get help?**
@@ -50,8 +49,8 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
   - Run `gemini quota status` and `gemini auth status` to check setup.
   - See "Gemini CLI Issues" below for more.
 - **AI Commit/Review:**
-  - If commit message generation fails, check security mode (`ai-security-status`) and staged changes.
-  - See [AI Workflows](ai-workflows.md#troubleshooting).
+  - If commit message generation fails, check staged changes and `ai --help`.
+  - See [agents.md](agents.md).
 
 ---
 
@@ -64,13 +63,9 @@ dot check
 # Quick health assessment
 dot doctor
 
-# Performance diagnostics
-perf-status
-
-# Check specific components
+# Multiplexer
 herdr status
-nvim-diagnostic
-zsh-diagnostic
+hw; hl
 ```
 
 ... (rest of the original troubleshooting guide follows unchanged) ...

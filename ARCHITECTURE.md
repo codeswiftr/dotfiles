@@ -35,10 +35,9 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 `bin/` contains **only repo-owned scripts**:
 - `dot` — main CLI
 - `ai` — AI tool launcher
-- `cursor` — cursor launcher
-- `viman` — vim man pages
-- `dotfiles-tutor` — interactive tutor
+- `cursor` / `viman` — helpers
 - `_agent` and `_claude` / `_codex` / … — agent launch wrappers
+- `setup` (repo root) — memorable `./setup` → `install.sh install standard`
 
 All other executables (tool binaries, uv entrypoints) are managed by package managers (mise, uv, brew) and live in **`~/.local/bin/`** (a real directory), mise shims, or Homebrew paths. They are NOT tracked in git.
 

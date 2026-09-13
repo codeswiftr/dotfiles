@@ -399,9 +399,9 @@ Your Neovim is now a **modern, AI-enhanced development environment** with:
 ---
 
 **For more help**:
-- 🤖 [AI Workflows Guide](ai-workflows.md)
-- 🎨 [Theme Customization](themes.md)
-- ⚡ [Performance Optimization](performance.md)
+- [Agents Guide](agents.md)
+- [Theme Customization](themes.md)
+- [Getting Started](getting-started.md)
 
 ---
 

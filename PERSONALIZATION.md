@@ -58,14 +58,20 @@ If you run multiple machines connected via Tailscale:
 
 ## 5. Bootstrap URL
 
-If you want the one-liner install to point to your fork, set `DOTFILES_REPO_URL`:
+This repo’s default one-liner already points at `codeswiftr/dotfiles`:
 
 ```bash
-export DOTFILES_REPO_URL="https://github.com/YOUR_USERNAME/dotfiles.git"
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/scripts/bootstrap.sh)"
+curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 ```
 
-Or just clone manually — the bootstrap script is optional.
+For a fork, override the URL:
+
+```bash
+export DOTFILES_REPO_URL="https://github.com/<you>/dotfiles.git"
+curl -fsSL https://raw.githubusercontent.com/<you>/dotfiles/main/scripts/bootstrap.sh | bash
+```
+
+Or clone and run `./setup` (same as `./install.sh install standard`).
 
 ## 6. Tool versions
 
@@ -80,12 +86,11 @@ python = "3.12"
 
 ## 7. Install profile
 
-The default install profile is `standard`. Change it in `config/tools.yaml`
-under `profiles.default`, or pass it explicitly:
+The default install profile is `standard`. Pass another explicitly:
 
 ```bash
-./install.sh install full        # all tools
-./install.sh install minimal     # symlinks only
+./setup full                 # or: ./install.sh install full
+./setup minimal
 ```
 
 ## 8. Herdr

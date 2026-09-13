@@ -60,7 +60,7 @@ detect_platform() {
     esac
 }
 
-# Platform-specific path helpers (used by templating.sh)
+# Platform-specific path helpers
 get_config_dir() {
     case "$PLATFORM_OS" in
         macos)   echo "$HOME/Library/Application Support" ;;

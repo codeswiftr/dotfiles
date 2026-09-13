@@ -1,4 +1,4 @@
-# 📝 Pull Request
+# Pull Request
 
 ## Summary
 
@@ -6,23 +6,19 @@ Briefly describe your changes and motivation.
 
 ## Test Plan
 
-- [ ] Ran `./tests/test_runner.sh`
-- [ ] Ran `shellcheck` and `yamllint`
-- [ ] Verified with `df-health`
-- [ ] Gemini CLI review (recommended): `gemini review --diff`
+- [ ] `just smoke`
+- [ ] `just check` (or `dot check`)
+- [ ] `shellcheck` / `yamllint` when touching shell/YAML
 
-## Related Docs/Guides
+## Related Docs
 
 - [Getting Started](docs/getting-started.md)
 - [Contributing](CONTRIBUTING.md)
-- [Agentic Workflows](docs/ai-workflows.md)
+- [Agents](docs/agents.md)
 
 ## Checklist
 
-- [ ] Follows code style guidelines ([AGENTS.md](AGENTS.md))
-- [ ] Adds/updates documentation if needed
-- [ ] Friendly and clear for contributors
+- [ ] Follows [AGENTS.md](AGENTS.md) / [ARCHITECTURE.md](ARCHITECTURE.md)
+- [ ] Docs updated if install or daily commands changed
 
----
-
-**Thank you for contributing! 🚀**
+Thank you for contributing.
