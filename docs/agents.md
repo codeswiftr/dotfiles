@@ -59,7 +59,15 @@ Use `agent-safe-status` to inspect the active mode and any remaining aliases.
 Local work uses **Herdr** (`hw`, `ha`, `hl`). Agent conversation state lives in
 each tool's own store. Herdr can restore agent TUIs when
 `resume_agents_on_restore` is set. `dot restart` prints current Herdr
-workspaces/agents; tmux park/resume is gone.
+workspaces/agents (tmux park/resume is gone).
+
+## Phone (Moshi)
+
+Reach hosts over Tailscale, then connect with [Moshi](https://getmoshi.app/)
+(connection type **Auto**). The `standard` / `full` profiles install **Mosh**
+so the phone link survives sleep and network switches. Herdr remains the
+workspace; Moshi is only the client. See [getmoshi.app/docs/herdr](https://getmoshi.app/docs/herdr)
+and [getmoshi.app/docs/tailscale](https://getmoshi.app/docs/tailscale).
 
 ## Agent Launch Wrappers
 
@@ -128,76 +136,34 @@ ai cursor                    # or just: cu
 cursor agent                 # Agent mode
 ```
 
-### Aider
-
-Git-aware pair programming tool. Best for:
-- Incremental changes with git commits
-- Working with specific files
-- Conversational coding
-
-```bash
-# Install
-uv tool install aider-chat
-pip install aider-chat
-
-# Usage
-ai aider                     # or just: aa
-aider src/main.py           # Work on specific files
-aider --watch               # Watch mode
-aider --model gpt-4-turbo   # Specific model
-```
-
-**Configuration**: `~/.aider.conf.yml`
-
 ### OpenCode
 
-Open source AI coding agent. Best for:
-- Privacy-conscious development
-- Self-hosted deployments
-- Customization
+Open source AI coding agent.
 
 ```bash
-# Install
 brew install anomalyco/tap/opencode  # macOS
 curl -fsSL https://opencode.ai/install | bash
-
-# Usage
-ai opencode                  # or just: oc
-opencode chat               # Interactive chat
-```
-
-**Configuration**: `~/.config/opencode/config.json`
-
-### Amp
-
-Sourcegraph's coding agent. Best for:
-- Enterprise codebases
-- Code search integration
-- Team collaboration
-
-```bash
-# Install
-curl -fsSL https://ampcode.com/install.sh | bash
-
-# Usage
-ai amp
+ai opencode                  # or: oc
 ```
 
 ### Pi
 
-Terminal-native coding agent. Best for:
-- Minimal setup
-- SSH environments
-- Quick tasks
+Terminal-native coding agent.
 
 ```bash
-# Install
 npm i -g @mariozechner/pi-coding-agent
-
-# Usage
 ai pi
-pi                          # Direct invocation
 ```
+
+### Opt-in agents
+
+Not installed by profiles. Install only if you use them:
+
+| Agent | Install |
+|-------|---------|
+| Aider | `uv tool install aider-chat` then `ai aider` |
+| Amp | `curl -fsSL https://ampcode.com/install.sh \| bash` |
+| Gemini / Factory / Kilo | see `config/tools.yaml` tool entries |
 
 ## API Keys Setup
 
@@ -207,7 +173,7 @@ Create `~/.zshrc.local` or `config/zsh/secrets.zsh`:
 # Required for Claude
 export ANTHROPIC_API_KEY="sk-ant-..."
 
-# Required for Aider with OpenAI models
+# Optional (Codex / other OpenAI tools)
 export OPENAI_API_KEY="sk-..."
 
 # Optional

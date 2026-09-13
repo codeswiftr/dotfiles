@@ -1,6 +1,6 @@
 # Technical debt
 
-Living backlog after the 2026 modernization waves. Prefer deleting dead code over rewriting it.
+Living backlog after the Herdr / just / Moshi cutover. Prefer deleting dead code over rewriting it.
 
 ## Done (do not re-open without pain)
 
@@ -11,32 +11,27 @@ Living backlog after the 2026 modernization waves. Prefer deleting dead code ove
 | Shell modes | `DOTFILES_MODE=full\|minimal\|agent` drives tools + agent-safe |
 | Aliases SSOT | `config/zsh/aliases.zsh`; tools modules are init-only |
 | Tool ownership | `mise.toml` pins CLIs; `tools.yaml` / Brewfile = platform packages |
-| PATH brew dups | Brew copies of mise-owned CLIs removed on this machine (2026-08-04) |
-| Docs hub | `docs/README.md` + `configuration.md`; empty INDEX scaffolds removed |
-| Agent restarts | `dot restart prepare\|resume` |
+| Multiplexer | tmux retired; Herdr + `just` are canonical |
+| Fresh install | Herdr + Mosh provisioned via `install.sh` / `networking` |
+| CI / hooks | Single `ci.yml`; `hooks/` SSOT |
 
 ## Still optional
 
 | Item | Priority | Notes |
 |------|----------|--------|
-| Slim `install.sh` (~1.5k lines) | Low | Works; cut dead branches only if editing |
-| Slim `lib/cli/*` (perf/ai/testing) | Low | Marked legacy in `dot --help`; starve unless used |
+| Delete legacy `lib/cli/{performance,testing,project}.sh` | Medium | Marked legacy in `dot --help`; ~2k lines |
+| Slim `install.sh` (~1.5k lines) | Low | Works; cut dead branches only while editing |
+| Slim remaining `lib/cli/{ai,config}` surface | Low | Starve unless used weekly |
 | `DOT_QUIET` / less emoji on `dot` | Low | Prefer `-m` / plain primary help |
+| `moshi-hook` on phone-attach hosts | Optional | Only if Live Activities / Watch matter |
 | Age-encrypted secrets | Optional | Not blocking |
-
-## Done recently (2026-08)
-
-| Item | Notes |
-|------|--------|
-| Single hooks tree | `hooks/` only; `git/hooks/` removed |
-| CI | One workflow `.github/workflows/ci.yml` (bats + shellcheck) |
-| Broken Claude skill symlinks | Removed; gitignored if recreated locally |
 
 ## Explicit non-goals
 
-- Multi-shell (fish) support  
-- Perfect multi-chat resume beyond agent native continue flags  
-- tmux (retired; Herdr is the multiplexer)  
+- Multi-shell (fish) support
+- Rebuilding tmux park/resume or `agent-restart`
+- Perfect multi-chat resume beyond agent native continue flags
+- Growing AI profile beyond the daily set (claude, cursor, opencode, pi, kimi, codex)
 
 ## Contributor path
 

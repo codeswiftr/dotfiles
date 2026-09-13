@@ -4,16 +4,18 @@ This directory contains configuration and integration for AI-powered coding agen
 
 ## Supported Agents
 
+Profiles install the **daily** set only:
+
 | Agent | Command | Description |
 |-------|---------|-------------|
 | Claude Code | `ai claude` or `c` | Anthropic's agentic coding CLI |
 | Cursor Agent | `ai cursor` or `cu` | IDE-integrated AI agent |
-| Aider | `ai aider` | Opt-in only — not installed by profiles |
 | OpenCode | `ai opencode` or `oc` | Open source AI agent |
-| Amp | `ai amp` | Sourcegraph's coding agent |
 | Pi | `ai pi` | Terminal-native agent |
-| Gemini | `ai gemini` | Google's AI assistant |
 | Kimi | `ai kimi` | Moonshot AI assistant |
+| Codex | `ai codex` | OpenAI coding assistant |
+
+Opt-in (not in profiles): Aider, Amp, Gemini, Factory, Kilo — see `config/tools.yaml`.
 
 ## Quick Start
 
@@ -22,8 +24,8 @@ This directory contains configuration and integration for AI-powered coding agen
 ai
 
 # Launch specific agent
-ai aider
 ai cursor
+ai opencode
 
 # List installed agents
 ai --list
@@ -39,7 +41,7 @@ ai --help
 Set your preferred default agent:
 
 ```bash
-export AI_DEFAULT_AGENT="claude"  # or aider, cursor, etc.
+export AI_DEFAULT_AGENT="claude"  # or cursor, opencode, etc.
 ```
 
 ### API Keys
@@ -50,10 +52,8 @@ Required environment variables (add to `~/.zshrc.local` or `config/zsh/secrets.z
 # Anthropic (Claude)
 export ANTHROPIC_API_KEY="sk-ant-..."
 
-# OpenAI (for Aider with GPT-4)
+# Optional
 export OPENAI_API_KEY="sk-..."
-
-# Google (Gemini)
 export GEMINI_API_KEY="..."
 ```
 
@@ -75,7 +75,7 @@ Launch agent with automatic project context detection:
 
 ```bash
 ai-project claude    # Detects CLAUDE.md, AGENTS.md, README.md
-ai-project aider
+ai-project cursor
 ```
 
 ### ai-review

@@ -33,6 +33,9 @@ cd ~/dotfiles
 nvim   # Press <Space>? for command discovery
 herdr  # or: ha / hw / hl
 
+# Phone: Tailscale + Moshi (Auto). Mosh is installed by standard/full profiles.
+# See docs/agents.md § Phone (Moshi)
+
 # Quick health
 ./scripts/health-check.sh --json | jq .  # or: dot-health
 ```
@@ -247,14 +250,21 @@ ai-review-branch  # Compares with main branch
   | Ctrl-W       | Delete word backward          |
   | Ctrl-U       | Delete line backward          |
 
-- **Tmux (Prefix: Ctrl-A):**
-  | Shortcut      | Action                        |
-  |--------------|-------------------------------|
-  | Prefix + c   | New window                    |
-  | Prefix + 1-9 | Switch window                 |
-  | Prefix + h/j/k/l | Navigate panes            |
-  | Prefix + z   | Zoom pane                     |
-  | Prefix + s   | Session selector              |
+- **Herdr (Prefix: Ctrl-A):**
+  | Shortcut            | Action                         |
+  |---------------------|--------------------------------|
+  | Prefix + c / n      | New tab                        |
+  | Prefix + 1-9        | Switch tab                     |
+  | Prefix + Shift+1-9  | Switch workspace               |
+  | Prefix + h/j/k/l    | Navigate panes                 |
+  | Prefix + Shift+h/j/k/l | Resize pane                 |
+  | Prefix + z          | Zoom pane                      |
+  | Prefix + s / w      | Workspace selector             |
+  | Prefix + ,          | Rename tab                     |
+  | Prefix + $          | Rename workspace               |
+  | Prefix + \&         | Close tab                      |
+  | Prefix + x          | Close pane                     |
+  | Prefix + \| / -     | Split pane                     |
 
 - **Neovim:**
   | Shortcut      | Action                        |

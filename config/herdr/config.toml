@@ -27,28 +27,43 @@ position = "bottom-center"
 [keys]
 prefix = "ctrl+a"
 
-# Detach (tmux + Herdr default)
+# Keep the old Ctrl-a tmux muscle memory where the action has a Herdr
+# equivalent. Arrays provide an additional Herdr-native binding.
 detach = ["prefix+d", "prefix+q"]
+help = "prefix+?"
+reload_config = "prefix+r"
 
-# Config Reload (do not bind prefix+r; that is resize_mode)
-reload_config = "prefix+shift+r"
-
-# Splits (full tmux muscle memory)
+# Splits and panes
 split_vertical = ["prefix+|", "prefix+v"]
 split_horizontal = "prefix+minus"
+close_pane = "prefix+x"
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+resize_pane_left = "prefix+shift+h"
+resize_pane_down = "prefix+shift+j"
+resize_pane_up = "prefix+shift+k"
+resize_pane_right = "prefix+shift+l"
+zoom = "prefix+z"
 
-# Workspace & Tab Management (tmux parity)
+# Workspaces, tabs, and session-like selection
 workspace_picker = ["prefix+w", "prefix+s"]
 rename_workspace = ["prefix+shift+w", "prefix+$"]
 new_workspace = "prefix+shift+n"
 switch_workspace = "prefix+shift+1..9"
 
+new_tab = ["prefix+c", "prefix+n"]
 rename_tab = ["prefix+shift+t", "prefix+,"]
 close_tab = ["prefix+shift+x", "prefix+&"]
+previous_tab = "prefix+ctrl+h"
+next_tab = "prefix+ctrl+l"
+switch_tab = "prefix+1..9"
 
 # Navigation & Utilities
 last_pane = "prefix+tab"
 toggle_sidebar = "prefix+b"
+resize_mode = "prefix+shift+r"
 
 [experimental]
 pane_history = true

@@ -42,12 +42,25 @@ setup() {
 
 # --- Herdr config ---
 
-@test "herdr config sets ctrl+a prefix and detach" {
-    [ -f "$DOTFILES_DIR/config/herdr/config.toml" ]
-    run grep 'prefix = "ctrl+a"' "$DOTFILES_DIR/config/herdr/config.toml"
-    [ "$status" -eq 0 ]
-    run grep 'detach' "$DOTFILES_DIR/config/herdr/config.toml"
-    [ "$status" -eq 0 ]
+@test "herdr config keeps tmux-compatible workspace and pane shortcuts" {
+    local cfg="$DOTFILES_DIR/config/herdr/config.toml"
+    [ -f "$cfg" ]
+    for setting in \
+        'prefix = "ctrl+a"' \
+        'split_vertical' \
+        'split_horizontal' \
+        'new_tab' \
+        'rename_tab' \
+        'workspace_picker' \
+        'switch_tab' \
+        'switch_workspace' \
+        'close_pane' \
+        'focus_pane_left' \
+        'focus_pane_right' \
+        'zoom'; do
+        run grep -F "$setting" "$cfg"
+        [ "$status" -eq 0 ]
+    done
 }
 
 # --- Neovim Tiers (from test_nvim_tiers.sh) ---
