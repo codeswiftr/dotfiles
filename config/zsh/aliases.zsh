@@ -178,7 +178,7 @@ fi
 
 # ============================================================================
 # AI Agent Aliases
-# NOTE: Primary AI aliases are in config/agents/agents.zsh
+# NOTE: Launch agents via bin/ai and bin/_agent wrappers
 # Only legacy/misc AI-related aliases below
 # ============================================================================
 

@@ -59,7 +59,7 @@ Use `agent-safe-status` to inspect the active mode and any remaining aliases.
 Local work uses **Herdr** (`hw`, `ha`, `hl`). Agent conversation state lives in
 each tool's own store. Herdr can restore agent TUIs when
 `resume_agents_on_restore` is set. `just status` prints current Herdr
-workspaces/agents (tmux park/resume is gone).
+workspaces/agents.
 
 ## Phone (Moshi)
 
@@ -313,6 +313,6 @@ snap install cursor  # If available
 ## Related Files
 
 - `bin/ai` - Unified launcher
-- `config/agents/agents.zsh` - Aliases and functions
+- `config/agents/` - host overrides + README (launchers are `bin/ai`)
 - `config/agents/README.md` - Quick reference
 - `.zshrc` - Shell integration

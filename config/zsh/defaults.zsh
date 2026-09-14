@@ -76,9 +76,6 @@ export FZF_DEFAULT_OPTS="
     --bind='ctrl-d:preview-half-page-down'
     --bind='ctrl-/:toggle-preview'"
 
-# FORGE Portfolio
-export FORGE_ROOT="${FORGE_ROOT:-$HOME/work/forge-mono}"
-
 # Performance/Debug
 export DOTFILES_PERF_TIMING="${DOTFILES_PERF_TIMING:-false}"
 export DOTFILES_DEBUG="${DOTFILES_DEBUG:-false}"

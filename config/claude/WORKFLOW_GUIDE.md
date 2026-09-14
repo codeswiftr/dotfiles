@@ -61,7 +61,7 @@ Use agents for complex subtasks during `/execute`:
 
 ```
 git-committer, uv-dependency-keeper, gemini-researcher,
-repo-reviewer, docker-composer, api-service-scaffold,
+repo-reviewer, docker-composer,
 dependency-auditor, test-coverage-analyzer, env-manager,
 changelog-generator, nano-banana-imagegen, handoff,
 perplexity-researcher

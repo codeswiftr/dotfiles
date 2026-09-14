@@ -18,7 +18,7 @@
 | `/handoff` | Write `HANDOFF.md` at repo root | |
 | `/continue` | Resume from `HANDOFF.md` | |
 
-Repo commands (dotfiles example): `bats tests/bats/*.bats`, `./bin/just check`. Use that project's `AGENTS.md` everywhere else.
+Repo commands (dotfiles example): `just smoke`, `just check`. Use that project's `AGENTS.md` everywhere else.
 
 If `forge` is on PATH **and** the current tree is a Forge project, Forge CLI is an optional shortcut — never a requirement.
 

@@ -1,242 +1,69 @@
 ---
 name: handoff
-description: Save context and create handoff prompt for session continuity
+description: Save context and create HANDOFF.md for session continuity
 ---
 
 # Handoff Skill
 
-Save session context and create a handoff prompt for resuming work later or transferring to another agent.
+Save session context so another session (or agent) can resume. Prefer the
+`/handoff` slash command when available — this skill is the same contract.
 
 ## When to Use
 
-- End of coding session
-- Before switching to another task/project
-- When transferring work to another agent
-- Before system restart or maintenance
+- End of a coding session
+- Before switching tasks or agents
+- Before reboot / Herdr restore (`just status` afterward)
 
-## Prerequisites
+## Where to write
 
-- Active session with work in progress
-- Clear understanding of current task state
+Write **`HANDOFF.md` at the repository root**. Do not commit it unless asked.
+
+Legacy fallbacks (only if already in use): `docs/PROMPT.md`, `docs/handoffs/*`.
+Do **not** create `.forge_sessions/` unless this is already a Forge tree and
+the user expects that path.
+
+Optional: if `forge` is on PATH **and** cwd is a Forge project, you may also
+run `forge handoff clean`. Never fail because Forge is missing.
 
 ## Workflow
 
-### 1. Analyze Current State
+1. Gather: `git status`, `git log --oneline -5`, branch, goal
+2. Write short `HANDOFF.md` (template below)
+3. Tell the user the path; suggest `/continue` to resume
 
-```bash
-# Check uncommitted changes
-git status
-
-# Check recent commits
-git log --oneline -5
-
-# Check active branches
-git branch -v
-```
-
-### 2. Create Handoff Document
-
-Create a handoff document at `.forge_sessions/handoff_YYYY-MM-DD_HH-MM.md`:
+## Template
 
 ```markdown
-# Handoff - [TIMESTAMP]
+# Handoff
 
-## Current Focus
-[Main task or goal being worked on]
+**Repo**: [path]
+**Branch**: [branch]
+**Date**: [ISO date]
 
-## Progress Summary
-- [x] Completed item 1
-- [x] Completed item 2
-- [ ] In progress item
-- [ ] Blocked item (with blocker details)
+## Goal
+[one paragraph]
 
-## Key Decisions Made
-- Decision 1: Rationale
-- Decision 2: Rationale
+## Done
+- …
 
-## Active Changes
-\`\`\`bash
-# Uncommitted changes
-[Output of git status]
-\`\`\`
+## Open
+- [ ] [next action — first item is the resume point]
 
-## Next Steps
-1. [Immediate next action]
-2. [Follow-up action]
-3. [Verification/testing needed]
-
-## Production Verification (MANDATORY — Council S204 P4)
-
-Run `curl` against all active product URLs and record results. Do NOT skip this section.
-
-\`\`\`bash
-curl -sI https://mirrably.com | head -1
-curl -s https://mirrably-api-production.up.railway.app/v1/health
-curl -sI https://api.codeswiftr.com/health | head -1
-curl -sI https://app.codeswiftr.com | head -1
-curl -sI https://app.brandfocus.ai | head -1
-curl -sI https://septica-web-production.up.railway.app | head -1
-curl -sI https://thebrightharbor.com | head -1
-curl -sI https://calmconnect.io | head -1
-\`\`\`
-
-| Product | URL | Status | Verified |
-|---------|-----|--------|----------|
-| Mirrably landing | mirrably.com | [200/404/timeout] | [timestamp] |
-| Mirrably API | .../v1/health | [200/404/timeout] | [timestamp] |
-| IS backend | api.codeswiftr.com | [200/404/timeout] | [timestamp] |
-| IS frontend | app.codeswiftr.com | [200/404/timeout] | [timestamp] |
-| Voice Coach | app.brandfocus.ai | [200/404/timeout] | [timestamp] |
-| Septica | septica-web-... | [200/404/timeout] | [timestamp] |
-| DynaStory | thebrightharbor.com | [200/404/timeout] | [timestamp] |
-| CalmConnect | calmconnect.io | [200/404/timeout] | [timestamp] |
-
-**Flag any mismatches** between PLAN.md status and actual HTTP response.
-
-## Context for Resume
-**Files Modified:**
-- `/path/to/file1.py` - Purpose of changes
-- `/path/to/file2.ts` - Purpose of changes
-
-**Dependencies:**
-- API endpoint X depends on database migration Y
-- Feature A blocks feature B
-
-**Environment Notes:**
-- Environment variables needed
-- Services that must be running
-- Known issues or workarounds
-
-## Handoff Prompt
-
-To resume this work, use:
-
-> Continue work on [task description]. Current focus is [specific area].
-> Recent changes include [brief summary]. Next step: [immediate action].
-> See `.forge_sessions/handoff_YYYY-MM-DD_HH-MM.md` for full context.
-```
-
-### 3. Update Session Log
-
-Append a session summary to `docs/sessions/YYYY-MM-DD.md`:
-
-```markdown
-## Session N - HH:MM
-**Focus**: [Main task/goal]
-**Agents**: [Active agents involved, e.g., forge:codex, claude:desktop]
-**Changes**:
-- [Key modification 1]
-- [Key modification 2]
-**Decisions**:
-- [Important choice made with rationale]
-**Next**: [Continuation points]
-**Handoff**: `.forge_sessions/handoff_YYYY-MM-DD_HH-MM.md`
-```
-
-### 4. Optional: Commit Progress
-
-If appropriate (stable state, meaningful checkpoint):
-
+## Verify
 ```bash
-# Stage changes
-git add [specific files]
-
-# Create WIP commit
-git commit -m "WIP: [brief description]
-
-Current state:
-- [Status item 1]
-- [Status item 2]
-
-Next: [what comes next]
-"
+just smoke
+just check
 ```
 
-### 5. Generate Resume Command
+## Files
+| Path | Why |
+|------|-----|
+| `AGENTS.md` | agent rules |
 
-Output a resume command for easy restart:
-
-```bash
-# For Claude Code:
-claude "Continue work on [task]. See .forge_sessions/handoff_YYYY-MM-DD_HH-MM.md"
-
-# For FORGE agents:
-ha   # or: herdr agent focus <name>
-# Then paste the handoff prompt
+## Notes
+- Decisions:
+- Gotchas:
+- Do not:
 ```
 
-## Session Logging
-
-After creating the handoff document:
-
-1. **Locate today's session log**: `docs/sessions/YYYY-MM-DD.md`
-2. **Create if missing**: Use template from initial session log
-3. **Append session summary** with:
-   - Session number and time
-   - Focus area
-   - Key changes made
-   - Decisions and rationale
-   - Next steps
-   - Link to handoff document
-
-## Best Practices
-
-### DO:
-- Be specific about what's complete vs. in-progress
-- Document blockers with clear context
-- Include file paths (absolute paths preferred)
-- Note environment requirements
-- Reference related issues/PRs
-- Keep handoff prompt concise (<3 sentences)
-
-### DON'T:
-- Create handoff for trivial changes
-- Include sensitive data (API keys, passwords)
-- Make WIP commits to main branch
-- Leave uncommitted breaking changes
-- Skip session log update
-
-## Example Output
-
-```
-Handoff created successfully:
-
-📄 Handoff document: .forge_sessions/handoff_2026-01-27_14-30.md
-📝 Session log updated: docs/sessions/2026-01-27.md
-
-Resume with:
-  Continue work on Command Center fleet control. Current focus is backend
-  API endpoints for agent registration. See .forge_sessions/handoff_2026-01-27_14-30.md
-```
-
-## Integration with Other Skills
-
-- **`context-loader`**: Reads handoff docs on session start
-- **`git-committer`**: Can commit handoff state if needed
-- **`living-docs`**: Updates living docs based on handoff decisions
-- **`fleet-save`**: Saves multi-agent state including handoffs
-
-## File Locations
-
-| Path | Purpose |
-|------|---------|
-| `.forge_sessions/handoff_*.md` | Detailed handoff documents |
-| `docs/sessions/YYYY-MM-DD.md` | Daily session logs |
-| `.git/` | Git state for uncommitted changes |
-
-## Troubleshooting
-
-**No changes to handoff:**
-- Review what was actually accomplished
-- Consider if session warrants a handoff
-- Simple tasks may not need formal handoff
-
-**Can't find session log:**
-- Check date format matches YYYY-MM-DD
-- Verify `docs/sessions/` directory exists
-- Create new session log from template
-
-**Handoff too complex:**
-- Break into multiple focused handoffs
-- Create separate docs for different work streams
-- Use task tracking for detailed items
+Keep it short enough that the next agent can act without re-reading the whole session.

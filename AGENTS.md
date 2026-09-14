@@ -88,4 +88,7 @@ Edit files under the repo; apply with chezmoi. Do not hand-edit only the home-si
 
 ## Optional fleet profile
 
-Forge/OpenClaw extras: `config/profiles/fleet/` — enable with `DOTFILES_PROFILE=fleet` or `config/profiles/fleet/.enabled` (gitignored marker).
+Forge/OpenClaw extras: `config/profiles/fleet/` — enable with
+`DOTFILES_PROFILE=fleet` or `config/profiles/fleet/.enabled` (gitignored).
+On probation: delete by 2026-12-14 if unused. FORGE shell helpers live in
+`config/zsh/forge.zsh` (not loaded over SSH).

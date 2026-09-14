@@ -35,7 +35,7 @@ Use the test/check command from the handoff or `AGENTS.md`. Examples this repo u
 
 ```bash
 bats tests/bats/smoke.bats
-./bin/just check
+just check
 ```
 
 In other repos, use that project's documented command. Skip tools that are not installed.
