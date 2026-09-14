@@ -4,18 +4,22 @@ This file explains what to customize after forking and cloning these dotfiles.
 
 ## 1. Git identity
 
-Create `~/.gitconfig.local` (gitignored, never committed):
+On first `./setup`, chezmoi prompts for your git name/email and stores them in
+`~/.config/chezmoi/chezmoi.toml` (outside the repo). Headless installs take the
+defaults silently; pre-seed them with env vars or an existing global git config:
+
+```bash
+GIT_NAME="Your Name" GIT_EMAIL="you@example.com" ./setup --headless
+# later: chezmoi init --source ~/dotfiles/home --prompt   # re-ask
+```
+
+If neither is set, `~/.gitconfig` is written without a `[user]` block. Anything
+else machine-specific goes in `~/.gitconfig.local` (gitignored, auto-included):
 
 ```ini
-[user]
-    name = Your Name
-    email = you@example.com
-
 [github]
     user = your-github-username
 ```
-
-The main `config/gitconfig` includes this file automatically via `[include]`.
 
 ## 2. Secrets and machine-local config
 

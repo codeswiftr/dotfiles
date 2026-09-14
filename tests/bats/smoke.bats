@@ -371,6 +371,24 @@ setup() {
     ! command grep -q 'tools.yaml' "$DOTFILES_DIR/install.sh"
 }
 
+@test "install.sh runs chezmoi init before apply on a fresh machine" {
+    # Regression: apply without init fails with 'map has no entry for key "name"'
+    command grep -q 'chezmoi.toml' "$DOTFILES_DIR/install.sh"
+    command grep -qE 'init_args=\(init --source' "$DOTFILES_DIR/install.sh"
+    command grep -q -- '--promptDefaults' "$DOTFILES_DIR/install.sh"
+}
+
+@test "gitconfig template tolerates missing name/email data" {
+    command -v chezmoi >/dev/null 2>&1 || skip "chezmoi not installed"
+    local tmp_home
+    tmp_home=$(mktemp -d)
+    run env HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/.config" \
+        chezmoi --source "$DOTFILES_DIR/home" execute-template < "$DOTFILES_DIR/home/dot_gitconfig.tmpl"
+    rm -rf "$tmp_home"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"[user] not set"* ]]
+}
+
 @test "herdr zsh completions and aliases are defined" {
     [ -f "$DOTFILES_DIR/completions/_herdr" ]
     grep -q '#compdef herdr' "$DOTFILES_DIR/completions/_herdr"

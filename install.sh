@@ -341,6 +341,21 @@ link_dotfiles() {
     print_success "Dry run completed"
     return 0
   fi
+  # First run on a machine: render home/.chezmoi.toml.tmpl (name/email, sourceDir).
+  # Interactive: prompts (defaults from GIT_NAME/GIT_EMAIL or existing git config).
+  # Headless / no TTY: takes those defaults silently; empty is OK (gitconfig omits [user]).
+  local cfg="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml"
+  if [[ ! -f "$cfg" ]]; then
+    print_step "Initializing chezmoi config ($cfg)"
+    local -a init_args=(init --source "$src")
+    if [[ "$HEADLESS" == "true" || ! -t 0 ]]; then
+      init_args+=(--promptDefaults --no-tty)
+    fi
+    if ! chezmoi "${init_args[@]}"; then
+      print_error "chezmoi init failed"
+      return 1
+    fi
+  fi
   if chezmoi --source "$src" apply --force; then
     print_success "Dotfiles applied via chezmoi"
   else

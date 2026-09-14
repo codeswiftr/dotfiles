@@ -1,5 +1,13 @@
-{{- $name := promptStringOnce . "name" "Git user name" -}}
-{{- $email := promptStringOnce . "email" "Git email" -}}
+{{/* Rendered once by `chezmoi init` into ~/.config/chezmoi/chezmoi.toml.
+     Defaults come from GIT_NAME / GIT_EMAIL env or existing git config, so
+     headless installs (--promptDefaults) never block on a prompt. */ -}}
+{{- $defName := or (env "GIT_NAME") (output "sh" "-c" "git config --global user.name 2>/dev/null || true" | trim) -}}
+{{- $defEmail := or (env "GIT_EMAIL") (output "sh" "-c" "git config --global user.email 2>/dev/null || true" | trim) -}}
+{{- $name := promptStringOnce . "name" "Git user name" $defName -}}
+{{- $email := promptStringOnce . "email" "Git email" $defEmail -}}
+
+# Chezmoi config for this machine (generated from home/.chezmoi.toml.tmpl).
+sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [data]
     name = {{ $name | quote }}

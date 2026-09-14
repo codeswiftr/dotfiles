@@ -1,9 +1,18 @@
 # Git Configuration - managed by chezmoi
 # Edit source: chezmoi edit ~/.gitconfig
-
+{{ $name := get . "name" | default "" -}}
+{{- $email := get . "email" | default "" -}}
+{{- if or $name $email }}
 [user]
-    name = {{ .name }}
-    email = {{ .email }}
+{{- if $name }}
+    name = {{ $name }}
+{{- end }}
+{{- if $email }}
+    email = {{ $email }}
+{{- end }}
+{{- else }}
+# [user] not set — run `chezmoi init` or put a [user] block in ~/.gitconfig.local
+{{- end }}
 
 [core]
     editor = nvim
