@@ -39,7 +39,7 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 - **Remapping Example (Linux):**
   - Use `xmodmap -e 'keycode 66 = Control_L'` to remap Caps Lock to Ctrl.
 - **High-Contrast Themes:**
-  - Enable high-contrast mode in your terminal, and use the Catppuccin Latte or Macchiato themes for better visibility. See [Theme Guide](themes.md).
+  - Enable high-contrast mode in your terminal (e.g. Catppuccin Latte/Macchiato via your terminal theme).
 - **International Keyboards:** If a shortcut doesn't work, remap in your terminal emulator or OS settings.
 - **Terminal True Color:** For best theme support, ensure `$TERM` is `screen-256color` or similar.
 

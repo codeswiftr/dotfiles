@@ -14,19 +14,15 @@ Start here. Prefer live commands over long guides.
 | [configuration.md](configuration.md) | Where config lives |
 | [testing.md](testing.md) | bats / `just test` |
 | [troubleshooting.md](troubleshooting.md) | Common issues |
-| [technical-debt.md](technical-debt.md) | Cleanup backlog |
+| [technical-debt.md](technical-debt.md) | Cleanup backlog + Phase 0 freeze |
 
 ## Topic guides (optional)
 
 | Doc | Topic |
 |-----|--------|
-| [security.md](security.md) | Secrets / scanners |
 | [neovim.md](neovim.md) | Neovim tiers |
 | [git-hooks.md](git-hooks.md) | Hooks |
-| [themes.md](themes.md) | Appearance |
-| [forge.md](forge.md) | FORGE notes |
-| [ios-development.md](ios-development.md) | iOS helpers |
-| [web-development.md](web-development.md) | Web helpers |
+| [forge.md](forge.md) | FORGE notes (probation) |
 | [advanced.md](advanced.md) | Advanced usage |
 
 ## Live truth
@@ -36,7 +32,7 @@ Start here. Prefer live commands over long guides.
 curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bootstrap.sh | bash
 
 # Already cloned
-cd ~/dotfiles && ./install.sh
+cd ~/dotfiles && ./setup
 
 just --list
 just smoke

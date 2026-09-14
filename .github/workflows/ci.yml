@@ -42,3 +42,19 @@ jobs:
         run: |
           chmod +x bin/* tests/bats/*.bats 2>/dev/null || true
           bats tests/bats/smoke.bats tests/bats/infrastructure.bats
+
+  cleanroom:
+    name: Ubuntu clean-room dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build clean-room image (timed)
+        run: |
+          set -euo pipefail
+          START=$(date +%s)
+          docker build -f tests/Dockerfile.test -t dotfiles-test:ci .
+          END=$(date +%s)
+          echo "cleanroom_elapsed_sec=$((END-START))"
+          echo "cleanroom_elapsed_sec=$((END-START))" >> "$GITHUB_STEP_SUMMARY"

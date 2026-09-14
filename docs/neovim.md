@@ -400,7 +400,6 @@ Your Neovim is now a **modern, AI-enhanced development environment** with:
 
 **For more help**:
 - [Agents Guide](agents.md)
-- [Theme Customization](themes.md)
 - [Getting Started](getting-started.md)
 
 ---

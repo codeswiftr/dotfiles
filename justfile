@@ -76,19 +76,3 @@ format-py:
     else \
         echo "⚠️  ruff not found. Install with: uv tool install ruff || pip install ruff" ; \
     fi
-
-# =============================================================================
-# Development Helpers
-# =============================================================================
-
-# Start FastAPI/Uvicorn dev server
-api-run:
-    @./scripts/dev-api.sh
-
-# Start web dev server
-dev-web:
-    @./scripts/dev-web.sh
-
-# iOS build helper
-build-ios:
-    @./scripts/dev-ios.sh build

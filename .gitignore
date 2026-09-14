@@ -10,14 +10,12 @@ mise.lock
 # Legacy path (canonical is config/starship.toml)
 .config/
 
-# bin/ policy: only repo-owned scripts are tracked (dot, ai, cursor, viman,
-# dotfiles-tutor). Everything else is machine-local.
+# bin/ policy: only repo-owned scripts are tracked (dot, ai, cursor, _agent*).
+# Everything else is machine-local.
 bin/*
 !bin/dot
 !bin/ai
 !bin/cursor
-!bin/viman
-!bin/dotfiles-tutor
 !bin/_agent
 !bin/_claude
 !bin/_codex
@@ -102,3 +100,6 @@ nvim.log
 
 # Machine-local fleet enable marker
 config/profiles/fleet/.enabled
+
+# Ephemeral agent briefs
+.agent-scratch/

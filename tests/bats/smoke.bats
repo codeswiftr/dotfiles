@@ -228,7 +228,7 @@ setup() {
 # --- bin/ hygiene (no tool landfill) ---
 
 @test "bin/ contains only whitelisted scripts" {
-    local allowed='^(dot|ai|cursor|viman|dotfiles-tutor|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
+    local allowed='^(dot|ai|cursor|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
     local bad=0
     local name
     for f in "$DOTFILES_DIR"/bin/*; do

@@ -30,31 +30,21 @@ This file is gitignored. It's sourced by `.zshrc` at startup.
 
 ## 3. Node-specific shell config
 
-If you have a machine with a specific hostname, create
-`config/zsh/<hostname>.zsh` — it will be sourced automatically.
-
-See `config/zsh/examples/` for templates:
-
-| Template | Use when |
-|----------|---------|
-| `node-macos-template.zsh` | macOS workstation |
-| `node-linux-template.zsh` | Linux server or workstation |
+If a machine needs host-local overrides, create `config/zsh/<hostname>.zsh`
+(gitignored if it holds secrets). It is sourced automatically when present.
 
 ```bash
-# Copy the right template for your machine
-cp config/zsh/examples/node-macos-template.zsh config/zsh/$(hostname -s).zsh
-# Edit it
+hostname -s   # e.g. nova
 $EDITOR config/zsh/$(hostname -s).zsh
 ```
 
-## 4. Fleet setup (multi-machine)
+Keep it tiny: PATH tweaks, host aliases, machine-only env. Do not commit secrets.
 
-If you run multiple machines connected via Tailscale:
+## 4. Fleet / multi-machine
 
-1. Copy `config/zsh/examples/fleet-dashboard.zsh` → `config/zsh/fleet-dashboard.zsh`
-2. Edit the node list and roles at the top of the file
-3. Copy `config/zsh/examples/task-router.zsh` if you want automatic task routing
-4. Set `DOTFILES_FLEET_NODES` in `~/.env.local`
+Fleet helpers are on probation (`config/profiles/fleet/`). Prefer Tailscale +
+Herdr + `DOTFILES_MODE` over bespoke dashboards. Set host lists in `~/.env.local`
+only if you still maintain a private fleet snippet outside this repo.
 
 ## 5. Bootstrap URL
 
@@ -114,5 +104,5 @@ Or promote/demote interactively with `:TierUp` / `:TierDown`.
 - `config/zsh/<hostname>.zsh` if it contains private paths or tokens
 
 If you use this as a public repo, also review:
-- `config/zsh/examples/` — generalize or remove personal project references
 - `docs/forge.md` — remove if not using the FORGE workflow
+- Host-local `config/zsh/<hostname>.zsh` files before publishing

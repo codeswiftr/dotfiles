@@ -3,6 +3,10 @@
 # Dotfiles Tools Configuration (platform packages + optional extras)
 # =============================================================================
 #
+# PHASE 0 FREEZE (2026-09-14): no new tools or groups. Trim only.
+# Phase 2 target: delete this file; mise.toml + Brewfile/apt.txt own packages.
+# See docs/technical-debt.md.
+#
 # Ownership split:
 #   mise.toml  → version-pinned CLIs (rg, bat, fd, fzf, starship, zoxide,
 #                atuin, delta, jq, yq, gh, gitleaks, trivy, hadolint, grype,

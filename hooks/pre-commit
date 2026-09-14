@@ -242,7 +242,6 @@ validate_dotfiles_structure() {
     local optional_files=(
         "config/tools.yaml"
         "lib/cli/core.sh"
-        "scripts/health-check.sh"
         "VERSION"
     )
     
@@ -428,7 +427,7 @@ main() {
         echo "You can run individual checks manually:"
         echo "  - Security: hooks/pre-commit"
         echo "  - Tests: bats tests/bats/*.bats"
-        echo "  - Health: scripts/health-check.sh"
+        echo "  - Health: just check"
     fi
     
     cleanup

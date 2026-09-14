@@ -173,7 +173,6 @@ alias jbook="jupyter notebook"
 alias src="source ~/.zshrc"
 alias reload="dot-reload"
 if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
-    alias man="${DOTFILES_DIR}/bin/viman"
     command -v nvim >/dev/null 2>&1 && alias vim="nvim" && alias vi="nvim"
 fi
 
@@ -213,11 +212,5 @@ ha() {
     fi
 }
 
-# Health check convenience
-alias dot-health="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/health-check.sh"
+# Health / agent diagnostics
 alias agent-doctor="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/agent-shell-doctor.sh"
-
-# Development helpers
-alias api="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-api.sh"
-alias pwa="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-web.sh"
-alias swiftui="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/dev-ios.sh preview"

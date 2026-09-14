@@ -2,6 +2,9 @@
 # =============================================================================
 # Declarative Dotfiles Installer - 2025 Edition
 # Uses tools.yaml configuration for declarative, reproducible installations
+#
+# PHASE 0 FREEZE (2026-09-14): do not add flags, profiles, or install paths.
+# Shrink/delete only. See docs/technical-debt.md.
 # =============================================================================
 
 set -eo pipefail

@@ -33,9 +33,9 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 ### `bin/` Policy
 
 `bin/` contains **only repo-owned scripts**:
-- `dot` — main CLI
+- `dot` — main CLI (Phase 1: converge on `just`)
 - `ai` — AI tool launcher
-- `cursor` / `viman` — helpers
+- `cursor` — Cursor helper shim
 - `_agent` and `_claude` / `_codex` / … — agent launch wrappers
 - `setup` (repo root) — memorable `./setup` → `install.sh install standard`
 
