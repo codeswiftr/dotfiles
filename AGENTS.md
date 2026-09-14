@@ -90,5 +90,5 @@ Edit files under the repo; apply with chezmoi. Do not hand-edit only the home-si
 
 Forge/OpenClaw extras: `config/profiles/fleet/` — enable with
 `DOTFILES_PROFILE=fleet` or `config/profiles/fleet/.enabled` (gitignored).
-On probation: delete by 2026-12-14 if unused. FORGE shell helpers live in
-`config/zsh/forge.zsh` (not loaded over SSH).
+On probation: delete by 2026-12-14 if unused. FORGE operator helpers live in
+**forge-mono** (`shell/forge.zsh`); dotfiles only loads them when that tree exists.

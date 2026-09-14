@@ -23,19 +23,17 @@ Prefer deleting dead code over rewriting it.
 
 ## Agent surface (kept lean)
 
-| Keep | Dropped |
-|------|---------|
-| `config/claude/{commands,skills,agents}` (generic) | `api-service-scaffold` skill |
-| `bin/ai` + `_agent` wrappers | dead `config/agents/agents.zsh` + examples |
-| `docs/forge.md` + `forge.zsh` (live on nova) | `project-orchestrator` / `index-analyzer` agents |
-| fleet profile (probation) | app-scaffold / fleet-dashboard cosplay |
+| Keep | Dropped / moved |
+|------|-----------------|
+| Generic Claude skills/agents | App scaffolds, dead agents.zsh |
+| Thin `forge.zsh` loader → forge-mono | Full FORGE aliases now in forge-mono `shell/forge.zsh` |
+| fleet profile (probation) | — |
 
 ## Still optional
 
 | Item | Priority | Notes |
 |------|----------|--------|
-| Fleet profile | Medium | Delete by **2026-12-14** if `claw-relay` / OpenClaw extras unused |
-| Move `forge.zsh` → forge-mono | Low | When public tree should not carry FORGE |
+| Fleet profile | Medium | Delete by **2026-12-14** if unused |
 | `moshi-hook` | Optional | Phone Live Activities |
 
 ## Explicit non-goals

@@ -104,5 +104,6 @@ Or promote/demote interactively with `:TierUp` / `:TierDown`.
 - `config/zsh/<hostname>.zsh` if it contains private paths or tokens
 
 If you use this as a public repo, also review:
-- `docs/forge.md` — remove if not using the FORGE workflow
+- FORGE operator shell: lives in forge-mono (`shell/forge.zsh`); remove
+  `config/zsh/forge.zsh` loader if you never use that tree
 - Host-local `config/zsh/<hostname>.zsh` files before publishing

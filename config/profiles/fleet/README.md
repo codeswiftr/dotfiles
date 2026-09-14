@@ -28,5 +28,6 @@ Then open a new shell. `.zshrc` sources `shell.zsh` when either condition is tru
 
 ## Related
 
-- `config/zsh/forge.zsh` — FORGE operator helpers (loaded for non-SSH sessions)
+- forge-mono `shell/forge.zsh` — FORGE operator helpers (loaded via thin `config/zsh/forge.zsh`)
 - `docs/agents.md` — agent-safe shell mode
+- Probation: delete this profile by 2026-12-14 if unused

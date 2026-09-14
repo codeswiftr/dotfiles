@@ -22,7 +22,7 @@ Start here. Prefer live commands over long guides.
 |-----|--------|
 | [neovim.md](neovim.md) | Neovim tiers |
 | [git-hooks.md](git-hooks.md) | Hooks |
-| [forge.md](forge.md) | FORGE notes (probation) |
+| [forge.md](forge.md) | Pointer → forge-mono operator shell |
 | [advanced.md](advanced.md) | Advanced usage |
 
 ## Live truth
