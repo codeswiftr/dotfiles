@@ -58,13 +58,13 @@ Use `agent-safe-status` to inspect the active mode and any remaining aliases.
 
 Local work uses **Herdr** (`hw`, `ha`, `hl`). Agent conversation state lives in
 each tool's own store. Herdr can restore agent TUIs when
-`resume_agents_on_restore` is set. `dot restart` prints current Herdr
+`resume_agents_on_restore` is set. `just status` prints current Herdr
 workspaces/agents (tmux park/resume is gone).
 
 ## Phone (Moshi)
 
 Reach hosts over Tailscale, then connect with [Moshi](https://getmoshi.app/)
-(connection type **Auto**). The `standard` / `full` profiles install **Mosh**
+(connection type **Auto**). The `standard` profile installs **Mosh**
 so the phone link survives sleep and network switches. Herdr remains the
 workspace; Moshi is only the client. See [getmoshi.app/docs/herdr](https://getmoshi.app/docs/herdr)
 and [getmoshi.app/docs/tailscale](https://getmoshi.app/docs/tailscale).

@@ -26,7 +26,7 @@ That clones into `~/dotfiles`, installs the **standard** profile (zsh, Herdr, Mo
 cd ~/dotfiles && ./setup
 ```
 
-Same as `./install.sh` / `./install.sh install standard`. Other profiles: `./setup full` or `./install.sh install minimal|ai_focused`.
+Same as `./install.sh` / `./install.sh install standard`. Other profile: `./setup minimal`.
 
 ### Fork of this repo
 
@@ -42,9 +42,7 @@ Then copy `.env.local.example` → `~/.env.local`. See [PERSONALIZATION.md](PERS
 | Profile | Good for |
 |---------|----------|
 | `minimal` | Servers — zsh, git, nvim, Herdr, chezmoi |
-| `standard` | **Default** — + modern CLIs, Tailscale, Mosh |
-| `full` | Power — + AI agents, scanners, extras |
-| `ai_focused` | Daily AI set without full extras |
+| `standard` | **Default** — modern CLIs, Tailscale, Mosh, daily AI agents |
 
 ### Platform support
 
@@ -62,12 +60,12 @@ Then copy `.env.local.example` → `~/.env.local`. See [PERSONALIZATION.md](PERS
 ```bash
 just check          # health
 just smoke          # fast bats
-dot update --self   # pull + relink
+just update --self  # pull + relink
 ha / hw / hl        # Herdr attach / workspaces / agents
 ai                  # default coding agent (claude)
 ```
 
-Phone: Tailscale + [Moshi](https://getmoshi.app/) (connection **Auto**). Mosh is installed by `standard`/`full`.
+Phone: Tailscale + [Moshi](https://getmoshi.app/) (connection **Auto**). Mosh is installed by `standard`.
 
 ---
 
@@ -77,7 +75,7 @@ Phone: Tailscale + [Moshi](https://getmoshi.app/) (connection **Auto**). Mosh is
 - **Herdr**: multiplexer (prefix `Ctrl-a`) · config in `config/herdr/`
 - **mise**: version-pinned CLIs in `mise.toml`
 - **Neovim**: 2 tiers (`:TierUp` / `:TierDown`)
-- **dot CLI**: `setup` `check` `update` `reload` `test` `install`
+- **just**: `setup` `check` `update` `reload` `smoke` `test` `link`
 
 Layout SSOT: [ARCHITECTURE.md](ARCHITECTURE.md).
 

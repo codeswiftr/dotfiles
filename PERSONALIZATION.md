@@ -79,7 +79,7 @@ python = "3.12"
 The default install profile is `standard`. Pass another explicitly:
 
 ```bash
-./setup full                 # or: ./install.sh install full
+./setup                     # standard (default)
 ./setup minimal
 ```
 

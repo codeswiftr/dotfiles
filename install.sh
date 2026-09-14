@@ -3,8 +3,8 @@
 # Declarative Dotfiles Installer - 2025 Edition
 # Uses tools.yaml configuration for declarative, reproducible installations
 #
-# PHASE 0 FREEZE (2026-09-14): do not add flags, profiles, or install paths.
-# Shrink/delete only. See docs/technical-debt.md.
+# PHASE 1: shrink only. Task interface is `just` (scripts/check|update|reload).
+# See docs/technical-debt.md.
 # =============================================================================
 
 set -eo pipefail
@@ -728,7 +728,6 @@ link_dotfiles() {
         "config/nvim"
         "config/starship.toml"
         "config/herdr/config.toml"
-        "completions/_dot"
         "completions/_herdr"
         "hooks"
     )
@@ -741,7 +740,6 @@ link_dotfiles() {
         "$HOME/.config/nvim"
         "$HOME/.config/starship.toml"
         "$HOME/.config/herdr/config.toml"
-        "$HOME/.local/share/zsh/completions/_dot"
         "$HOME/.local/share/zsh/completions/_herdr"
         "$HOME/.config/git/hooks"
     )
@@ -786,7 +784,6 @@ fi
 [[ -f "$ZSH_CONFIG_DIR/functions.zsh" ]] && source "$ZSH_CONFIG_DIR/functions.zsh"
 
 # Optional features
-[[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
 
 # Local customizations
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
@@ -999,13 +996,10 @@ except Exception as e:
     else
         # Fallback to simple grep approach
         echo -e "${BLUE}minimal${NC}"
-        echo -e "  ${CYAN}Minimal installation for basic functionality${NC}"
+        echo -e "  ${CYAN}Headless / servers — essential tools only${NC}"
         echo ""
         echo -e "${BLUE}standard${NC}"
-        echo -e "  ${CYAN}Standard development environment${NC}"
-        echo ""
-        echo -e "${BLUE}full${NC}"
-        echo -e "  ${CYAN}Complete installation with all tools${NC}"
+        echo -e "  ${CYAN}Workstation default — shell, networking, daily AI agents${NC}"
         echo ""
     fi
 }
@@ -1026,7 +1020,7 @@ COMMANDS:
     link                  Link dotfiles configuration only (skip tool installation)
     
 OPTIONS:
-    -p, --profile PROFILE Installation profile (minimal|standard|full|ai_focused)
+    -p, --profile PROFILE Installation profile (minimal|standard)
     -d, --dry-run         Show what would be done without executing
     -v, --verbose         Enable verbose output
     -f, --force           Force installation even if tools exist
@@ -1037,7 +1031,7 @@ OPTIONS:
 
 EXAMPLES:
     $0 install standard                    # Install standard profile
-    $0 --dry-run install full             # Preview full installation
+    $0 --dry-run install standard         # Preview standard installation
     $0 --verbose --force install minimal  # Force install minimal with verbose output
     $0 --no-sudo install standard         # Install without sudo (user tools only)
     $0 profiles                           # Show available profiles
@@ -1334,12 +1328,20 @@ main() {
                 print_info "DRY RUN MODE - No changes will be made"
             fi
 
+            # Retired profiles collapse into standard
+            case "$PROFILE" in
+                full|ai_focused)
+                    print_warning "Profile '$PROFILE' retired — using 'standard'"
+                    PROFILE="standard"
+                    ;;
+            esac
+
             # Validate profile name early — reject unknown profiles before doing any work
             local _valid_profiles
             _valid_profiles=$(yaml_query_profile_groups "$PROFILE" 2>/dev/null)
             if [[ -z "$_valid_profiles" ]]; then
                 print_error "Unknown profile: '$PROFILE'"
-                print_info "Valid profiles: minimal, standard, full, ai_focused"
+                print_info "Valid profiles: minimal, standard"
                 print_info "Run './install.sh profiles' to see details"
                 exit 1
             fi
@@ -1401,10 +1403,10 @@ main() {
             # Final verification step
             if [[ "$DRY_RUN" == "false" ]]; then
                 print_header "Final Verification"
-                if "$DOTFILES_DIR/bin/dot" check 2>/dev/null; then
+                if "$DOTFILES_DIR/scripts/check.sh" --quiet 2>/dev/null; then
                     print_success "Setup completed and verified successfully!"
                 else
-                    print_warning "Some checks may need attention. Run 'dot check' for details."
+                    print_warning "Some checks may need attention. Run 'just check' for details."
                 fi
                 echo ""
                 if [[ "$_install_warnings" == "true" ]]; then

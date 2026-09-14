@@ -39,4 +39,4 @@ SAVEHIST=50000
 setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE
 
 # Skip atuin in SSH (interactive history sync not needed on servers)
-# Skip forge-tools, fleet-dashboard, ai-enhanced in SSH
+# Skip forge-tools / fleet-dashboard in SSH

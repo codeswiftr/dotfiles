@@ -38,4 +38,4 @@ These are linked into `~/.claude/` via chezmoi (`home/private_dot_claude/`). Thi
 - **Do** run bats before large changes; use `DOTFILES_MODE=agent` in agent shells
 - **Do** keep `bin/` script-only; tools go in `~/.local/bin` / mise / brew
 - **Don't** commit secrets or API keys
-- **Don't** invent CLI docs — use `./bin/dot --help`
+- **Don't** invent CLI docs — use `just --list`

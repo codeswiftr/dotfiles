@@ -82,7 +82,7 @@ alias dki="docker images"
 # Git aliases (enhanced)
 alias gs="git status"
 alias ga="git add"
-# gc is defined as a smart function in ai-enhanced.zsh (falls back to git commit)
+# git commit helpers (use `git commit` or your AI agent CLI)
 alias gp="git push"
 alias gl="git pull"
 alias gd="git diff"

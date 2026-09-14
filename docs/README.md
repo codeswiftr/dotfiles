@@ -37,7 +37,7 @@ cd ~/dotfiles && ./setup
 just --list
 just smoke
 just check
-./bin/dot --help
+just --list
 ```
 
 Do **not** treat historical help snapshots as authoritative.

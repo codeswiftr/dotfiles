@@ -37,7 +37,7 @@ Where to change things. Prefer editing files under the repo; chezmoi / install l
 | File | Role |
 |------|------|
 | `mise.toml` | Pinned CLIs + runtimes |
-| `config/tools.yaml` | Platform packages + profiles (`minimal` / `standard` / `full` / `ai_focused`) |
+| `config/tools.yaml` | Platform packages + profiles (`minimal` / `standard`) |
 | `./install.sh install <profile>` | Orchestrates mise + packages + chezmoi apply |
 
 ## Linking

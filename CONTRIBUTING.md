@@ -30,7 +30,7 @@ See [AGENTS.md](AGENTS.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 ```bash
 just smoke
 just lint          # when shellcheck/yamllint/ruff are installed
-./bin/dot --help   # if you touched the CLI
+just --list   # if you touched the CLI
 ```
 
 ## Docs

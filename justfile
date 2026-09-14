@@ -20,12 +20,20 @@ link:
     @./install.sh link
 
 # Run health check
-check:
-    @./bin/dot check
+check *args:
+    @./scripts/check.sh {{args}}
 
-# Reload shell tools / herdr / daemons
+# Pull + relink (+ tools unless --self)
+update *args:
+    @./scripts/update.sh {{args}}
+
+# Reload Herdr config / mise shims
 reload:
-    @./bin/dot reload
+    @./scripts/reload.sh
+
+# Herdr workspace + agent status
+status:
+    @command -v herdr >/dev/null && herdr workspace list && herdr agent list || echo "herdr not installed"
 
 # =============================================================================
 # Testing & Quality
@@ -47,7 +55,7 @@ lint: lint-sh lint-yaml lint-py
 lint-sh:
     @echo "Running shellcheck..."
     @if command -v shellcheck >/dev/null 2>&1; then \
-        shellcheck --rcfile config/shellcheckrc -e SC2034,SC2155,SC2015,SC1094 bin/dot bin/ai bin/_agent install.sh scripts/security/*.sh ; \
+        shellcheck --rcfile config/shellcheckrc -e SC2034,SC2155,SC2015,SC1094 bin/ai bin/_agent install.sh scripts/check.sh scripts/update.sh scripts/reload.sh scripts/security/*.sh ; \
     else \
         echo "⚠️  shellcheck not installed. Install with: brew install shellcheck" ; \
     fi

@@ -32,9 +32,7 @@ jobs:
 
       - name: shellcheck scripts
         run: |
-          # Focus on entrypoints; lib is historical and noisy
-          shellcheck -x bin/dot bin/agent-restart bin/ai bin/_agent 2>/dev/null || \
-            shellcheck bin/dot bin/agent-restart bin/ai bin/_agent || true
+          shellcheck bin/ai bin/_agent scripts/check.sh scripts/update.sh scripts/reload.sh || true
           shellcheck install.sh || true
 
       - name: bats suite

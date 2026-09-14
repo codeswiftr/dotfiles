@@ -16,13 +16,13 @@ Claude-specific slash commands and skills live under `config/claude/` (see thin 
 ## Layout (high level)
 
 ```
-bin/           # repo-owned scripts only (dot, ai, _agent wrappers) — no binaries
+bin/           # repo-owned scripts only (ai, cursor, _agent wrappers) — no binaries
 config/zsh/    # shell modules sourced by .zshrc
 config/nvim/   # neovim
 home/          # chezmoi source (symlinks + templates)
-lib/cli/       # dot CLI modules
-scripts/       # install helpers (not on PATH by default)
+scripts/       # install + maintenance (check/update/reload)
 tests/bats/    # bats-core tests
+justfile       # task interface (preferred over ad-hoc CLIs)
 ```
 
 ## Commands
@@ -35,7 +35,8 @@ curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bo
 ./setup                     # standard profile
 just smoke                  # fast bats
 just test                   # full bats suite
-just check                  # ./bin/dot check
+just check                  # health
+just update --self          # pull + relink
 just lint
 just --list
 

@@ -2,50 +2,47 @@
 
 Prefer deleting dead code over rewriting it.
 
-## Phase 0 freeze (2026-09-14)
+## Phase status
 
-Until Phase 1/2 strategy work lands, **do not grow**:
+| Phase | Status | Notes |
+|-------|--------|-------|
+| 0 | Done | Cheap deletes + CI clean-room + freeze |
+| 1 | Done | `just` owns tasks; `bin/dot` + `lib/cli` gone; 2 profiles |
+| 2 | Next | Kill `tools.yaml` parser; slim `install.sh`; chezmoi-strict |
+
+## Freeze still in effect for installer growth
 
 | Surface | Rule |
 |---------|------|
-| `install.sh` | No new flags, profiles, or install paths |
-| `config/tools.yaml` | No new tools/groups; freeze now, delete in Phase 2 |
-| Profiles | No new profiles; target remains `standard` + `minimal` |
-
-North star: `curl \| bash` → agent-safe Herdr shell. Net-negative LOC this quarter.
-
-Baseline note: local Docker clean-room timing was blocked by host disk; CI `cleanroom` job is the measured gate.
+| `install.sh` | Shrink only — no new flags/paths |
+| `config/tools.yaml` | No new tools/groups; delete in Phase 2 |
+| Profiles | `minimal` + `standard` only (`full`/`ai_focused` map → `standard`) |
 
 ## Done recently
 
 | Area | Notes |
 |------|--------|
 | Multiplexer | tmux retired → Herdr + `just` |
-| Fresh install | One curl bootstrap; `./setup` / `./install.sh` after clone |
-| Mosh | `networking` group + `.zshenv` PATH for Moshi |
-| Legacy CLI | Removed `perf` / `project` / fat `testing` / `template` / broken `platform` arms |
-| Orphan trees | Removed `templates/`, `themes/`, `src/--help`, stale docs |
-| Phase 0 deletes | `dev-{api,web,ios}`, dual `health-check`, tutor/viman, zsh examples, topic docs |
+| Fresh install | One curl bootstrap; `./setup` |
+| Phase 0 | App scaffolds, dual health, tutor/viman, topic docs |
+| Phase 1 | `scripts/{check,update,reload}.sh`; deleted `bin/dot` + `lib/cli` + AI bash middleware |
 
-## Still optional (Phase 1–2)
+## Still optional (Phase 2)
 
 | Item | Priority | Notes |
 |------|----------|--------|
-| Kill `bin/dot` → `just` only | High | Keep check logic; drop Graphviz collision |
-| Slim/delete `lib/cli/{ai,config,git,security}` | High | Starve with Phase 1 |
-| Slim `install.sh` (~1.5k → ≤700) | High | After deletes; two-tier mise + Brewfile/apt |
-| Delete `tools.yaml` + parser | High | Phase 2; freeze until then |
-| Profiles 4→2 | Medium | Collapse `full` / `ai_focused` into `standard` |
+| Slim `install.sh` (~1.5k → ≤700) | High | Two-tier mise + Brewfile/apt |
+| Delete `tools.yaml` + parser | High | Freeze until then |
+| Drop chezmoi fallback linker | High | After measured chezmoi always installs |
 | Fleet profile probation | Medium | Delete by 2026-12-14 if unused |
 | `moshi-hook` on phone hosts | Optional | Live Activities / Watch |
-| Age-encrypted secrets | Optional | Not blocking |
 
 ## Explicit non-goals
 
 - Multi-shell (fish)
 - Rebuilding tmux park / agent-restart
 - Growing AI profiles beyond the daily set
-- App scaffolds / security-suite cosplay in this repo
+- App scaffolds / security-suite cosplay / bespoke CLI frameworks
 
 ## Contributor path
 

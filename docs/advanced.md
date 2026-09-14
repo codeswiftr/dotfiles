@@ -12,9 +12,9 @@ Keep changes small and local.
 
 ```bash
 ./setup                     # memorable: standard profile
-./install.sh install full   # or minimal | ai_focused
-dot update --self           # pull + relink
-dot update herdr            # brew/upgrade Herdr when packaged
+./install.sh install minimal
+just update --self          # pull + relink
+just update                 # also upgrade brew/npm/uv/mise
 ```
 
 Encourage the same `./install.sh` / `./setup` path for contributors.

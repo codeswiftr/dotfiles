@@ -18,7 +18,7 @@ Open a **new shell** when it finishes.
 
 ```bash
 which zsh starship nvim herdr mosh-server
-just check          # or: dot check
+just check          # or: just check
 just smoke
 ```
 
@@ -30,7 +30,7 @@ hw                  # workspaces
 hl                  # agents
 nvim                # <Space>? for discovery
 ai                  # default coding agent
-dot update --self   # pull + relink on other machines
+just update --self   # pull + relink on other machines
 ```
 
 **Herdr prefix:** `Ctrl-a` (see shortcut table below).  

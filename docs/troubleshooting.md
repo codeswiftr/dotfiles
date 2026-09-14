@@ -9,7 +9,7 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 ## ❓ Frequently Asked Questions (FAQ)
 
 **Q: Installation failed or tools missing?**
-- Run `dot check` and `dot doctor` for diagnostics.
+- Run `just check` and `just check` for diagnostics.
 - See [Getting Started Guide](getting-started.md) for step-by-step install help.
 
 **Q: Keyboard shortcuts not working (international layout)?**
@@ -58,10 +58,10 @@ Comprehensive guide to resolving common issues with the dotfiles environment.
 
 ```bash
 # Run comprehensive system check
-dot check
+just check
 
 # Quick health assessment
-dot doctor
+just check
 
 # Multiplexer
 herdr status

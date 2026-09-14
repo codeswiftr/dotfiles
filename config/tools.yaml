@@ -708,7 +708,7 @@ nodes:
     profile: standard
     description: "Hub/Command Center (16GB Linux)"
   sati:
-    profile: full
+    profile: standard
     description: "Workhorse - heavy tasks (64GB Linux)"
   trinity:
     profile: standard
@@ -718,35 +718,27 @@ nodes:
     description: "VPS node (Linux)"
   # macOS machines
   nova:
-    profile: full
+    profile: standard
     description: "iOS/Power - Swift, Xcode (48GB macOS)"
   gaea:
     profile: standard
     description: "Education/Mobile (16GB macOS)"
   code-mb16:
-    profile: full
+    profile: standard
     description: "MacBook Pro 16 (macOS)"
   vega:
     profile: standard
     description: "Linux node"
 
-# Installation profiles
+# Installation profiles (Phase 1: two only)
 profiles:
   minimal:
-    description: "Minimal installation for basic functionality"
+    description: "Headless / servers — essential tools only"
     groups: ["essential"]
 
   standard:
-    description: "Standard development environment"
-    groups: ["essential", "modern_cli", "development", "networking", "deployment"]
-
-  full:
-    description: "Complete installation with all tools"
-    groups: ["essential", "modern_cli", "development", "networking", "deployment", "ai_tools", "testing_tools", "security_tools", "dev_tools", "optional"]
-
-  ai_focused:
-    description: "AI-enhanced development environment"
-    groups: ["essential", "modern_cli", "development", "ai_tools"]
+    description: "Workstation default — shell, networking, daily AI agents"
+    groups: ["essential", "modern_cli", "development", "networking", "deployment", "ai_tools"]
 
 # Installation options
 options:

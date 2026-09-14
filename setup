@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Memorable entrypoint after clone:  ./setup
 # Same as: ./install.sh install standard
-# Usage: ./setup [minimal|standard|full|ai_focused]
+# Usage: ./setup [minimal|standard]
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -10,7 +10,7 @@ case "${1:-}" in
     cat <<'EOF'
 Usage: ./setup [profile]
 
-Profiles: minimal | standard (default) | full | ai_focused
+Profiles: minimal | standard (default)
 
 Same as: ./install.sh install <profile>
 
@@ -22,4 +22,10 @@ EOF
 esac
 
 profile="${1:-standard}"
+case "$profile" in
+  full|ai_focused)
+    echo "Note: profile '$profile' retired — using 'standard'" >&2
+    profile=standard
+    ;;
+esac
 exec bash "$ROOT/install.sh" install "$profile"

@@ -15,7 +15,7 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 | `config/zsh/.zprofile` | `~/.zprofile` | Symlink |
 | `config/nvim/` | `~/.config/nvim` | Symlink (directory) |
 | `config/starship.toml` | `~/.config/starship.toml` | Symlink |
-| `completions/_dot` | `~/.local/share/zsh/completions/_dot` | Symlink |
+| `completions/_herdr` | `~/.local/share/zsh/completions/_herdr` | Symlink |
 | `hooks/` | `~/.config/git/hooks` | Symlink (directory) — single hooks tree (no `git/hooks/`) |
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink (repo-root agent notes) |
 | `config/claude/{agents,commands,skills,output-styles,WORKFLOW_GUIDE.md,starship-statusline.sh}` | `~/.claude/{...}` | Symlinks via chezmoi `home/private_dot_claude/` |
@@ -33,11 +33,12 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 ### `bin/` Policy
 
 `bin/` contains **only repo-owned scripts**:
-- `dot` — main CLI (Phase 1: converge on `just`)
 - `ai` — AI tool launcher
-- `cursor` — Cursor helper shim
+- `cursor` — PATH shim (skips `~/.local/bin/cursor`, finds real Cursor IDE)
 - `_agent` and `_claude` / `_codex` / … — agent launch wrappers
 - `setup` (repo root) — memorable `./setup` → `install.sh install standard`
+
+Task interface is **`just`** (`check`, `update`, `reload`, `smoke`, `test`). There is no `bin/dot`.
 
 All other executables (tool binaries, uv entrypoints) are managed by package managers (mise, uv, brew) and live in **`~/.local/bin/`** (a real directory), mise shims, or Homebrew paths. They are NOT tracked in git.
 

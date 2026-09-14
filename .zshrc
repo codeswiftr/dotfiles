@@ -59,7 +59,7 @@ fi
 # 5. Optional features
 # -----------------------------------------------------------------------------
 if [[ "$DOTFILES_MODE" == "full" ]]; then
-    [[ -f "$ZSH_CONFIG_DIR/ai-enhanced.zsh" ]] && source "$ZSH_CONFIG_DIR/ai-enhanced.zsh"
+# AI helpers live in bin/ai and _agent wrappers — not bash middleware.
 fi
 
 # FORGE operator helpers (skipped on SSH inside forge.zsh)
@@ -111,7 +111,7 @@ if [[ $- == *i* && -z "$DOTFILES_AGENT_SAFE" ]]; then
         branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null) || return 0
         behind=$(git -C "$dir" rev-list "HEAD..origin/$branch" --count 2>/dev/null) || return 0
         [[ "${behind:-0}" -gt 0 ]] && \
-            print -P "\n  %F{yellow}dotfiles:%f ${behind} commit(s) behind — run %F{cyan}dot update%f\n"
+            print -P "\n  %F{yellow}dotfiles:%f ${behind} commit(s) behind — run %F{cyan}just update --self%f\n"
     }
     _dotfiles_check_updates &!
 fi

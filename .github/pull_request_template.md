@@ -7,7 +7,7 @@ Briefly describe your changes and motivation.
 ## Test Plan
 
 - [ ] `just smoke`
-- [ ] `just check` (or `dot check`)
+- [ ] `just check` (or `just check`)
 - [ ] `shellcheck` / `yamllint` when touching shell/YAML
 
 ## Related Docs

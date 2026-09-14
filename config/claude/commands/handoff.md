@@ -7,7 +7,7 @@ description: Save context for session continuity
 
 Write a short handoff so another session (or harness) can resume this repo. Do not require Forge.
 
-Use at session end, before a reboot (`dot restart` nudge), or when switching tasks.
+Use at session end, before a reboot (`just status` nudge), or when switching tasks.
 
 ## Where to write
 
@@ -63,4 +63,4 @@ Keep it short enough that the next agent can act without re-reading the whole se
 
 ## After writing
 
-Tell the user the path. Suggest `/continue` (or `dot restart resume` after a reboot) as the way back in.
+Tell the user the path. Suggest `/continue` (or `just status` after a reboot) as the way back in.

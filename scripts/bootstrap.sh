@@ -5,8 +5,8 @@
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash -s -- install full
-#   ./bootstrap.sh install full
+#   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash -s -- install standard
+#   ./bootstrap.sh install minimal
 # =============================================================================
 
 set -eo pipefail
@@ -312,7 +312,7 @@ main() {
     echo "" >&2
     log_success "Bootstrap complete!"
     echo "" >&2
-    log_info "Next: open a new shell, then run:  just check   # or: dot check"
+    log_info "Next: open a new shell, then run:  just check   # or: just check"
     log_info "Herdr:  ha / hw / hl     Phone: Moshi over Tailscale (Auto)"
     echo "" >&2
 }

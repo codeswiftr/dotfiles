@@ -1,45 +1,24 @@
 #!/usr/bin/env bats
 # Infrastructure tests — validates dotfiles structure and contracts.
-# Migrated from legacy test framework.
 
 setup() {
     export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     export PATH="$DOTFILES_DIR/bin:$PATH"
 }
 
-# --- CLI Path Resolution (from test_cli_paths.sh) ---
+# --- Task interface ---
 
-@test "dot CLI runs from dotfiles root" {
-    cd "$DOTFILES_DIR"
-    run dot --version
-    [ "$status" -eq 0 ]
+@test "just check script is executable" {
+    [ -x "$DOTFILES_DIR/scripts/check.sh" ]
+    [ -x "$DOTFILES_DIR/scripts/update.sh" ]
+    [ -x "$DOTFILES_DIR/scripts/reload.sh" ]
 }
 
-@test "dot CLI runs from nested directory" {
-    cd "$DOTFILES_DIR/config"
-    run dot --version
-    [ "$status" -eq 0 ]
-}
-
-@test "dot CLI runs from home directory" {
-    cd "$HOME"
-    run dot --version
-    [ "$status" -eq 0 ]
-}
-
-# --- CLI Contracts (from test_cli_contracts.sh) ---
-
-@test "dot --version outputs semantic version" {
-    run dot --version
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"."* ]]
-}
-
-@test "dot check --quiet exits 0" {
+@test "just check --quiet exits 0 when linked" {
     if [[ ! -L "$HOME/.zshrc" ]]; then
         skip "dotfiles not linked on this host"
     fi
-    run dot check --quiet
+    run just check --quiet
     [ "$status" -eq 0 ]
 }
 
@@ -66,7 +45,7 @@ setup() {
     done
 }
 
-# --- Neovim Tiers (from test_nvim_tiers.sh) ---
+# --- Neovim Tiers ---
 
 @test "nvim tier1.lua exists and has plugins" {
     [ -f "$DOTFILES_DIR/config/nvim/lua/tiers/tier1.lua" ]
@@ -92,14 +71,14 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
-# --- Release (from test_release.sh) ---
+# --- Release ---
 
 @test "release script exists and is executable" {
     [ -f "$DOTFILES_DIR/scripts/release.sh" ]
     [ -x "$DOTFILES_DIR/scripts/release.sh" ]
 }
 
-# --- Shell Performance (from test_shell_startup.sh) ---
+# --- Shell Performance ---
 
 @test "shell startup under 500ms" {
     if [[ ! -L "$HOME/.zshrc" ]]; then
@@ -114,7 +93,7 @@ setup() {
     [ "$duration_ms" -lt 500 ]
 }
 
-# --- Nvim Keymaps (from test_nvim_keymaps.sh) ---
+# --- Nvim Keymaps ---
 
 @test "nvim keymaps-unified.lua exists" {
     [ -f "$DOTFILES_DIR/config/nvim/lua/core/keymaps-unified.lua" ]

@@ -10,10 +10,9 @@ mise.lock
 # Legacy path (canonical is config/starship.toml)
 .config/
 
-# bin/ policy: only repo-owned scripts are tracked (dot, ai, cursor, _agent*).
-# Everything else is machine-local.
+# bin/ policy: only repo-owned scripts are tracked (ai, cursor, _agent*).
+# Everything else is machine-local. Task interface is `just` (not bin/dot).
 bin/*
-!bin/dot
 !bin/ai
 !bin/cursor
 !bin/_agent

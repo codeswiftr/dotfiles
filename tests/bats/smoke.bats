@@ -7,27 +7,27 @@ setup() {
     export PATH="$DOTFILES_DIR/bin:$PATH"
 }
 
-# --- dot CLI ---
+# --- just + health scripts ---
 
-@test "dot --help shows usage" {
-    run dot --help
+@test "just --list shows core recipes" {
+    run just --list
     [ "$status" -eq 0 ]
     [[ "$output" == *"check"* ]]
     [[ "$output" == *"update"* ]]
-    [[ "$output" == *"restart"* ]]
+    [[ "$output" == *"smoke"* ]]
 }
 
-@test "dot --version shows version" {
-    run dot --version
+@test "scripts/check.sh --help works" {
+    run "$DOTFILES_DIR/scripts/check.sh" --help
     [ "$status" -eq 0 ]
-    [[ "$output" == *"."* ]]
+    [[ "$output" == *"check.sh"* ]]
 }
 
-@test "dot check runs without error" {
+@test "just check runs without error when linked" {
     if [[ ! -L "$HOME/.zshrc" ]]; then
         skip "dotfiles not linked on this host"
     fi
-    run dot check --quiet
+    run just check --quiet
     [ "$status" -eq 0 ]
 }
 
@@ -124,11 +124,10 @@ setup() {
     [[ "$output" == *"Usage: _agent"* ]]
 }
 
-@test "dot restart reports herdr status" {
-    run "$DOTFILES_DIR/bin/dot" --help
+@test "just status reports herdr when available" {
+    run just --list
     [ "$status" -eq 0 ]
-    [[ "$output" == *"restart"* ]]
-    [[ "$output" != *"tmux agents"* ]]
+    [[ "$output" == *"status"* ]]
 }
 
 # --- Shell startup performance ---
@@ -249,7 +248,7 @@ setup() {
 # --- bin/ hygiene (no tool landfill) ---
 
 @test "bin/ contains only whitelisted scripts" {
-    local allowed='^(dot|ai|cursor|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
+    local allowed='^(ai|cursor|_agent|_claude|_codex|_gemini|_kimi|_pi|_opencode|_cursor|_amp|_minimax|_glm)$'
     local bad=0
     local name
     for f in "$DOTFILES_DIR"/bin/*; do
@@ -336,10 +335,12 @@ setup() {
 
 @test "justfile exists and contains core recipes" {
     [ -f "$DOTFILES_DIR/justfile" ]
-    grep -q 'test:' "$DOTFILES_DIR/justfile"
-    grep -q 'lint:' "$DOTFILES_DIR/justfile"
-    grep -q 'check:' "$DOTFILES_DIR/justfile"
+    command grep -qE '^test:' "$DOTFILES_DIR/justfile"
+    command grep -qE '^lint:' "$DOTFILES_DIR/justfile"
+    command grep -qE '^check' "$DOTFILES_DIR/justfile"
+    command grep -qE '^update' "$DOTFILES_DIR/justfile"
 }
+
 
 @test "setup entrypoint and bootstrap point at a single install path" {
     [ -x "$DOTFILES_DIR/setup" ]
@@ -348,16 +349,22 @@ setup() {
     grep -q 'DOTFILES_REPO' "$DOTFILES_DIR/scripts/bootstrap.sh"
 }
 
-@test "dot help no longer advertises legacy commands" {
-    run "$DOTFILES_DIR/bin/dot" --help
+@test "justfile recipes no longer wrap bin/dot" {
+    [ -f "$DOTFILES_DIR/justfile" ]
+    grep -q 'scripts/check.sh' "$DOTFILES_DIR/justfile"
+    grep -q 'scripts/update.sh' "$DOTFILES_DIR/justfile"
+    ! command grep -q 'bin/dot' "$DOTFILES_DIR/justfile"
+    [ ! -e "$DOTFILES_DIR/bin/dot" ]
+    [ ! -d "$DOTFILES_DIR/lib/cli" ]
+}
+
+@test "only minimal and standard install profiles remain" {
+    run bash "$DOTFILES_DIR/install.sh" profiles
     [ "$status" -eq 0 ]
-    [[ "$output" == *"check"* ]]
-    [[ "$output" == *"update"* ]]
-    [[ "$output" != *"LEGACY"* ]]
-    [[ "$output" != *"scaffolding"* ]]
-    run "$DOTFILES_DIR/bin/dot" perf
-    [ "$status" -ne 0 ]
-    [[ "$output" == *"Removed"* ]] || [[ "$output" == *"legacy"* ]]
+    [[ "$output" == *"minimal"* ]]
+    [[ "$output" == *"standard"* ]]
+    [[ "$output" != *"ai_focused"* ]]
+    ! command grep -E '^(  full:|  ai_focused:)' "$DOTFILES_DIR/config/tools.yaml"
 }
 
 @test "herdr zsh completions and aliases are defined" {

@@ -241,7 +241,8 @@ validate_dotfiles_structure() {
     # Check for optional but recommended files
     local optional_files=(
         "config/tools.yaml"
-        "lib/cli/core.sh"
+        "justfile"
+        "scripts/check.sh"
         "VERSION"
     )
     
@@ -320,7 +321,7 @@ validate_index_consistency() {
 
 # Live CLI help is SSOT — no snapshot files
 validate_help_snapshots() {
-    log_info "CLI help snapshots retired (use bin/dot --help)"
+    log_info "CLI help: just --list"
     log_success "Skipped obsolete help-snapshot check"
 }
 
