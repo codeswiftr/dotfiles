@@ -16,7 +16,6 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 15
     env:
-      DOTFILES_MODE: agent
       DOTFILES_DIR: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4

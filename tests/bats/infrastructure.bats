@@ -36,6 +36,9 @@ setup() {
 }
 
 @test "dot check --quiet exits 0" {
+    if [[ ! -L "$HOME/.zshrc" ]]; then
+        skip "dotfiles not linked on this host"
+    fi
     run dot check --quiet
     [ "$status" -eq 0 ]
 }
@@ -82,6 +85,9 @@ setup() {
 }
 
 @test "nvim tier-manager.lua loads without error" {
+    if ! command -v nvim >/dev/null 2>&1; then
+        skip "nvim not installed"
+    fi
     run nvim --headless -c "lua require('core.tier-manager')" -c "qa"
     [ "$status" -eq 0 ]
 }
@@ -96,6 +102,9 @@ setup() {
 # --- Shell Performance (from test_shell_startup.sh) ---
 
 @test "shell startup under 500ms" {
+    if [[ ! -L "$HOME/.zshrc" ]]; then
+        skip "dotfiles not linked on this host"
+    fi
     local start end duration_ms
     start=$(python3 -c 'import time; print(int(time.time()*1e9))')
     zsh -i -c 'exit' 2>/dev/null
