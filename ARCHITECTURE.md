@@ -48,14 +48,12 @@ All other executables (tool binaries, uv entrypoints) are managed by package man
 
 ## Linking Strategy
 
-**Primary:** chezmoi (`home/` directory with `.chezmoiroot`).
+**Primary:** chezmoi (`home/` directory). Required — `install.sh` has no fallback linker.
 
 chezmoi manages:
 - Symlinks: .zshrc, .zshenv, .zprofile, nvim, starship.toml, herdr, hooks, completions
 - Templates: .gitconfig (with machine-specific name/email/credential helper)
 - Scripts: run_onchange for git hooksPath configuration
-
-**Fallback:** If chezmoi is not installed, `install.sh` falls back to hand-rolled `link_dotfiles()`.
 
 **Machine-specific config:** `~/.config/chezmoi/chezmoi.toml` stores name, email (set on first init via prompts or pre-created).
 
@@ -63,10 +61,11 @@ chezmoi manages:
 
 | Source | Owns |
 |--------|------|
-| **`mise.toml`** | Version-pinned CLIs + runtimes (rg, bat, fd, fzf, starship, zoxide, atuin, delta, jq, yq, gh, security scanners, node, python, …). Install via `mise install` / installer bootstrap. |
-| **`config/tools.yaml`** | Platform packages (zsh, git, nvim, herdr, eza, uv, bun, docker, AI casks) and profile groups. Tools with `provided_by: mise` are never brew/apt-installed. |
-| **`config/platform/Brewfile`** | macOS platform packages only — no mise-owned CLI duplicates |
-| **uv / npm / brew** | Language tools and casks not covered by mise. Prefer `brew uninstall` of mise-owned CLIs if both appear on PATH. |
+| **`mise.toml`** | Version-pinned CLIs + runtimes (rg, bat, fd, fzf, starship, zoxide, atuin, delta, jq, yq, gh, security scanners, node, python, …). |
+| **`config/platform/Brewfile`** | macOS platform packages + AI casks — no mise-owned CLI duplicates |
+| **`config/platform/apt.txt` / `pacman.txt`** | Linux platform packages |
+| **`scripts/install-*.sh`** | Cross-OS helpers (herdr, mosh) |
+| **uv / npm / brew** | Language tools and casks not covered by mise |
 
 **State tracking:** `~/.dotfiles-state/` tracks only:
 - Which post-install hooks have run (avoid re-running chsh, usermod, etc.)

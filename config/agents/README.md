@@ -15,7 +15,7 @@ Profiles install the **daily** set only:
 | Kimi | `ai kimi` | Moonshot AI assistant |
 | Codex | `ai codex` | OpenAI coding assistant |
 
-Opt-in (not in profiles): Aider, Amp, Gemini, Factory, Kilo — see `config/tools.yaml`.
+Opt-in (not in profiles): Aider, Amp, Gemini, Factory, Kilo — install manually if needed.
 
 ## Quick Start
 

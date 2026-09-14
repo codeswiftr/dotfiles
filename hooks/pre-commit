@@ -240,7 +240,8 @@ validate_dotfiles_structure() {
     
     # Check for optional but recommended files
     local optional_files=(
-        "config/tools.yaml"
+        "config/platform/Brewfile"
+        "mise.toml"
         "justfile"
         "scripts/check.sh"
         "VERSION"

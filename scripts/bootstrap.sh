@@ -264,13 +264,11 @@ run_installer() {
     # Make installer executable
     chmod +x "$installer"
 
-    # Check if config file exists
-    local config_file="$DOTFILES_DIR/config/tools.yaml"
-    if [[ ! -f "$config_file" ]]; then
-        log_error "Configuration file not found: $config_file"
-        log_info "Available files in config directory:"
-        ls -la "$DOTFILES_DIR/config/" >&2 || true
-        error_exit "Missing configuration file"
+    # Check required platform manifests
+    local brewfile="$DOTFILES_DIR/config/platform/Brewfile"
+    if [[ ! -f "$brewfile" ]]; then
+        log_error "Brewfile not found: $brewfile"
+        error_exit "Missing platform manifests"
     fi
 
     # Run installer with passed arguments, default to 'install standard' if no args

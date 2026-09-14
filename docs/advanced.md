@@ -21,9 +21,9 @@ Encourage the same `./install.sh` / `./setup` path for contributors.
 
 ## Tools
 
-- Platform packages: `config/tools.yaml` + Brewfile  
-- Pinned CLIs: `mise.toml`  
-- Add a tool once in `tools.yaml`; profiles pull groups  
+- Platform packages: `config/platform/{Brewfile,apt.txt,pacman.txt}`
+- Pinned CLIs: `mise.toml`
+- Home state: chezmoi (`home/`)
 
 ## Multiplexer
 

@@ -1,62 +1,17 @@
-# Pacman packages for Arch Linux
-# Usage: xargs -a pacman.txt sudo pacman -S --noconfirm
-# Generated from config/tools.yaml
+# Pacman packages for Arch — platform only
+# Usage: grep -v '^#' pacman.txt | grep -v '^$' | sudo pacman -S --noconfirm -
+# Pinned CLIs → mise.toml; herdr/mise/AI → install.sh helpers
 
-# Core Shell & Terminal
 zsh
-starship
-mosh
-# herdr is not in extra — official installer: curl -fsSL https://herdr.dev/install.sh | sh
-
-# Version Control
 git
-git-delta
-
-# Modern CLI
-fzf
-ripgrep
-bat
-fd
-eza
-zoxide
-
-# Text Processing
-jq
-yq
-glow
-
-# Editors
-neovim
-
-# Database Tools
-postgresql
-redis
-
-# API & Web Tools
-httpie
 curl
 wget
-
-# System Utilities
-htop
-btop
-tree
-duf
-
-# Clipboard
-xclip
-wl-clipboard
-
-# Build essentials
+neovim
+eza
+mosh
 base-devel
 cmake
-
-# Python
 python
 python-pip
-
-# NOTE: AUR packages (use yay/paru):
-# - mise-bin
-# - atuin
-# - claude-code-bin (if available)
-# - opencode-bin
+htop
+tree

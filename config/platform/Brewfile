@@ -1,45 +1,33 @@
-# Brewfile — macOS *platform* packages only
-# Pinned CLIs (rg, bat, fd, fzf, starship, zoxide, atuin, delta, jq, yq, gh,
-# security scanners, k6, …) are installed via mise.toml — do not re-add here.
+# Brewfile — macOS platform packages (SSOT with apt.txt / pacman.txt)
+# Pinned CLIs live in mise.toml — do not re-add rg/bat/fd/fzf/starship/etc. here.
 
-# =============================================================================
-# Core shell & editor
-# =============================================================================
+# Core
 brew "zsh"
 brew "neovim"
 brew "git"
+brew "curl"
+brew "chezmoi"
 brew "herdr"
 brew "mosh"
-
-# =============================================================================
-# Modern CLI that mise does not pin (no reliable aqua arm64 for eza)
-# =============================================================================
 brew "eza"
-brew "duf"
-brew "btop"
-
-# =============================================================================
-# Version managers & language tooling (not aqua-pinned in mise.toml)
-# =============================================================================
 brew "mise"
 brew "uv"
+brew "bun"
 
-# =============================================================================
-# Data / network basics
-# =============================================================================
-brew "curl"
+# Networking / deploy (standard profile)
+brew "tailscale"
+brew "railway"
+
+# Nice-to-have platform tools
 brew "wget"
-brew "httpie"
-brew "glow"
+brew "btop"
+brew "duf"
 
-# =============================================================================
-# Data stores (clients)
-# =============================================================================
-brew "postgresql@16"
-brew "redis"
-
-# =============================================================================
 # Apps
-# =============================================================================
 cask "orbstack"
 cask "ghostty"
+
+# Daily AI agents (standard)
+cask "claude-code"
+cask "codex"
+brew "anomalyco/tap/opencode"

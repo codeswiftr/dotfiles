@@ -151,48 +151,42 @@ setup() {
     [ -f "$DOTFILES_DIR/ARCHITECTURE.md" ]
 }
 
-@test "config/tools.yaml exists" {
-    [ -f "$DOTFILES_DIR/config/tools.yaml" ]
-}
-
-@test "tools.yaml essential group installs herdr on a fresh box" {
-    local yaml="$DOTFILES_DIR/config/tools.yaml"
-    awk '/^  essential:/{p=1} p&&/^  [a-z].*:/{if(!/^  essential:/)exit} p' "$yaml" \
-        | grep -q -- '- herdr'
-    grep -A20 '^  herdr:' "$yaml" | grep -q 'brew install herdr'
-    grep -A20 '^  herdr:' "$yaml" | grep -q 'https://herdr.dev/install.sh'
-    grep -q 'brew "herdr"' "$DOTFILES_DIR/config/platform/Brewfile"
-}
-
-@test "ai_tools group is the daily agent set" {
-    local group
-    group=$(awk '/^  ai_tools:/{p=1} p&&/^  [a-z].*:/{if(!/^  ai_tools:/)exit} p' \
-        "$DOTFILES_DIR/config/tools.yaml")
-    echo "$group" | grep -q -- '- claude_code'
-    echo "$group" | grep -q -- '- opencode'
-    echo "$group" | grep -q -- '- codex'
-    ! echo "$group" | grep -q -- '- aider'
-    ! echo "$group" | grep -q -- '- amp'
-    ! echo "$group" | grep -q -- '- kilo'
-}
-
-@test "networking group installs mosh for Moshi/phone remotes" {
-    local yaml="$DOTFILES_DIR/config/tools.yaml"
-    awk '/^  networking:/{p=1} p&&/^  [a-z].*:/{if(!/^  networking:/)exit} p' "$yaml" \
-        | grep -q -- '- mosh'
-    grep -A12 '^  mosh:' "$yaml" | grep -q 'scripts/install-mosh.sh'
-    [ -x "$DOTFILES_DIR/scripts/install-mosh.sh" ]
-    grep -q 'brew "mosh"' "$DOTFILES_DIR/config/platform/Brewfile"
-    grep -q 'local/bin' "$DOTFILES_DIR/config/zsh/.zshenv"
-}
-
-@test "tools.yaml marks mise-owned CLIs with provided_by" {
-    grep -q 'provided_by: mise' "$DOTFILES_DIR/config/tools.yaml"
-    # starship must not still brew-install in tools.yaml when mise-owned
-    ! awk '/^  starship:/{p=1} p&&/^  [a-z]/{if(!/^  starship:/)exit} p' "$DOTFILES_DIR/config/tools.yaml" \
-        | grep -q 'brew install starship'
+@test "platform manifests and mise.toml exist" {
+    [ -f "$DOTFILES_DIR/config/platform/Brewfile" ]
+    [ -f "$DOTFILES_DIR/config/platform/apt.txt" ]
+    [ -f "$DOTFILES_DIR/config/platform/pacman.txt" ]
     [ -f "$DOTFILES_DIR/mise.toml" ]
-    grep -q 'starship' "$DOTFILES_DIR/mise.toml"
+    [ ! -e "$DOTFILES_DIR/config/tools.yaml" ]
+}
+
+@test "Brewfile installs herdr and mosh on a fresh macOS box" {
+    command grep -q 'brew "herdr"' "$DOTFILES_DIR/config/platform/Brewfile"
+    command grep -q 'brew "mosh"' "$DOTFILES_DIR/config/platform/Brewfile"
+    command grep -q 'brew "chezmoi"' "$DOTFILES_DIR/config/platform/Brewfile"
+    [ -x "$DOTFILES_DIR/scripts/install-herdr.sh" ]
+}
+
+@test "daily AI agents are in Brewfile / install.sh" {
+    command grep -q 'claude-code' "$DOTFILES_DIR/config/platform/Brewfile"
+    command grep -q 'opencode' "$DOTFILES_DIR/config/platform/Brewfile"
+    command grep -q 'codex' "$DOTFILES_DIR/config/platform/Brewfile"
+    command grep -q 'install_ai_tools' "$DOTFILES_DIR/install.sh"
+    ! command grep -q 'aider' "$DOTFILES_DIR/config/platform/Brewfile"
+}
+
+@test "networking installs mosh for Moshi/phone remotes" {
+    [ -x "$DOTFILES_DIR/scripts/install-mosh.sh" ]
+    command grep -q 'brew "mosh"' "$DOTFILES_DIR/config/platform/Brewfile"
+    command grep -q 'mosh' "$DOTFILES_DIR/config/platform/apt.txt"
+    command grep -q 'local/bin' "$DOTFILES_DIR/config/zsh/.zshenv"
+    command grep -q 'install_networking' "$DOTFILES_DIR/install.sh"
+}
+
+@test "mise owns pinned CLIs not Brewfile" {
+    command grep -q 'starship' "$DOTFILES_DIR/mise.toml"
+    command grep -q 'ripgrep' "$DOTFILES_DIR/mise.toml"
+    ! command grep -q 'starship' "$DOTFILES_DIR/config/platform/Brewfile"
+    ! command grep -q 'ripgrep' "$DOTFILES_DIR/config/platform/Brewfile"
 }
 
 @test "config/nvim/init.lua exists" {
@@ -364,7 +358,17 @@ setup() {
     [[ "$output" == *"minimal"* ]]
     [[ "$output" == *"standard"* ]]
     [[ "$output" != *"ai_focused"* ]]
-    ! command grep -E '^(  full:|  ai_focused:)' "$DOTFILES_DIR/config/tools.yaml"
+    command grep -q 'normalize_profile' "$DOTFILES_DIR/install.sh"
+}
+
+@test "install.sh is thin and chezmoi-strict" {
+    local lines
+    lines=$(wc -l < "$DOTFILES_DIR/install.sh" | tr -d ' ')
+    [ "$lines" -le 700 ]
+    command grep -q 'chezmoi' "$DOTFILES_DIR/install.sh"
+    command grep -q 'no fallback linker' "$DOTFILES_DIR/install.sh"
+    ! command grep -q 'link_dotfile' "$DOTFILES_DIR/install.sh"
+    ! command grep -q 'tools.yaml' "$DOTFILES_DIR/install.sh"
 }
 
 @test "herdr zsh completions and aliases are defined" {

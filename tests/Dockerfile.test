@@ -31,7 +31,7 @@ RUN sed 's/\x1b\[[0-9;]*m//g' /tmp/install-dry-run.log | grep -q "Dry run comple
 RUN cd dotfiles && bash install.sh link --dry-run 2>&1 | tee /tmp/link-dry-run.log
 
 # Validate key outputs present (strip ANSI codes)
-RUN sed 's/\x1b\[[0-9;]*m//g' /tmp/link-dry-run.log | grep -q "Would link\|DRY RUN\|Successfully" || \
+RUN sed 's/\x1b\[[0-9;]*m//g' /tmp/link-dry-run.log | grep -qE "Would apply|would manage|DRY RUN|Dry run completed" || \
     (echo "FAIL: Link dry-run missing expected output" && cat /tmp/link-dry-run.log && exit 1)
 
 # Validate profiles command works

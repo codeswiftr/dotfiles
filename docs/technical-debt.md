@@ -8,33 +8,32 @@ Prefer deleting dead code over rewriting it.
 |-------|--------|-------|
 | 0 | Done | Cheap deletes + CI clean-room + freeze |
 | 1 | Done | `just` owns tasks; `bin/dot` + `lib/cli` gone; 2 profiles |
-| 2 | Next | Kill `tools.yaml` parser; slim `install.sh`; chezmoi-strict |
+| 2 | Done | `tools.yaml` gone; mise + Brewfile/apt; chezmoi-strict; `install.sh` ~484 lines |
 
-## Freeze still in effect for installer growth
+## Package contract (SSOT)
 
-| Surface | Rule |
-|---------|------|
-| `install.sh` | Shrink only — no new flags/paths |
-| `config/tools.yaml` | No new tools/groups; delete in Phase 2 |
-| Profiles | `minimal` + `standard` only (`full`/`ai_focused` map → `standard`) |
+| Layer | Owns |
+|-------|------|
+| `mise.toml` | Pinned CLIs / runtimes |
+| `config/platform/Brewfile` | macOS platform pkgs + AI casks |
+| `config/platform/apt.txt` / `pacman.txt` | Linux platform pkgs |
+| `scripts/install-*.sh` | herdr, mosh, and other cross-OS helpers |
+| `chezmoi` (`home/`) | `$HOME` state — required, no fallback linker |
 
 ## Done recently
 
 | Area | Notes |
 |------|--------|
-| Multiplexer | tmux retired → Herdr + `just` |
-| Fresh install | One curl bootstrap; `./setup` |
-| Phase 0 | App scaffolds, dual health, tutor/viman, topic docs |
-| Phase 1 | `scripts/{check,update,reload}.sh`; deleted `bin/dot` + `lib/cli` + AI bash middleware |
+| Multiplexer | tmux → Herdr |
+| Phase 0–1 | App scaffolds, `bin/dot`, AI bash middleware, 2 profiles |
+| Phase 2 | Kill yaml parser; slim installer; strict chezmoi |
 
-## Still optional (Phase 2)
+## Still optional
 
 | Item | Priority | Notes |
 |------|----------|--------|
-| Slim `install.sh` (~1.5k → ≤700) | High | Two-tier mise + Brewfile/apt |
-| Delete `tools.yaml` + parser | High | Freeze until then |
-| Drop chezmoi fallback linker | High | After measured chezmoi always installs |
 | Fleet profile probation | Medium | Delete by 2026-12-14 if unused |
+| Further install.sh trim | Low | Already ≤700 |
 | `moshi-hook` on phone hosts | Optional | Live Activities / Watch |
 
 ## Explicit non-goals
@@ -43,6 +42,7 @@ Prefer deleting dead code over rewriting it.
 - Rebuilding tmux park / agent-restart
 - Growing AI profiles beyond the daily set
 - App scaffolds / security-suite cosplay / bespoke CLI frameworks
+- New tools.yaml / custom package routers
 
 ## Contributor path
 

@@ -163,7 +163,7 @@ Not installed by profiles. Install only if you use them:
 |-------|---------|
 | Aider | `uv tool install aider-chat` then `ai aider` |
 | Amp | `curl -fsSL https://ampcode.com/install.sh \| bash` |
-| Gemini / Factory / Kilo | see `config/tools.yaml` tool entries |
+| Gemini / Factory / Kilo | opt-in — install manually if needed |
 
 ## API Keys Setup
 
