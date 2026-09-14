@@ -58,9 +58,7 @@ fi
 # -----------------------------------------------------------------------------
 # 5. Optional features
 # -----------------------------------------------------------------------------
-if [[ "$DOTFILES_MODE" == "full" ]]; then
 # AI helpers live in bin/ai and _agent wrappers — not bash middleware.
-fi
 
 # FORGE operator helpers (skipped on SSH inside forge.zsh)
 [[ -f "$ZSH_CONFIG_DIR/forge.zsh" ]] && source "$ZSH_CONFIG_DIR/forge.zsh"

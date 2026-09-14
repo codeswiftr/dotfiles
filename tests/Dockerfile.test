@@ -5,7 +5,7 @@ FROM ubuntu:24.04
 
 # Minimal system setup (what a fresh server would have)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl ca-certificates sudo python3 python3-pip \
+    git curl ca-certificates sudo python3 python3-pip zsh \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
@@ -44,8 +44,8 @@ RUN cd dotfiles && just --list 2>&1 | grep -q "check" || \
 RUN cd dotfiles && bash scripts/check.sh --help 2>&1 | grep -q "check.sh" || \
     (echo "FAIL: scripts/check.sh broken" && exit 1)
 
-# Validate shell syntax
-RUN bash -n dotfiles/.zshrc 2>&1 || (echo "FAIL: .zshrc syntax error" && exit 1)
+# Validate shell syntax (zshrc is zsh, not bash)
+RUN zsh -n dotfiles/.zshrc 2>&1 || (echo "FAIL: .zshrc syntax error" && exit 1)
 RUN bash -n dotfiles/install.sh 2>&1 || (echo "FAIL: install.sh syntax error" && exit 1)
 
 # If we get here, all validations passed
