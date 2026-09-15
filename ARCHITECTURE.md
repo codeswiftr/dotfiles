@@ -15,6 +15,7 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 | `config/zsh/.zprofile` | `~/.zprofile` | Symlink |
 | `config/nvim/` | `~/.config/nvim` | Symlink (directory) |
 | `config/starship.toml` | `~/.config/starship.toml` | Symlink |
+| `config/ghostty/` | `~/.config/ghostty` | Symlink (directory, macOS) |
 | `completions/_herdr` | `~/.local/share/zsh/completions/_herdr` | Symlink |
 | `hooks/` | `~/.config/git/hooks` | Symlink (directory) — single hooks tree (no `git/hooks/`) |
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink (repo-root agent notes) |
@@ -51,7 +52,7 @@ All other executables (tool binaries, uv entrypoints) are managed by package man
 **Primary:** chezmoi (`home/` directory). Required — `install.sh` has no fallback linker.
 
 chezmoi manages:
-- Symlinks: .zshrc, .zshenv, .zprofile, nvim, starship.toml, herdr, hooks, completions
+- Symlinks: .zshrc, .zshenv, .zprofile, nvim, starship.toml, ghostty, herdr, hooks, completions
 - Templates: .gitconfig (with machine-specific name/email/credential helper)
 - Scripts: run_onchange for git hooksPath configuration
 

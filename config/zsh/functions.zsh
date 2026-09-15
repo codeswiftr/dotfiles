@@ -23,20 +23,44 @@ function ghostty-terminfo-install() {
     fi
 
     echo "Installing Ghostty terminfo on $host..."
-    infocmp -x xterm-ghostty 2>/dev/null | ssh "$host" 'tic -x -' && \
+    infocmp -x xterm-ghostty 2>/dev/null | command ssh "$host" 'tic -x -' && \
         echo "✓ Ghostty terminfo installed on $host" || \
         echo "✗ Failed to install terminfo (try: TERM=xterm-256color ssh $host)"
 }
 
-# Quick fix for Ghostty terminal issues on current SSH session
-function fix-term() {
-    if [[ "$TERM" == "xterm-ghostty" ]]; then
-        export TERM="xterm-256color"
-        echo "TERM set to xterm-256color"
-    else
-        echo "Current TERM: $TERM (no fix needed)"
-    fi
+# Turn off terminal modes a remote program may have left enabled (mouse
+# tracking, alt screen, bracketed paste, focus events, kitty keyboard, ...)
+# without clearing the screen. Cheaper than `reset`, keeps scrollback.
+_term_reset_modes() {
+    [[ -t 1 ]] || return 0
+    printf '\e[?1000l\e[?1002l\e[?1003l\e[?1005l\e[?1006l\e[?1015l'  # mouse
+    printf '\e[?1004l\e[?2004l\e[?2026l'                              # focus, paste, sync
+    printf '\e[?1049l\e[?47l\e[?25h\e[?7h\e[?1l\e>'                   # alt screen, cursor, keypad
+    printf '\e[<u\e[0m\e(B'                                            # kitty kbd pop, SGR, charset
+    stty sane 2>/dev/null
 }
+
+# Fix a broken terminal after an SSH drop / crashed TUI. Ghostty: cmd+shift+r.
+function fix-term() {
+    _term_reset_modes
+    if [[ "$TERM" == "xterm-ghostty" ]] && ! infocmp xterm-ghostty &>/dev/null; then
+        export TERM="xterm-256color"
+        echo "TERM set to xterm-256color (no xterm-ghostty terminfo here)"
+    fi
+    echo "terminal modes reset"
+}
+
+# Human shells: reset local terminal modes when ssh exits, however it exits.
+# A broken pipe leaves Ghostty in mouse-tracking/alt-screen mode otherwise.
+# scp/rsync/git call the ssh binary directly and are unaffected.
+if [[ -z "$DOTFILES_AGENT_SAFE" ]]; then
+    ssh() {
+        command ssh "$@"
+        local rc=$?
+        _term_reset_modes
+        return $rc
+    }
+fi
 
 # ----------------------------------------------------------------------------
 # Project Management

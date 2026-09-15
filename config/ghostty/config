@@ -1,0 +1,15 @@
+# Ghostty configuration — managed by dotfiles (config/ghostty/config)
+# Linked to ~/.config/ghostty via chezmoi. Reload: cmd+shift+, (reload_config).
+
+# Limit scrollback to prevent GPU memory bloat with many Herdr agent panes
+# (default is 10M bytes per surface; 8 panes x 50k lines blew past 70GB GPU).
+scrollback-limit = 2000
+
+# SSH: export TERM/COLORTERM correctly and auto-install xterm-ghostty terminfo
+# on remote hosts (replaces the manual ghostty-terminfo-install dance).
+shell-integration-features = cursor,no-sudo,title,ssh-env,ssh-terminfo,path
+
+# Recover a split left in mouse-tracking / alt-screen mode after an SSH drop
+# (ghostty-org/ghostty#12359). Equivalent to running `reset` but works even
+# when the shell can't read input. Shell-side fallback: `fix-term`.
+keybind = super+shift+r=reset
