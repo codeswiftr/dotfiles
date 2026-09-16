@@ -22,10 +22,12 @@ brew "railway"
 brew "wget"
 brew "btop"
 brew "duf"
+brew "m1ddc"   # DDC/CI display input switching (Raycast scripts)
 
 # Apps
 cask "orbstack"
 cask "ghostty"
+cask "raycast"
 
 # Daily AI agents (standard)
 cask "claude-code"

@@ -32,7 +32,14 @@ $EDITOR ~/.env.local
 
 This file is gitignored. It's sourced by `.zshrc` at startup.
 
-## 3. Node-specific shell config
+## 3. Raycast display scripts (macOS)
+
+`~/raycast-scripts` is a chezmoi symlink to `config/raycast/scripts/` (m1ddc input
+switchers). One-time: Raycast → Settings → Extensions → Script Commands → Add
+Script Directory → `~/raycast-scripts`, then assign hotkeys via `⌘K` → Configure
+Command. Details: [config/raycast/README.md](config/raycast/README.md).
+
+## 4. Node-specific shell config
 
 If a machine needs host-local overrides, create `config/zsh/<hostname>.zsh`
 (gitignored if it holds secrets). It is sourced automatically when present.
@@ -44,13 +51,13 @@ $EDITOR config/zsh/$(hostname -s).zsh
 
 Keep it tiny: PATH tweaks, host aliases, machine-only env. Do not commit secrets.
 
-## 4. Fleet / multi-machine
+## 5. Fleet / multi-machine
 
 Fleet helpers are on probation (`config/profiles/fleet/`). Prefer Tailscale +
 Herdr + `DOTFILES_MODE` over bespoke dashboards. Set host lists in `~/.env.local`
 only if you still maintain a private fleet snippet outside this repo.
 
-## 5. Bootstrap URL
+## 6. Bootstrap URL
 
 This repo’s default one-liner already points at `codeswiftr/dotfiles`:
 
