@@ -23,12 +23,12 @@ brew "wget"
 brew "btop"
 brew "duf"
 brew "m1ddc"   # DDC/CI display input switching (Raycast scripts)
+# skhd: brew install koekeishiya/formulae/skhd  (global ⌥⌘U/⌥⌘H — see config/skhd/)
 
 # Apps
 cask "orbstack"
 cask "ghostty"
 cask "raycast"
-cask "karabiner-elements"  # global hotkeys for monitor scripts (Raycast prefs aren't writable)
 
 # Daily AI agents (standard)
 cask "claude-code"

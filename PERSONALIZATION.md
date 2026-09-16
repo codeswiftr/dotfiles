@@ -35,9 +35,9 @@ This file is gitignored. It's sourced by `.zshrc` at startup.
 ## 3. Raycast display scripts (macOS)
 
 `~/raycast-scripts` → `config/raycast/scripts/` (m1ddc input switchers).
-Global defaults **`⌥⌘U`** (USB-C) and **`⌥⌘H`** (HDMI) are enabled via
-Karabiner on chezmoi apply (Raycast hotkeys aren’t writable from disk).
-Details: [config/raycast/README.md](config/raycast/README.md).
+Global defaults **`⌥⌘U`** / **`⌥⌘H`** via **skhd** (`config/skhd/skhdrc`).
+One-time: `skhd --start-service` and allow Accessibility. Details:
+[config/skhd/README.md](config/skhd/README.md).
 
 ## 4. Node-specific shell config
 

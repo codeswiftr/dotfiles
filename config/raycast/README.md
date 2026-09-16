@@ -2,32 +2,24 @@
 
 Tracked under `config/raycast/scripts/`, linked to `~/raycast-scripts` via chezmoi.
 
-## Global hotkeys (automatic)
-
-Raycast stores hotkeys in an encrypted DB — they **cannot** be set from
-dotfiles. Defaults are applied via **Karabiner-Elements** instead:
+## Global hotkeys (automatic via skhd)
 
 | Shortcut | Action |
 |----------|--------|
 | `⌥⌘U` | Switch monitor → USB-C (DDC 27) |
 | `⌥⌘H` | Switch monitor → HDMI (DDC 17) |
 
-On `chezmoi apply`, the rule in
-`config/karabiner/complex_modifications/monitor-input.json` is linked into
-`~/.config/karabiner/assets/...` and enabled in `karabiner.json`.
+Config: `config/skhd/skhdrc` → `~/.skhdrc`. See [config/skhd/README.md](../skhd/README.md).
 
-Requires Karabiner running (Input Monitoring allowed). Change the keys by
-editing that JSON and re-applying.
+Raycast’s own hotkeys can’t be set from dotfiles (encrypted DB). Karabiner needs
+a sudo installer — skhd is the path that applies cleanly from brew + chezmoi.
 
-Optional: you can still assign Raycast hotkeys manually (`⌘K` → Configure
-Command) if you prefer Raycast to own the binding.
+## One-time Raycast setup (search / optional)
 
-## One-time Raycast setup (search / optional hotkeys)
-
-1. `brew install m1ddc` (and Raycast / Karabiner if needed).
-2. `chezmoi --source ~/dotfiles/home apply`
-3. Raycast → **Settings → Extensions → Script Commands → Add Script Directory**
-   → `~/raycast-scripts`
+1. `brew install m1ddc koekeishiya/formulae/skhd`
+2. `chezmoi --source ~/dotfiles/home apply && skhd --start-service`
+3. Enable **skhd** under System Settings → Privacy & Security → Accessibility
+4. Optional: Raycast → Script Commands → Add Script Directory → `~/raycast-scripts`
 
 ## Scripts
 
