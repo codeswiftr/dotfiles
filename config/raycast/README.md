@@ -1,21 +1,33 @@
-# Raycast Script Commands
+# Raycast Script Commands + global hotkeys
 
 Tracked under `config/raycast/scripts/`, linked to `~/raycast-scripts` via chezmoi.
 
-## One-time Raycast setup
+## Global hotkeys (automatic)
 
-1. Install deps: `brew install m1ddc` (and Raycast if needed).
-2. Apply links: `chezmoi --source ~/dotfiles/home apply`
+Raycast stores hotkeys in an encrypted DB — they **cannot** be set from
+dotfiles. Defaults are applied via **Karabiner-Elements** instead:
+
+| Shortcut | Action |
+|----------|--------|
+| `⌥⌘U` | Switch monitor → USB-C (DDC 27) |
+| `⌥⌘H` | Switch monitor → HDMI (DDC 17) |
+
+On `chezmoi apply`, the rule in
+`config/karabiner/complex_modifications/monitor-input.json` is linked into
+`~/.config/karabiner/assets/...` and enabled in `karabiner.json`.
+
+Requires Karabiner running (Input Monitoring allowed). Change the keys by
+editing that JSON and re-applying.
+
+Optional: you can still assign Raycast hotkeys manually (`⌘K` → Configure
+Command) if you prefer Raycast to own the binding.
+
+## One-time Raycast setup (search / optional hotkeys)
+
+1. `brew install m1ddc` (and Raycast / Karabiner if needed).
+2. `chezmoi --source ~/dotfiles/home apply`
 3. Raycast → **Settings → Extensions → Script Commands → Add Script Directory**
-   → pick `~/raycast-scripts`
-4. Assign global hotkeys (works even when Raycast isn’t focused):
-   - Open Raycast, find **Switch Monitor → USB-C**
-   - `⌘K` → **Configure Command** → **Record Hotkey**
-   - Repeat for HDMI
-
-Suggested hotkeys (pick anything free): `⌥⌘U` (USB-C), `⌥⌘H` (HDMI).
-
-Manage all hotkeys later: Raycast **Settings → Shortcuts**.
+   → `~/raycast-scripts`
 
 ## Scripts
 

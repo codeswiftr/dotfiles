@@ -28,6 +28,7 @@ brew "m1ddc"   # DDC/CI display input switching (Raycast scripts)
 cask "orbstack"
 cask "ghostty"
 cask "raycast"
+cask "karabiner-elements"  # global hotkeys for monitor scripts (Raycast prefs aren't writable)
 
 # Daily AI agents (standard)
 cask "claude-code"

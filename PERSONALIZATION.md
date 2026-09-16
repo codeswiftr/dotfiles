@@ -34,10 +34,10 @@ This file is gitignored. It's sourced by `.zshrc` at startup.
 
 ## 3. Raycast display scripts (macOS)
 
-`~/raycast-scripts` is a chezmoi symlink to `config/raycast/scripts/` (m1ddc input
-switchers). One-time: Raycast → Settings → Extensions → Script Commands → Add
-Script Directory → `~/raycast-scripts`, then assign hotkeys via `⌘K` → Configure
-Command. Details: [config/raycast/README.md](config/raycast/README.md).
+`~/raycast-scripts` → `config/raycast/scripts/` (m1ddc input switchers).
+Global defaults **`⌥⌘U`** (USB-C) and **`⌥⌘H`** (HDMI) are enabled via
+Karabiner on chezmoi apply (Raycast hotkeys aren’t writable from disk).
+Details: [config/raycast/README.md](config/raycast/README.md).
 
 ## 4. Node-specific shell config
 
