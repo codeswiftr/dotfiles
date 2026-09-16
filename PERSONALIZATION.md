@@ -32,12 +32,10 @@ $EDITOR ~/.env.local
 
 This file is gitignored. It's sourced by `.zshrc` at startup.
 
-## 3. Raycast display scripts (macOS)
+## 3. macOS display hotkeys
 
-`~/raycast-scripts` → `config/raycast/scripts/` (m1ddc input switchers).
-Global defaults **`⌥⌘U`** / **`⌥⌘H`** via **skhd** (`config/skhd/skhdrc`).
-One-time: `skhd --start-service` and allow Accessibility. Details:
-[config/skhd/README.md](config/skhd/README.md).
+`config/macos/` — m1ddc input switchers + skhd (`⌥⌘U` / `⌥⌘H` / `⌥⌘I` toggle).
+Once: `skhd --start-service` and allow Accessibility. See [config/macos/README.md](config/macos/README.md).
 
 ## 4. Node-specific shell config
 

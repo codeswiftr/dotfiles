@@ -1,0 +1,8 @@
+# Managed by dotfiles — config/macos/skhdrc → ~/.skhdrc
+# Requires: brew install koekeishiya/formulae/skhd && skhd --start-service
+#           + Accessibility permission for skhd
+
+# ⌥⌘U / ⌥⌘H → fixed input; ⌥⌘I → toggle USB-C ↔ HDMI
+alt + cmd - u : "$HOME/raycast-scripts/switch-display.sh" usb-c
+alt + cmd - h : "$HOME/raycast-scripts/switch-display.sh" hdmi
+alt + cmd - i : "$HOME/raycast-scripts/switch-display.sh" toggle

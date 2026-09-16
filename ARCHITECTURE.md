@@ -16,8 +16,8 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 | `config/nvim/` | `~/.config/nvim` | Symlink (directory) |
 | `config/starship.toml` | `~/.config/starship.toml` | Symlink |
 | `config/ghostty/` | `~/.config/ghostty` | Symlink (directory, macOS) |
-| `config/raycast/scripts/` | `~/raycast-scripts` | Symlink (Raycast Script Commands) |
-| `config/skhd/skhdrc` | `~/.skhdrc` | Symlink — global ⌥⌘U / ⌥⌘H for monitor scripts |
+| `config/macos/scripts/` | `~/raycast-scripts` | Symlink — m1ddc helpers (+ Raycast Script Commands) |
+| `config/macos/skhdrc` | `~/.skhdrc` | Symlink — ⌥⌘U / ⌥⌘H / ⌥⌘I display input |
 | `completions/_herdr` | `~/.local/share/zsh/completions/_herdr` | Symlink |
 | `hooks/` | `~/.config/git/hooks` | Symlink (directory) — single hooks tree (no `git/hooks/`) |
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink (repo-root agent notes) |

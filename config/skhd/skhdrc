@@ -1,8 +1,0 @@
-# Managed by dotfiles — config/skhd/skhdrc
-# Global hotkeys for monitor input (m1ddc via Raycast scripts)
-
-# Option+Command+U → USB-C (DDC 27)
-alt + cmd - u : "$HOME/raycast-scripts/switch-monitor-usb-c.sh"
-
-# Option+Command+H → HDMI (DDC 17)
-alt + cmd - h : "$HOME/raycast-scripts/switch-monitor-hdmi.sh"

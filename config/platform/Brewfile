@@ -22,8 +22,11 @@ brew "railway"
 brew "wget"
 brew "btop"
 brew "duf"
-brew "m1ddc"   # DDC/CI display input switching (Raycast scripts)
-# skhd: brew install koekeishiya/formulae/skhd  (global ⌥⌘U/⌥⌘H — see config/skhd/)
+
+# Display input hotkeys (config/macos/)
+tap "koekeishiya/formulae"
+brew "m1ddc"
+brew "skhd"
 
 # Apps
 cask "orbstack"
