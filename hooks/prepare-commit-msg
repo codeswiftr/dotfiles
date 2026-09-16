@@ -1,25 +1,15 @@
 #!/usr/bin/env bash
+# Global prepare-commit-msg: only the pre-commit framework stage when configured.
 set -euo pipefail
+# shellcheck source=hooks/_common.sh
+source "$(cd "$(dirname "$0")" && pwd)/_common.sh"
 
-# prepare-commit-msg — optional pre-commit framework stage
-# Lives in hooks/ (SSOT); linked via chezmoi to ~/.config/git/hooks
-
-DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 COMMIT_MSG_FILE="${1:-}"
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-cd "$REPO_ROOT"
+root="$(hooks_repo_root)"
+[[ -n "$root" && -n "$COMMIT_MSG_FILE" ]] || exit 0
+cd "$root"
 
-if command -v pre-commit >/dev/null 2>&1; then
-  if [ -f ".pre-commit-config.yaml" ] || [ -f ".pre-commit-config.yml" ]; then
-    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg \
-      --commit-msg-filename "$COMMIT_MSG_FILE" --color always
-    exit $?
-  elif [ -f "${DOTFILES_DIR}/pre-commit-global.yaml" ]; then
-    PRE_COMMIT_COLOR=always pre-commit run --hook-stage prepare-commit-msg \
-      --commit-msg-filename "$COMMIT_MSG_FILE" --color always \
-      --config "${DOTFILES_DIR}/pre-commit-global.yaml"
-    exit $?
-  fi
+if [[ -f .pre-commit-config.yaml || -f .pre-commit-config.yml ]]; then
+  hooks_run_precommit prepare-commit-msg --commit-msg-filename "$COMMIT_MSG_FILE" || true
 fi
-
 exit 0

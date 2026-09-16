@@ -345,6 +345,20 @@ setup() {
     [ ! -e "$DOTFILES_DIR/config/macos/scripts/switch-monitor-usb-c.sh" ]
 }
 
+@test "git hooks are thin global wrappers around pre-commit" {
+    [ -f "$DOTFILES_DIR/hooks/_common.sh" ]
+    [ -x "$DOTFILES_DIR/hooks/pre-commit" ]
+    [ -x "$DOTFILES_DIR/hooks/commit-msg" ]
+    [ -x "$DOTFILES_DIR/hooks/pre-push" ]
+    command grep -q 'hooks_repo_root' "$DOTFILES_DIR/hooks/_common.sh"
+    command grep -q 'hooks_run_precommit' "$DOTFILES_DIR/hooks/pre-commit"
+    [ -f "$DOTFILES_DIR/.pre-commit-config.yaml" ]
+    [ ! -e "$DOTFILES_DIR/pre-commit-global.yaml" ]
+    [ ! -e "$DOTFILES_DIR/scripts/setup-hooks.sh" ]
+    # Must not hardcode hooks/.. as the repo root (breaks global hooksPath)
+    ! command grep -qE 'REPO_ROOT=.*HOOKS_DIR/\.\.' "$DOTFILES_DIR/hooks/pre-commit"
+}
+
 
 @test "setup entrypoint and bootstrap point at a single install path" {
     [ -x "$DOTFILES_DIR/setup" ]
@@ -411,4 +425,3 @@ setup() {
     grep -q 'alias hs=' "$DOTFILES_DIR/config/zsh/aliases.zsh"
     grep -q 'alias hw=' "$DOTFILES_DIR/config/zsh/aliases.zsh"
 }
-

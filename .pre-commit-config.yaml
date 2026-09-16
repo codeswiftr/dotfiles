@@ -1,4 +1,6 @@
 ---
+# Repo quality gates — run via global hooks/ wrappers when present.
+# Global secret scan always runs; these hooks run only in this repository.
 minimum_pre_commit_version: "3.5.0"
 default_install_hook_types: [pre-commit, commit-msg, pre-push]
 
@@ -7,25 +9,31 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=5120"]
+      - id: detect-private-key
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: mixed-line-ending
 
-  # Shell formatting and lint
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.25.1
+    hooks:
+      - id: gitleaks
+
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.7.0-4
     hooks:
       - id: shfmt
-        files: \.(sh|bash|zsh)$
+        files: \.(sh|bash)$
         args: ["-i", "2", "-bn", "-ci"]
 
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
     hooks:
       - id: shellcheck
-        files: \.(sh|bash|zsh)$
+        files: \.(sh|bash)$
 
-  # Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.8
     hooks:
@@ -33,29 +41,3 @@ repos:
         args: ["--fix"]
         exclude: ^(\.venv|\.env|.*/site-packages/)
       - id: ruff-format
-
-  # JavaScript/TypeScript formatting with Prettier (if Node installed)
-  - repo: local
-    hooks:
-      - id: prettier-local
-        name: prettier (local if available)
-        entry: bash -lc 'command -v prettier >/dev/null 2>&1 || exit 0; prettier --write "$@"'
-        language: system
-        pass_filenames: true
-        types_or: [javascript, jsx, ts, tsx, json, yaml, markdown]
-
-  # Swift tools (best-effort, no-op if missing)
-  - repo: local
-    hooks:
-      - id: swiftformat-local
-        name: swiftformat (local if available)
-        entry: bash -lc 'command -v swiftformat >/dev/null 2>&1 || exit 0; swiftformat .'
-        language: system
-        pass_filenames: false
-        files: \.(swift)$
-      - id: swiftlint-local
-        name: swiftlint (local if available)
-        entry: bash -lc 'command -v swiftlint >/dev/null 2>&1 || exit 0; swiftlint --quiet'
-        language: system
-        pass_filenames: false
-        files: \.(swift)$

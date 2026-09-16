@@ -19,7 +19,7 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 | `config/macos/` | `~/.config/macos` | Symlink — m1ddc + skhdrc (⌥⌘U / ⌥⌘H / ⌥⌘I) |
 | `config/macos/skhdrc` | `~/.skhdrc` | Symlink (same tree; convenience path for skhd) |
 | `completions/_herdr` | `~/.local/share/zsh/completions/_herdr` | Symlink |
-| `hooks/` | `~/.config/git/hooks` | Symlink (directory) — single hooks tree (no `git/hooks/`) |
+| `hooks/` | `~/.config/git/hooks` | Symlink — thin global wrappers; repo gates in `.pre-commit-config.yaml` |
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink (repo-root agent notes) |
 | `config/claude/{agents,commands,skills,output-styles,WORKFLOW_GUIDE.md,starship-statusline.sh}` | `~/.claude/{...}` | Symlinks via chezmoi `home/private_dot_claude/` |
 | `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Symlink via chezmoi `home/dot_config/herdr/` (file only) |

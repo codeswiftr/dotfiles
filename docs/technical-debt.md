@@ -34,7 +34,7 @@ Prefer deleting dead code over rewriting it.
 | Item | Priority | Notes |
 |------|----------|--------|
 | Fleet profile | Medium | Delete by **2026-12-14** if unused |
-| Hooks consolidation | Medium | Pick pre-commit framework *or* `hooks/`; both exist today |
+| Hooks consolidation | Done | Thin global `hooks/` + `.pre-commit-config.yaml` SSOT for repo gates |
 | `moshi-hook` | Optional | Phone Live Activities |
 
 ## Done recently
