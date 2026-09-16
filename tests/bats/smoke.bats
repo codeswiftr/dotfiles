@@ -333,6 +333,16 @@ setup() {
     command grep -qE '^lint:' "$DOTFILES_DIR/justfile"
     command grep -qE '^check' "$DOTFILES_DIR/justfile"
     command grep -qE '^update' "$DOTFILES_DIR/justfile"
+    command grep -qE '^display' "$DOTFILES_DIR/justfile"
+}
+
+@test "macos display switching is a single skhd-backed module" {
+    [ -x "$DOTFILES_DIR/config/macos/scripts/switch-display.sh" ]
+    [ -f "$DOTFILES_DIR/config/macos/skhdrc" ]
+    command grep -q 'switch-display.sh' "$DOTFILES_DIR/config/macos/skhdrc"
+    command grep -q 'ensure_skhd_macos' "$DOTFILES_DIR/install.sh"
+    [ ! -e "$DOTFILES_DIR/home/symlink_raycast-scripts.tmpl" ]
+    [ ! -e "$DOTFILES_DIR/config/macos/scripts/switch-monitor-usb-c.sh" ]
 }
 
 
