@@ -74,7 +74,7 @@ curl -fsSL https://raw.githubusercontent.com/<you>/dotfiles/main/scripts/bootstr
 
 Or clone and run `./setup` (same as `./install.sh install standard`).
 
-## 6. Tool versions
+## 7. Tool versions
 
 Edit `mise.toml` to pin your preferred tool versions:
 
@@ -85,7 +85,7 @@ python = "3.12"
 # ... add/remove tools
 ```
 
-## 7. Install profile
+## 8. Install profile
 
 The default install profile is `standard`. Pass another explicitly:
 
@@ -94,11 +94,11 @@ The default install profile is `standard`. Pass another explicitly:
 ./setup minimal
 ```
 
-## 8. Herdr
+## 9. Herdr
 
 Config lives at `config/herdr/config.toml` (prefix `Ctrl-a`). Daily aliases: `hw`, `ha`, `hl`.
 
-## 9. Neovim tier
+## 10. Neovim tier
 
 Set your preferred Neovim startup tier (1-3) in `~/.env.local`:
 
