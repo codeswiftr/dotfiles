@@ -34,7 +34,15 @@ Prefer deleting dead code over rewriting it.
 | Item | Priority | Notes |
 |------|----------|--------|
 | Fleet profile | Medium | Delete by **2026-12-14** if unused |
+| Hooks consolidation | Medium | Pick pre-commit framework *or* `hooks/`; both exist today |
 | `moshi-hook` | Optional | Phone Live Activities |
+
+## Done recently
+
+| Item | Notes |
+|------|-------|
+| Chezmoi init-before-apply | Headless Ubuntu fix; CI runs real minimal install |
+| Dead aliases / scaffolds / `lib/` | Inlined lazy-load helpers; dropped `config/gitconfig`, `.forgerc` |
 
 ## Explicit non-goals
 

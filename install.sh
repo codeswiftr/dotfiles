@@ -238,12 +238,19 @@ ensure_uv_bun_linux() {
   [[ "$(detect_os)" == "macos" ]] && return 0
   if ! command -v uv >/dev/null 2>&1; then
     print_step "Installing uv..."
-    run bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
+    run bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh' || \
+      print_warning "uv install failed"
     setup_paths
   fi
   if ! command -v bun >/dev/null 2>&1; then
     print_step "Installing bun..."
-    run bash -c 'curl -fsSL https://bun.sh/install | bash'
+    # bun's installer needs unzip; soft-fail so chezmoi apply still runs
+    if ! command -v unzip >/dev/null 2>&1; then
+      print_warning "unzip missing — skipping bun (apt install unzip)"
+      return 0
+    fi
+    run bash -c 'curl -fsSL https://bun.sh/install | bash' || \
+      print_warning "bun install failed"
     setup_paths
   fi
 }

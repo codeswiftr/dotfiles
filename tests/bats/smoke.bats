@@ -350,6 +350,11 @@ setup() {
     ! command grep -q 'bin/dot' "$DOTFILES_DIR/justfile"
     [ ! -e "$DOTFILES_DIR/bin/dot" ]
     [ ! -d "$DOTFILES_DIR/lib/cli" ]
+    [ ! -d "$DOTFILES_DIR/lib" ]
+    [ ! -f "$DOTFILES_DIR/config/gitconfig" ]
+    [ ! -f "$DOTFILES_DIR/config/forge/.forgerc" ]
+    ! command grep -qE 'alias (jlab|ask|dev-optimize|bun-opt)=' "$DOTFILES_DIR/config/zsh/aliases.zsh"
+    ! command grep -qE 'function (py-new|js-new|linkedin-post|ai-find)' "$DOTFILES_DIR/config/zsh/functions.zsh"
 }
 
 @test "only minimal and standard install profiles remain" {

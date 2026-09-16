@@ -7,10 +7,5 @@
 [[ -d /opt/homebrew/bin ]] && export PATH="/opt/homebrew/bin:$PATH"
 [[ -d /usr/local/bin ]] && export PATH="/usr/local/bin:$PATH"
 
-# Pyenv (only if installed)
-if [[ -d "$HOME/.pyenv" ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    [[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)" 2>/dev/null
-fi
+# Cargo (only if present; mise owns most runtimes)
 [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"

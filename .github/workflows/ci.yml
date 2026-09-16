@@ -41,13 +41,13 @@ jobs:
           bats tests/bats/smoke.bats tests/bats/infrastructure.bats
 
   cleanroom:
-    name: Ubuntu clean-room dry-run
+    name: Ubuntu clean-room headless install
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build clean-room image (timed)
+      - name: Build clean-room image (real headless minimal install)
         run: |
           set -euo pipefail
           START=$(date +%s)

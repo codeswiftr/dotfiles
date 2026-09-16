@@ -4,15 +4,32 @@
 # ============================================================================
 
 # Ensure perf_time is defined (no-op if not already loaded)
-# This prevents "command not found" errors when performance.zsh is not sourced
 if ! typeset -f perf_time > /dev/null 2>&1; then
-    perf_time() { : ; }  # No-op function
+    perf_time() { : ; }
 fi
 
-# Load advanced performance optimizations
-if [[ -f "$DOTFILES_DIR/lib/performance-advanced.sh" ]]; then
-    source "$DOTFILES_DIR/lib/performance-advanced.sh"
-fi
+# Lazy-load wrapper: first call sources the real loader, then re-invokes.
+smart_lazy_load() {
+    local cmd="$1"
+    local load_func="$2"
+    eval "$cmd() {
+        unfunction $cmd 2>/dev/null
+        $load_func
+        $cmd \"\$@\"
+    }"
+}
+
+compile_all_completions() {
+    local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+    if [[ -f "$zcompdump" && (! -f "${zcompdump}.zwc" || "$zcompdump" -nt "${zcompdump}.zwc") ]]; then
+        zcompile "$zcompdump"
+    fi
+    for comp_file in "${ZDOTDIR:-$HOME}"/.zsh_cache/*(.N); do
+        if [[ -f "$comp_file" && (! -f "${comp_file}.zwc" || "$comp_file" -nt "${comp_file}.zwc") ]]; then
+            zcompile "$comp_file"
+        fi
+    done
+}
 
 # ============================================================================
 # Smart Completion System with Caching

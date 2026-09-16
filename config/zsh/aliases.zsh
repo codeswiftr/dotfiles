@@ -70,7 +70,6 @@ fi
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
-alias j="z"   # Jump with zoxide (keeps original cd intact)
 
 # Docker aliases
 alias dc="docker compose"
@@ -165,10 +164,6 @@ alias cfsecret="wrangler secret"
 alias cflogin="wrangler login"
 alias cflist="wrangler pages project list"
 
-# AI/ML tools
-alias jlab="jupyter lab"
-alias jbook="jupyter notebook"
-
 # System aliases
 alias src="source ~/.zshrc"
 alias reload="dot-reload"
@@ -179,23 +174,12 @@ fi
 # ============================================================================
 # AI Agent Aliases
 # NOTE: Launch agents via bin/ai and bin/_agent wrappers
-# Only legacy/misc AI-related aliases below
 # ============================================================================
 
 # GitHub Copilot CLI
 alias cop="gh copilot"
 alias cop-explain="gh copilot explain"
 alias cop-suggest="gh copilot suggest"
-
-# Legacy compatibility
-alias ask="sgpt"
-
-# Modern tool shortcuts
-alias dev-optimize="optimize-dev-tools"
-alias dev-update="update-dev-tools"
-alias uv-opt="uv-optimize"
-alias bun-opt="bun-optimize" 
-alias mise-opt="mise-optimize"
 
 # Herdr / Herder workspace & session management
 alias herder="herdr"

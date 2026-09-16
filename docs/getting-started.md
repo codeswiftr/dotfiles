@@ -10,9 +10,14 @@ curl -fsSL https://raw.githubusercontent.com/codeswiftr/dotfiles/main/scripts/bo
 
 # Or after clone
 cd ~/dotfiles && ./setup          # same as ./install.sh
+
+# Headless / already-cloned Ubuntu box (resume after pull)
+cd ~/dotfiles && git pull
+GIT_NAME="Your Name" GIT_EMAIL="you@example.com" ./install.sh install standard --headless
+# minimal profile (servers):  ... install minimal --headless
 ```
 
-Open a **new shell** when it finishes.
+Open a **new shell** when it finishes. If chezmoi already applied once, `just link` is enough to re-apply.
 
 ## Verify
 

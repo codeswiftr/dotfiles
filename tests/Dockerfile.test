@@ -1,54 +1,48 @@
-# Clean-room install test — validates dotfiles bootstrap on fresh Ubuntu
-# Usage: docker build -f tests/Dockerfile.test -t dotfiles-test . && docker run --rm dotfiles-test
+# Clean-room install test — validates headless bootstrap on fresh Ubuntu.
+# Usage: docker build -f tests/Dockerfile.test -t dotfiles-test .
+#
+# Catches regressions that --dry-run misses (e.g. chezmoi apply without init).
 
 FROM ubuntu:24.04
 
-# Minimal system setup (what a fresh server would have)
+ENV DEBIAN_FRONTEND=noninteractive \
+    GIT_NAME="CI Test" \
+    GIT_EMAIL="ci@example.com" \
+    DOTFILES_NONINTERACTIVE=1
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl ca-certificates sudo python3 python3-pip zsh \
+    git curl ca-certificates sudo python3 zsh \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
-# Create non-root user (realistic install scenario)
 RUN useradd -m -s /bin/bash testuser && \
     echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER testuser
 WORKDIR /home/testuser
+ENV HOME=/home/testuser
 
-# Copy dotfiles repo
 COPY --chown=testuser:testuser . /home/testuser/dotfiles
 
-# Install with standard profile (dry-run to validate without side effects)
-RUN cd dotfiles && bash install.sh install standard --dry-run --no-sudo 2>&1 | tee /tmp/install-dry-run.log
+# Fast checks before the long install (fail early)
+RUN cd dotfiles && bash install.sh profiles 2>&1 | grep -q "minimal"
+RUN cd dotfiles && just --list 2>&1 | grep -q "check"
+RUN zsh -n dotfiles/.zshrc
+RUN bash -n dotfiles/install.sh
 
-# Validate dry-run completed successfully (strip ANSI codes before checking)
-RUN sed 's/\x1b\[[0-9;]*m//g' /tmp/install-dry-run.log | grep -q "Dry run completed" || \
-    sed 's/\x1b\[[0-9;]*m//g' /tmp/install-dry-run.log | grep -q "Successfully linked" || \
-    (echo "FAIL: Dry run did not complete" && cat /tmp/install-dry-run.log && exit 1)
+# Real headless minimal install (not dry-run). Fail the layer if install fails
+# (plain `| tee` would mask a non-zero exit under /bin/sh).
+RUN cd dotfiles && bash -o pipefail -c \
+    'bash install.sh install minimal --headless 2>&1 | tee /tmp/install.log'
 
-# Validate linking (dry-run)
-RUN cd dotfiles && bash install.sh link --dry-run 2>&1 | tee /tmp/link-dry-run.log
+# Assert $HOME converged — the failure mode that dry-run never saw
+RUN test -f "$HOME/.zshrc" || (echo "FAIL: ~/.zshrc missing" && exit 1)
+RUN test -f "$HOME/.config/chezmoi/chezmoi.toml" || \
+    (echo "FAIL: chezmoi.toml missing (init never ran)" && cat /tmp/install.log && exit 1)
+RUN test -f "$HOME/.gitconfig" || (echo "FAIL: ~/.gitconfig missing" && exit 1)
+RUN grep -q "CI Test" "$HOME/.gitconfig" || \
+    (echo "FAIL: git user.name not applied" && cat "$HOME/.gitconfig" && exit 1)
+RUN grep -q "name = \"CI Test\"" "$HOME/.config/chezmoi/chezmoi.toml"
 
-# Validate key outputs present (strip ANSI codes)
-RUN sed 's/\x1b\[[0-9;]*m//g' /tmp/link-dry-run.log | grep -qE "Would apply|would manage|DRY RUN|Dry run completed" || \
-    (echo "FAIL: Link dry-run missing expected output" && cat /tmp/link-dry-run.log && exit 1)
-
-# Validate profiles command works
-RUN cd dotfiles && bash install.sh profiles 2>&1 | grep -q "minimal" || \
-    (echo "FAIL: Profiles command broken" && exit 1)
-
-# Validate just task interface
-RUN cd dotfiles && just --list 2>&1 | grep -q "check" || \
-    (echo "FAIL: just recipes missing check" && exit 1)
-RUN cd dotfiles && bash scripts/check.sh --help 2>&1 | grep -q "check.sh" || \
-    (echo "FAIL: scripts/check.sh broken" && exit 1)
-
-# Validate shell syntax (zshrc is zsh, not bash)
-RUN zsh -n dotfiles/.zshrc 2>&1 || (echo "FAIL: .zshrc syntax error" && exit 1)
-RUN bash -n dotfiles/install.sh 2>&1 || (echo "FAIL: install.sh syntax error" && exit 1)
-
-# If we get here, all validations passed
-RUN echo "=== CLEAN-ROOM INSTALL TEST: ALL PASSED ==="
-
+RUN echo "=== CLEAN-ROOM HEADLESS INSTALL: ALL PASSED ==="
 CMD ["echo", "Clean-room test passed"]

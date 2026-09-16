@@ -27,7 +27,7 @@ All configuration source-of-truth lives in `config/`. Root-level `.zshrc` is a t
 | Path | Managed by |
 |---|---|
 | `~/.local/bin/*` | mise, uv, brew — NOT linked from repo `bin/` |
-| `~/.gitconfig` | Generated from `config/gitconfig` template during install |
+| `~/.gitconfig` | Generated from `home/dot_gitconfig.tmpl` via chezmoi |
 | `~/.claude/settings.json` | Claude Code owns this; template applied once if missing |
 | `~/.config/herdr/{session.json,*.sock,*.log}` | Herdr runtime — never symlink the whole directory |
 
