@@ -34,8 +34,8 @@ This file is gitignored. It's sourced by `.zshrc` at startup.
 
 ## 3. macOS display hotkeys
 
-`config/macos/` — m1ddc input switchers + skhd (`⌥⌘U` / `⌥⌘H` / `⌥⌘I` toggle).
-Once: `skhd --start-service` and allow Accessibility. See [config/macos/README.md](config/macos/README.md).
+`~/.config/macos` + `~/.skhdrc` — `⌥⌘U` / `⌥⌘H` / `⌥⌘I` (toggle). Install starts
+skhd; grant Accessibility once. See [config/macos/README.md](config/macos/README.md).
 
 ## 4. Node-specific shell config
 

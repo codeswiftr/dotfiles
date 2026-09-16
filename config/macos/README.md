@@ -1,35 +1,32 @@
 # macOS display input switching
 
-One module: DDC switch via `m1ddc`, global hotkeys via `skhd`, optional Raycast search.
+DDC via `m1ddc`, global hotkeys via `skhd`.
 
 | Shortcut | Action |
 |----------|--------|
 | `⌥⌘U` | USB-C |
 | `⌥⌘H` | HDMI |
-| `⌥⌘I` | Toggle between them |
-
-## Layout
+| `⌥⌘I` | Toggle |
 
 | Path | Role |
 |------|------|
-| `scripts/switch-display.sh` | Single implementation (`usb-c` \| `hdmi` \| `toggle`) |
-| `scripts/switch-monitor-*.sh` | Thin Raycast Script Command wrappers |
-| `skhdrc` | Global hotkeys → `~/.skhdrc` |
-| `~/raycast-scripts` | Chezmoi symlink to `scripts/` |
+| `scripts/switch-display.sh` | `usb-c` \| `hdmi` \| `toggle` |
+| `skhdrc` | → `~/.skhdrc` |
+| (tree) | → `~/.config/macos` |
 
-## Setup (once)
+## Setup (once per Mac)
 
 ```bash
-brew bundle --file=~/dotfiles/config/platform/Brewfile   # m1ddc, raycast, skhd
+brew bundle --file=~/dotfiles/config/platform/Brewfile
 chezmoi --source ~/dotfiles/home apply
-skhd --start-service
-# System Settings → Privacy & Security → Accessibility → enable skhd
+skhd --start-service   # also run by ./install.sh on macOS
 ```
 
-Optional: Raycast → Script Commands → Add Script Directory → `~/raycast-scripts`.
+Then: **System Settings → Privacy & Security → Accessibility → enable skhd**.
 
 ## Tweaks
 
-- Other display: `export M1DDC_DISPLAY=2` in `~/.env.local`
-- Other DDC codes: edit `switch-display.sh` (probe with `m1ddc display 1 get input`)
-- Reload hotkeys after edits: `skhd --reload`
+- Other display: `M1DDC_DISPLAY=2` in `~/.env.local`
+- Probe codes: `m1ddc display 1 get input`
+- Reload after edits: `skhd --reload`
+- CLI: `just display usb-c|hdmi|toggle`

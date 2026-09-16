@@ -255,6 +255,24 @@ ensure_uv_bun_linux() {
   fi
 }
 
+# Display hotkeys (⌥⌘U/H/I) — macOS only; needs Accessibility once.
+ensure_skhd_macos() {
+  [[ "$(detect_os)" == "macos" ]] || return 0
+  if ! command -v skhd >/dev/null 2>&1; then
+    print_warning "skhd missing — brew bundle (config/platform/Brewfile) or: brew install koekeishiya/formulae/skhd"
+    return 0
+  fi
+  if [[ "$DRY_RUN" == "true" ]]; then
+    print_info "DRY RUN: Would start skhd service"
+    return 0
+  fi
+  if skhd --start-service >/dev/null 2>&1; then
+    print_success "skhd service started (enable Accessibility if hotkeys fail)"
+  else
+    print_warning "skhd --start-service failed — run it manually after granting Accessibility"
+  fi
+}
+
 install_networking() {
   print_header "Networking (Tailscale + Mosh)"
   if ! command -v tailscale >/dev/null 2>&1; then
@@ -437,6 +455,7 @@ install_profile() {
   fi
 
   link_dotfiles || return 1
+  ensure_skhd_macos
 
   if [[ "$DRY_RUN" == "true" ]]; then
     print_success "Dry run completed - no changes made!"

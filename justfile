@@ -31,6 +31,10 @@ update *args:
 reload:
     @./scripts/reload.sh
 
+# Switch external display input (macOS / m1ddc): usb-c | hdmi | toggle
+display *args:
+    @{{ justfile_directory() }}/config/macos/scripts/switch-display.sh {{args}}
+
 # Herdr workspace + agent status
 status:
     @command -v herdr >/dev/null && herdr workspace list && herdr agent list || echo "herdr not installed"
