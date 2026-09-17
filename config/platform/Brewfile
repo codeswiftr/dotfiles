@@ -31,7 +31,6 @@ brew "skhd"
 # Apps
 cask "orbstack"
 cask "ghostty"
-cask "raycast"  # general launcher; display hotkeys are skhd, not Script Commands
 
 
 # Daily AI agents (standard)
