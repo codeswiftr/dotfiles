@@ -1,0 +1,62 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+  Merge-only manager for ~/.claude/settings.json.
+
+  chezmoi pipes the live file in as .chezmoi.stdin. We keep everything that is
+  already there (hooks, autoMode, modelSettings, extra plugins, extra
+  permission rules, ...) and only:
+    1. set the few keys this repo has always managed, and
+    2. union the required permission rules into permissions.allow / .ask.
+  Existing rules are never removed or reordered (live entries come first), and
+  any permissions.deny block already present is left untouched.
+  A fresh machine (empty stdin) gets just the managed keys and rules.
+*/ -}}
+{{- $live := dict -}}
+{{- if .chezmoi.stdin | trim -}}
+{{-   $live = fromJson .chezmoi.stdin -}}
+{{- end -}}
+
+{{- $managed := dict
+      "model" "opus"
+      "statusLine" (dict "type" "command" "command" (printf "bash %s/.claude/starship-statusline.sh" .chezmoi.homeDir))
+      "enabledPlugins" (dict
+        "frontend-design@claude-plugins-official" true
+        "context7@claude-plugins-official" true
+        "feature-dev@claude-plugins-official" true
+        "ralph-wiggum@claude-plugins-official" true)
+      "alwaysThinkingEnabled" true -}}
+
+{{- $requiredAllow := list
+      "Bash(git status)"
+      "Bash(git diff:*)"
+      "Bash(git log:*)"
+      "Bash(gh pr view:*)"
+      "Bash(gh pr checks:*)"
+      "Bash(gh pr list:*)"
+      "Bash(npm test:*)"
+      "Bash(pnpm test:*)"
+      "Bash(pytest:*)"
+      "Bash(npm run lint:*)"
+      "Bash(just check)"
+      "Bash(just smoke)" -}}
+
+{{- /* Anything that merges, deploys, touches secrets or rewrites history asks first. */ -}}
+{{- $requiredAsk := list
+      "Bash(gh pr merge:*)"
+      "Bash(wrangler deploy:*)"
+      "Bash(npx wrangler deploy:*)"
+      "Bash(wrangler pages deploy:*)"
+      "Bash(npx wrangler pages deploy:*)"
+      "Bash(wrangler secret:*)"
+      "Bash(npx wrangler secret:*)"
+      "Bash(git push --force:*)"
+      "Bash(git push --force-with-lease:*)" -}}
+
+{{- /* dig: tolerate missing keys (fresh machine, or permissions with only deny) */ -}}
+{{- $perms := dig "permissions" (dict) $live -}}
+{{- $_ := set $perms "allow" (concat (dig "allow" (list) $perms) $requiredAllow | uniq) -}}
+{{- $_ = set $perms "ask" (concat (dig "ask" (list) $perms) $requiredAsk | uniq) -}}
+{{- $_ = set $live "permissions" $perms -}}
+
+{{- $_ = mergeOverwrite $live $managed -}}
+{{ $live | toPrettyJson }}
